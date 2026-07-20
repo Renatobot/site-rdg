@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /sistemas
+
+Sitemap: https://rdgdigital.com.br/sitemap.xml

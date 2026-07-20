@@ -1,0 +1,20 @@
+# RDG Digital
+
+> A RDG Digital é uma empresa de tecnologia que desenvolve sistemas próprios, sites premium, automações e soluções de IA para impulsionar negócios de qualquer nicho.
+
+## Sistemas próprios
+
+- [Fila Zero Barber](https://filazerobarbery.lovable.app): Sistema completo de agendamento e gestão para barbearias, com IA de retenção e comissões automáticas.
+- [Fila Zero Beauty](https://filazerobeauty.lovable.app): Sistema completo de agendamento e gestão para salões de beleza e profissionais da estética.
+- [Smart Treino](https://smart-treino.lovable.app): Plataforma para personal trainers e academias com treino, dieta e Coach IA 24/7.
+
+## Serviços
+
+- [Criação de Sites](https://rdgdigital.com.br/#sites): Sites modernos, rápidos e responsivos, codados do zero com performance Lighthouse 100.
+- [Gestão de Instagram](https://rdgdigital.com.br/#instagram): Planejamento de conteúdo, identidade visual, engajamento e prospecção.
+- [Automação & IA](https://rdgdigital.com.br/#automacao-ia): Agentes de IA, bots de WhatsApp e integrações n8n/Zapier para automatizar processos.
+
+## Páginas
+
+- [Home](https://rdgdigital.com.br/): Apresentação da empresa, sistemas e serviços.
+- [Serviços](https://rdgdigital.com.br/servicos): Índice completo de serviços, sistemas e termos de busca atendidos pela RDG Digital.
