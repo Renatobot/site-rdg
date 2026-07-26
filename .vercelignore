@@ -1,0 +1,8 @@
+*.zip
+*.rar
+*.7z
+node_modules
+.gmn
+.vercel
+dist
+build

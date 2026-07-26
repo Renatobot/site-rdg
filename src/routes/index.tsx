@@ -143,14 +143,17 @@ function HomePage() {
           id="instagram"
           chapter="Capítulo 05"
           eyebrow="gestão de instagram"
-          name="Gestão de Instagram"
-          tagline="Gestão estratégica para fortalecer a presença da sua empresa nas redes sociais."
-          description="Método de reciprocidade + conteúdo estratégico: sua marca cresce com seguidores reais, engajamento local e prospecção ativa 24/7 — sem sorteios, sem robôs suspeitos."
-          features={["Planejamento", "Identidade visual", "Engajamento", "Prospecção"]}
+          name="Gestão de Instagram & Software"
+          tagline="Gestão estratégica ou software autônomo no piloto automático."
+          description="Aumente as vendas do seu negócio no Instagram: contrate a RDG para gerenciar tudo para você ou adquira nossa extensão RDG instaPRO para rodar a automação no seu computador."
+          features={["Prospecção no Piloto Automático", "Filtros Anti-Fake Inteligentes", "Disparador Direct 24/7", "Exportador Meta Ads CSV"]}
           message="Olá! Quero um orçamento para gestão de Instagram com a RDG Digital."
-          ctaLabel="Ver método completo"
+          ctaLabel="Gestão Completa (A RDG Faz)"
           ctaHref="/instagram"
           ctaInternal
+          secondaryCtaLabel="Comprar Software RDG instaPRO"
+          secondaryCtaHref="/extensao"
+          secondaryCtaInternal
           Icon={Instagram}
           accent={SOCIAL}
           variant="social"

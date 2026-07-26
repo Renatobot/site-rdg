@@ -9,6 +9,7 @@ type NavLink =
   | { kind: "route"; to: string; label: string };
 
 const links: NavLink[] = [
+  { kind: "route", to: "/extensao", label: "Software IG" },
   { kind: "anchor", href: "/#sistemas", label: "Sistemas" },
   { kind: "anchor", href: "/#servicos", label: "Serviços" },
   { kind: "route", to: "/blog", label: "Blog" },

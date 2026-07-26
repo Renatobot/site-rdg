@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin Licenças - RDG Digital</title>
+    
+    <!-- Fonte Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase JS via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --bg-color: #0d0e12;
+            --surface-color: rgba(30, 32, 40, 0.6);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --danger: #ef4444;
+            --success: #10b981;
+            --glow: rgba(99, 102, 241, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .glass {
+            background: var(--surface-color);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px var(--glow);
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .license-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            min-width: 700px;
+        }
+
+        .license-table th, .license-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .license-table th {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .status-expired {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Login Screen Overlay */
+        #loginOverlay {
+            position: fixed;
+            inset: 0;
+            background: #08090d;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            width: min(400px, 100%);
+            background: rgba(22, 25, 35, 0.85);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        .login-card h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 12px;
+            color: #fff;
+        }
+
+        .login-card p {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-top: 6px;
+            margin-bottom: 24px;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 16px;
+            text-align: center;
+            letter-spacing: 0.1em;
+        }
+
+        .login-card button {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-color);
+            padding: 24px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 14px;
+            border: 1px solid var(--surface-border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+
+        .modal h2 {
+            margin-bottom: 16px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--surface-border);
+            border-radius: 8px;
+            color: white;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--surface-border);
+            box-shadow: none;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-right: 5px;
+            border-radius: 6px;
+        }
+
+        .btn-edit {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            box-shadow: none;
+        }
+        .btn-edit:hover { background: rgba(255,255,255,0.2); }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            box-shadow: none;
+        }
+        .btn-delete:hover { background: rgba(239, 68, 68, 0.4); }
+
+        .btn-reset {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            box-shadow: none;
+        }
+        .btn-reset:hover { background: rgba(245, 158, 11, 0.4); }
+
+        #setup-warning {
+            display: none;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: #fca5a5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 640px) {
+            .container { padding: 20px 12px; }
+            h1 { font-size: 22px; }
+            .dashboard-header { flex-direction: column; align-items: flex-start; }
+            .dashboard-header-actions { width: 100%; display: flex; gap: 8px; }
+            .dashboard-header-actions button { flex: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Tela de Autenticação / Login -->
+    <div id="loginOverlay">
+        <div class="login-card glass">
+            <div style="font-size: 36px;">🔐</div>
+            <h2>Painel Admin RDG</h2>
+            <p>Digite sua senha mestre para acessar a gestão de licenças</p>
+            <form onsubmit="handleAuth(event)">
+                <input type="password" id="masterPassInput" placeholder="Sua senha secreta..." required autofocus />
+                <button type="submit">Acessar Painel</button>
+            </form>
+            <div id="loginError" style="display:none; color:#ef4444; font-size:12px; margin-top:12px; font-weight:bold;">
+                Senha incorreta! Tente novamente.
+            </div>
+        </div>
+    </div>
+
+    <!-- Container Principal do Painel -->
+    <div class="container" id="mainContainer" style="display: none;">
+        <div class="dashboard-header">
+            <div>
+                <h1>Gestão de Licenças — RDG Digital</h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Gerencie seus clientes e chaves de acesso</p>
+            </div>
+            <div class="dashboard-header-actions" style="display: flex; gap: 10px;">
+                <button onclick="openModal()">+ Nova Licença</button>
+                <button onclick="logoutAdmin()" class="btn-cancel" style="background: rgba(239,68,68,0.15); color:#fca5a5; border-color:rgba(239,68,68,0.3);">🔒 Sair</button>
+            </div>
+        </div>
+        
+        <div id="setup-warning">
+            ⚠️ Tabela 'licenses' não encontrada no Supabase.
+        </div>
+
+        <div class="glass" style="overflow-x: auto;">
+            <table class="license-table">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Produto</th>
+                        <th>Chave (Key)</th>
+                        <th>Plano</th>
+                        <th>Uso (Perfis)</th>
+                        <th>Vencimento</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="licenses-tbody">
+                    <tr><td colspan="8" style="text-align: center;">Carregando licenças...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Nova Licença -->
+    <div class="modal" id="licenseModal">
+        <div class="glass modal-content">
+            <h2 id="modalTitle">Criar Nova Licença</h2>
+            <input type="hidden" id="editingId" value="">
+            
+            <div class="form-group">
+                <label>Produto</label>
+                <select id="productType" onchange="generateRandomKey()">
+                    <option value="Instagram">Instagram</option>
+                    <option value="Lovable">Lovable</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Plano / Limite de Perfis</label>
+                <select id="maxProfiles">
+                    <option value="1">Individual (1 Perfil) - R$ 97/mês</option>
+                    <option value="5">Multi-Perfis (5 Perfis) - R$ 297/mês</option>
+                    <option value="10">Agência (10 Perfis)</option>
+                    <option value="999">Ilimitado</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Nome do Cliente</label>
+                <input type="text" id="clientName" placeholder="Ex: João da Silva / Empresa X">
+            </div>
+
+            <div class="form-group">
+                <label>Chave da Licença (Key)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="licenseKey" placeholder="IG-XXXX-XXXX-XXXX">
+                    <button type="button" onclick="generateRandomKey()" style="padding: 10px; font-size: 12px; white-space: nowrap;">Gerar Aleatória</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de Licença</label>
+                <select id="licenseType" onchange="toggleDateInput()">
+                    <option value="monthly">Mensal (30 Dias)</option>
+                    <option value="yearly">Anual (365 Dias)</option>
+                    <option value="lifetime">Vitalício (Sem Expiração)</option>
+                    <option value="custom">Data Personalizada</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="customDateGroup" style="display: none;">
+                <label>Data de Vencimento</label>
+                <input type="datetime-local" id="customDate">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button type="button" onclick="saveLicense()">Salvar Licença</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Senha Mestre de Acesso ao Painel Admin
+        const MASTER_PASS = "RDG2026#Admin";
+
+        const SUPABASE_URL = 'https://yyoffdpzzoxrgigqupif.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_Cv5IVbK2bpo5PwCq-1PK3Q_d-8NPI10';
+
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthSession();
+        });
+
+        function checkAuthSession() {
+            const isAuth = localStorage.getItem('rdg_admin_authenticated');
+            if (isAuth === 'true') {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                loadLicenses();
+            } else {
+                document.getElementById('loginOverlay').style.display = 'flex';
+                document.getElementById('mainContainer').style.display = 'none';
+            }
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const pass = document.getElementById('masterPassInput').value;
+            const errDiv = document.getElementById('loginError');
+
+            if (pass === MASTER_PASS) {
+                localStorage.setItem('rdg_admin_authenticated', 'true');
+                errDiv.style.display = 'none';
+                checkAuthSession();
+            } else {
+                errDiv.style.display = 'block';
+                document.getElementById('masterPassInput').value = '';
+                document.getElementById('masterPassInput').focus();
+            }
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('rdg_admin_authenticated');
+            checkAuthSession();
+        }
+
+        async function loadLicenses() {
+            const tbody = document.getElementById('licenses-tbody');
+            const warning = document.getElementById('setup-warning');
+            
+            try {
+                const { data: licenses, error } = await supabaseClient
+                    .from('licenses')
+                    .select('*')
+                    .order('id', { ascending: false });
+
+                if (error) {
+                    if(error.code === '42P01') warning.style.display = 'block';
+                    else alert('Erro ao carregar: ' + error.message);
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Erro ao carregar dados.</td></tr>';
+                    return;
+                }
+
+                if (!licenses || licenses.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Nenhuma licença cadastrada ainda.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                licenses.forEach(lic => {
+                    const tr = document.createElement('tr');
+                    
+                    const isExpired = lic.expires_at && new Date(lic.expires_at) < new Date();
+                    const statusText = isExpired ? 'Expirado' : (lic.status || 'Ativo');
+                    const statusClass = isExpired ? 'status-expired' : 'status-active';
+
+                    let expDate = 'Vitalício';
+                    if (!lic.is_lifetime && lic.expires_at) {
+                        expDate = new Date(lic.expires_at).toLocaleDateString('pt-BR');
+                    }
+
+                    const produto = lic.produto || (lic.key.startsWith('IG-') ? 'Instagram' : 'Lovable');
+
+                    let maxProfiles = parseInt(lic.max_profiles || (lic.key.startsWith('IG-') ? 1 : 999), 10);
+                    let linkedCount = 0;
+                    if (Array.isArray(lic.linked_profiles)) {
+                        linkedCount = lic.linked_profiles.length;
+                    }
+                    const usageText = maxProfiles >= 999 ? `${linkedCount}/Ilimitado` : `${linkedCount}/${maxProfiles}`;
+
+                    let planName = 'Individual';
+                    if (maxProfiles === 5) planName = 'Multi 5 Perfis';
+                    else if (maxProfiles === 10) planName = 'Agência 10 Perfis';
+                    else if (maxProfiles >= 999) planName = 'Ilimitado';
+
+                    tr.innerHTML = `
+                        <td style="font-weight: 600;">${escapeHtml(lic.cliente)}</td>
+                        <td><span style="font-size:11px; font-weight:700; color:#a5b4fc;">${escapeHtml(produto)}</span></td>
+                        <td style="font-family: monospace; color: #a5b4fc;">
+                            ${escapeHtml(lic.key)}
+                            <button class="action-btn btn-edit" onclick="copyKey('${escapeHtml(lic.key)}', this)" style="padding:3px 8px; font-size:11px; margin-left:6px; background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4);" title="Copiar Chave">📋 Copiar</button>
+                        </td>
+                        <td style="font-size:13px; color:#cbd5e1;">${planName}</td>
+                        <td style="font-size:13px; font-weight:bold; color:${linkedCount >= maxProfiles ? '#ef4444' : '#10b981'};">${usageText}</td>
+                        <td>${expDate}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick="editLicense('${lic.id}')">Editar</button>
+                            <button class="action-btn btn-reset" onclick="resetProfiles('${lic.id}')" title="Desvincular perfis da licença">Resetar Perfis</button>
+                            <button class="action-btn btn-delete" onclick="deleteLicense('${lic.id}')">Excluir</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Erro de conexão com o Supabase.</td></tr>';
+            }
+        }
+
+        function copyKey(keyText, btnElement) {
+            navigator.clipboard.writeText(keyText).then(() => {
+                const originalText = btnElement.innerText;
+                btnElement.innerText = "✓ Copiado!";
+                btnElement.style.background = "rgba(16, 185, 129, 0.4)";
+                btnElement.style.borderColor = "rgba(16, 185, 129, 0.6)";
+                setTimeout(() => {
+                    btnElement.innerText = originalText;
+                    btnElement.style.background = "";
+                    btnElement.style.borderColor = "";
+                }, 1800);
+            }).catch(() => {
+                alert("Chave da Licença: " + keyText);
+            });
+        }
+
+        function openModal() {
+            document.getElementById('modalTitle').textContent = 'Criar Nova Licença';
+            document.getElementById('editingId').value = '';
+            document.getElementById('clientName').value = '';
+            document.getElementById('productType').value = 'Instagram';
+            document.getElementById('maxProfiles').value = '1';
+            document.getElementById('licenseType').value = 'monthly';
+            toggleDateInput();
+            generateRandomKey();
+            document.getElementById('licenseModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('licenseModal').classList.remove('active');
+        }
+
+        function generateRandomKey() {
+            if(document.getElementById('editingId').value) return;
+
+            const product = document.getElementById('productType').value;
+            const prefix = product === 'Instagram' ? 'IG-' : 'LV-';
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = prefix;
+            for (let i = 0; i < 12; i++) {
+                if(i > 0 && i % 4 === 0) result += '-';
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('licenseKey').value = result;
+        }
+
+        function toggleDateInput() {
+            const type = document.getElementById('licenseType').value;
+            const dateGroup = document.getElementById('customDateGroup');
+            if(type === 'custom') {
+                dateGroup.style.display = 'block';
+            } else {
+                dateGroup.style.display = 'none';
+            }
+        }
+
+        async function saveLicense() {
+            const id = document.getElementById('editingId').value;
+            const cliente = document.getElementById('clientName').value;
+            const key = document.getElementById('licenseKey').value;
+            const type = document.getElementById('licenseType').value;
+            const max_profiles = parseInt(document.getElementById('maxProfiles').value, 10);
+            
+            if(!cliente || !key) {
+                alert('Preencha nome do cliente e a chave!');
+                return;
+            }
+
+            let expires_at = null;
+            let is_lifetime = false;
+
+            if(type === 'monthly') {
+                const d = new Date();
+                d.setDate(d.getDate() + 30);
+                expires_at = d.toISOString();
+            } else if(type === 'yearly') {
+                const d = new Date();
+                d.setDate(d.getDate() + 365);
+                expires_at = d.toISOString();
+            } else if(type === 'lifetime') {
+                is_lifetime = true;
+            } else if(type === 'custom') {
+                const customVal = document.getElementById('customDate').value;
+                if(!customVal) {
+                    alert('Selecione a data de vencimento!');
+                    return;
+                }
+                expires_at = new Date(customVal).toISOString();
+            }
+
+            const payload = {
+                cliente: cliente, 
+                key: key, 
+                expires_at: expires_at, 
+                is_lifetime: is_lifetime,
+                max_profiles: max_profiles,
+                status: 'active'
+            };
+
+            let reqPromise;
+            if (id) {
+                reqPromise = supabaseClient.from('licenses').update(payload).eq('id', id);
+            } else {
+                reqPromise = supabaseClient.from('licenses').insert([payload]);
+            }
+
+            const { data, error } = await reqPromise;
+
+            if (error) {
+                alert('Erro ao salvar: ' + error.message);
+            } else {
+                closeModal();
+                loadLicenses();
+            }
+        }
+
+        async function resetProfiles(id) {
+            if (confirm('Deseja desvincular todos os perfis do Instagram desta licença?')) {
+                const { error } = await supabaseClient.from('licenses').update({ linked_profiles: [] }).eq('id', id);
+                if (error) alert('Erro ao resetar: ' + error.message);
+                else loadLicenses();
+            }
+        }
+
+        async function editLicense(id) {
+            const { data: lic, error } = await supabaseClient.from('licenses').select('*').eq('id', id).single();
+            if(error || !lic) {
+                alert('Erro ao buscar licença');
+                return;
+            }
+
+            document.getElementById('modalTitle').textContent = 'Editar Licença';
+            document.getElementById('editingId').value = lic.id;
+            document.getElementById('clientName').value = lic.cliente;
+            document.getElementById('licenseKey').value = lic.key;
+            document.getElementById('productType').value = lic.produto || (lic.key.startsWith('IG-') ? 'Instagram' : 'Lovable');
+            document.getElementById('maxProfiles').value = lic.max_profiles || 1;
+
+            if(lic.is_lifetime) {
+                document.getElementById('licenseType').value = 'lifetime';
+            } else if(lic.expires_at) {
+                document.getElementById('licenseType').value = 'custom';
+                const localDate = new Date(lic.expires_at).toISOString().slice(0, 16);
+                document.getElementById('customDate').value = localDate;
+            }
+            toggleDateInput();
+            document.getElementById('licenseModal').classList.add('active');
+        }
+
+        async function deleteLicense(id) {
+            if(confirm('Tem certeza que deseja excluir esta licença?')) {
+                const { error } = await supabaseClient.from('licenses').delete().eq('id', id);
+                if(error) alert('Erro ao deletar: ' + error.message);
+                else loadLicenses();
+            }
+        }
+
+        function escapeHtml(text) {
+            if(!text) return '';
+            return text.toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

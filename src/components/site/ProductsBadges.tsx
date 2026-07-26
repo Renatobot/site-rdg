@@ -4,18 +4,24 @@ import { SectionHeading } from "./SectionHeading";
 const items = [
   {
     code: "S01",
+    name: "RDG instaPRO",
+    description: "Software de automação de Instagram e prospecção no piloto automático.",
+    href: "/extensao",
+  },
+  {
+    code: "S02",
     name: "Fila Zero Barber",
     description: "Sistema de agendamento e gestão para barbearias premium.",
     href: "#sistemas",
   },
   {
-    code: "S02",
+    code: "S03",
     name: "Fila Zero Beauty",
     description: "Plataforma completa para salões e profissionais da beleza.",
     href: "#beauty",
   },
   {
-    code: "S03",
+    code: "S04",
     name: "Smart Treino",
     description: "Gestão de alunos e treinos para personais e academias.",
     href: "#smart-treino",
@@ -31,10 +37,10 @@ export function ProductsBadges() {
           align="left"
           eyebrow="ecossistema"
           title={<>Nossas <span className="italic text-primary">soluções</span></>}
-          description="Sistemas desenvolvidos para diferentes segmentos, facilitando a rotina de empresas e profissionais."
+          description="Sistemas e softwares desenvolvidos para impulsionar a rotina e as vendas de empresas e profissionais."
         />
 
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:mt-16 sm:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((it) => (
             <a
               key={it.code}

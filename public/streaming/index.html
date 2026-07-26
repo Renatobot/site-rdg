@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>RDG Stream — Streaming & TV Digital</title>
+  
+  <!-- Auth Guard: Proteção de Acesso Restrito aos Membros RDG -->
+  <script>
+    (function() {
+      var key = localStorage.getItem("rdg_license_key");
+      if (!key) {
+        alert("🔒 Acesso Restrito!\n\nVocê precisa estar logado na Área de Membros para utilizar o Player IPTV Streaming.");
+        window.location.href = "/membros";
+      }
+    })();
+  </script>
+  
+  <!-- PWA Metadata & Apple Touch Support -->
+  <link rel="manifest" href="/streaming/manifest.json" />
+  <meta name="theme-color" content="#070913" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="RDG Stream" />
+  <link rel="apple-touch-icon" href="/streaming/logo.png" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eefbff',
+              400: '#38bdf8',
+              500: '#00dcff',
+              600: '#0284c7',
+              dark: '#070913',
+              card: '#101426',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- HLS.js for Streaming Playback -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <link rel="stylesheet" href="/streaming/styles.css" />
+</head>
+<body class="bg-[#070913] text-slate-100 font-sans min-h-screen flex flex-col overflow-x-hidden selection:bg-cyan-500 selection:text-black">
+
+  <!-- APP STARTUP / LIST REFRESH PROGRESS OVERLAY -->
+  <div id="appLoadingOverlay" class="fixed inset-0 z-[99999] bg-[#050711]/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 transition-all duration-500 opacity-100">
+    <div class="relative w-full max-w-md bg-[#0a0e22] border border-cyan-500/30 rounded-3xl p-8 flex flex-col items-center text-center space-y-6 shadow-2xl shadow-cyan-500/10 overflow-hidden">
+      <!-- Glow background decoration -->
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Animated Logo / Spinner Ring -->
+      <div class="relative flex items-center justify-center">
+        <div class="w-24 h-24 rounded-full border-4 border-cyan-500/20 border-t-cyan-400 border-r-amber-400 animate-spin"></div>
+        <img src="/streaming/logo.png" alt="RDG Stream" class="w-14 h-14 object-contain absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 drop-shadow-lg" onerror="this.onerror=null; this.src='logo.png';" />
+      </div>
+
+      <!-- Progress Title & Animated Step Message -->
+      <div class="space-y-2 w-full">
+        <h3 id="loadingProgressTitle" class="text-lg font-black text-white tracking-wide">
+          Sincronizando Conteúdo
+        </h3>
+        <p id="loadingProgressStep" class="text-xs font-semibold text-cyan-300 animate-pulse min-h-[20px]">
+          Conectando ao servidor IPTV, só um instante...
+        </p>
+      </div>
+
+      <!-- Progress Bar & Percentage Counter -->
+      <div class="w-full space-y-2">
+        <div class="w-full bg-[#121630] border border-white/10 rounded-full h-3 p-0.5 overflow-hidden">
+          <div id="loadingProgressBar" class="bg-gradient-to-r from-cyan-500 via-sky-400 to-amber-400 h-full rounded-full transition-all duration-300 w-0 shadow-lg shadow-cyan-500/50"></div>
+        </div>
+        <div class="flex items-center justify-between text-[11px] font-bold text-slate-400">
+          <span id="loadingProgressDetail" class="text-slate-400">Processando canais e mídias...</span>
+          <span id="loadingProgressPercent" class="text-cyan-400 font-mono text-xs font-black">0%</span>
+        </div>
+      </div>
+
+      <!-- Step Checklist Indicators -->
+      <div class="grid grid-cols-4 gap-2 w-full pt-2 border-t border-white/10 text-[10px] font-extrabold text-slate-500">
+        <div id="stepCheck1" class="flex flex-col items-center gap-1 transition-all opacity-40">
+          <i data-lucide="tv" class="w-4 h-4"></i>
+          <span>Canais</span>
+        </div>
+        <div id="stepCheck2" class="flex flex-col items-center gap-1 transition-all opacity-40">
+          <i data-lucide="film" class="w-4 h-4"></i>
+          <span>Filmes</span>
+        </div>
+        <div id="stepCheck3" class="flex flex-col items-center gap-1 transition-all opacity-40">
+          <i data-lucide="clapperboard" class="w-4 h-4"></i>
+          <span>Séries</span>
+        </div>
+        <div id="stepCheck4" class="flex flex-col items-center gap-1 transition-all opacity-40">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i>
+          <span>Categorias</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <header class="sticky top-0 z-40 bg-[#070914]/95 backdrop-blur-md border-b border-white/10 px-4 lg:px-8 py-3 flex items-center justify-between gap-4">
+    <!-- Brand Logo -->
+    <div class="flex items-center gap-3">
+      <img src="/streaming/logo.png" alt="RDG Stream" class="h-12 sm:h-16 max-h-16 w-auto object-contain py-1 drop-shadow-xl" onerror="this.onerror=null; this.src='/streaming/logo.png';" />
+      <div class="hidden lg:block border-l border-white/10 pl-3">
+        <span class="text-xs font-extrabold text-white tracking-tight block">RDG Stream</span>
+        <span class="text-[10px] text-cyan-400 font-mono">Streaming Premium</span>
+      </div>
+    </div>
+
+    <!-- Center Search Bar (Desktop & Mobile Expanded) -->
+    <div class="flex-1 max-w-lg relative hidden md:block">
+      <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+      <input 
+        type="text" 
+        id="searchInput"
+        placeholder="Buscar canais, filmes ou séries..." 
+        class="w-full bg-[#0d1124] border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 transition-all shadow-inner"
+      />
+      <button id="clearSearchBtn" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Mobile Search Icon Trigger -->
+      <button id="mobileSearchBtn" class="md:hidden p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300">
+        <i data-lucide="search" class="w-4 h-4"></i>
+      </button>
+
+      <!-- PWA Install Button -->
+      <button id="installPwaBtn" onclick="typeof openInstallGuideModal === 'function' ? openInstallGuideModal() : (document.getElementById('installAppModal') && document.getElementById('installAppModal').classList.remove('hidden'))" class="flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all cursor-pointer">
+        <i data-lucide="download-cloud" class="w-4 h-4 text-cyan-400"></i>
+        <span class="hidden sm:inline">Instalar App</span>
+      </button>
+
+      <!-- Primary CTA: Carregar Lista -->
+      <button id="openLoadModalBtn" onclick="document.getElementById('loadModal') && document.getElementById('loadModal').classList.remove('hidden')" class="flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#00dcff] hover:bg-[#38bdf8] text-[#060814] font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 border border-cyan-300/30">
+        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+        <span>Carregar Lista</span>
+      </button>
+      
+      <!-- Secondary: Xtream Codes -->
+      <button id="openXtreamModalBtn" onclick="document.getElementById('xtreamModal') && document.getElementById('xtreamModal').classList.remove('hidden')" class="hidden sm:flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all">
+        <i data-lucide="key-round" class="w-4 h-4 text-cyan-400"></i>
+        <span class="hidden md:inline">Xtream Codes</span>
+      </button>
+
+      <!-- Speedometer / Signal Diagnostic -->
+      <button id="speedTestBtn" onclick="document.getElementById('speedTestModal') && document.getElementById('speedTestModal').classList.remove('hidden')" class="flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl transition-all cursor-pointer">
+        <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
+        <span class="hidden lg:inline">Testar Sinal</span>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- MOBILE EXPANDABLE SEARCH BAR -->
+  <div id="mobileSearchContainer" class="hidden md:hidden bg-[#0a0d1d] border-b border-white/10 p-3">
+    <div class="relative">
+      <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+      <input 
+        type="text" 
+        id="mobileSearchInput"
+        placeholder="Buscar canais, filmes ou séries..." 
+        class="w-full bg-[#12162a] border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500"
+      />
+    </div>
+  </div>
+
+  <!-- MAIN WRAPPER -->
+  <div class="flex-1 flex flex-col md:flex-row pb-16 md:pb-0">
+
+    <!-- SIDE NAVIGATION MENU (DESKTOP - STICKY & FIXED ON SCROLL) -->
+    <aside class="w-full md:w-64 bg-[#070914] border-b md:border-b-0 md:border-r border-white/10 p-3 sm:p-4 shrink-0 hidden md:flex md:flex-col justify-between gap-2 sticky top-16 h-[calc(100vh-64px)] overflow-y-auto z-20">
+      <div class="space-y-1 w-full">
+        
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 py-1.5">Navegação Principal</div>
+        
+        <button data-tab="live" class="tab-btn active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold w-full text-left transition-all">
+          <i data-lucide="tv" class="w-4 h-4 text-cyan-400"></i>
+          <span>Canais ao Vivo</span>
+          <span id="badgeLiveCount" class="ml-auto px-2 py-0.5 text-[10px] font-bold rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">0</span>
+        </button>
+
+        <button data-tab="movies" class="tab-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold w-full text-left transition-all">
+          <i data-lucide="film" class="w-4 h-4 text-purple-400"></i>
+          <span>Filmes VOD</span>
+          <span id="badgeMoviesCount" class="ml-auto px-2 py-0.5 text-[10px] font-bold rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">0</span>
+        </button>
+
+        <button data-tab="series" class="tab-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold w-full text-left transition-all">
+          <i data-lucide="clapperboard" class="w-4 h-4 text-amber-400"></i>
+          <span>Séries VOD</span>
+          <span id="badgeSeriesCount" class="ml-auto px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">0</span>
+        </button>
+
+        <button data-tab="favorites" class="tab-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold w-full text-left transition-all">
+          <i data-lucide="heart" class="w-4 h-4 text-rose-400"></i>
+          <span>Meus Favoritos</span>
+          <span id="badgeFavsCount" class="ml-auto px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">0</span>
+        </button>
+
+        <div class="h-px bg-white/10 my-3"></div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 py-1">Categorias</div>
+
+        <!-- Dynamic Category List in PT-BR -->
+        <div id="categoriesList" class="space-y-1 max-h-64 overflow-y-auto pr-1">
+          <!-- Populated by JS -->
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <main class="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5">
+      
+      <!-- CONTINUAR ASSISTINDO (RESUME WATCH RAIL) -->
+      <div id="continueWatchingSection" class="space-y-3 hidden">
+        <div class="flex items-center justify-between border-b border-white/10 pb-2">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="history" class="w-4 h-4 text-cyan-400"></i>
+            <span>Continuar Assistindo</span>
+          </h3>
+          <button id="clearHistoryBtn" class="text-[10px] font-bold text-slate-400 hover:text-rose-400 transition-colors">
+            Limpar Histórico
+          </button>
+        </div>
+        <div id="continueWatchingGrid" class="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- FEATURED OTT HERO CAROUSEL (Netflix / Apple TV+ Style) -->
+      <div id="heroBanner" class="relative rounded-3xl bg-[#090c1a] border border-cyan-500/30 overflow-hidden shadow-2xl min-h-[260px] sm:min-h-[320px] flex items-end">
+        <!-- Backdrop Image Layer with Smooth Fade Gradient -->
+        <img id="heroBackdrop" src="" alt="Destaque" class="absolute inset-0 w-full h-full object-cover filter brightness-75 scale-105 transition-all duration-700 opacity-0" onerror="this.src='logo.png';" />
+        <div class="absolute inset-0 bg-gradient-to-t from-[#090c1a] via-[#090c1a]/70 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-[#090c1a] via-[#090c1a]/80 to-transparent"></div>
+
+        <!-- Ambient Glow -->
+        <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Content Overlay -->
+        <div class="relative z-10 p-6 sm:p-8 max-w-2xl space-y-3 w-full">
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="heroBadgeText" class="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 shadow-md">
+              <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span> DESTAQUE DA SEMANA
+            </span>
+            <span id="heroYearTag" class="px-2.5 py-1 rounded-lg bg-white/10 text-slate-300 text-[10px] font-bold">2025</span>
+            <span id="heroCategoryTag" class="px-2.5 py-1 rounded-lg bg-white/10 text-cyan-400 text-[10px] font-bold">Filmes VOD</span>
+          </div>
+
+          <h2 id="heroTitle" class="text-xl sm:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-md">
+            RDG Stream — Canais 24 horas, Filmes & Séries
+          </h2>
+
+          <p id="heroDescription" class="text-xs sm:text-sm text-slate-300 leading-relaxed line-clamp-2 min-h-[36px]">
+            Canais ao vivo, esportes, notícias e produções sob demanda em alta definição com reprodução contínua de alta performance.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <button id="heroPlayBtn" class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-[#060814] font-black text-xs rounded-xl shadow-lg shadow-cyan-500/25 transition-all active:scale-95">
+              <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+              <span>Assistir Agora</span>
+            </button>
+            <button id="heroDetailsBtn" class="flex items-center gap-2 px-5 py-3 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/10 transition-all">
+              <i data-lucide="info" class="w-4 h-4 text-cyan-400"></i>
+              <span>Mais Informações</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Carousel Indicators & Prev/Next Controls -->
+        <div class="absolute bottom-6 right-6 z-20 hidden sm:flex items-center gap-2">
+          <button id="heroPrevBtn" class="w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 border border-white/15 text-slate-300 hover:text-white flex items-center justify-center transition-colors">
+            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+          </button>
+          <div id="heroDots" class="flex items-center gap-1.5 px-2">
+            <!-- Rendered by JS -->
+          </div>
+          <button id="heroNextBtn" class="w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 border border-white/15 text-slate-300 hover:text-white flex items-center justify-center transition-colors">
+            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- COMPACT SECTION TITLE & CATEGORY / SORT SELECTORS -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-white/10 pb-4">
+        <div>
+          <h1 id="sectionTitle" class="text-lg sm:text-xl font-extrabold text-white flex items-center gap-2">
+            <i data-lucide="tv" class="w-5 h-5 text-cyan-400"></i>
+            <span>Canais ao Vivo</span>
+          </h1>
+          <p id="sectionSubtitle" class="text-xs text-slate-400 mt-0.5">0 disponíveis</p>
+        </div>
+
+        <!-- Filter Dropdowns for Category & Sorting -->
+        <div class="w-full md:w-auto flex flex-col sm:flex-row items-center gap-2.5">
+          <!-- Sorting Select -->
+          <div class="w-full sm:w-auto flex items-center gap-2 bg-[#0d1124] border border-white/10 rounded-xl px-3 py-2 text-xs text-white shadow-sm">
+            <i data-lucide="arrow-down-up" class="w-3.5 h-3.5 text-cyan-400 shrink-0"></i>
+            <select id="sortSelect" class="bg-transparent text-xs text-white focus:outline-none w-full sm:w-40 cursor-pointer">
+              <option value="DEFAULT" class="bg-[#0d1124]">🔥 Destaques</option>
+              <option value="AZ" class="bg-[#0d1124]">🔤 Ordem (A - Z)</option>
+              <option value="ZA" class="bg-[#0d1124]">🔤 Ordem (Z - A)</option>
+              <option value="RECENT" class="bg-[#0d1124]">✨ Mais Recentes</option>
+            </select>
+          </div>
+
+          <!-- Category Select -->
+          <div class="w-full sm:w-auto flex items-center gap-2 bg-[#0d1124] border border-white/10 rounded-xl px-3 py-2 text-xs text-white shadow-sm">
+            <i data-lucide="filter" class="w-3.5 h-3.5 text-purple-400 shrink-0"></i>
+            <select id="categorySelect" class="bg-transparent text-xs text-white focus:outline-none w-full sm:w-56 cursor-pointer">
+              <option value="ALL" class="bg-[#0d1124]">Todas as Categorias</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEDIA GRID CONTAINER (RESPONSIVE OTT CARDS) -->
+      <div id="mediaGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+        <!-- Media Cards Rendered Here -->
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div id="emptyState" class="hidden py-16 text-center space-y-4 max-w-md mx-auto">
+        <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-slate-400">
+          <i data-lucide="inbox" class="w-7 h-7"></i>
+        </div>
+        <h3 class="text-base font-bold text-white">Nenhum canal ou vídeo encontrado</h3>
+        <p class="text-xs text-slate-400">
+          Tente selecionar outra categoria ou carregar uma nova lista M3U.
+        </p>
+        <button id="emptyLoadBtn" class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-extrabold text-[#060814] bg-[#00dcff] hover:bg-[#38bdf8] rounded-xl transition-all shadow-md">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>Carregar Lista M3U</span>
+        </button>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- FIXED MOBILE BOTTOM NAVIGATION BAR -->
+  <nav id="bottomNav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#070a14]/95 backdrop-blur-xl border-t border-white/10 px-2 py-1.5 flex items-center justify-around bottom-nav">
+    <button data-tab="live" class="tab-btn active flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] font-bold transition-all">
+      <i data-lucide="tv" class="w-4 h-4"></i>
+      <span>TV</span>
+    </button>
+
+    <button data-tab="movies" class="tab-btn flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] font-bold transition-all">
+      <i data-lucide="film" class="w-4 h-4"></i>
+      <span>Filmes</span>
+    </button>
+
+    <button data-tab="series" class="tab-btn flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] font-bold transition-all">
+      <i data-lucide="clapperboard" class="w-4 h-4"></i>
+      <span>Séries</span>
+    </button>
+
+    <button data-tab="favorites" class="tab-btn flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-[10px] font-bold transition-all">
+      <i data-lucide="heart" class="w-4 h-4"></i>
+      <span>Favoritos</span>
+    </button>
+  </nav>
+  </div>
+
+  <!-- FULLSCREEN PLAYER MODAL (100% Viewport, Zero Borders) -->
+  <div id="playerModal" class="fixed inset-0 z-50 bg-black flex flex-col hidden transition-opacity duration-300 w-screen h-screen overflow-hidden">
+    <!-- Player Top Controls Overlay (Responsive for Mobile, Tablet, Desktop) -->
+    <div id="playerHeader" class="absolute top-0 left-0 right-0 z-30 px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-b from-black/95 via-black/70 to-transparent flex items-center justify-between gap-2 sm:gap-4 transition-opacity duration-300 w-full max-w-full">
+
+      <!-- Left side: Drawer trigger & Channel Title -->
+      <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+        <button id="toggleDrawerBtn" class="p-2 sm:p-2.5 rounded-xl bg-white/10 hover:bg-cyan-500/20 text-cyan-400 border border-white/10 transition-all flex items-center gap-2 shrink-0" title="Trocar Canal">
+          <i data-lucide="list" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+          <span class="text-xs font-bold hidden md:inline">Trocar de Canal</span>
+        </button>
+        <div class="min-w-0 flex-1">
+          <h3 id="playerTitle" class="text-xs sm:text-base font-extrabold text-white truncate max-w-[130px] xs:max-w-[200px] sm:max-w-xs md:max-w-md">Nome do Canal</h3>
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <span id="playerCategory" class="text-[10px] sm:text-[11px] text-cyan-400 font-semibold truncate block max-w-[120px] sm:max-w-none">Categoria</span>
+            <span id="playerEpgText" class="text-[10px] sm:text-[11px] text-slate-400 truncate hidden lg:inline">| Programação Ao Vivo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: Actions (Próximo Ep, PiP, Áudio/Legendas, Tela Cheia, Favoritos, Sair) -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <!-- Next Episode Button (Visible when next episode exists) -->
+        <button id="nextEpPlayerBtn" class="px-2.5 sm:px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-[#070913] font-extrabold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0 hidden" title="Próximo Episódio">
+          <i data-lucide="skip-forward" class="w-4 h-4 fill-current"></i>
+          <span class="hidden md:inline">Próximo Ep</span>
+        </button>
+
+        <!-- Picture-in-Picture Button -->
+        <button id="pipBtn" class="p-2 rounded-xl bg-white/10 hover:bg-cyan-500/20 text-cyan-400 border border-white/10 transition-all shrink-0" title="Mini Player (PiP)">
+          <i data-lucide="picture-in-picture-2" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        </button>
+        <!-- Playback Speed Selector Dropdown -->
+        <div class="relative shrink-0">
+          <button id="speedToggleBtn" class="px-2.5 py-2 rounded-xl bg-white/10 hover:bg-cyan-500/20 text-cyan-300 border border-white/10 text-xs font-extrabold transition-all flex items-center gap-1" title="Velocidade de Reprodução">
+            <i data-lucide="gauge" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span id="speedCurrentLabel">1.0x</span>
+          </button>
+          <div id="speedMenu" class="hidden absolute right-0 top-full mt-2 w-32 bg-[#090c1a] border border-white/15 rounded-xl shadow-2xl py-1 z-50 text-xs font-bold text-slate-300">
+            <button data-speed="0.75" class="speed-opt w-full px-3 py-1.5 text-left hover:bg-white/10 hover:text-white transition-colors">0.75x (Lento)</button>
+            <button data-speed="1.0" class="speed-opt w-full px-3 py-1.5 text-left hover:bg-[#00dcff] hover:text-[#060814] text-cyan-300 transition-colors font-black">1.0x (Normal)</button>
+            <button data-speed="1.25" class="speed-opt w-full px-3 py-1.5 text-left hover:bg-white/10 hover:text-white transition-colors">1.25x (Rápido)</button>
+            <button data-speed="1.5" class="speed-opt w-full px-3 py-1.5 text-left hover:bg-white/10 hover:text-white transition-colors">1.5x (Acelerado)</button>
+            <button data-speed="2.0" class="speed-opt w-full px-3 py-1.5 text-left hover:bg-white/10 hover:text-white transition-colors">2.0x (Máximo)</button>
+          </div>
+        </div>
+
+        <!-- Fullscreen Button -->
+        <button id="fullscreenToggleBtn" class="px-2.5 sm:px-4 py-2 rounded-xl bg-[#00dcff] hover:bg-[#38bdf8] text-[#070913] font-extrabold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0" title="Alternar Tela Cheia">
+          <i data-lucide="expand" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Tela Cheia</span>
+        </button>
+
+        <!-- Favorite Button -->
+        <button id="toggleFavPlayerBtn" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-rose-400 border border-white/10 transition-all shrink-0">
+          <i data-lucide="heart" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        </button>
+
+        <!-- Close / Exit Button (Guaranteed visible and un-cut-off on mobile) -->
+        <button id="closePlayerBtn" class="px-3 sm:px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold transition-all shadow-lg flex items-center gap-1 text-xs shrink-0 z-50">
+          <i data-lucide="x" class="w-4 h-4"></i>
+          <span>Sair</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Video Element (Full Viewport Object Cover/Contain) -->
+    <div class="flex-1 relative bg-black w-full h-full flex items-center justify-center overflow-hidden">
+      <!-- Loading / Status Overlay -->
+      <div id="videoLoader" class="absolute z-20 inset-0 bg-black/90 flex flex-col items-center justify-center p-6 text-center space-y-4 max-w-lg mx-auto">
+        <div id="videoSpinner" class="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin"></div>
+        
+        <div class="space-y-1">
+          <p id="videoStatusText" class="text-sm font-semibold text-cyan-300">Conectando à transmissão...</p>
+          <p id="videoSubStatusText" class="text-xs text-slate-400">Aguardando resposta do servidor de vídeo...</p>
+        </div>
+
+      </div>
+
+      <!-- VIDEO HTML5 ELEMENT WITH MOBILE PLAYSINLINE -->
+      <video id="videoElement" class="w-full h-full object-contain" controls autoplay playsinline webkit-playsinline></video>
+
+      <!-- NETFLIX-STYLE NEXT EPISODE AUTO-PLAY OVERLAY (HIGHEST Z-INDEX ABOVE VIDEO CONTROLS) -->
+      <div id="nextEpisodeOverlay" class="absolute z-50 bottom-16 right-6 sm:bottom-20 sm:right-10 bg-[#0a0e21]/95 backdrop-blur-2xl border-2 border-amber-400/80 rounded-2xl p-4 shadow-2xl max-w-xs space-y-3 hidden transition-all pointer-events-auto shadow-amber-500/20">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 animate-pulse"></i>
+            <span>PRÓXIMO EPISÓDIO EM <span id="nextEpCountdown">10</span>s</span>
+          </span>
+          <button id="cancelNextEpBtn" class="text-slate-400 hover:text-white text-xs p-1">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <div class="flex items-center gap-3">
+          <img id="nextEpPoster" src="" alt="Próximo Episódio" class="w-12 h-16 object-cover rounded-lg border border-white/10 shrink-0" onerror="this.src='logo.png';" />
+          <div class="min-w-0 flex-1">
+            <h5 id="nextEpTitle" class="text-xs font-bold text-white truncate">Título do Próximo Episódio</h5>
+            <p id="nextEpSub" class="text-[10px] text-slate-400 truncate">Avanço automático ativado</p>
+          </div>
+        </div>
+        <button id="playNextEpNowBtn" class="w-full py-2.5 px-3 bg-amber-500 hover:bg-amber-400 text-[#070913] font-extrabold text-xs rounded-xl shadow-lg shadow-amber-500/30 transition-all flex items-center justify-center gap-2">
+          <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+          <span>Assistir Próximo Agora</span>
+        </button>
+      </div>
+
+      <!-- RESUME PLAYBACK PROMPT OVERLAY -->
+      <div id="resumePlaybackOverlay" class="absolute z-30 top-16 left-6 right-6 sm:left-auto sm:right-6 bg-[#0a0d1f]/95 backdrop-blur-xl border border-cyan-500/40 rounded-2xl p-4 shadow-2xl max-w-sm space-y-2.5 hidden transition-all">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+            <i data-lucide="history" class="w-3.5 h-3.5"></i>
+            <span>CONTINUAR DE ONDE PAROU</span>
+          </span>
+          <button id="closeResumePromptBtn" class="text-slate-400 hover:text-white p-1">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <p class="text-xs text-slate-300">Você já assistiu até <strong id="resumeTimeText" class="text-cyan-300">00:00</strong> deste vídeo.</p>
+        <div class="flex items-center gap-2 pt-1">
+          <button id="confirmResumeBtn" class="flex-1 py-2 px-3 bg-cyan-400 hover:bg-cyan-300 text-[#060814] font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5">
+            <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+            <span>Continuar</span>
+          </button>
+          <button id="restartFromStartBtn" class="py-2 px-3 bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-xs rounded-xl transition-all">
+            Recomeçar
+          </button>
+        </div>
+      </div>
+
+      <!-- AUDIO TRACKS & SUBTITLES SELECTION OVERLAY MODAL -->
+      <div id="audioSubModal" class="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden pointer-events-auto">
+        <div class="w-full max-w-md bg-[#0d1124] border border-amber-500/30 rounded-3xl p-6 space-y-5 shadow-2xl relative overflow-hidden">
+          <!-- Ambient Glow -->
+          <div class="absolute -top-20 -right-20 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+          <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
+                <i data-lucide="message-square" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-white">Áudio e Legendas</h3>
+                <p class="text-xs text-slate-400">Selecione o idioma do áudio e da legenda</p>
+              </div>
+            </div>
+            <button id="closeAudioSubModalBtn" class="text-slate-400 hover:text-white p-1">
+              <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+          </div>
+
+          <div class="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+            <!-- AUDIO TRACKS SECTION -->
+            <div class="space-y-2">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                <i data-lucide="volume-2" class="w-4 h-4"></i>
+                <span>Idiomas de Áudio</span>
+              </h4>
+              <div id="audioTracksList" class="space-y-1.5">
+                <!-- Rendered by JS -->
+                <div class="p-3 text-xs text-slate-400 text-center bg-white/5 rounded-xl">Carregando faixas de áudio...</div>
+              </div>
+              <p id="audioNoticeText" class="text-[11px] text-amber-300/80 bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-xl hidden leading-relaxed mt-2"></p>
+            </div>
+
+            <div class="h-px bg-white/10"></div>
+
+            <!-- SUBTITLES SECTION -->
+            <div class="space-y-2">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                <i data-lucide="subtitles" class="w-4 h-4"></i>
+                <span>Legendas</span>
+              </h4>
+              <div id="subtitlesList" class="space-y-1.5">
+                <!-- Rendered by JS -->
+                <div class="p-3 text-xs text-slate-400 text-center bg-white/5 rounded-xl">Nenhuma legenda disponível</div>
+              </div>
+              <input type="file" id="externalSubInput" accept=".srt,.vtt" class="hidden" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IN-PLAYER QUICK CHANNEL SWITCHER DRAWER (Right Side Slide) -->
+    <div id="channelDrawer" class="channel-drawer closed absolute top-0 right-0 bottom-0 z-40 w-full sm:w-80 bg-[#0a0d1d]/95 backdrop-blur-2xl border-l border-white/10 p-4 flex flex-col space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="tv" class="w-4 h-4 text-cyan-400"></i>
+          <h4 class="text-sm font-bold text-white">Lista de Canais</h4>
+        </div>
+        <button id="closeDrawerBtn" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Search inside Drawer -->
+      <div class="relative">
+        <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input 
+          type="text" 
+          id="drawerSearchInput"
+          placeholder="Buscar canal rápido..." 
+          class="w-full bg-[#12162a] border border-white/10 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500"
+        />
+      </div>
+
+      <!-- Drawer Items List -->
+      <div id="drawerItemsList" class="flex-1 overflow-y-auto space-y-1.5 pr-1">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE CHANNEL PREVIEW & EPG MODAL -->
+  <div id="channelModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 hidden">
+    <div class="w-full max-w-2xl bg-[#090c1a] border border-cyan-500/30 rounded-3xl overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]">
+      
+      <!-- Close Button -->
+      <button id="closeChannelModalBtn" class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-black/70 hover:bg-black text-slate-300 hover:text-white flex items-center justify-center border border-white/10 transition-colors">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Channel Hero Header -->
+      <div class="p-6 bg-gradient-to-b from-[#121733] to-[#090c1a] border-b border-white/10 flex flex-col sm:flex-row items-start sm:items-center gap-5 shrink-0">
+        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-black/50 border-2 border-white/15 p-2 flex items-center justify-center shrink-0 shadow-xl overflow-hidden">
+          <img id="channelModalLogo" src="" alt="Logo do Canal" class="w-full h-full object-contain" onerror="this.src='logo.png';" />
+        </div>
+        
+        <div class="space-y-2 flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="channelModalCategory" class="px-2.5 py-0.5 text-[10px] font-extrabold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-md">Canais Ao Vivo</span>
+            <span id="channelModalLiveBadge" class="px-2.5 py-0.5 text-[10px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-md uppercase animate-pulse flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> AO VIVO
+            </span>
+          </div>
+          <h2 id="channelModalTitle" class="text-xl sm:text-2xl font-black text-white leading-tight truncate">Nome do Canal</h2>
+          <p id="channelCurrentProgSummary" class="text-xs text-slate-300 font-semibold truncate">Carregando programação de hoje...</p>
+        </div>
+
+        <!-- Play Button Header Action -->
+        <button id="playChannelNowBtn" class="w-full sm:w-auto py-3 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-[#060814] font-black text-sm rounded-xl shadow-lg shadow-cyan-500/30 transition-all flex items-center justify-center gap-2 shrink-0">
+          <i data-lucide="play" class="w-5 h-5 fill-current"></i>
+          <span>Sintonizar Agora</span>
+        </button>
+      </div>
+
+      <!-- EPG Program Schedule List Body -->
+      <div class="p-6 space-y-4 overflow-y-auto flex-1 text-slate-300">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            <span>Programação Completa do Dia (EPG)</span>
+          </h4>
+          <span id="epgCountBadge" class="text-[10px] font-bold px-2 py-0.5 bg-white/10 rounded-md text-slate-400">Guia de TV</span>
+        </div>
+
+        <!-- Loading EPG Spinner -->
+        <div id="channelEpgLoader" class="py-12 text-center space-y-3 hidden">
+          <div class="w-8 h-8 border-3 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin mx-auto"></div>
+          <p class="text-xs text-slate-400">Buscando guia de programação no servidor IPTV...</p>
+        </div>
+
+        <!-- EPG List Container -->
+        <div id="channelEpgList" class="space-y-2.5">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOVIE DETAILS MODAL (Netflix / Disney+ Style) -->
+  <div id="movieModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 hidden">
+    <div class="w-full max-w-2xl bg-[#090c1a] border border-cyan-500/30 rounded-3xl overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]">
+      
+      <!-- Close Button -->
+      <button id="closeMovieModalBtn" class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-black/70 hover:bg-black text-slate-300 hover:text-white flex items-center justify-center border border-white/10 transition-colors">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Hero Header Banner with Backdrop -->
+      <div class="relative w-full h-56 sm:h-64 bg-[#050711] overflow-hidden shrink-0">
+        <img id="movieModalBackdrop" src="" alt="Banner do Filme" class="w-full h-full object-cover filter brightness-75 scale-105 transition-all duration-500" onerror="this.src='logo.png';" />
+        <div class="absolute inset-0 bg-gradient-to-t from-[#090c1a] via-[#090c1a]/60 to-transparent"></div>
+        
+        <!-- Hero Details Overlay -->
+        <div class="absolute bottom-4 left-6 right-6 flex items-end gap-4 z-10">
+          <img id="movieModalPoster" src="" alt="Poster" class="w-24 h-36 sm:w-28 sm:h-40 object-cover rounded-xl border-2 border-white/20 shadow-2xl shrink-0 -mb-2" onerror="this.src='logo.png';" />
+          <div class="space-y-1.5 flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="movieModalYear" class="px-2 py-0.5 text-[10px] font-extrabold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-md">2024</span>
+              <span id="movieModalDuration" class="px-2 py-0.5 text-[10px] font-extrabold bg-white/10 text-slate-300 rounded-md">120min</span>
+              <span id="movieModalQuality" class="px-2 py-0.5 text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-md uppercase">FULL HD</span>
+              <span id="movieModalGroup" class="px-2 py-0.5 text-[10px] font-bold bg-white/10 text-slate-400 rounded-md truncate max-w-[120px]">Filmes VOD</span>
+            </div>
+            <h2 id="movieModalTitle" class="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md truncate">Nome do Filme</h2>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Body (Scrollable Synopsis & Cast) -->
+      <div class="p-6 space-y-5 overflow-y-auto flex-1 text-slate-300">
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-3">
+          <button id="playMovieNowBtn" class="flex-1 py-3 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-[#060814] font-black text-sm rounded-xl shadow-lg shadow-cyan-500/30 transition-all flex items-center justify-center gap-2">
+            <i data-lucide="play" class="w-5 h-5 fill-current"></i>
+            <span>Assistir Filme Agora</span>
+          </button>
+          <button id="favMovieBtn" class="py-3 px-4 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-rose-400 border border-white/10 rounded-xl font-bold text-xs transition-colors flex items-center gap-2">
+            <i data-lucide="heart" class="w-4 h-4"></i>
+            <span>Favorito</span>
+          </button>
+        </div>
+
+        <!-- Synopsis / Plot -->
+        <div class="space-y-1.5">
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+            <i data-lucide="align-left" class="w-4 h-4"></i>
+            <span>Sinopse / História</span>
+          </h4>
+          <p id="movieModalPlot" class="text-xs text-slate-300 leading-relaxed min-h-[40px]">
+            Carregando sinopse e detalhes do filme...
+          </p>
+        </div>
+
+        <!-- Cast & Details -->
+        <div id="movieExtraDetails" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-white/10 text-xs">
+          <div class="bg-white/5 rounded-xl p-3 border border-white/5 space-y-1">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Direção</span>
+            <p id="movieModalDirector" class="font-semibold text-white">Informação indisponível</p>
+          </div>
+          <div class="bg-white/5 rounded-xl p-3 border border-white/5 space-y-1">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Elenco</span>
+            <p id="movieModalCast" class="font-semibold text-white truncate">Informação indisponível</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOAD M3U PLAYLIST MODAL -->
+  <div id="loadModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-lg bg-[#0f142b] border border-white/10 rounded-2xl p-6 space-y-6 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center">
+            <i data-lucide="list-video" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">Carregar Lista M3U / M3U8</h3>
+            <p class="text-xs text-slate-400">Insira a URL ou faça upload do seu arquivo M3U</p>
+          </div>
+        </div>
+        <button class="closeModalBtn text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">URL da Lista (.m3u / .m3u8)</label>
+          <input 
+            type="url" 
+            id="m3uUrlInput"
+            placeholder="https://meuservidor.com/lista.m3u" 
+            class="w-full bg-[#161b36] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono"
+          />
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Ou Selecione Arquivo M3U do Seu Computador</label>
+          <input 
+            type="file" 
+            id="m3uFileInput"
+            accept=".m3u,.m3u8,.txt"
+            class="w-full bg-[#161b36] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30 font-mono cursor-pointer"
+          />
+        </div>
+
+
+        <div class="relative flex py-1 items-center">
+          <div class="flex-grow border-t border-white/10"></div>
+          <span class="flex-shrink mx-4 text-[10px] font-bold uppercase tracking-wider text-slate-500">OU SELECIONE UMA LISTA PRÉ-DEFINIDA</span>
+          <div class="flex-grow border-t border-white/10"></div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <button id="loadPresetBRBtn" type="button" class="px-3 py-2 text-left bg-white/5 hover:bg-cyan-500/20 border border-white/10 hover:border-cyan-500/40 rounded-xl text-xs font-bold text-cyan-300 transition-all flex items-center gap-2">
+            <span>🇧🇷</span>
+            <span class="truncate">Brasil (+400 Canais)</span>
+          </button>
+          <button id="loadPresetSportsBtn" type="button" class="px-3 py-2 text-left bg-white/5 hover:bg-purple-500/20 border border-white/10 hover:border-purple-500/40 rounded-xl text-xs font-bold text-purple-300 transition-all flex items-center gap-2">
+            <span>⚽</span>
+            <span class="truncate">Esportes & Notícias 24h</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pt-2 flex items-center gap-3">
+        <button id="submitM3uBtn" class="flex-1 py-3 px-4 bg-[#00dcff] hover:bg-[#38bdf8] text-[#070913] font-extrabold text-xs rounded-xl shadow-md transition-all">
+          CARREGAR LISTA AGORA
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- XTREAM CODES LOGIN MODAL -->
+  <div id="xtreamModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-md bg-[#0f142b] border border-white/10 rounded-2xl p-6 space-y-5 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center">
+            <i data-lucide="key-round" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">API Xtream Codes</h3>
+            <p class="text-xs text-slate-400">Conecte-se com seu Servidor, Usuário e Senha</p>
+          </div>
+        </div>
+        <button class="closeModalBtn text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="xtreamForm" class="space-y-3">
+        <div class="space-y-1">
+          <div class="flex items-center justify-between">
+            <label class="text-[11px] font-bold text-slate-300 uppercase">URL do Servidor / DNS</label>
+            <span class="text-[10px] text-purple-400 font-mono">(Opcional se pré-configurado)</span>
+          </div>
+          <input 
+            type="url" 
+            id="xtreamHost"
+            placeholder="Ex: http://servidor.com:8080" 
+            className="w-full bg-[#161b36] border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-mono"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-[11px] font-bold text-slate-300 uppercase">Usuário</label>
+          <input 
+            type="text" 
+            id="xtreamUser"
+            placeholder="Seu usuário" 
+            required
+            className="w-full bg-[#161b36] border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-[11px] font-bold text-slate-300 uppercase">Senha</label>
+          <input 
+            type="password" 
+            id="xtreamPass"
+            placeholder="Sua senha" 
+            required
+            className="w-full bg-[#161b36] border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+          />
+        </div>
+
+        <button type="submit" class="w-full py-3 px-4 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs rounded-xl shadow-md transition-all mt-2">
+          CONECTAR AO SERVIDOR XTREAM
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SERIES SEASONS & EPISODES SELECTOR MODAL -->
+  <div id="seriesModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-4xl max-h-[90vh] bg-[#0c1024] border border-white/15 rounded-2xl flex flex-col overflow-hidden shadow-2xl relative">
+      <!-- Header Bar -->
+      <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-[#121733]">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
+            <i data-lucide="clapperboard" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 id="seriesModalTitle" class="text-base font-bold text-white">Carregando Série...</h3>
+            <p id="seriesModalSubtitle" class="text-xs text-amber-400 font-semibold">Selecione a Temporada e o Episódio</p>
+          </div>
+        </div>
+        <button id="closeSeriesModalBtn" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <!-- Main Modal Content (Scrollable) -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-6">
+        <!-- Series Hero Header -->
+        <div class="flex flex-col sm:flex-row gap-6 items-start border-b border-white/10 pb-6">
+          <img id="seriesModalPoster" src="" alt="Poster da Série" class="w-36 h-52 object-cover rounded-xl border border-white/10 shadow-lg shrink-0" onerror="this.src='logo.png';" />
+          <div class="space-y-3 flex-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="seriesModalYear" class="px-2 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-md">2024</span>
+              <span id="seriesModalGroup" class="px-2 py-0.5 text-[10px] font-bold bg-white/10 text-slate-300 rounded-md">Séries VOD</span>
+            </div>
+            <h2 id="seriesModalHeaderTitle" class="text-xl font-extrabold text-white">Nome da Série</h2>
+            <p id="seriesModalPlot" class="text-xs text-slate-400 leading-relaxed">Sinopse da série...</p>
+          </div>
+        </div>
+
+        <!-- Seasons Selector Tabs -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="layers" class="w-4 h-4 text-amber-400"></i>
+              <span>Temporadas Disponíveis</span>
+            </h4>
+          </div>
+          <div id="seasonsTabsList" class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Episodes List -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 id="episodesListTitle" class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="list-video" class="w-4 h-4 text-amber-400"></i>
+              <span>Episódios</span>
+            </h4>
+          </div>
+
+          <!-- Loading Spinner for Episodes -->
+          <div id="seriesEpisodesLoader" class="py-10 text-center space-y-3 hidden">
+            <div class="w-8 h-8 border-3 border-amber-500/20 border-t-amber-400 rounded-full animate-spin mx-auto"></div>
+            <p class="text-xs text-slate-400">Buscando episódios no servidor Xtream...</p>
+          </div>
+
+          <!-- Episodes Container -->
+          <div id="episodesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+  <!-- AUDIO & SUBTITLES SELECTOR MODAL -->
+  <div id="audioSubModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-sm bg-[#0c1024] border border-white/15 rounded-2xl p-5 space-y-4 shadow-2xl relative">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="message-square" class="w-5 h-5 text-amber-400"></i>
+          <h3 class="text-base font-bold text-white">Áudio e Legendas</h3>
+        </div>
+        <button id="closeAudioSubBtn" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Audio Tracks Section -->
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="volume-2" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span>Faixa de Áudio</span>
+        </label>
+        <div id="audioTracksList" class="space-y-1">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Subtitles Section -->
+      <div class="space-y-2 pt-2 border-t border-white/10">
+        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="subtitles" class="w-3.5 h-3.5 text-purple-400"></i>
+          <span>Legendas</span>
+        </label>
+        <div id="subtitleTracksList" class="space-y-1">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPEED TEST & SIGNAL DIAGNOSTIC MODAL -->
+  <div id="speedTestModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-md bg-[#0c1024] border border-white/15 rounded-2xl p-6 space-y-5 shadow-2xl relative text-center">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 text-left">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Diagnóstico do Sinal IPTV</h3>
+            <p class="text-xs text-slate-400">Teste de latência e taxa de download</p>
+          </div>
+        </div>
+        <button id="closeSpeedTestBtn" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Gauge Status Card -->
+      <div class="bg-[#121630] border border-white/10 rounded-2xl p-6 space-y-4">
+        <div id="speedGaugeSpinner" class="w-12 h-12 border-4 border-amber-500/20 border-t-amber-400 rounded-full animate-spin mx-auto hidden"></div>
+        
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <div class="bg-black/40 border border-white/10 rounded-xl p-3">
+            <p class="text-[10px] font-bold text-slate-400 uppercase">Latência (Ping)</p>
+            <p id="pingVal" class="text-lg font-black text-cyan-400">-- ms</p>
+          </div>
+          <div class="bg-black/40 border border-white/10 rounded-xl p-3">
+            <p class="text-[10px] font-bold text-slate-400 uppercase">Velocidade</p>
+            <p id="speedVal" class="text-lg font-black text-amber-400">-- Mbps</p>
+          </div>
+        </div>
+
+        <div id="speedResultBadge" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-slate-300">
+          Clique no botão abaixo para testar a qualidade da sua conexão IPTV.
+        </div>
+      </div>
+
+      <button id="startSpeedTestBtn" class="w-full py-3 px-4 bg-amber-500 hover:bg-amber-400 text-[#070913] font-extrabold text-xs rounded-xl shadow-md transition-all">
+        TESTAR SINAL AGORA
+      </button>
+    </div>
+  <!-- INSTALL APP GUIDE MODAL (Auto-Detect OS + Tab Selector) -->
+  <div id="installAppModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-lg bg-[#090c1a] border border-cyan-500/30 rounded-3xl p-5 sm:p-7 space-y-5 shadow-2xl relative overflow-hidden">
+      <!-- Ambient Glow -->
+      <div class="absolute -right-16 -top-16 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+            <i data-lucide="download-cloud" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-white">Instalar o RDG Stream App</h3>
+            <p class="text-[11px] text-slate-400">Guia de instalação rápida para o seu dispositivo</p>
+          </div>
+        </div>
+        <button id="closeInstallModalBtn" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- OS Selection Tabs -->
+      <div class="grid grid-cols-4 gap-1.5 p-1 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-bold text-slate-400">
+        <button data-os-tab="ios" class="os-tab-btn py-2 px-1 rounded-xl transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
+          <i data-lucide="smartphone" class="w-4 h-4 text-slate-300"></i>
+          <span>iPhone (iOS)</span>
+        </button>
+        <button data-os-tab="android" class="os-tab-btn py-2 px-1 rounded-xl transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
+          <i data-lucide="bot" class="w-4 h-4 text-emerald-400"></i>
+          <span>Android</span>
+        </button>
+        <button data-os-tab="tv" class="os-tab-btn py-2 px-1 rounded-xl transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
+          <i data-lucide="tv" class="w-4 h-4 text-amber-400"></i>
+          <span>Smart TV</span>
+        </button>
+        <button data-os-tab="pc" class="os-tab-btn py-2 px-1 rounded-xl transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
+          <i data-lucide="monitor" class="w-4 h-4 text-cyan-400"></i>
+          <span>PC / Mac</span>
+        </button>
+      </div>
+
+      <!-- OS Specific Content Guides -->
+      <div id="osGuideContent" class="space-y-4 text-xs text-slate-300 min-h-[160px]">
+        <!-- Populated dynamically based on detected OS / clicked tab -->
+      </div>
+
+      <!-- Footer Action -->
+      <div class="pt-2 border-t border-white/10 flex items-center justify-between">
+        <div class="text-[10px] text-slate-400 font-mono">RDG Stream App</div>
+        <button id="directNativeInstallBtn" class="hidden px-4 py-2 bg-[#00dcff] hover:bg-[#38bdf8] text-[#060814] font-extrabold rounded-xl shadow-md text-xs transition-all flex items-center gap-2">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Instalar em 1 Clique</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/streaming/app.js"></script>
+
+</body>
+</html>

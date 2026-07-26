@@ -18,6 +18,9 @@ type Props = {
   ctaLabel?: string;
   ctaHref?: string;
   ctaInternal?: boolean;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
+  secondaryCtaInternal?: boolean;
   Icon: LucideIcon;
   accent: string;
   variant: ServiceVariant;
@@ -78,7 +81,7 @@ export function ServiceChapter(p: Props) {
             ))}
           </ul>
 
-          <div className="mt-10">
+          <div className="mt-10 flex flex-wrap gap-3">
             <a
               href={p.ctaHref ?? waLink(p.message)}
               {...(p.ctaInternal
@@ -92,6 +95,21 @@ export function ServiceChapter(p: Props) {
                 className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
               />
             </a>
+            {p.secondaryCtaLabel && (
+              <a
+                href={p.secondaryCtaHref}
+                {...(p.secondaryCtaInternal
+                  ? {}
+                  : { target: "_blank", rel: "noopener noreferrer" })}
+                className="group inline-flex items-center gap-3 border border-white/20 px-6 py-3 text-[11px] font-light uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+              >
+                {p.secondaryCtaLabel}
+                <ArrowUpRight
+                  size={14}
+                  className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              </a>
+            )}
           </div>
         </div>
 
