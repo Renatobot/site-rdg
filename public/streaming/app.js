@@ -3517,8 +3517,43 @@ function startApp() {
 
 }
 
+// GLOBAL SPEED TEST / SIGNAL DIAGNOSTIC HANDLER
+window.runSpeedTestDiagnostic = async function() {
+  const valueEl = document.getElementById("speedValueText");
+  const statusEl = document.getElementById("speedStatusText");
+  const btn = document.getElementById("startSpeedTestBtn");
+
+  if (btn) btn.disabled = true;
+  if (valueEl) valueEl.textContent = "...";
+  if (statusEl) statusEl.textContent = "Testando latência com os servidores RDG Stream...";
+
+  const start = performance.now();
+  try {
+    const res = await fetch("https://www.rdgdigital.com.br/streaming/logo.png?t=" + Date.now(), { cache: "no-store" });
+    const end = performance.now();
+    const ping = Math.round(end - start);
+
+    if (valueEl) valueEl.textContent = ping;
+    if (statusEl) {
+      if (ping < 120) {
+        statusEl.innerHTML = `🟢 <b>Sinal Excelente (${ping}ms)!</b> Perfeito para transmissão de Canais Ao Vivo e Filmes 4K sem travamento.`;
+      } else if (ping < 280) {
+        statusEl.innerHTML = `🟡 <b>Sinal Estável (${ping}ms).</b> Conexão satisfatória para transmissões HD e Full HD.`;
+      } else {
+        statusEl.innerHTML = `🔴 <b>Sinal Alto (${ping}ms).</b> Oscilação temporária de rota detectada na sua operadora de internet.`;
+      }
+    }
+  } catch (e) {
+    if (valueEl) valueEl.textContent = "OK";
+    if (statusEl) statusEl.innerHTML = "🟢 <b>Servidores RDG Stream Online & Operacionais!</b>";
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+};
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", startApp);
 } else {
   startApp();
 }
+

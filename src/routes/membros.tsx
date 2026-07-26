@@ -771,7 +771,7 @@ function MembrosPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-8">
+            <div className="lg:col-span-8 space-y-2">
               <div className="relative aspect-video bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col items-center justify-center group">
                 {introVideoUrl ? (
                   <iframe
@@ -809,6 +809,19 @@ function MembrosPage() {
                   </>
                 )}
               </div>
+              {introVideoUrl && (
+                <div className="flex justify-end">
+                  <a
+                    href={introVideoUrl.includes("/embed/") ? introVideoUrl.replace("/embed/", "/share/") : introVideoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-400 hover:underline bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20"
+                  >
+                    <ExternalLink size={13} />
+                    <span>Vídeo não carregou? Clique para assistir direto no Loom ↗</span>
+                  </a>
+                </div>
+              )}
             </div>
 
             <div className="lg:col-span-4 space-y-4">
@@ -1041,7 +1054,7 @@ function MembrosPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            <div className="lg:col-span-8">
+            <div className="lg:col-span-8 space-y-2">
               <div className="relative aspect-video bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
                 <iframe
                   src="https://www.loom.com/embed/2235b1c6f775474ba9740f6ac8a6bca4"
@@ -1050,6 +1063,17 @@ function MembrosPage() {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
+              </div>
+              <div className="flex justify-end">
+                <a
+                  href="https://www.loom.com/share/2235b1c6f775474ba9740f6ac8a6bca4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-400 hover:underline bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20"
+                >
+                  <ExternalLink size={13} />
+                  <span>Vídeo não abriu? Clique para assistir direto no Loom ↗</span>
+                </a>
               </div>
             </div>
             <div className="lg:col-span-4 space-y-3 bg-white/5 border border-white/10 p-5 rounded-xl text-xs text-muted-foreground">
@@ -1085,7 +1109,7 @@ function MembrosPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            <div className="lg:col-span-8">
+            <div className="lg:col-span-8 space-y-2">
               <div className="relative aspect-video bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
                 <iframe
                   src="https://www.loom.com/embed/2887a552a72c47bdb7b79608db5fc196"
@@ -1094,6 +1118,17 @@ function MembrosPage() {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
+              </div>
+              <div className="flex justify-end">
+                <a
+                  href="https://www.loom.com/share/2887a552a72c47bdb7b79608db5fc196"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary hover:underline bg-primary/10 px-3 py-1 rounded-lg border border-primary/20"
+                >
+                  <ExternalLink size={13} />
+                  <span>Vídeo não abriu? Clique para assistir direto no Loom ↗</span>
+                </a>
               </div>
             </div>
             <div className="lg:col-span-4 space-y-3 bg-white/5 border border-white/10 p-5 rounded-xl text-xs text-muted-foreground">
@@ -1169,6 +1204,23 @@ function MembrosPage() {
                   </>
                 )}
               </div>
+              {videoLessons[activeVideo].videoUrl ? (
+                <div className="flex justify-end">
+                  <a
+                    href={videoLessons[activeVideo].videoUrl.includes("/embed/") ? videoLessons[activeVideo].videoUrl.replace("/embed/", "/share/") : videoLessons[activeVideo].videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary hover:underline bg-primary/10 px-3 py-1 rounded-lg border border-primary/20"
+                  >
+                    <ExternalLink size={13} />
+                    <span>Vídeo não abriu no player? Clique para assistir direto no Loom ↗</span>
+                  </a>
+                </div>
+              ) : (
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-between text-xs text-amber-300 font-medium">
+                  <span>ℹ️ Conteúdo em atualização contínua. Assista às Aulas 01, 02 e 07 liberadas!</span>
+                </div>
+              )}
 
               <div className="bg-[#111218] border border-white/10 rounded-xl p-5 space-y-2">
                 <h4 className="font-bold text-white text-base">
