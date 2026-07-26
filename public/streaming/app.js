@@ -34,6 +34,8 @@ function startApp() {
   const state = {
     items: [],
     currentTab: "live", // 'live', 'movies', 'series', 'favorites'
+
+
     currentCategory: "ALL",
     searchQuery: "",
     drawerSearchQuery: "",
@@ -1091,24 +1093,34 @@ function startApp() {
         }
       }
 
-      // ── Sem credenciais salvas → carregar lista pública BR ──
-      const res = await fetch("https://iptv-org.github.io/iptv/countries/br.m3u");
-      const text = await res.text();
-      const items = parseM3U(text);
-      if (items.length > 0) {
-        state.items = [...REAL_24H_CHANNELS, ...items, ...INITIAL_VOD_CATALOG];
-      } else {
-        state.items = [...REAL_24H_CHANNELS, ...INITIAL_VOD_CATALOG];
+      // ── Sem credenciais salvas → carregar canais reais 24h ──
+      try {
+        const targetUrl = getProxyUrl("https://iptv-org.github.io/iptv/countries/br.m3u");
+        const res = await fetch(targetUrl);
+        if (res.ok) {
+          const text = await res.text();
+          const items = parseM3U(text);
+          if (items.length > 0) {
+            state.items = [...REAL_24H_CHANNELS, ...items];
+          } else {
+            state.items = [...REAL_24H_CHANNELS];
+          }
+        } else {
+          state.items = [...REAL_24H_CHANNELS];
+        }
+      } catch (e) {
+        state.items = [...REAL_24H_CHANNELS];
       }
     } catch (err) {
       console.warn("Autoload error, falling back to real channels catalog:", err);
-      state.items = [...REAL_24H_CHANNELS, ...INITIAL_VOD_CATALOG];
+      state.items = [...REAL_24H_CHANNELS];
     } finally {
       updateUI();
       checkAutoPlayUrl();
       hideLoadingProgress();
     }
   }
+
 
   function checkAutoPlayUrl() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -3148,7 +3160,7 @@ function startApp() {
           const text = await res.text();
           const items = parseM3U(text);
           if (items.length > 0) {
-            state.items = [...FEATURED_WORKING_CHANNELS, ...items, ...INITIAL_VOD_CATALOG];
+            state.items = [...REAL_24H_CHANNELS, ...items];
             updateUI();
             loadModal.classList.add("hidden");
             alert(`✅ Sucesso! ${items.length} canais do Brasil carregados com sucesso!`);
@@ -3159,7 +3171,7 @@ function startApp() {
         console.warn("Erro no preset BR via proxy, usando catálogo 24h...", err);
       }
       // Fallback robusto que nunca falha
-      state.items = [...FEATURED_WORKING_CHANNELS, ...INITIAL_VOD_CATALOG];
+      state.items = [...REAL_24H_CHANNELS];
       updateUI();
       loadModal.classList.add("hidden");
       alert("✅ Canais Principais 24h do Brasil carregados com sucesso!");
@@ -3178,7 +3190,7 @@ function startApp() {
           const text = await res.text();
           const items = parseM3U(text);
           if (items.length > 0) {
-            state.items = [...FEATURED_WORKING_CHANNELS, ...items, ...INITIAL_VOD_CATALOG];
+            state.items = [...REAL_24H_CHANNELS, ...items];
             updateUI();
             loadModal.classList.add("hidden");
             alert(`✅ Sucesso! ${items.length} canais de Esportes e Notícias carregados com sucesso!`);
@@ -3189,13 +3201,14 @@ function startApp() {
         console.warn("Erro no preset Esportes via proxy, usando catálogo 24h...", err);
       }
       // Fallback robusto que nunca falha
-      state.items = [...FEATURED_WORKING_CHANNELS, ...INITIAL_VOD_CATALOG];
+      state.items = [...REAL_24H_CHANNELS];
       updateUI();
       loadModal.classList.add("hidden");
       alert("✅ Canais de Esportes e Notícias 24h carregados com sucesso!");
       loadPresetSportsBtn.innerHTML = `<span>⚽</span><span class="truncate">Esportes & Notícias 24h</span>`;
     });
   }
+
 
 
   // XTREAM CODES API HANDLER WITH DYNAMIC PROXY & FALLBACK

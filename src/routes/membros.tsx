@@ -34,6 +34,8 @@ import {
   BookOpen,
   Send,
   Tv,
+  Menu,
+  X,
 } from "lucide-react";
 
 const TITLE = "Área de Membros & Treinamento VIP — RDG instaPRO";
@@ -83,6 +85,7 @@ function MembrosPage() {
   const [licenseInfo, setLicenseInfo] = useState<LicenseData | null>(null);
   const [activeVideo, setActiveVideo] = useState<number>(0);
   const [introVideoUrl, setIntroVideoUrl] = useState<string>("https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d");
+  const [isNavOpen, setIsNavOpen] = useState<boolean>(false);
 
   // Script & Robot Generator Enhanced State
   const [generatorMode, setGeneratorMode] = useState<"abordagem" | "robo">("abordagem");
@@ -588,14 +591,26 @@ function MembrosPage() {
       {/* Header Bar */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-[#0A0A0A]/90 border-b border-white/10 px-4 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-          <a href="/extensao" className="flex items-center gap-3">
-            <span className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-              <span className="text-primary">RDG</span> instaPRO
-            </span>
-            <span className="hidden sm:inline-block px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full">
-              ACESSO LIBERADO
-            </span>
-          </a>
+          <div className="flex items-center gap-3">
+            {/* Toggle Drawer Button */}
+            <button
+              onClick={() => setIsNavOpen(!isNavOpen)}
+              className="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold text-white bg-white/10 hover:bg-white/20 border border-white/15 rounded-xl transition-all shadow-sm active:scale-95"
+              title="Abrir Menu de Conteúdos"
+            >
+              {isNavOpen ? <X size={16} /> : <Menu size={16} />}
+              <span className="hidden sm:inline">Menu de Conteúdos</span>
+            </button>
+
+            <a href="/extensao" className="flex items-center gap-3">
+              <span className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                <span className="text-primary">RDG</span> instaPRO
+              </span>
+              <span className="hidden sm:inline-block px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full">
+                ACESSO LIBERADO
+              </span>
+            </a>
+          </div>
 
           {/* User License Status & Logout Button */}
           <div className="flex items-center gap-3">
@@ -638,6 +653,72 @@ function MembrosPage() {
         </div>
       </header>
 
+      {/* SIDEBAR NAVIGATION DRAWER (GAVETA LATERAL RETRÁTIL) */}
+      {isNavOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          {/* Fundo Escuro / Overlay */}
+          <div
+            onClick={() => setIsNavOpen(false)}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+          />
+
+          {/* Painel Deslizante da Gaveta */}
+          <div className="relative z-10 w-80 max-w-[85vw] bg-[#0E0F17] border-r border-white/10 shadow-2xl flex flex-col justify-between p-6 space-y-6 h-full overflow-y-auto">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold text-white">
+                    <span className="text-primary">RDG</span> instaPRO
+                  </span>
+                  <span className="text-[10px] bg-primary/20 text-primary font-bold px-2 py-0.5 rounded-md border border-primary/30">
+                    ÁREA VIP
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsNavOpen(false)}
+                  className="p-2 text-muted-foreground hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <nav className="space-y-1.5 text-xs">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-3 mb-2 block">
+                  Índice da Área de Membros
+                </span>
+
+                {[
+                  { href: "#boas-vindas", label: "Visão Geral / Tour", icon: Sparkles },
+                  { href: "#download", label: "Baixar Instalador & Extensão", icon: Download },
+                  { href: "#instalacao", label: "Passo a Passo de Instalação", icon: Terminal },
+                  { href: "#aulas", label: "Treinamento em Vídeo (8 Aulas)", icon: Video },
+                  { href: "#gerador-scripts", label: "Gerador de Scripts & Spintax", icon: MessageCircle },
+                  { href: "#calculadora-roi", label: "Calculadora de Metas & ROI", icon: Calculator },
+                  { href: "#outros-produtos", label: "Prompts (+700) & E-Book VIP", icon: Camera },
+                  { href: "#outros-produtos", label: "RDG Stream (Filmes & TV)", icon: Tv },
+                  { href: "#faq", label: "Perguntas Frequentes & Suporte", icon: HelpCircle },
+                ].map((item, idx) => (
+                  <a
+                    key={idx}
+                    href={item.href}
+                    onClick={() => setIsNavOpen(false)}
+                    className="flex items-center gap-3 px-3.5 py-3 font-semibold text-muted-foreground hover:text-white hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/10"
+                  >
+                    <item.icon size={16} className="text-primary" />
+                    <span>{item.label}</span>
+                  </a>
+                ))}
+              </nav>
+            </div>
+
+            <div className="pt-4 border-t border-white/10 text-[11px] text-muted-foreground space-y-1">
+              <p className="font-bold text-white">RDG Digital © 2026</p>
+              <p className="text-[10px] opacity-70">Painel VIP de Licenças & Treinamentos</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative pt-10 pb-8 px-4 border-b border-white/5 bg-gradient-to-b from-primary/10 via-transparent to-transparent">
         <div className="max-w-4xl mx-auto text-center space-y-3">
@@ -670,86 +751,7 @@ function MembrosPage() {
       </section>
 
       {/* Main Content Area */}
-      <main className="max-w-6xl mx-auto px-4 py-10 space-y-10">
-        {/* BARRA DE NAVEGAÇÃO E ATALHOS RÁPIDOS (ACESSO DIRETO COM 1 CLIQUE) */}
-        <section className="bg-gradient-to-r from-[#111218] via-[#14151F] to-[#111218] border border-primary/30 rounded-2xl p-4 sm:p-5 space-y-3 shadow-2xl relative overflow-hidden">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-primary">
-              <Zap size={16} className="text-primary animate-pulse" />
-              <span className="uppercase tracking-wider">Menu de Atalhos Rápidos & Links Diretos</span>
-            </div>
-            <span className="text-[11px] text-muted-foreground">
-              Clique para ir direto ao recurso desejado:
-            </span>
-          </div>
-
-          <div className="flex flex-wrap gap-2.5 pt-1">
-            <a
-              href="#download"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 rounded-xl hover:bg-emerald-500/20 hover:border-emerald-500/40 hover:scale-[1.02] transition-all shadow-sm"
-            >
-              <Download size={15} />
-              <span>Baixar Extensão & Instalador</span>
-            </a>
-
-            <a
-              href="#instalacao"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-xl hover:bg-amber-500/20 hover:border-amber-500/40 hover:scale-[1.02] transition-all shadow-sm"
-            >
-              <Terminal size={15} />
-              <span>Vídeos de Instalação</span>
-            </a>
-
-            <a
-              href="#aulas"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-sky-300 bg-sky-500/10 border border-sky-500/25 rounded-xl hover:bg-sky-500/20 hover:border-sky-500/40 hover:scale-[1.02] transition-all shadow-sm"
-            >
-              <Video size={15} />
-              <span>Treinamento (Como Usar)</span>
-            </a>
-
-            <a
-              href="#gerador-scripts"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-indigo-300 bg-indigo-500/10 border border-indigo-500/25 rounded-xl hover:bg-indigo-500/20 hover:border-indigo-500/40 hover:scale-[1.02] transition-all shadow-sm"
-            >
-              <Sparkles size={15} />
-              <span>Gerador de Scripts & Spintax</span>
-            </a>
-
-            <a
-              href="#calculadora-roi"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 rounded-xl hover:bg-emerald-500/20 hover:border-emerald-500/40 hover:scale-[1.02] transition-all shadow-sm"
-            >
-              <Calculator size={15} />
-              <span>Calculadora de Metas</span>
-            </a>
-
-            <a
-              href="#outros-produtos"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/25 rounded-xl hover:bg-amber-500/20 hover:border-amber-500/40 hover:scale-[1.02] transition-all shadow-sm"
-            >
-              <Camera size={15} />
-              <span>Prompts +700 & E-Book PDF</span>
-            </a>
-
-            <a
-              href="#outros-produtos"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/25 rounded-xl hover:bg-cyan-500/20 hover:border-cyan-500/40 hover:scale-[1.02] transition-all shadow-sm"
-            >
-              <Tv size={15} />
-              <span>RDG Stream (Filmes & TV)</span>
-            </a>
-
-            <a
-              href="#faq"
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-rose-300 bg-rose-500/10 border border-rose-500/25 rounded-xl hover:bg-rose-500/20 hover:border-rose-500/40 hover:scale-[1.02] transition-all shadow-sm"
-            >
-              <HelpCircle size={15} />
-              <span>Dúvidas & Suporte</span>
-            </a>
-          </div>
-        </section>
-
+      <main className="max-w-6xl mx-auto px-4 py-10 space-y-12">
         {/* INTRODUCTORY WELCOME VIDEO SECTION */}
         <section id="boas-vindas" className="bg-[#111218] border border-amber-500/30 rounded-2xl p-6 sm:p-8 space-y-6 relative overflow-hidden shadow-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
@@ -771,7 +773,7 @@ function MembrosPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-8 space-y-2">
+            <div className="lg:col-span-8">
               <div className="relative aspect-video bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col items-center justify-center group">
                 {introVideoUrl ? (
                   <iframe
@@ -809,19 +811,6 @@ function MembrosPage() {
                   </>
                 )}
               </div>
-              {introVideoUrl && (
-                <div className="flex justify-end">
-                  <a
-                    href={introVideoUrl.includes("/embed/") ? introVideoUrl.replace("/embed/", "/share/") : introVideoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-400 hover:underline bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20"
-                  >
-                    <ExternalLink size={13} />
-                    <span>Vídeo não carregou? Clique para assistir direto no Loom ↗</span>
-                  </a>
-                </div>
-              )}
             </div>
 
             <div className="lg:col-span-4 space-y-4">
@@ -1054,7 +1043,7 @@ function MembrosPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            <div className="lg:col-span-8 space-y-2">
+            <div className="lg:col-span-8">
               <div className="relative aspect-video bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
                 <iframe
                   src="https://www.loom.com/embed/2235b1c6f775474ba9740f6ac8a6bca4"
@@ -1063,17 +1052,6 @@ function MembrosPage() {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
-              </div>
-              <div className="flex justify-end">
-                <a
-                  href="https://www.loom.com/share/2235b1c6f775474ba9740f6ac8a6bca4"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-400 hover:underline bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20"
-                >
-                  <ExternalLink size={13} />
-                  <span>Vídeo não abriu? Clique para assistir direto no Loom ↗</span>
-                </a>
               </div>
             </div>
             <div className="lg:col-span-4 space-y-3 bg-white/5 border border-white/10 p-5 rounded-xl text-xs text-muted-foreground">
@@ -1109,7 +1087,7 @@ function MembrosPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            <div className="lg:col-span-8 space-y-2">
+            <div className="lg:col-span-8">
               <div className="relative aspect-video bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
                 <iframe
                   src="https://www.loom.com/embed/2887a552a72c47bdb7b79608db5fc196"
@@ -1118,17 +1096,6 @@ function MembrosPage() {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
-              </div>
-              <div className="flex justify-end">
-                <a
-                  href="https://www.loom.com/share/2887a552a72c47bdb7b79608db5fc196"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary hover:underline bg-primary/10 px-3 py-1 rounded-lg border border-primary/20"
-                >
-                  <ExternalLink size={13} />
-                  <span>Vídeo não abriu? Clique para assistir direto no Loom ↗</span>
-                </a>
               </div>
             </div>
             <div className="lg:col-span-4 space-y-3 bg-white/5 border border-white/10 p-5 rounded-xl text-xs text-muted-foreground">
@@ -1204,19 +1171,7 @@ function MembrosPage() {
                   </>
                 )}
               </div>
-              {videoLessons[activeVideo].videoUrl ? (
-                <div className="flex justify-end">
-                  <a
-                    href={videoLessons[activeVideo].videoUrl.includes("/embed/") ? videoLessons[activeVideo].videoUrl.replace("/embed/", "/share/") : videoLessons[activeVideo].videoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary hover:underline bg-primary/10 px-3 py-1 rounded-lg border border-primary/20"
-                  >
-                    <ExternalLink size={13} />
-                    <span>Vídeo não abriu no player? Clique para assistir direto no Loom ↗</span>
-                  </a>
-                </div>
-              ) : (
+              {!videoLessons[activeVideo].videoUrl && (
                 <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-between text-xs text-amber-300 font-medium">
                   <span>ℹ️ Conteúdo em atualização contínua. Assista às Aulas 01, 02 e 07 liberadas!</span>
                 </div>
