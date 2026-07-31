@@ -1201,6 +1201,7 @@ const COURSES = [
           }
         ]
       },
+      /*
       {
         title: "VSL 5 Dígitos 100% Editável",
         thumbnail: "https://drive.google.com/uc?export=view&id=1sb7vkClvpvcao_sRt4clK1tgxZ9KcDEn",
@@ -1233,6 +1234,7 @@ const COURSES = [
           }
         ]
       }
+      */
     ]
   }
 ];
