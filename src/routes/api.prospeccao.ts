@@ -111,13 +111,27 @@ export const Route = createFileRoute("/api/prospeccao")({
                 status: 200,
                 headers: corsHeaders,
               });
+            } else if (searchData.status) {
+              // Se o Google retornou erro específico (REQUEST_DENIED, OVER_QUERY_LIMIT, etc.)
+              return new Response(
+                JSON.stringify({
+                  status: "google_error",
+                  google_status: searchData.status,
+                  message: searchData.error_message || `Resposta do Google: ${searchData.status}`,
+                  leads: [],
+                }),
+                {
+                  status: 200,
+                  headers: corsHeaders,
+                }
+              );
             }
           } catch (err) {
             console.error("Erro ao chamar Google Places API:", err);
           }
         }
 
-        // FALLBACK DE DEMONSTRAÇÃO INTELIGENTE
+        // FALLBACK DE DEMONSTRAÇÃO INTELIGENTE (Apenas quando nenhuma chave for informada)
         const mockLeads: LeadItem[] = generateMockLeads(nicho, cidade, onlyNoWebsite);
 
         return new Response(

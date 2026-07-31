@@ -25,7 +25,8 @@ import {
   MessageCircle,
   Kanban,
   Grid,
-  ExternalLink
+  ExternalLink,
+  AlertTriangle
 } from "lucide-react";
 
 const TITLE = "Ferramenta de Prospecção B2B Google Maps — RDG Digital";
@@ -63,7 +64,7 @@ function ProspeccaoPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [leads, setLeads] = useState<LeadItem[]>([]);
   const [savedLeads, setSavedLeads] = useState<LeadItem[]>([]);
-  const [sourceInfo, setSourceInfo] = useState<{ source: string; message?: string } | null>(null);
+  const [sourceInfo, setSourceInfo] = useState<{ source: string; message?: string; googleStatus?: string } | null>(null);
 
   // Drag and Drop Kanban State
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
@@ -106,7 +107,8 @@ function ProspeccaoPage() {
   ) => {
     setIsLoading(true);
     let fetchedLeads: LeadItem[] = [];
-    let source = "demo_mock";
+    let source = targetApiKey ? "google_api" : "demo_mock";
+    let googleStatus = "";
     let message = "Demonstração ativa. Insira sua chave da Google Places API nas configurações para buscar dados ao vivo do Google.";
 
     try {
@@ -124,19 +126,24 @@ function ProspeccaoPage() {
           fetchedLeads = data.leads;
           source = data.source;
           message = data.message;
+        } else if (data.status === "google_error") {
+          source = "google_error";
+          googleStatus = data.google_status;
+          message = data.message;
         }
       }
     } catch (err) {
       console.error("Erro na busca de leads via API:", err);
     }
 
+    // Se o Google retornou erro ou nenhuma chave foi informada, gerar os dados de demonstração
     if (fetchedLeads.length === 0) {
       fetchedLeads = generateMockLeads(targetNicho, targetCidade, onlyNoWebsite);
     }
 
     const filtered = fetchedLeads.filter((l: LeadItem) => l.rating >= minRating);
     setLeads(filtered.length > 0 ? filtered : fetchedLeads);
-    setSourceInfo({ source, message });
+    setSourceInfo({ source, message, googleStatus });
     setIsLoading(false);
   };
 
@@ -280,7 +287,33 @@ function ProspeccaoPage() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        {/* Banner Informativo sobre a Busca */}
+        {/* Banner Informativo sobre Erro no Google Cloud */}
+        {sourceInfo?.source === "google_error" && (
+          <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-rose-500/5">
+            <div className="flex items-start sm:items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 border border-rose-500/30">
+                <AlertTriangle size={18} />
+              </div>
+              <div className="space-y-0.5">
+                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>Erro de Configuração no Google Cloud ({sourceInfo.googleStatus})</span>
+                </h4>
+                <p className="text-xs text-rose-200/80 leading-relaxed">
+                  O Google retornou: <strong>"{sourceInfo.message}"</strong>. Para resolver: acesse o Google Cloud Console e <strong>vincule uma Conta de Faturamento (Billing Account)</strong> ao seu projeto (o Google dará $200 dólares de saldo grátis por mês).
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsConfigOpen(true)}
+              className="px-4 py-2 bg-rose-500 text-white font-extrabold text-xs rounded-xl hover:bg-rose-400 transition-all shrink-0 flex items-center gap-1.5 shadow"
+            >
+              <Key size={14} />
+              <span>Verificar Chave</span>
+            </button>
+          </div>
+        )}
+
+        {/* Banner Informativo sobre Modo Demo */}
         {sourceInfo?.source === "demo_mock" && (
           <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-amber-500/5">
             <div className="flex items-center gap-3">
@@ -747,11 +780,11 @@ function ProspeccaoPage() {
             <div className="bg-gradient-to-br from-[#181928] to-[#0A0A0E] border border-primary/30 rounded-2xl p-5 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <MonitorPlay size={18} className="text-primary" />
+                  <Globe size={18} className="text-primary" />
                   <span className="font-extrabold text-sm text-white">{selectedDemoLead.name}</span>
                 </div>
                 <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/30">
-                  SITE ONLINE
+                  SITE ONLINE NO AR
                 </span>
               </div>
 
