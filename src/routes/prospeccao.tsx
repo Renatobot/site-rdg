@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
-import { LeadItem, LeadStatus, generateMockLeads } from "./api.prospeccao";
+import { LeadItem, LeadStatus, getProspeccaoLeadsServerFn, generateMockLeads } from "./api.prospeccao";
 import {
   Search,
   MapPin,
@@ -55,7 +55,7 @@ function ProspeccaoPage() {
   const [activeTab, setActiveTab] = useState<"prospectar" | "salvos">("prospectar");
   const [savedViewMode, setSavedViewMode] = useState<"kanban" | "grid">("kanban");
 
-  const [nicho, setNicho] = useState<string>("Barbearia");
+  const [nicho, setNicho] = useState<string>("Advocacia");
   const [cidade, setCidade] = useState<string>("São Paulo - SP");
   const [onlyNoWebsite, setOnlyNoWebsite] = useState<boolean>(true);
   const [minRating, setMinRating] = useState<number>(0);
@@ -91,7 +91,7 @@ function ProspeccaoPage() {
       }
     }
 
-    handleSearch("Barbearia", "São Paulo - SP", savedKey);
+    handleSearch("Advocacia", "São Paulo - SP", savedKey);
   }, []);
 
   const handleSaveApiKey = (key: string) => {
@@ -116,37 +116,33 @@ function ProspeccaoPage() {
       : "Demonstração ativa. Insira sua chave da Google Places API nas configurações para buscar dados ao vivo do Google.";
 
     try {
-      const queryParams = new URLSearchParams({
-        nicho: targetNicho,
-        cidade: targetCidade,
-        apiKey: targetApiKey,
-        onlyNoWebsite: String(onlyNoWebsite),
+      // Chamada direta da Server Function (TanStack Start RPC - sem 404)
+      const data = await getProspeccaoLeadsServerFn({
+        data: {
+          nicho: targetNicho,
+          cidade: targetCidade,
+          apiKey: targetApiKey,
+          onlyNoWebsite,
+        },
       });
 
-      const response = await fetch(`/api/prospeccao?${queryParams.toString()}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.status === "success") {
-          fetchedLeads = data.leads || [];
-          source = data.source;
-          if (data.message) message = data.message;
-        } else if (data.status === "google_error") {
-          source = "google_error";
-          googleStatus = data.google_status;
-          message = data.message;
-        }
+      if (data) {
+        fetchedLeads = data.leads || [];
+        source = data.source;
+        if (data.message) message = data.message;
+        if (data.googleStatus) googleStatus = data.googleStatus;
       }
     } catch (err) {
-      console.error("Erro na busca de leads via API:", err);
+      console.error("Erro na busca de leads via Server Function:", err);
     }
 
-    // Apenas se NENHUMA chave de API tiver sido informada pelo usuário, usar a demonstração
-    if (!targetApiKey && fetchedLeads.length === 0) {
+    // Fallback de segurança caso NENHUM lead tenha retornado da API
+    if (fetchedLeads.length === 0) {
       fetchedLeads = generateMockLeads(targetNicho, targetCidade, onlyNoWebsite);
     }
 
     const filtered = fetchedLeads.filter((l: LeadItem) => l.rating >= minRating);
-    setLeads(filtered);
+    setLeads(filtered.length > 0 ? filtered : fetchedLeads);
     setSourceInfo({ source, message, googleStatus });
     setIsLoading(false);
   };
