@@ -50,10 +50,10 @@ export const Route = createFileRoute("/cursos")({
 
 const COURSES = [
   {
-    id: "google-ads",
-    title: "Google Ads para Negócios",
-    description: "Aprenda a dominar o Google Ads e crie campanhas de alta conversão para o seu negócio ou clientes.",
-    thumbnail: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800",
+    id: "trafego-pago",
+    title: "Domine o Tráfego Pago (Google & Meta)",
+    description: "Aprenda a dominar as maiores plataformas de anúncios do mundo (Google e Meta Ads) para criar campanhas de alta conversão para o seu negócio ou clientes.",
+    thumbnail: "/capa-trafego-pago.png",
     modules: [
       {
         title: "Google Ads (Atualizado)",
@@ -201,6 +201,264 @@ const COURSES = [
                 </div>
                 <p>
                   Aula rápida sobre a ferramenta do Google ADS de planejador de palavras chaves, <strong className="text-blue-400 block mt-1 text-base">ótima para buscar palavras chaves precisas para seus anúncios!</strong>
+                </p>
+              </div>
+            )
+          }
+        ]
+      },
+      {
+        title: "Meta Ads (Atualizado)",
+        videos: [
+          { 
+            id: "meta-1", 
+            title: "1 • Criando BM e Conta de Anúncio", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1VnkRXIyK0Oe80HFvAIdQigrYsa-gEMjQ/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-blue-500/10 text-blue-400 rounded-lg">🎯</span>
+                  <h4 className="font-bold text-white text-lg">Aula — Criação da BM e Conta de Anúncios</h4>
+                </div>
+                <p>
+                  <span className="text-white font-bold">🚀 Começando uma das principais aulas</span> deste módulo de Anúncios: a criação da BM (Business Manager) e da Conta de Anúncios.
+                </p>
+                <p>
+                  🔑 Essa etapa é fundamental para quem deseja anunciar e lucrar com a venda de produtos digitais.
+                </p>
+                
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl mt-4">
+                  <strong className="text-white flex items-center gap-2 mb-2">📝 O que você vai precisar:</strong>
+                  <ul className="space-y-1">
+                    <li>✅ Ter um perfil no Facebook ativo e verificado.</li>
+                    <li>✅ Seguir o passo a passo sem pular nenhuma etapa.</li>
+                  </ul>
+                </div>
+
+                <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl mt-4">
+                  <strong className="text-primary flex items-center gap-2 mb-2">🔗 Links Importantes:</strong>
+                  <div className="space-y-2 flex flex-col font-bold">
+                    <a href="https://business.facebook.com" target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1 w-fit">
+                      🏢 Clique aqui para criar sua BM (Business Manager) <ExternalLink size={12} />
+                    </a>
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1 w-fit">
+                      ➡️ Não tem perfil no Facebook? Crie sua conta aqui <ExternalLink size={12} />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )
+          },
+          { 
+            id: "meta-2", 
+            title: "2 • Adição de Pagamento (Melhor Modo)", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/17lRPEl9AVoJqvua5b2Cr4fJlPSJBGS5y/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-green-500/10 text-green-400 rounded-lg">💳</span>
+                  <h4 className="font-bold text-white text-lg">Aula — Como Pagar seus Anúncios no Facebook</h4>
+                </div>
+                <p>
+                  📢 Como você já deve saber, o Facebook Ads é a ferramenta responsável por entregar clientes, leads e compradores através dos anúncios pagos.
+                </p>
+                <div className="bg-white/5 border-l-4 border-white p-4 rounded-r-xl">
+                  <p>🔐 Para anunciar, você precisa investir — mas hoje isso está muito mais acessível:</p>
+                  <ul className="mt-2 space-y-1">
+                    <li>💳 Você pode usar um cartão de crédito pré-pago.</li>
+                    <li>💸 Também pode adicionar saldo via PIX ou Boleto.</li>
+                  </ul>
+                </div>
+                <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-xl">
+                  <strong className="text-green-400 block mb-2 text-base">🚀 Dica Prática:</strong>
+                  <p>✅ Uma opção excelente é a <strong>Conta Simples</strong>, que permite gerar cartão pré-pago e usar para anúncios sem complicação.</p>
+                  <a href="https://contasimples.com/" target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-green-400 hover:underline font-bold">
+                    🔗 Clique aqui para criar sua conta na Conta Simples <ExternalLink size={12} />
+                  </a>
+                </div>
+              </div>
+            )
+          },
+          { 
+            id: "meta-3", 
+            title: "3 • Criando o Pixel Magnético", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1xZBaKkO0WQ9-2LwMK5WiXBW4HmP8Oves/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-purple-500/10 text-purple-400 rounded-lg">📍</span>
+                  <h4 className="font-bold text-white text-lg">Aula — Criação do Pixel da Meta</h4>
+                </div>
+                <p>
+                  <strong className="text-white block">O que é o Pixel da Meta?</strong>
+                  O Pixel é um trecho de código que você instala no seu site para acompanhar ações dos visitantes e melhorar os resultados dos seus anúncios.
+                </p>
+                
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
+                  <strong className="text-white block mb-2">📊 Com o Pixel, você pode:</strong>
+                  <ul className="space-y-2">
+                    <li><strong className="text-cyan-400">🎯 Alcançar as pessoas certas:</strong> mostrar anúncios para quem já visitou seu site ou executou uma ação específica.</li>
+                    <li><strong className="text-green-400">💰 Gerar mais vendas:</strong> usando lances automáticos com base em ações como cliques ou compras.</li>
+                    <li><strong className="text-purple-400">📈 Mensurar resultados:</strong> veja com clareza o que acontece após seus anúncios aparecerem.</li>
+                  </ul>
+                </div>
+                <p className="font-bold text-primary">🧩 O Pixel é fundamental para quem quer escalar vendas com estratégia.</p>
+                
+                <a href="https://business.facebook.com/settings" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors font-bold text-xs mt-2">
+                  🔗 Clique aqui para acessar as Configurações da Meta (Facebook Settings) <ExternalLink size={14} />
+                </a>
+              </div>
+            )
+          },
+          { 
+            id: "meta-4", 
+            title: "4 • Configurações de Eventos Parte", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1yqCtSskPqQscvP0VDZVTt9EeFdBkkAHi/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <p>
+                  Aula sobre como estar criando o Token da API no gerenciador de eventos, e criando permissão para os domínios usarem os eventos.
+                </p>
+                <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl">
+                  <p className="text-red-100">
+                    <strong className="text-red-400 block mb-1">⚠️ ATENÇÃO:</strong> 
+                    Assim que copiar seu token, salve ele em um lugar seguro, pois o Facebook não armazena seu token, e se você perder será preciso criar outro.
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          { 
+            id: "meta-5", 
+            title: "5 • Instalação do Pixel + Verificação de Domínio", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1-hHvw2MB_Hl6sMYxs9IY2FFzs1PbQn27/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-blue-500/10 text-blue-400 rounded-lg">📍</span>
+                  <h4 className="font-bold text-white text-lg">Aula — Configuração do Pixel e Eventos + Verificação de Domínio</h4>
+                </div>
+                <p>
+                  <strong className="text-red-400">🚨 Atenção:</strong> Essa aula é crucial para validar seu domínio e ativar corretamente os eventos com o Pixel da Meta.
+                </p>
+                
+                <div className="bg-red-500/10 border-l-4 border-red-500 p-4 rounded-r-xl">
+                  <strong className="text-red-400 block mb-2">📌 IMPORTANTE:</strong>
+                  <p className="mb-2">Após configurar o domínio, evite anúncios com temas como:</p>
+                  <ul className="space-y-1 mb-2 font-bold text-red-200">
+                    <li>❌ Conteúdo sexual</li>
+                    <li>❌ Promessas de dinheiro fácil</li>
+                    <li>❌ Práticas proibidas pela Meta</li>
+                  </ul>
+                  <p className="text-xs text-red-300">Se sua conta for bloqueada, o domínio atrelado ficará travado. A remoção só é possível via suporte, o que pode demorar.</p>
+                </div>
+
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl mt-4">
+                  <strong className="text-white block mb-2">🧩 Ferramentas da Aula:</strong>
+                  <ul className="space-y-1 font-bold">
+                    <li>🔧 Plugin Pixel Your Site</li>
+                    <li>🧪 Extensão Meta Pixel Helper (Google Chrome)</li>
+                  </ul>
+                </div>
+              </div>
+            )
+          },
+          { 
+            id: "meta-6", 
+            title: "6 • Públicos que Uso (Aula Ouro)", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1gzRi0i_r4KDcl3EN-pBvApMSmvTITqqE/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl">
+                  <p className="text-yellow-100">
+                    <strong className="text-yellow-400 block mb-1 text-lg">⭐ Aula do Ouro!</strong> 
+                    Aqui mostro como criar Públicos por interesse, e já mostro os <strong>exatos Públicos que uso nos Produtos que vendo</strong> pra faturar no Facebook.
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          { 
+            id: "meta-7", 
+            title: "7 • Público Personalizado e Semelhante (Barato)", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1SYbnLkhJI8xKag3_ag8EXBCASZOB-vxi/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <p>
+                  Estes Públicos mostrados nesta aula serão de grande utilidade após você captar dados de compradores e visitantes em seu site.
+                </p>
+                <div className="bg-green-500/10 border-l-4 border-green-500 p-4 rounded-r-xl">
+                  <p className="text-green-100">
+                    <strong className="text-green-400 block mb-1">💡 Dica de Ouro:</strong> Geralmente eles são <strong>muito mais baratos que os públicos padrão</strong>, trazendo um Retorno (ROI) incrivelmente maior para suas campanhas!
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          { 
+            id: "meta-8", 
+            title: "8 • Público Lookalike + Lista de e-mails Compradores", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1kv8PZanyOrzGasm6OZ6AXvNfiotdSLPh/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-primary/10 text-primary rounded-lg">🎯</span>
+                  <h4 className="font-bold text-white text-lg">Aula — Público Lookalike com Lista Exclusiva</h4>
+                </div>
+                <p>
+                  Nessa aula você vai aprender a usar públicos semelhantes (lookalike), uma das estratégias mais poderosas do Facebook Ads!
+                </p>
+                <p>
+                  📈 E como <strong>bônus especial</strong>, você vai receber uma lista com <strong className="text-primary text-base">+9.400 e-mails de compradores reais do nicho de marketing digital!</strong> Com ela você poderá criar públicos quentes e parecidos.
+                </p>
+
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl space-y-3">
+                  <p>
+                    <strong className="text-red-400 block mb-1">⚠️ IMPORTANTE:</strong>
+                    Essa lista é para uso exclusivo na criação de públicos personalizados e semelhantes. <strong>É proibido usar esses e-mails para SPAM.</strong>
+                  </p>
+                  <p className="text-yellow-400 text-xs">
+                    📌 Sua conta precisa ter alguma atividade anterior (não pode ser uma conta nova zerada) para conseguir criar o público personalizado com sucesso.
+                  </p>
+                </div>
+
+                <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl mt-4">
+                  <strong className="text-primary block mb-2">📥 Acesse a Lista Lookalike:</strong>
+                  <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors font-bold text-xs">
+                    🔗 Baixar a lista de E-mails <ExternalLink size={14} />
+                  </a>
+                </div>
+
+                <p className="font-bold text-green-400">🚀 Use esse recurso com inteligência! Essa é uma oportunidade que poucas pessoas ensinam e aplicam corretamente.</p>
+              </div>
+            )
+          },
+          { 
+            id: "meta-9", 
+            title: "9 • Conversões Personalizadas Cartão, Pix e Boleto", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1VslpG3vXqPZA47jAF2r55cF6ejvuTwEG/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <p>
+                  Com as conversões personalizadas, é possível criar regras para eventos. Ao criar essas regras, você pode mensurar ações mais específicas de clientes.
+                </p>
+                <div className="bg-blue-500/10 border-l-4 border-blue-500 p-4 rounded-r-xl">
+                  <p className="text-blue-100">
+                    <strong className="text-blue-400 block mb-1">🔍 Por exemplo:</strong> 
+                    Você pode filtrar todas as compras para mensurar <strong>apenas as compras em Cartão.</strong>
+                  </p>
+                </div>
+                <p>
+                  Em seguida, é possível usar as conversões personalizadas como metas de desempenho e alcançar as pessoas com mais chances de realizar ações importantes para você.
                 </p>
               </div>
             )
