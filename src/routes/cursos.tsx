@@ -859,6 +859,167 @@ const COURSES = [
         ]
       }
     ]
+  },
+  {
+    id: "criacao-criativos",
+    title: "Criação de Criativos e CapCut",
+    description: "Aprenda a criar roteiros altamente persuasivos focados em conversão e a editar seus vídeos na prática utilizando o CapCut.",
+    modules: [
+      {
+        title: "O Mecanismo Exclusivo das Copys",
+        thumbnail: "/capa-capcut-1.png",
+        videos: [
+          {
+            id: "cap-1",
+            title: "1 • No SubNicho está o Valor",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1sBEeazMHyrMTmvBz12mFXuCtF92CJou0/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-blue-500/10 text-blue-400 rounded-lg">🎯</span>
+                  <h4 className="font-bold text-white text-lg">Encontrando o seu Oceano Azul</h4>
+                </div>
+                <p>
+                  A maioria das pessoas tenta vender para todo mundo e acaba não vendendo para ninguém. O segredo para se destacar no mercado atual e diminuir o custo por aquisição é <strong>encontrar o seu subnicho</strong>.
+                </p>
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl mt-4">
+                  <p className="text-white/70">
+                    <strong className="text-white block mb-1">💡 O que você vai aprender:</strong>
+                    Como mapear as dores específicas do seu cliente ideal e criar uma comunicação tão assertiva que ele vai sentir que o produto foi feito exclusivamente para ele.
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          {
+            id: "cap-2",
+            title: "2 • O Mecanismo Exclusivo",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1ZsqvmGq9LLyz3xwunrjVag-sHKFQJcZh/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-purple-500/10 text-purple-400 rounded-lg">⚙️</span>
+                  <h4 className="font-bold text-white text-lg">O que torna sua oferta única?</h4>
+                </div>
+                <p>
+                  O Mecanismo Exclusivo é a "peça que faltava" na vida do seu cliente. É a explicação lógica de <strong>por que os métodos anteriores dele falharam</strong> e por que o seu produto é a única solução definitiva.
+                </p>
+                <div className="bg-purple-500/10 border-l-4 border-purple-500 p-4 rounded-r-xl">
+                  <p className="text-purple-100">
+                    <strong className="text-purple-400 block mb-1">🔑 A Chave da Conversão:</strong> 
+                    Quando você apresenta um mecanismo único, você tira a culpa do cliente pelos fracassos passados e devolve a esperança através do seu produto.
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          {
+            id: "cap-3",
+            title: "3 • O Nível de Consciencia do Lead",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1uwEazRbxvEDSlPLhdktWluvia9LN9G_i/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-yellow-500/10 text-yellow-400 rounded-lg">🧠</span>
+                  <h4 className="font-bold text-white text-lg">Mapeando a Mente do Cliente</h4>
+                </div>
+                <p>
+                  Saber o que falar é tão importante quanto saber para <strong>quem</strong> e <strong>quando</strong> falar.
+                </p>
+                <p>
+                  Nesta aula, exploramos os diferentes níveis de consciência do consumidor (Inconsciente, Consciente do Problema, Consciente da Solução, Consciente do Produto e Totalmente Consciente) e como adaptar sua copy para cada um deles.
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap-4",
+            title: "4 • A VSL sem Jornada do Herói",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1bmp-pM6Mot_DQr_NJJynVrVMCXVO-Fxd/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-red-500/10 text-red-400 rounded-lg">🎬</span>
+                  <h4 className="font-bold text-white text-lg">Direto ao Ponto</h4>
+                </div>
+                <p>
+                  A "Jornada do Herói" é clássica, mas muitas vezes ela deixa o vídeo longo demais e perde a atenção de um público que está cada vez mais impaciente.
+                </p>
+                <p>
+                  Aprenda a estruturar uma VSL (Video Sales Letter) altamente persuasiva que prende a atenção nos primeiros segundos e foca diretamente na dor e na solução, <strong>sem enrolação</strong>.
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap-5",
+            title: "5 • X1 e a Importância do Criativo",
+            duration: "~",
+            url: "https://drive.google.com/file/d/17oChKiY6xG-48GA9okZAncZLNYHV8YJy/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-green-500/10 text-green-400 rounded-lg">💬</span>
+                  <h4 className="font-bold text-white text-lg">O Poder do "Um a Um"</h4>
+                </div>
+                <p>
+                  Vender no X1 (WhatsApp ou Direct) exige um criativo que não venda o produto imediatamente, mas sim que venda <strong>a curiosidade de iniciar uma conversa</strong> com você.
+                </p>
+                <p>
+                  Nesta aula, veremos a importância de alinhar a mensagem do criativo com a abordagem de vendas que você fará no atendimento humano.
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap-6",
+            title: "6 • Páginas de Vendas e LowTicket",
+            duration: "~",
+            url: "https://drive.google.com/file/d/15o2FkwVRSI2hlhepVqnTbIo-ipcZdj8W/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-blue-500/10 text-blue-400 rounded-lg">💰</span>
+                  <h4 className="font-bold text-white text-lg">Estratégia para Produtos de Baixo Valor</h4>
+                </div>
+                <p>
+                  Vender um produto Low Ticket (ticket baixo) requer uma página de vendas objetiva, com alta carga de urgência e uma oferta que seja percebida como uma "pechincha" irresistível (no brainer offer).
+                </p>
+                <p>
+                  Entenda os elementos essenciais que não podem faltar na sua página para converter o máximo de visitantes em compradores instantâneos.
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap-7",
+            title: "7 • 4 Elementos e a Perfeita Copy",
+            duration: "~",
+            url: "https://drive.google.com/file/d/19tIDGa_eiG5_ToOx7CXGQDFLiRV4jlcb/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-primary/10 text-primary rounded-lg">✍️</span>
+                  <h4 className="font-bold text-white text-lg">O Check-list da Persuasão</h4>
+                </div>
+                <p>
+                  Para fechar este módulo com chave de ouro, vamos dissecar os 4 elementos fundamentais que toda Copy de alta conversão precisa ter para gerar desejo incontrolável no seu cliente.
+                </p>
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl mt-4">
+                  <p className="text-white/70">
+                    <strong className="text-white">Dica Prática:</strong> Use esta aula como um check-list sempre que for escrever um novo roteiro para seus vídeos do CapCut ou textos para seus anúncios.
+                  </p>
+                </div>
+              </div>
+            )
+          }
+        ]
+      }
+    ]
   }
 ];
 
