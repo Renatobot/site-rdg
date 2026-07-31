@@ -1,4 +1,4 @@
-import { createFileRoute, useSearch } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
 import {
   Phone,
@@ -13,14 +13,39 @@ import {
   Users,
   ChevronRight,
   ArrowRight,
-  ExternalLink
+  Sparkles
 } from "lucide-react";
 
 const TITLE = "Demonstração de Website — RDG Digital";
 const DESCRIPTION = "Página de demonstração de site de alta conversão para empresas locais.";
 const CANONICAL_URL = `${BASE_URL}/demo`;
 
+export interface DemoSearchParams {
+  nome?: string;
+  cliente?: string;
+  categoria?: string;
+  cidade?: string;
+  endereco?: string;
+  phone?: string;
+  telefone?: string;
+  raw_phone?: string;
+  rating?: string;
+  reviews?: string;
+}
+
 export const Route = createFileRoute("/demo")({
+  validateSearch: (search: Record<string, unknown>): DemoSearchParams => {
+    return {
+      nome: typeof search.nome === "string" ? search.nome : typeof search.cliente === "string" ? search.cliente : "Empresa de Exemplo",
+      categoria: typeof search.categoria === "string" ? search.categoria : "Serviços Especializados",
+      cidade: typeof search.cidade === "string" ? search.cidade : "São Paulo - SP",
+      endereco: typeof search.endereco === "string" ? search.endereco : "",
+      phone: typeof search.phone === "string" ? search.phone : typeof search.telefone === "string" ? search.telefone : "+55 11 99999-8888",
+      raw_phone: typeof search.raw_phone === "string" ? search.raw_phone : "",
+      rating: typeof search.rating === "string" ? search.rating : "4.9",
+      reviews: typeof search.reviews === "string" ? search.reviews : "249",
+    };
+  },
   head: () => ({
     meta: websiteMeta(TITLE, DESCRIPTION, CANONICAL_URL),
     links: [{ rel: "canonical", href: CANONICAL_URL }],
@@ -111,7 +136,7 @@ const CATEGORY_IMAGES: Record<string, { hero: string; gallery: string[]; service
 };
 
 function FullSiteDemoPage() {
-  const search = useSearch({ strict: false }) as Record<string, string>;
+  const search = Route.useSearch();
 
   const nome = search.nome || search.cliente || "Empresa de Exemplo";
   const categoria = search.categoria || "Serviços Especializados";
@@ -119,7 +144,7 @@ function FullSiteDemoPage() {
   const endereco = search.endereco || `Rua Principal, 100 - ${cidade}`;
   const phone = search.phone || search.telefone || "+55 11 99999-8888";
   const rawPhone = (search.raw_phone || phone).replace(/\D/g, "");
-  const waNum = rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`;
+  const waNum = rawPhone.length > 5 ? (rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`) : "5511999998888";
   const rating = search.rating || "4.9";
   const reviews = search.reviews || "249";
 
@@ -131,7 +156,7 @@ function FullSiteDemoPage() {
     categoria.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(k)
   ) || "default";
 
-  const assets = CATEGORY_IMAGES[catKey];
+  const assets = CATEGORY_IMAGES[catKey] || CATEGORY_IMAGES["default"];
 
   return (
     <div className="min-h-screen bg-[#07080D] text-white flex flex-col font-sans selection:bg-primary/30">
@@ -162,28 +187,30 @@ function FullSiteDemoPage() {
           </div>
         </div>
 
-        <nav className="hidden md:flex items-center gap-6 text-xs font-bold text-white/70">
-          <a href="#inicio" className="hover:text-primary transition-colors">Início</a>
-          <a href="#servicos" className="hover:text-primary transition-colors">Serviços</a>
-          <a href="#galeria" className="hover:text-primary transition-colors">Galeria</a>
-          <a href="#avaliacoes" className="hover:text-primary transition-colors">Avaliações</a>
-          <a href="#contato" className="hover:text-primary transition-colors">Contato</a>
-        </nav>
+        <div className="flex items-center gap-3">
+          <a
+            href={`tel:${phone}`}
+            className="hidden sm:flex items-center gap-2 text-xs font-bold text-white/80 hover:text-white bg-white/5 px-3 py-2 rounded-xl border border-white/10"
+          >
+            <Phone size={14} className="text-primary" />
+            <span>{phone}</span>
+          </a>
 
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition-all transform hover:scale-105 flex items-center gap-2"
-        >
-          <MessageCircle size={16} />
-          <span className="hidden sm:inline">Agendar no WhatsApp</span>
-        </a>
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
+          >
+            <MessageCircle size={14} />
+            <span>Agendar WhatsApp</span>
+          </a>
+        </div>
       </header>
 
-      {/* Hero Section */}
-      <section id="inicio" className="relative min-h-[550px] sm:min-h-[650px] flex items-center justify-center overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0">
+      {/* HERO SECTION */}
+      <section className="relative min-h-[550px] flex items-center justify-center overflow-hidden py-20 px-6">
+        <div className="absolute inset-0 z-0">
           <img
             src={assets.hero}
             alt={nome}
@@ -192,259 +219,209 @@ function FullSiteDemoPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#07080D] via-[#07080D]/70 to-transparent" />
         </div>
 
-        <div className="relative max-w-4xl mx-auto px-6 py-20 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/20 text-primary border border-primary/30 rounded-full text-xs font-black uppercase tracking-wider">
-            <Award size={14} />
-            <span>Excelência & Referência em {categoria}</span>
+        <div className="relative z-10 max-w-4xl w-full text-center space-y-6">
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full text-xs font-bold text-white/90 shadow-xl">
+            <Star size={14} className="text-yellow-400" fill="currentColor" />
+            <span>{rating} no Google Maps ({reviews} avaliações de clientes)</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none drop-shadow-lg">
-            {nome}
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
+            Excelência e Qualidade em <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-emerald-400 to-amber-300">{categoria}</span>
           </h1>
 
-          <p className="text-sm sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
-            Atendimento personalizado, estrutura moderna e profissionais altamente treinados para garantir a sua total satisfação em {cidade}.
+          <p className="text-sm sm:text-lg text-white/70 max-w-2xl mx-auto font-normal leading-relaxed">
+            Atendimento especializado, infraestrutura moderna e compromisso total com a sua satisfação em <strong>{cidade}</strong>.
           </p>
 
-          {/* Rating Badge */}
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-            <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md border border-yellow-500/30 px-4 py-2 rounded-2xl text-xs font-bold text-yellow-400 shadow-xl">
-              <div className="flex items-center gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={14} fill="currentColor" />
-                ))}
-              </div>
-              <span>{rating} de 5.0</span>
-              <span className="text-white/40">({reviews} avaliações no Google Maps)</span>
-            </div>
-          </div>
-
-          <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <a
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm rounded-2xl shadow-2xl shadow-emerald-500/30 transition-all transform hover:scale-105 flex items-center justify-center gap-3"
+              className="w-full sm:w-auto px-8 py-4 bg-primary text-black font-black text-sm rounded-2xl hover:bg-primary/90 transition-all transform hover:scale-105 shadow-xl shadow-primary/25 flex items-center justify-center gap-2"
             >
-              <MessageCircle size={20} />
-              <span>Falar Conosco no WhatsApp</span>
-            </a>
-
-            <a
-              href="#servicos"
-              className="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-2xl border border-white/15 transition-all flex items-center justify-center gap-2"
-            >
-              <span>Conhecer Nossos Serviços</span>
-              <ChevronRight size={16} />
+              <MessageCircle size={18} />
+              <span>Falar Diretamente pelo WhatsApp</span>
             </a>
           </div>
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="bg-[#0E0F17] border-b border-white/10 py-8 px-6">
+      {/* RECURSOS & DIFERENCIAIS */}
+      <section className="py-12 bg-[#0E0F17] border-y border-white/10 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div className="space-y-1">
-            <div className="text-2xl sm:text-3xl font-black text-primary">10+ Anos</div>
-            <div className="text-xs text-white/50 font-medium">De Tradição & Qualidade</div>
+            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-2 border border-primary/20">
+              <ShieldCheck size={20} />
+            </div>
+            <h4 className="font-extrabold text-sm text-white">Garantia de Qualidade</h4>
+            <p className="text-[11px] text-white/50">Profissionais certificados</p>
           </div>
+
           <div className="space-y-1">
-            <div className="text-2xl sm:text-3xl font-black text-emerald-400">+2.500</div>
-            <div className="text-xs text-white/50 font-medium">Clientes Atendidos</div>
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-2 border border-emerald-500/20">
+              <Clock size={20} />
+            </div>
+            <h4 className="font-extrabold text-sm text-white">Atendimento Ágil</h4>
+            <p className="text-[11px] text-white/50">Sem filas ou esperas</p>
           </div>
+
           <div className="space-y-1">
-            <div className="text-2xl sm:text-3xl font-black text-yellow-400">{rating} / 5.0</div>
-            <div className="text-xs text-white/50 font-medium">Nota no Google Maps</div>
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto mb-2 border border-amber-500/20">
+              <Award size={20} />
+            </div>
+            <h4 className="font-extrabold text-sm text-white">⭐ {rating} de 5.0</h4>
+            <p className="text-[11px] text-white/50">Avaliado no Google</p>
           </div>
+
           <div className="space-y-1">
-            <div className="text-2xl sm:text-3xl font-black text-cyan-400">100% VIP</div>
-            <div className="text-xs text-white/50 font-medium">Atendimento Personalizado</div>
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mx-auto mb-2 border border-cyan-500/20">
+              <Users size={20} />
+            </div>
+            <h4 className="font-extrabold text-sm text-white">+{reviews} Atendimentos</h4>
+            <p className="text-[11px] text-white/50">Clientes satisfeitos</p>
           </div>
         </div>
       </section>
 
-      {/* Services Section */}
-      <section id="servicos" className="py-16 px-6 max-w-6xl mx-auto space-y-10 w-full">
+      {/* SEÇÃO DE SERVIÇOS EXCLUSIVOS */}
+      <section className="py-20 px-6 max-w-6xl mx-auto w-full space-y-12">
         <div className="text-center space-y-3">
-          <span className="text-xs font-bold text-primary uppercase tracking-widest">Nossos Serviços</span>
-          <h2 className="text-3xl font-black text-white tracking-tight">O Que Fazemos por Você</h2>
-          <p className="text-xs sm:text-sm text-white/60 max-w-lg mx-auto">
-            Soluções completas com os melhores materiais, técnicas avançadas e atendimento sob medida.
-          </p>
+          <span className="text-xs font-extrabold text-primary uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+            Nossos Serviços Exclusivos
+          </span>
+          <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+            Soluções Sob Medida para Você
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {assets.services.map((srv, idx) => (
             <div
               key={idx}
-              className="bg-[#0E0F17] border border-white/10 hover:border-primary/50 rounded-3xl p-6 space-y-4 transition-all hover:shadow-2xl hover:shadow-primary/5 group"
+              className="bg-[#0E0F17] border border-white/10 hover:border-primary/50 rounded-3xl p-6 space-y-4 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 flex flex-col justify-between group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-primary/15 text-primary border border-primary/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <CheckCircle2 size={24} />
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-primary/20 text-primary font-black text-lg flex items-center justify-center border border-primary/30 group-hover:scale-110 transition-transform">
+                  0{idx + 1}
+                </div>
+                <h3 className="font-extrabold text-lg text-white group-hover:text-primary transition-colors">
+                  {srv.title}
+                </h3>
+                <p className="text-xs text-white/60 leading-relaxed font-normal">
+                  {srv.desc}
+                </p>
               </div>
-              <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors">{srv.title}</h3>
-              <p className="text-xs text-white/60 leading-relaxed">{srv.desc}</p>
+
               <a
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline pt-2"
+                className="pt-4 border-t border-white/5 text-xs font-bold text-primary hover:text-white flex items-center gap-1 transition-colors"
               >
-                <span>Consultar Horários</span>
-                <ArrowRight size={12} />
+                <span>Saber Mais / Agendar</span>
+                <ChevronRight size={14} />
               </a>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Photo Gallery Section */}
-      <section id="galeria" className="py-16 px-6 bg-[#0B0C12] border-y border-white/10">
-        <div className="max-w-6xl mx-auto space-y-10">
-          <div className="text-center space-y-3">
-            <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Estrutura & Ambiência</span>
-            <h2 className="text-3xl font-black text-white tracking-tight">Conheça Nosso Espaço</h2>
-            <p className="text-xs sm:text-sm text-white/60 max-w-lg mx-auto">
-              Ambiente preparado para oferecer o máximo conforto e bem-estar durante seu atendimento.
-            </p>
+      {/* GALERIA DE FOTOS DO ESPAÇO */}
+      <section className="py-16 bg-[#0E0F17] border-y border-white/10 px-6">
+        <div className="max-w-6xl mx-auto space-y-8">
+          <div className="text-center space-y-2">
+            <h3 className="text-xl sm:text-3xl font-black text-white">Conheça Nossa Estrutura</h3>
+            <p className="text-xs text-white/50">Ambiente preparado para oferecer o máximo conforto e segurança</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {assets.gallery.map((imgUrl, i) => (
-              <div key={i} className="aspect-video sm:aspect-square rounded-2xl overflow-hidden border border-white/10 group relative">
+            {assets.gallery.map((img, idx) => (
+              <div key={idx} className="h-64 rounded-2xl overflow-hidden border border-white/10 group relative">
                 <img
-                  src={imgUrl}
-                  alt={`Fotos ${nome} ${i + 1}`}
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                  src={img}
+                  alt={`${nome} galeria ${idx + 1}`}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 filter brightness-90 group-hover:brightness-100"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                  <span className="text-xs font-bold text-white">{nome} — Foto {i + 1}</span>
-                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials / Google Reviews Section */}
-      <section id="avaliacoes" className="py-16 px-6 max-w-6xl mx-auto space-y-10 w-full">
+      {/* DEPOIMENTOS REALISTAS DO GOOGLE */}
+      <section className="py-20 px-6 max-w-6xl mx-auto w-full space-y-12">
         <div className="text-center space-y-3">
-          <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Depoimentos Reais</span>
-          <h2 className="text-3xl font-black text-white tracking-tight">O Que Nossos Clientes Dizem</h2>
-          <p className="text-xs sm:text-sm text-white/60 max-w-lg mx-auto">
-            Avaliações verificadas registradas no Google Maps.
-          </p>
+          <span className="text-xs font-extrabold text-yellow-400 uppercase tracking-widest bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20">
+            Avaliações Verificadas no Google
+          </span>
+          <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+            O Que Nossos Clientes Dizem
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { name: "Lucas Ferreira", text: "Atendimento impecável! Pontualidade, profissionais atenciosos e ambiente de altíssimo nível. Recomendo de olhos fechados!", time: "Há 1 semana" },
-            { name: "Mariana Souza", text: "Melhor experiência em " + categoria + " da região. O cuidado com os detalhes faz toda a diferença. Nota 10!", time: "Há 2 semanas" },
-            { name: "Carlos Eduardo", text: "Excelente estrutura e comunicação pelo WhatsApp. Fui muito bem atendido e superou minhas expectativas.", time: "Há 1 mês" }
-          ].map((rev, i) => (
-            <div key={i} className="bg-[#0E0F17] border border-white/10 rounded-3xl p-6 space-y-4 shadow-xl">
+            {
+              name: "Ricardo Fonseca",
+              comment: `Atendimento impecável da equipe da ${nome}! Prazos cumpridos rigorosamente e resultado superou as expectativas.`,
+              stars: 5,
+              date: "Há 2 semanas"
+            },
+            {
+              name: "Fernanda Lima",
+              comment: "Melhor atendimento da região de " + cidade + ". Estrutura muito limpa, moderna e profissionais muito atenciosos.",
+              stars: 5,
+              date: "Há 1 mês"
+            },
+            {
+              name: "Lucas Mendes",
+              comment: "Excelência do início ao fim. Recomendo de olhos fechados!",
+              stars: 5,
+              date: "Há 3 semanas"
+            }
+          ].map((rev, idx) => (
+            <div key={idx} className="bg-[#0E0F17] border border-white/10 rounded-2xl p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center border border-primary/30">
-                    {rev.name.charAt(0)}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-sm text-white">{rev.name}</h4>
-                    <span className="text-[10px] text-white/40">{rev.time} • Google Review</span>
-                  </div>
-                </div>
-                <div className="flex text-yellow-400">
-                  {[...Array(5)].map((_, idx) => (
-                    <Star key={idx} size={12} fill="currentColor" />
+                <div className="flex items-center gap-1 text-yellow-400">
+                  {Array.from({ length: rev.stars }).map((_, i) => (
+                    <Star key={i} size={14} fill="currentColor" />
                   ))}
                 </div>
+                <span className="text-[10px] text-white/40">{rev.date}</span>
               </div>
-              <p className="text-xs text-white/70 italic leading-relaxed">"{rev.text}"</p>
+              <p className="text-xs text-white/80 leading-relaxed italic">"{rev.comment}"</p>
+              <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                <div className="w-6 h-6 rounded-full bg-white/10 text-white font-bold text-[10px] flex items-center justify-center">
+                  {rev.name.charAt(0)}
+                </div>
+                <span className="text-xs font-bold text-white">{rev.name}</span>
+                <CheckCircle2 size={12} className="text-emerald-400 ml-auto" />
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Map & Location Section */}
-      <section id="contato" className="py-16 px-6 bg-[#0A0B10] border-t border-white/10">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-primary uppercase tracking-widest">Localização & Contato</span>
-              <h2 className="text-3xl font-black text-white">Venha nos Visitar</h2>
-              <p className="text-xs sm:text-sm text-white/60 leading-relaxed">
-                Estamos estrategicamente localizados para facilitar seu acesso. Venha tomar um café conosco!
-              </p>
-            </div>
-
-            <div className="space-y-4 text-xs sm:text-sm text-white/80">
-              <div className="flex items-start gap-3 bg-[#11121C] p-4 rounded-2xl border border-white/10">
-                <MapPin size={20} className="text-primary shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-bold text-white">Endereço Completo:</h4>
-                  <p className="text-white/70">{endereco}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 bg-[#11121C] p-4 rounded-2xl border border-white/10">
-                <Phone size={20} className="text-emerald-400 shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-bold text-white">Telefone & WhatsApp:</h4>
-                  <p className="text-white/70 font-mono">{phone}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 bg-[#11121C] p-4 rounded-2xl border border-white/10">
-                <Clock size={20} className="text-yellow-400 shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-bold text-white">Horário de Funcionamento:</h4>
-                  <p className="text-white/70">Segunda a Sábado: 08:00 às 20:00</p>
-                </div>
-              </div>
-            </div>
-
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm rounded-2xl shadow-xl shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
-            >
-              <MessageCircle size={18} />
-              <span>Chamar no WhatsApp Agora</span>
-            </a>
+      {/* FOOTER & CONTATO */}
+      <footer className="bg-[#07080D] border-t border-white/10 py-12 px-6">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left text-xs text-white/50">
+          <div className="space-y-1">
+            <h4 className="font-bold text-white text-sm">{nome}</h4>
+            <p>📍 {endereco}</p>
+            <p>📞 {phone}</p>
           </div>
 
-          {/* Card Visual de Localização */}
-          <div className="bg-[#11121C] border border-white/10 rounded-3xl p-6 space-y-4 shadow-2xl">
-            <div className="aspect-video bg-black/50 rounded-2xl overflow-hidden relative border border-white/10 flex items-center justify-center">
-              <img
-                src={assets.hero}
-                alt="Mapa da empresa"
-                className="w-full h-full object-cover opacity-40 blur-xs"
-              />
-              <div className="absolute text-center space-y-2 p-4 bg-black/70 backdrop-blur-md rounded-2xl border border-white/10">
-                <MapPin size={32} className="text-primary mx-auto animate-bounce" />
-                <h4 className="font-bold text-sm text-white">{nome}</h4>
-                <p className="text-[11px] text-white/70">{endereco}</p>
-                <a
-                  href={`https://www.google.com/maps/search/${encodeURIComponent(nome + " " + endereco)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline pt-1"
-                >
-                  <span>Abrir no Google Maps</span>
-                  <ExternalLink size={12} />
-                </a>
-              </div>
-            </div>
-          </div>
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-6 py-3 bg-emerald-500 text-black font-black rounded-xl hover:bg-emerald-400 transition-all flex items-center gap-2"
+          >
+            <MessageCircle size={16} />
+            <span>Falar com Atendimento</span>
+          </a>
         </div>
-      </section>
-
-      {/* Main Footer */}
-      <footer className="bg-[#040407] border-t border-white/10 py-8 px-6 text-center text-xs text-white/40 space-y-2">
-        <p>© 2026 {nome}. Todos os direitos reservados.</p>
-        <p className="text-[10px] opacity-60">Página de demonstração desenvolvida por RDG Digital • Tecnologia & Performance B2B</p>
       </footer>
     </div>
   );
