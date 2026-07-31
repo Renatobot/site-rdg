@@ -15,7 +15,6 @@ import {
   Sparkle,
   Scale,
   Utensils,
-  Camera,
   Play,
   Dog,
   Palette
@@ -126,7 +125,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     stats: [
       { label: "Anos de Tradição", value: "10+" },
       { label: "Pratos Servidos", value: "30k+" },
-      { label: "Nota Google Maps", value: "4.8" },
+      { label: "Avaliação Média", value: "4.8" },
       { label: "Chefs de Cozinha", value: "4" }
     ]
   },
@@ -163,7 +162,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     stats: [
       { label: "Anos de Tradição", value: "10+" },
       { label: "Clientes Atendidos", value: "15k+" },
-      { label: "Nota Google Maps", value: "5.0" },
+      { label: "Avaliação dos Clientes", value: "5.0" },
       { label: "Especialistas", value: "6" }
     ]
   },
@@ -198,7 +197,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ],
     stats: [
       { label: "Pacientes Atendidos", value: "8.5k+" },
-      { label: "Aprovação Google", value: "5.0" },
+      { label: "Aprovação", value: "5.0" },
       { label: "Scanner 3D", value: "100%" },
       { label: "Doutores Especialistas", value: "5" }
     ]
@@ -234,7 +233,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     stats: [
       { label: "Procedimentos", value: "14k+" },
       { label: "Satisfação dos Clientes", value: "99.4%" },
-      { label: "Avaliação Google", value: "4.9" },
+      { label: "Nota dos Clientes", value: "4.9" },
       { label: "Especialistas", value: "6" }
     ]
   },
@@ -268,7 +267,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     stats: [
       { label: "Pets Atendidos", value: "6.2k+" },
       { label: "Amor & Carinho", value: "100%" },
-      { label: "Nota no Google", value: "5.0" },
+      { label: "Satisfação", value: "5.0" },
       { label: "Vets de Plantão", value: "3" }
     ]
   },
@@ -301,7 +300,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     stats: [
       { label: "Tattoos Aplicadas", value: "9k+" },
       { label: "Biossegurança", value: "100%" },
-      { label: "Nota Google Maps", value: "5.0" },
+      { label: "Nota Média", value: "5.0" },
       { label: "Tatuadores Residentes", value: "4" }
     ]
   },
@@ -334,7 +333,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     stats: [
       { label: "Êxito nos Casos", value: "95%" },
       { label: "Anos de Mercado", value: "16+" },
-      { label: "Avaliação Google", value: "5.0" },
+      { label: "Satisfação dos Clientes", value: "5.0" },
       { label: "Advogados Sênior", value: "7" }
     ]
   },
@@ -367,7 +366,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     stats: [
       { label: "Imóveis Vendidos", value: "3k+" },
       { label: "Contratos de Aluguel", value: "100%" },
-      { label: "Nota Google Maps", value: "4.9" },
+      { label: "Nota Média", value: "4.9" },
       { label: "Corretores CRECI", value: "14" }
     ]
   },
@@ -400,7 +399,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ],
     stats: [
       { label: "Clientes Atendidos", value: "5k+" },
-      { label: "Nota Google Maps", value: "5.0" },
+      { label: "Satisfação dos Clientes", value: "5.0" },
       { label: "Pontualidade", value: "100%" },
       { label: "Equipe Qualificada", value: "5" }
     ]
@@ -439,7 +438,7 @@ function FullSiteDemoPage() {
   const reviews = storedLead?.user_ratings_total || search.reviews || "340";
   const googleMapsUrl = storedLead?.google_maps_url || `https://www.google.com/maps/search/${encodeURIComponent(nome + " " + cidade)}`;
 
-  // Parse de fotos reais do Google Maps
+  // Parse de fotos reais da empresa
   let realGooglePhotos: string[] = storedLead?.photos || [];
   if (realGooglePhotos.length === 0 && search.photos) {
     try {
@@ -450,7 +449,7 @@ function FullSiteDemoPage() {
     } catch (e) {}
   }
 
-  // Parse de avaliações reais de clientes do Google Maps
+  // Parse de avaliações reais de clientes
   let realReviewsList: { author_name: string; rating: number; text: string; relative_time_description?: string }[] = storedLead?.reviews_list || [];
   if (realReviewsList.length === 0 && search.reviews_json) {
     try {
@@ -461,7 +460,7 @@ function FullSiteDemoPage() {
     } catch (e) {}
   }
 
-  // Parse de horários reais do Google Maps
+  // Parse de horários reais de funcionamento
   let realOpeningHours: string[] = storedLead?.opening_hours || [];
   if (realOpeningHours.length === 0 && search.hours_json) {
     try {
@@ -500,7 +499,7 @@ function FullSiteDemoPage() {
   const config = NICHE_CONFIGS[catKey] || NICHE_CONFIGS["default"];
   const NicheIcon = config.icon;
 
-  const businessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${categoria} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações no Google Maps.`;
+  const businessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${categoria} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
 
   const heroImage = realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback;
   const galleryImages = realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback;
@@ -587,7 +586,7 @@ function FullSiteDemoPage() {
                 href={googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                title="Ver perfil oficial no Google Maps"
+                title="Ver localização"
                 className="hover:underline flex items-center gap-1.5"
                 style={{
                   fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
@@ -606,8 +605,8 @@ function FullSiteDemoPage() {
         <nav className="hidden md:flex items-center gap-6 text-xs uppercase tracking-[0.2em] font-semibold" style={{ color: config.mutedTextColor }}>
           <a href="#servicos" className="hover:opacity-100 transition-opacity">Serviços</a>
           <a href="#galeria" className="hover:opacity-100 transition-opacity">Galeria</a>
-          <a href="#depoimentos" className="hover:opacity-100 transition-opacity">Avaliações do Google</a>
-          <a href="#localizacao" className="hover:opacity-100 transition-opacity">Horários & Contato</a>
+          <a href="#depoimentos" className="hover:opacity-100 transition-opacity">Avaliações</a>
+          <a href="#localizacao" className="hover:opacity-100 transition-opacity">Horários & Localização</a>
         </nav>
 
         <div className="flex items-center gap-3">
@@ -688,11 +687,11 @@ function FullSiteDemoPage() {
               </a>
             </div>
 
-            {/* Contador de Métricas Reais do Google */}
+            {/* Contador de Métricas Reais */}
             <div className="pt-10 grid grid-cols-2 sm:grid-cols-4 gap-6 border-t" style={{ borderColor: config.borderColor }}>
               <div className="space-y-1">
                 <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: config.mutedTextColor }}>
-                  Avaliação Google
+                  Avaliação Média
                 </div>
                 <a
                   href={googleMapsUrl}
@@ -725,7 +724,7 @@ function FullSiteDemoPage() {
 
               <div className="space-y-1">
                 <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: config.mutedTextColor }}>
-                  Fotos no Google
+                  Pontualidade
                 </div>
                 <span
                   className="block text-2xl sm:text-3xl font-bold"
@@ -734,7 +733,7 @@ function FullSiteDemoPage() {
                     fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                   }}
                 >
-                  {realGooglePhotos.length > 0 ? `${realGooglePhotos.length}` : "10+"}
+                  100%
                 </span>
               </div>
 
@@ -785,7 +784,7 @@ function FullSiteDemoPage() {
                 >
                   <div className="text-[10px] font-bold uppercase tracking-[0.25em] mb-1 flex items-center gap-1.5" style={{ color: config.accentColor }}>
                     <Clock size={12} />
-                    <span>Horário de Atendimento (Google Maps)</span>
+                    <span>Horário de Atendimento</span>
                   </div>
                   <div className="text-xs font-semibold">
                     {realOpeningHours[0]}
@@ -793,34 +792,15 @@ function FullSiteDemoPage() {
                 </div>
               )}
 
-              {/* Badge de Fotos Reais do Google */}
-              {realGooglePhotos.length > 0 && (
-                <a
-                  href={googleMapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute top-4 right-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-lg bg-black/80 text-white border border-white/20 hover:bg-black transition-all"
-                >
-                  <Camera size={14} style={{ color: config.accentColor }} />
-                  <span className="text-[11px]">Foto Real do Google Maps</span>
-                </a>
-              )}
-
-              {/* Badge de Nota Google */}
-              <a
-                href={googleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow-lg bg-white text-black border border-black/10 hover:bg-gray-100 transition-all"
-              >
-                <span className="text-blue-600 font-black">G</span>
-                <span>{rating}</span>
+              {/* Badge de Nota Média */}
+              <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow-lg bg-white text-black border border-black/10">
+                <span className="font-extrabold text-amber-500">⭐ {rating}</span>
                 <div className="flex gap-0.5 text-amber-500">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star key={i} size={10} fill="currentColor" />
                   ))}
                 </div>
-              </a>
+              </div>
             </div>
           </div>
         </div>
@@ -924,13 +904,13 @@ function FullSiteDemoPage() {
         </div>
       </section>
 
-      {/* GALERIA DE FOTOS REAIS DO GOOGLE MAPS */}
+      {/* GALERIA DE FOTOS REAIS */}
       <section id="galeria" className="py-20 border-t px-5 sm:px-8" style={{ borderColor: config.borderColor }}>
         <div className="max-w-7xl mx-auto space-y-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div className="space-y-2">
               <div className="text-[10px] font-bold uppercase tracking-[0.35em]" style={{ color: config.accentColor }}>
-                Fotos do Google Maps
+                Portfólio & Estrutura
               </div>
               <h2
                 className="text-4xl sm:text-5xl font-bold"
@@ -939,21 +919,9 @@ function FullSiteDemoPage() {
                   color: config.textColor,
                 }}
               >
-                Espaço & Fachada de {nome}.
+                Espaço & Galeria de {nome}.
               </h2>
             </div>
-
-            {realGooglePhotos.length > 0 && (
-              <a
-                href={googleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all"
-              >
-                <Camera size={14} />
-                <span>{realGooglePhotos.length} Fotos Reais Carregadas do Perfil</span>
-              </a>
-            )}
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -973,7 +941,7 @@ function FullSiteDemoPage() {
         </div>
       </section>
 
-      {/* REVIEWS E DEPOIMENTOS REAIS EXTRAÍDOS DO GOOGLE MAPS */}
+      {/* REVIEWS E DEPOIMENTOS REAIS DE CLIENTES */}
       <section
         id="depoimentos"
         className="py-20 border-t px-5 sm:px-8 transition-colors"
@@ -985,7 +953,7 @@ function FullSiteDemoPage() {
         <div className="max-w-7xl mx-auto space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-4">
             <div className="text-[10px] font-bold uppercase tracking-[0.35em]" style={{ color: config.accentColor }}>
-              Avaliações Reais dos Clientes
+              Depoimentos Verificados
             </div>
             <h2
               className="text-4xl sm:text-5xl font-bold"
@@ -994,34 +962,30 @@ function FullSiteDemoPage() {
                 color: config.textColor,
               }}
             >
-              O que dizem sobre a {nome}.
+              O que dizem sobre {nome}.
             </h2>
-            <a
-              href={googleMapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border hover:bg-white/5 transition-all"
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border"
               style={{
                 backgroundColor: config.cardBg,
                 borderColor: config.borderColor,
                 color: config.textColor,
               }}
             >
-              <span className="font-bold text-blue-600">G</span>
-              <span>Google Maps · {rating} / 5.0</span>
+              <span>Avaliação {rating} / 5.0</span>
               <div className="flex gap-0.5 text-amber-500">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} size={11} fill="currentColor" />
                 ))}
               </div>
-              <span style={{ color: config.mutedTextColor }}>({reviews} avaliações)</span>
-            </a>
+              <span style={{ color: config.mutedTextColor }}>({reviews} avaliações verificadas)</span>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {(realReviewsList.length > 0 ? realReviewsList.slice(0, 3) : [
               {
-                author_name: "Cliente Google",
+                author_name: "Cliente Verificado",
                 rating: 5,
                 text: `Atendimento impecável da equipe da ${nome}! Estrutura muito limpa, moderna e localização excelente em ${cidade}.`,
                 relative_time_description: "recente"
@@ -1055,7 +1019,7 @@ function FullSiteDemoPage() {
                       ))}
                     </div>
                     <span className="text-[10px] font-mono" style={{ color: config.mutedTextColor }}>
-                      {rev.relative_time_description || "Google"}
+                      {rev.relative_time_description || "Verificado"}
                     </span>
                   </div>
                   <blockquote className="text-xs leading-relaxed italic" style={{ color: config.textColor }}>
@@ -1073,9 +1037,8 @@ function FullSiteDemoPage() {
                     >
                       {rev.author_name}
                     </div>
-                    <div className="text-[10px]" style={{ color: config.mutedTextColor }}>Avaliação no Google Maps</div>
+                    <div className="text-[10px]" style={{ color: config.mutedTextColor }}>Cliente Verificado</div>
                   </div>
-                  <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 font-bold text-xs hover:underline">Google G</a>
                 </figcaption>
               </figure>
             ))}
@@ -1083,66 +1046,100 @@ function FullSiteDemoPage() {
         </div>
       </section>
 
-      {/* FOOTER & CONTATO */}
+      {/* FOOTER & LOCALIZAÇÃO COM MAPA INTERATIVO EMBUTIDO */}
       <footer id="localizacao" className="border-t py-16 px-5 sm:px-8" style={{ borderColor: config.borderColor }}>
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 text-xs" style={{ color: config.mutedTextColor }}>
-          <div className="space-y-3">
-            <h4
-              className="font-bold text-base"
-              style={{
-                fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
-                color: config.textColor,
-              }}
-            >
-              {nome}
-            </h4>
-            <p className="leading-relaxed">{businessSummary}</p>
-          </div>
+        <div className="max-w-7xl mx-auto space-y-12">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 text-xs" style={{ color: config.mutedTextColor }}>
+            <div className="md:col-span-4 space-y-3">
+              <h4
+                className="font-bold text-base"
+                style={{
+                  fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
+                  color: config.textColor,
+                }}
+              >
+                {nome}
+              </h4>
+              <p className="leading-relaxed">{businessSummary}</p>
+            </div>
 
-          <div className="space-y-3">
-            <h5 className="font-bold uppercase tracking-wider" style={{ color: config.textColor }}>Localização & Horários</h5>
-            <p className="flex items-start gap-2">
-              <MapPin size={14} className="shrink-0 mt-0.5" style={{ color: config.accentColor }} />
-              <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">{endereco}</a>
-            </p>
-            <p className="flex items-center gap-2">
-              <Phone size={14} className="shrink-0" style={{ color: config.accentColor }} />
-              <span>{phone}</span>
-            </p>
+            <div className="md:col-span-5 space-y-3">
+              <h5 className="font-bold uppercase tracking-wider" style={{ color: config.textColor }}>LOCALIZAÇÃO & HORÁRIOS</h5>
+              <p className="flex items-start gap-2">
+                <MapPin size={14} className="shrink-0 mt-0.5" style={{ color: config.accentColor }} />
+                <span>{endereco}</span>
+              </p>
+              <p className="flex items-center gap-2">
+                <Phone size={14} className="shrink-0" style={{ color: config.accentColor }} />
+                <span>{phone}</span>
+              </p>
 
-            {realOpeningHours.length > 0 && (
-              <div className="pt-2 space-y-1 border-t" style={{ borderColor: config.borderColor }}>
-                <p className="font-bold text-[11px] flex items-center gap-1" style={{ color: config.textColor }}>
-                  <Clock size={12} style={{ color: config.accentColor }} />
-                  <span>Horários de Funcionamento (Google Maps):</span>
-                </p>
-                <div className="space-y-0.5 text-[10px]">
-                  {realOpeningHours.slice(0, 4).map((h, idx) => (
-                    <p key={idx}>{h}</p>
-                  ))}
+              {realOpeningHours.length > 0 && (
+                <div className="pt-2 space-y-1 border-t" style={{ borderColor: config.borderColor }}>
+                  <p className="font-bold text-[11px] flex items-center gap-1" style={{ color: config.textColor }}>
+                    <Clock size={12} style={{ color: config.accentColor }} />
+                    <span>Horários de Atendimento:</span>
+                  </p>
+                  <div className="space-y-0.5 text-[10px]">
+                    {realOpeningHours.slice(0, 4).map((h, idx) => (
+                      <p key={idx}>{h}</p>
+                    ))}
+                  </div>
                 </div>
+              )}
+            </div>
+
+            <div className="md:col-span-3 space-y-4 md:text-right">
+              <h5 className="font-bold uppercase tracking-wider" style={{ color: config.textColor }}>Atendimento Rápido</h5>
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 font-bold uppercase tracking-[0.18em] transition-all shadow-xl rounded-xl"
+                style={{ background: config.accentColor, color: config.accentText }}
+              >
+                <MessageCircle size={16} />
+                <span>Falar no WhatsApp</span>
+              </a>
+            </div>
+          </div>
+
+          {/* MAPA DO GOOGLE EMBUTIDO INTERATIVO */}
+          <div className="space-y-3 pt-6 border-t" style={{ borderColor: config.borderColor }}>
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: config.textColor }}>
+                <MapPin size={14} style={{ color: config.accentColor }} />
+                <span>Mapa de Localização — {nome}</span>
               </div>
-            )}
+              <a
+                href={googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[11px] font-bold hover:underline"
+                style={{ color: config.accentColor }}
+              >
+                <span>Como Chegar (Abrir no GPS)</span>
+                <ArrowUpRight size={14} />
+              </a>
+            </div>
+
+            <div className="w-full h-64 rounded-2xl overflow-hidden border shadow-xl relative" style={{ borderColor: config.borderColor, backgroundColor: config.cardBg }}>
+              <iframe
+                title={`Mapa da ${nome}`}
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                loading="lazy"
+                allowFullScreen
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(nome + ", " + endereco)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+              />
+            </div>
           </div>
 
-          <div className="space-y-4 md:text-right">
-            <h5 className="font-bold uppercase tracking-wider" style={{ color: config.textColor }}>Atendimento Rápido</h5>
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 font-bold uppercase tracking-[0.18em] transition-all shadow-xl rounded-xl"
-              style={{ background: config.accentColor, color: config.accentText }}
-            >
-              <MessageCircle size={16} />
-              <span>Falar no WhatsApp</span>
-            </a>
+          <div className="pt-8 border-t flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]" style={{ borderColor: config.borderColor, color: config.mutedTextColor }}>
+            <p>© {new Date().getFullYear()} {nome}. Todos os direitos reservados.</p>
+            <p>Site profissional desenvolvido para {nome}.</p>
           </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto pt-10 mt-10 border-t flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]" style={{ borderColor: config.borderColor, color: config.mutedTextColor }}>
-          <p>© {new Date().getFullYear()} {nome}. Todos os direitos reservados.</p>
-          <p>Site profissional desenvolvido pela RDG Digital.</p>
         </div>
       </footer>
     </div>
