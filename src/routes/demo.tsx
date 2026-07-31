@@ -21,7 +21,8 @@ import {
   Dumbbell,
   Wrench,
   ShoppingBag,
-  Globe
+  HeartPulse,
+  Briefcase
 } from "lucide-react";
 
 const TITLE = "Demonstração de Website — RDG Digital";
@@ -71,7 +72,6 @@ export const Route = createFileRoute("/demo")({
   component: FullSiteDemoPage,
 });
 
-// Temas e Estilos Premium por Nicho (Dark Luxo com Paletas Harmoniosas e Tipografia Adaptativa)
 interface NicheConfig {
   isDark: boolean;
   bgColor: string;
@@ -88,6 +88,7 @@ interface NicheConfig {
   titleSuffix: string;
   desc: string;
   icon: any;
+  prettyCategoryName: string;
   heroFallback: string;
   galleryFallback: string[];
   services: { title: string; desc: string; price: string }[];
@@ -95,7 +96,43 @@ interface NicheConfig {
 }
 
 const NICHE_CONFIGS: Record<string, NicheConfig> = {
-  // RESTAURANTE, BAR, BISTRÔ & GASTRONOMIA (Dark Warm Terracotta / Copper Gold)
+  // ADVOCACIA & JURÍDICO (Imperial Gold & Deep Executive Navy/Onyx)
+  advocacia: {
+    isDark: true,
+    bgColor: "#090D16",
+    surfaceColor: "#111827",
+    cardBg: "#172033",
+    textColor: "#F8FAFC",
+    mutedTextColor: "#94A3B8",
+    borderColor: "rgba(212, 175, 55, 0.25)",
+    accentColor: "#D4AF37",
+    accentText: "#090D16",
+    fontSerif: true,
+    heroTagline: "Direito Estratégico & Assessoria Jurídica",
+    titleSpan: "Advocacia",
+    titleSuffix: "Especializada.",
+    desc: "Atuação jurídica rigorosa e ágil para resguardar seus direitos, contornar riscos e defender seu patrimônio com discrição.",
+    icon: Scale,
+    prettyCategoryName: "Advocacia Especializada",
+    heroFallback: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Direito Empresarial & Contratos", desc: "Consultoria preventiva, elaboração de acordos societários e proteção jurídica.", price: "Agendar Consulta" },
+      { title: "Direito de Família & Sucessões", desc: "Inventários extrajudiciais rápidos, partilhas de bens e planejamento familiar.", price: "Agendar Consulta" },
+      { title: "Direito Previdenciário & Benefícios", desc: "Concessão e revisão de aposentadorias e benefícios junto ao INSS.", price: "Agendar Consulta" },
+      { title: "Direito Civil & Patrimonial", desc: "Ações indenizatórias, contratos imobiliários e defesa patrimonial.", price: "Agendar Consulta" }
+    ],
+    stats: [
+      { label: "Êxito nos Casos", value: "95%" },
+      { label: "Anos de Mercado", value: "15+" },
+      { label: "Satisfação dos Clientes", value: "5.0" },
+      { label: "Advogados Sênior", value: "6" }
+    ]
+  },
+
+  // RESTAURANTE, BAR, BISTRÔ & GASTRONOMIA (Terracotta Flame & Copper Gold)
   restaurante: {
     isDark: true,
     bgColor: "#0F0F12",
@@ -103,7 +140,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     cardBg: "#1F1F26",
     textColor: "#FAFAFA",
     mutedTextColor: "#A1A1AA",
-    borderColor: "rgba(245, 158, 11, 0.2)",
+    borderColor: "rgba(245, 158, 11, 0.25)",
     accentColor: "#F59E0B",
     accentText: "#000000",
     fontSerif: true,
@@ -112,6 +149,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     titleSuffix: "Inesquecíveis.",
     desc: "Ingredientes selecionados, pratos autorais e um ambiente acolhedor preparado para proporcionar momentos inesquecíveis.",
     icon: Utensils,
+    prettyCategoryName: "Bar & Gastronomia",
     heroFallback: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
@@ -133,7 +171,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // BARBEARIA (Dark Midnight Onyx & Antique Brass Gold)
+  // BARBEARIA (Midnight Onyx & Brass Gold)
   barbearia: {
     isDark: true,
     bgColor: "#0A0A0A",
@@ -150,6 +188,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     titleSuffix: "Premium.",
     desc: "Redefinindo o cuidado masculino com técnicas clássicas, atmosfera exclusiva e uma equipe apaixonada pelo detalhe.",
     icon: Scissors,
+    prettyCategoryName: "Barbearia Premium",
     heroFallback: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=800&q=80",
@@ -170,7 +209,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // ODONTOLOGIA & CLÍNICAS (Tech Deep Cyan Dark Mode)
+  // ODONTOLOGIA (Tech Cyan Dark Mode)
   odontologia: {
     isDark: true,
     bgColor: "#0B132B",
@@ -178,7 +217,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     cardBg: "#1C2541",
     textColor: "#F8FAFC",
     mutedTextColor: "#94A3B8",
-    borderColor: "rgba(0, 217, 255, 0.2)",
+    borderColor: "rgba(0, 217, 255, 0.25)",
     accentColor: "#00D9FF",
     accentText: "#0B132B",
     fontSerif: false,
@@ -187,6 +226,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     titleSuffix: "Radiantes.",
     desc: "Tecnologia de ponta, alinhadores invisíveis e procedimentos indolores em um ambiente aconchegante projetado para você.",
     icon: Stethoscope,
+    prettyCategoryName: "Clínica Odontológica",
     heroFallback: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80",
@@ -206,7 +246,41 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // ESTÉTICA, SPA & BELEZA (Velvet Dark & Rose Gold Silk)
+  // SAÚDE & MÉDICOS (Slate Navy & Emerald Teal)
+  saude: {
+    isDark: true,
+    bgColor: "#0F172A",
+    surfaceColor: "#1E293B",
+    cardBg: "#1E293B",
+    textColor: "#F8FAFC",
+    mutedTextColor: "#94A3B8",
+    borderColor: "rgba(16, 185, 129, 0.25)",
+    accentColor: "#10B981",
+    accentText: "#0F172A",
+    fontSerif: false,
+    heroTagline: "Medicina Preventiva & Diagnóstico Avançado",
+    titleSpan: "Saúde &",
+    titleSuffix: "Bem-Estar.",
+    desc: "Consultas especializadas, exames de alta precisão e atendimento humanizado para cuidar do seu bem mais precioso.",
+    icon: HeartPulse,
+    prettyCategoryName: "Clínica Médica",
+    heroFallback: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Consulta Médica Especializada", desc: "Avaliação completa com escuta atenta e plano de tratamento personalizado.", price: "Agendar Consulta" },
+      { title: "Exames Preventivos & Check-up", desc: "Monitoramento de indicadores de saúde com tecnologia de diagnóstico precisa.", price: "Agendar Consulta" }
+    ],
+    stats: [
+      { label: "Pacientes Atendidos", value: "12k+" },
+      { label: "Atendimento Humanizado", value: "100%" },
+      { label: "Nota Média", value: "5.0" },
+      { label: "Médicos Especialistas", value: "8" }
+    ]
+  },
+
+  // ESTÉTICA & SPA (Velvet Dark & Rose Gold Silk)
   estetica: {
     isDark: true,
     bgColor: "#161217",
@@ -214,7 +288,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     cardBg: "#29212C",
     textColor: "#FAF5F7",
     mutedTextColor: "#B8A7AF",
-    borderColor: "rgba(244, 114, 182, 0.2)",
+    borderColor: "rgba(244, 114, 182, 0.25)",
     accentColor: "#F472B6",
     accentText: "#161217",
     fontSerif: true,
@@ -223,6 +297,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     titleSuffix: "Exclusiva.",
     desc: "Protocolos faciais e corporais avançados desenhados para desacelerar o tempo e realçar sua beleza com naturalidade.",
     icon: Sparkle,
+    prettyCategoryName: "Clínica de Estética & SPA",
     heroFallback: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1512290900673-7002b521761c?auto=format&fit=crop&w=800&q=80",
@@ -249,7 +324,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     cardBg: "#24211D",
     textColor: "#FAFAF9",
     mutedTextColor: "#A8A29E",
-    borderColor: "rgba(249, 115, 22, 0.2)",
+    borderColor: "rgba(249, 115, 22, 0.25)",
     accentColor: "#F97316",
     accentText: "#FFFFFF",
     fontSerif: false,
@@ -258,6 +333,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     titleSuffix: "Especial de Pet.",
     desc: "Banho & tosa humanizado, consultas veterinárias preventivas e produtos selecionados para a felicidade do seu filhote.",
     icon: Dog,
+    prettyCategoryName: "Pet Shop & Veterinária",
     heroFallback: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=800&q=80",
@@ -292,6 +368,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     titleSuffix: "Tattoo.",
     desc: "Tatuagens autorais, traços finos, cobertura de cicatrizes e body piercing com materiais 100% descartáveis e esterilizados.",
     icon: Palette,
+    prettyCategoryName: "Studio de Tattoo & Piercing",
     heroFallback: "https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1562962230-16e4623d36e6?auto=format&fit=crop&w=800&q=80"
@@ -308,40 +385,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // ADVOCACIA & JURÍDICO (Imperial Navy & Gold)
-  advocacia: {
-    isDark: true,
-    bgColor: "#0B132B",
-    surfaceColor: "#1C2541",
-    cardBg: "#1C2541",
-    textColor: "#F8FAFC",
-    mutedTextColor: "#94A3B8",
-    borderColor: "rgba(212, 175, 55, 0.25)",
-    accentColor: "#D4AF37",
-    accentText: "#0B132B",
-    fontSerif: true,
-    heroTagline: "Direito Estratégico & Blindagem Patrimonial",
-    titleSpan: "Advocacia",
-    titleSuffix: "Especializada.",
-    desc: "Atuação jurídica rigorosa e ágil para resguardar seus direitos, contornar riscos e defender seu patrimônio com discrição.",
-    icon: Scale,
-    heroFallback: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
-    galleryFallback: [
-      "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80"
-    ],
-    services: [
-      { title: "Direito Empresarial & Contratos", desc: "Consultoria preventiva, elaboração de acordos societários e proteção jurídica.", price: "Sob Consulta" },
-      { title: "Direito de Família & Sucessões", desc: "Inventários extrajudiciais rápidos, partilhas de bens e planejamento familiar.", price: "Sob Consulta" }
-    ],
-    stats: [
-      { label: "Êxito nos Casos", value: "95%" },
-      { label: "Anos de Mercado", value: "16+" },
-      { label: "Satisfação dos Clientes", value: "5.0" },
-      { label: "Advogados Sênior", value: "7" }
-    ]
-  },
-
-  // IMOBILIÁRIA & ARQUITETURA (Architecture Charcoal & Amber Gold)
+  // IMOBILIÁRIA (Architecture Charcoal & Amber Gold)
   imobiliaria: {
     isDark: true,
     bgColor: "#111827",
@@ -349,7 +393,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     cardBg: "#1F2937",
     textColor: "#F9FAFB",
     mutedTextColor: "#9CA3AF",
-    borderColor: "rgba(245, 158, 11, 0.2)",
+    borderColor: "rgba(245, 158, 11, 0.25)",
     accentColor: "#F59E0B",
     accentText: "#111827",
     fontSerif: false,
@@ -358,6 +402,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     titleSuffix: "Imobiliárias.",
     desc: "Compra, venda e administração de aluguéis com vistoria rigorosa e assessoria de financiamento do início ao fim.",
     icon: Building2,
+    prettyCategoryName: "Assessoria Imobiliária",
     heroFallback: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
@@ -374,7 +419,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // ACADEMIAS & FITNESS (Kinetic Dark & Electric Cyan)
+  // ACADEMIAS & FITNESS (Kinetic Dark & Electric Emerald)
   academia: {
     isDark: true,
     bgColor: "#0A0A0E",
@@ -382,7 +427,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     cardBg: "#1A1A24",
     textColor: "#F4F4F6",
     mutedTextColor: "#A1A1AA",
-    borderColor: "rgba(16, 185, 129, 0.2)",
+    borderColor: "rgba(16, 185, 129, 0.25)",
     accentColor: "#10B981",
     accentText: "#0A0A0E",
     fontSerif: false,
@@ -391,6 +436,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     titleSuffix: "Física.",
     desc: "Equipamentos modernos, acompanhamento com personal trainers e ambiente motivador para você superar seus limites.",
     icon: Dumbbell,
+    prettyCategoryName: "Academia & Centro Fitness",
     heroFallback: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80"
@@ -407,7 +453,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // OFICINAS & AUTOMOTIVO (Carbon Steel Dark & Racing Orange)
+  // OFICINAS & AUTOMOTIVO (Carbon Steel & Racing Orange)
   oficina: {
     isDark: true,
     bgColor: "#111115",
@@ -424,6 +470,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     titleSuffix: "Automotivo.",
     desc: "Mecânica de precisão, alinhamento 3D, funilaria e revisão completa com peças de garantia e scanner avançado.",
     icon: Wrench,
+    prettyCategoryName: "Centro Automotivo & Oficina",
     heroFallback: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80"
@@ -448,7 +495,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     cardBg: "#181818",
     textColor: "#FFFFFF",
     mutedTextColor: "#A1A1AA",
-    borderColor: "rgba(0, 217, 255, 0.2)",
+    borderColor: "rgba(0, 217, 255, 0.25)",
     accentColor: "#00D9FF",
     accentText: "#0A0A0A",
     fontSerif: false,
@@ -456,7 +503,8 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     titleSpan: "Empresa",
     titleSuffix: "Referência.",
     desc: "Compromisso com a satisfação do cliente, agilidade no atendimento e infraestrutura completa em localização privilegiada.",
-    icon: Sparkles,
+    icon: Briefcase,
+    prettyCategoryName: "Empresa de Destaque",
     heroFallback: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&w=800&q=80",
@@ -496,7 +544,7 @@ function FullSiteDemoPage() {
   }, [search.nome, search.place_id]);
 
   const nome = storedLead?.name || search.nome || search.cliente || "Navalha & Co.";
-  const categoria = storedLead?.category || search.categoria || "Barbearia";
+  const rawCategoria = storedLead?.category || search.categoria || "Empresa";
   const cidade = search.cidade || "São Paulo - SP";
   const endereco = storedLead?.address || search.endereco || `Rua Principal, 1500 - ${cidade}`;
   const phone = storedLead?.phone || search.phone || search.telefone || "+55 11 98888-7777";
@@ -539,11 +587,20 @@ function FullSiteDemoPage() {
   const defaultMsg = encodeURIComponent(`Olá! Vi o site oficial da *${nome}* em ${cidade} e gostaria de agendar um atendimento.`);
   const waUrl = `https://wa.me/${waNum}?text=${defaultMsg}`;
 
-  // RECONHECIMENTO ULTRA-AMPLO DE NICHO COMBINANDO NOME E CATEGORIA DO GOOGLE MAPS
-  const fullSearchStr = `${categoria} ${nome} ${search.categoria || ""} ${search.nome || ""}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  // RECONHECIMENTO ULTRA-EXATO E COMPLETO DE NICHO COMBINANDO NOME E CATEGORIA
+  const fullSearchStr = `${rawCategoria} ${nome} ${search.categoria || ""} ${search.nome || ""}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
   let catKey = "default";
   if (
+    fullSearchStr.includes("advogad") ||
+    fullSearchStr.includes("advocac") ||
+    fullSearchStr.includes("direit") ||
+    fullSearchStr.includes("jurid") ||
+    fullSearchStr.includes("law") ||
+    fullSearchStr.includes("oab")
+  ) {
+    catKey = "advocacia";
+  } else if (
     fullSearchStr.includes("restauran") ||
     fullSearchStr.includes("bistro") ||
     fullSearchStr.includes("pizz") ||
@@ -560,8 +617,7 @@ function FullSiteDemoPage() {
     fullSearchStr.includes("confeitar") ||
     fullSearchStr.includes("sushi") ||
     fullSearchStr.includes("pub") ||
-    fullSearchStr.includes("food") ||
-    fullSearchStr.includes("massa")
+    fullSearchStr.includes("food")
   ) {
     catKey = "restaurante";
   } else if (
@@ -592,6 +648,23 @@ function FullSiteDemoPage() {
   ) {
     catKey = "estetica";
   } else if (
+    fullSearchStr.includes("medic") ||
+    fullSearchStr.includes("dermatolog") ||
+    fullSearchStr.includes("pediatr") ||
+    fullSearchStr.includes("cardiolog") ||
+    fullSearchStr.includes("oftalmo") ||
+    fullSearchStr.includes("ortoped") ||
+    fullSearchStr.includes("ginecolog") ||
+    fullSearchStr.includes("psicolog") ||
+    fullSearchStr.includes("terap") ||
+    fullSearchStr.includes("fisioter") ||
+    fullSearchStr.includes("nutri") ||
+    fullSearchStr.includes("saude") ||
+    fullSearchStr.includes("hospital") ||
+    fullSearchStr.includes("clinica")
+  ) {
+    catKey = "saude";
+  } else if (
     fullSearchStr.includes("pet") ||
     fullSearchStr.includes("vet") ||
     fullSearchStr.includes("animal") ||
@@ -606,16 +679,10 @@ function FullSiteDemoPage() {
   ) {
     catKey = "tatuagem";
   } else if (
-    fullSearchStr.includes("advoc") ||
-    fullSearchStr.includes("direit") ||
-    fullSearchStr.includes("jurid") ||
-    fullSearchStr.includes("law")
-  ) {
-    catKey = "advocacia";
-  } else if (
     fullSearchStr.includes("imobil") ||
     fullSearchStr.includes("corret") ||
     fullSearchStr.includes("imovel") ||
+    fullSearchStr.includes("imoveis") ||
     fullSearchStr.includes("arquitet") ||
     fullSearchStr.includes("construt")
   ) {
@@ -641,12 +708,14 @@ function FullSiteDemoPage() {
   const config = NICHE_CONFIGS[catKey] || NICHE_CONFIGS["default"];
   const NicheIcon = config.icon;
 
-  const businessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${categoria} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
+  const isGenericCategory = !rawCategoria || ["establishment", "point_of_interest", "local_business", "store", "food", "health", "finance", "service", "gmn"].includes(rawCategoria.toLowerCase().trim());
+  const displayCategory = isGenericCategory ? config.prettyCategoryName : rawCategoria;
+
+  const businessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${displayCategory} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
 
   const heroImage = realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback;
   const galleryImages = realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback;
 
-  // Geração Dinâmica de Serviços Personalizados por Nome do Estabelecimento
   const lowerName = nome.toLowerCase();
   let dynamicServices = config.services;
 
@@ -685,7 +754,7 @@ function FullSiteDemoPage() {
       <div
         className="p-3 text-center text-xs font-bold flex items-center justify-center gap-2 shadow-md sticky top-0 z-50 transition-colors"
         style={{
-          backgroundColor: "#161616",
+          backgroundColor: "#111625",
           color: "#FAFAFA",
           borderBottom: `1px solid ${config.borderColor}`,
         }}
@@ -711,7 +780,7 @@ function FullSiteDemoPage() {
       <header
         className="backdrop-blur-md border-b px-5 sm:px-8 h-20 flex items-center justify-between sticky top-11 z-40 transition-colors"
         style={{
-          backgroundColor: "rgba(15, 15, 18, 0.9)",
+          backgroundColor: "rgba(11, 15, 24, 0.92)",
           borderColor: config.borderColor,
         }}
       >
@@ -739,7 +808,7 @@ function FullSiteDemoPage() {
               </a>
             </h2>
             <p className="text-[10px] uppercase tracking-[0.25em] font-mono" style={{ color: config.mutedTextColor }}>
-              {categoria} • {cidade}
+              {displayCategory} • {cidade}
             </p>
           </div>
         </div>
@@ -894,38 +963,48 @@ function FullSiteDemoPage() {
             </div>
           </div>
 
+          {/* LADO DIREITO: CARD DE IMAGEM COM AMBIENT BLUR E OBJECT-CONTAIN (ENQUADRAMENTO PERFEITO SEM CORTES) */}
           <div className="lg:col-span-5 relative">
             <div
-              className="relative aspect-[4/5] w-full overflow-hidden shadow-2xl rounded-2xl border"
+              className="relative w-full h-[460px] sm:h-[540px] overflow-hidden shadow-2xl rounded-2xl border flex items-center justify-center p-2"
               style={{
                 borderColor: config.borderColor,
                 backgroundColor: config.surfaceColor,
               }}
             >
+              {/* Fundo Desfocado Ambiental para Preenchimento Elegante das Bordas */}
+              <img
+                src={heroImage}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover filter blur-3xl opacity-45 scale-125 pointer-events-none"
+              />
+
+              {/* Imagem Principal Enquadrada sem Cortar Flyers ou Rostos */}
               <img
                 src={heroImage}
                 alt={nome}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = config.heroFallback;
                 }}
-                className="w-full h-full object-cover transition duration-700 hover:scale-105 filter brightness-95"
+                className="relative z-10 w-full h-full object-contain rounded-xl transition duration-500 hover:scale-[1.02] filter drop-shadow-2xl"
               />
 
               {realOpeningHours.length > 0 && (
                 <div
-                  className="absolute bottom-5 left-5 right-5 p-4 shadow-2xl backdrop-blur-md rounded-xl border border-l-4"
+                  className="absolute bottom-4 left-4 right-4 z-20 p-3.5 shadow-2xl backdrop-blur-md rounded-xl border border-l-4"
                   style={{
-                    backgroundColor: "rgba(22, 22, 26, 0.95)",
+                    backgroundColor: "rgba(11, 15, 24, 0.92)",
                     borderColor: config.borderColor,
                     borderLeftColor: config.accentColor,
                     color: "#FFFFFF",
                   }}
                 >
-                  <div className="text-[10px] font-bold uppercase tracking-[0.25em] mb-1 flex items-center gap-1.5" style={{ color: config.accentColor }}>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.25em] mb-0.5 flex items-center gap-1.5" style={{ color: config.accentColor }}>
                     <Clock size={12} />
                     <span>Horário de Atendimento</span>
                   </div>
-                  <div className="text-xs font-semibold">
+                  <div className="text-xs font-semibold truncate">
                     {realOpeningHours[0]}
                   </div>
                 </div>
@@ -1064,14 +1143,20 @@ function FullSiteDemoPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {galleryImages.map((imgUrl, i) => (
-              <div key={i} className="group overflow-hidden rounded-2xl aspect-square border relative shadow-md" style={{ borderColor: config.borderColor }}>
+              <div key={i} className="group overflow-hidden rounded-2xl aspect-square border relative shadow-md bg-black/40 flex items-center justify-center p-1" style={{ borderColor: config.borderColor }}>
+                <img
+                  src={imgUrl}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover filter blur-xl opacity-35 scale-110 pointer-events-none"
+                />
                 <img
                   src={imgUrl}
                   alt={`${nome} foto ${i + 1}`}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = config.galleryFallback[i % config.galleryFallback.length];
                   }}
-                  className="w-full h-full object-cover transition duration-700 group-hover:scale-110 filter brightness-95 group-hover:brightness-100"
+                  className="relative z-10 w-full h-full object-cover rounded-xl transition duration-700 group-hover:scale-105 filter brightness-95 group-hover:brightness-100"
                 />
               </div>
             ))}
