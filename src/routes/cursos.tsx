@@ -1441,7 +1441,7 @@ function CursosPage() {
                     key={course.id}
                     onClick={() => {
                       setActiveCourseId(course.id);
-                      setActiveModuleIdx(0);
+                      setActiveModuleIdx(null);
                       setActiveVideoIdx(0);
                       setIsCourseSelectorOpen(false);
                     }}
