@@ -1261,7 +1261,7 @@ const COURSES = [
             id: "cap4-1",
             title: "1 • Como Instalar a VSL 5D",
             duration: "~",
-            url: "https://drive.google.com/file/d/1gUE7QLn1VRPyx3etGBv8r8Ra4g7Qjee4/preview",
+            url: "https://drive.google.com/file/d/1hrervNQAtR5WM1gt4etmho9fB2yd2V05/preview",
             description: (
               <div className="space-y-4 text-sm text-white/80">
                 <p>Nessa aula te explico como instalar a VSL matadora, não tem muito segredo basta seguir o Tutorial.</p>
@@ -1278,7 +1278,7 @@ const COURSES = [
             id: "cap4-2",
             title: "Aula 2 - ⭐ Projeto CapCut da VSL",
             duration: "~",
-            url: "https://drive.google.com/file/d/1hrervNQAtR5WM1gt4etmho9fB2yd2V05/preview",
+            url: "https://drive.google.com/file/d/1gUE7QLn1VRPyx3etGBv8r8Ra4g7Qjee4/preview",
             description: (
               <div className="space-y-4 text-sm text-white/80">
                 <p>
