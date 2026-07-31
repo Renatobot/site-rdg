@@ -94,11 +94,23 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
               }
             }
 
-            // Converter referências em URLs do Google Places Photo API
+            // Converter referências no servidor em URLs públicas do Google CDN (lh3.googleusercontent.com)
             if (rawPhotos.length > 0) {
-              placePhotos = rawPhotos.slice(0, 6).map(
-                (p: any) => `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${p.photo_reference}&key=${apiKey}`
-              );
+              const photoPromises = rawPhotos.slice(0, 6).map(async (p: any) => {
+                try {
+                  const gUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${p.photo_reference}&key=${apiKey}`;
+                  const photoRes = await fetch(gUrl);
+                  if (photoRes.url && (photoRes.url.includes("googleusercontent") || photoRes.url.includes("ggpht"))) {
+                    return photoRes.url;
+                  }
+                  return `/api/photo?ref=${encodeURIComponent(p.photo_reference)}&key=${encodeURIComponent(apiKey)}`;
+                } catch (e) {
+                  return `/api/photo?ref=${encodeURIComponent(p.photo_reference)}&key=${encodeURIComponent(apiKey)}`;
+                }
+              });
+
+              const resolved = await Promise.all(photoPromises);
+              placePhotos = resolved.filter(Boolean) as string[];
             }
 
             const hasWebsite = Boolean(
