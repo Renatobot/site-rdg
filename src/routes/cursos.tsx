@@ -464,6 +464,388 @@ const COURSES = [
             )
           }
         ]
+      },
+      {
+        title: "Escala no Meta Ads",
+        videos: [
+          {
+            id: "escala-1",
+            title: "1 • Analisando as 3 Métricas que Vendem",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1r6yta0UQaH4UDzlmjhktvk570v2CzLfm/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <p>
+                  Tenha foco nessas <strong className="text-white">3 Métricas</strong> que mostro no Vídeo de início.
+                </p>
+                <div className="bg-primary/10 border-l-4 border-primary p-4 rounded-r-xl">
+                  <p className="text-primary-100">
+                    <strong className="text-primary block mb-1">💡 Dica:</strong> 
+                    Claro, teremos mais algumas métricas para analisar no decorrer da campanha, como ROI após subir o investimento e escalar esses anúncios.
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          {
+            id: "escala-2",
+            title: "2 • Configurando as Colunas de Métricas",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1eFWdqu-N9txWKEHcaqPOzoVySt4S4dcB/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-blue-500/10 text-blue-400 rounded-lg">🧩</span>
+                  <h4 className="font-bold text-white text-lg">Aula — Personalização das Colunas no Gerenciador de Anúncios</h4>
+                </div>
+                <p>
+                  Você sabia que é possível personalizar as colunas do seu Gerenciador de Anúncios para visualizar apenas os dados que realmente importam para o seu negócio?
+                </p>
+                
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl mt-4">
+                  <strong className="text-white flex items-center gap-2 mb-2">✅ Isso facilita a leitura das métricas como:</strong>
+                  <ul className="space-y-1">
+                    <li>💰 Compras</li>
+                    <li>🛒 Inicialização de compra</li>
+                    <li>👣 Visitas ao site</li>
+                    <li>📥 Leads, cliques, engajamentos e muito mais</li>
+                  </ul>
+                </div>
+
+                <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl mt-4">
+                  <strong className="text-primary flex items-center gap-2 mb-2">🔍 Saiba como personalizar suas colunas:</strong>
+                  <a href="#" className="hover:underline flex items-center gap-1 w-fit font-bold">
+                    🔗 Clique aqui para ver o passo a passo oficial no Facebook <ExternalLink size={12} />
+                  </a>
+                </div>
+                <p className="text-yellow-400 font-bold mt-2">
+                  📌 Dica: Deixe sempre salvas suas colunas personalizadas para não precisar configurar toda vez. Isso te ajuda a analisar rapidamente os anúncios que estão performando melhor!
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "escala-3",
+            title: "3 • Como criar Campanha no Facebook ADS",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1R6iB0q11rpLTVALJkPFRxyErZATBnXPQ/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-green-500/10 text-green-400 rounded-lg">📈</span>
+                  <h4 className="font-bold text-white text-lg">Aula – Campanha 5D (Dígitos)</h4>
+                </div>
+                <p>
+                  🎥 Neste vídeo, te ensino a criar uma das campanhas que eu uso para vender.
+                </p>
+                <div className="bg-white/5 border-l-4 border-green-500 p-4 rounded-r-xl">
+                  <strong className="text-green-400 block mb-2">🚀 A Estratégia "Campanha 5D (Dígitos)":</strong>
+                  <ul className="space-y-2">
+                    <li>🔁 Sempre utilizo uma campanha com: <strong>2 conjuntos</strong>, e <strong>3 anúncios</strong> em cada conjunto.</li>
+                    <li>🎞️ Um conjunto com anúncios em <strong>vídeo</strong> e outro com anúncios em <strong>imagem</strong>.</li>
+                  </ul>
+                </div>
+                <p>
+                  📌 Claro, também ensino outras estratégias nas próximas aulas, como a campanha ideal para quem tem pouco orçamento.
+                </p>
+                <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 rounded-lg transition-colors font-bold text-xs mt-2">
+                  🔗 Link das UTMs <ExternalLink size={14} />
+                </a>
+              </div>
+            )
+          },
+          {
+            id: "escala-4",
+            title: "4 • 💎 Validando Oferta com 15 Reais ao Dia",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1e_3pZPrc8k1JXOGwE7UM1C3n5ohPAd-o/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-cyan-500/10 text-cyan-400 rounded-lg">📉</span>
+                  <h4 className="font-bold text-white text-lg">Aula — Validação de Oferta com Pouco Orçamento</h4>
+                </div>
+                <p>
+                  💡 Esta aula foi feita exclusivamente para você que está com o orçamento apertado ou deseja testar um anúncio sem gastar muito.
+                </p>
+                <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl">
+                  <p className="text-red-100 font-bold">
+                    <strong className="text-red-400">🚨 Não pule essa aula!</strong> Ela pode ser a responsável por te fazer vender muito mais se você aplicar direitinho esse método de validação.
+                  </p>
+                </div>
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl mt-4">
+                  <strong className="text-white block mb-2">🔁 Planejamento e Fluxo Estratégico:</strong>
+                  <a href="#" className="text-cyan-400 hover:underline flex items-center gap-1 font-bold">
+                    📊 Acesse aqui o Fluxo usado no vídeo <ExternalLink size={12} />
+                  </a>
+                </div>
+                <p className="text-green-400 font-bold mt-2">
+                  ✅ Esse passo a passo vai te ajudar a encontrar os criativos que vendem antes de investir alto. Siga o mapa mental com calma, aplique com consistência e valide sua oferta da forma certa!
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "escala-5",
+            title: "5 • Estratégia Escala por Estados",
+            duration: "~",
+            url: "https://drive.google.com/file/d/18ShPnLQeiCWdTSRydkFzjgdg3RMwn8tv/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-orange-500/10 text-orange-400 rounded-lg">🌎</span>
+                  <h4 className="font-bold text-white text-lg">Aula – Campanhas Segmentadas por Estado</h4>
+                </div>
+                <p>
+                  📢 Recomendo muito essas campanhas segmentadas por Estado, são ótimas para escalar! Você pode usá-las junto com outras estratégias ensinadas no curso.
+                </p>
+                <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 rounded-lg transition-colors font-bold text-xs">
+                  📄 Link da Lista dos Estados <ExternalLink size={14} />
+                </a>
+
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4">
+                  <div className="bg-white/5 p-4 rounded-xl border border-green-500/20">
+                    <strong className="text-green-400 block mb-2">🟢 Estados com maior número de compradores:</strong>
+                    <p className="text-xs text-white/60 mb-2">⚠️ Têm maior conectividade, renda e presença forte de marketplaces.</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <span>📍 São Paulo</span><span>📍 Minas Gerais</span>
+                      <span>📍 Rio de Janeiro</span><span>📍 Rio Grande do Sul</span>
+                      <span>📍 Paraná</span><span>📍 Santa Catarina</span>
+                      <span>📍 Bahia</span><span>📍 Ceará</span>
+                      <span>📍 Espírito Santo</span><span>📍 Pernambuco</span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/5 p-4 rounded-xl">
+                    <strong className="text-white block mb-2">📌 Outros estados relevantes:</strong>
+                    <p className="text-xs text-white/60 mb-2">Intermediários, mas importantes para campanhas segmentadas.</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <span>📍 Maranhão</span><span>📍 Piauí</span>
+                      <span>📍 Tocantins</span><span>📍 Acre</span>
+                      <span>📍 Rondônia</span><span>📍 Roraima</span>
+                      <span>📍 Alagoas</span><span>📍 Sergipe</span>
+                      <span>📍 Amazonas</span><span>📍 Pará</span>
+                      <span className="col-span-2">📍 Mato Grosso</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-primary/10 border-l-4 border-primary p-4 rounded-r-xl">
+                  <p>
+                    🔍 O Facebook analisa o engajamento local para entregar os anúncios. Se sua segmentação estiver bem feita, você terá ótimos resultados mesmo fora dos estados mais populosos.
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          {
+            id: "escala-6",
+            title: "6 • 💵 Estratégia para Baratear Custos",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1heUo8eEzZ-xsGldSahnKuTVQ____uIM1/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg">💵</span>
+                  <h4 className="font-bold text-white text-lg">Estratégia: Reconhecimento + Conversão</h4>
+                </div>
+                <p>
+                  💡 Essa campanha usa uma estratégia para baratear custos, combinando campanha de Reconhecimento com Campanha de Vendas.
+                </p>
+                <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors font-bold text-xs text-white mb-2">
+                  📄 Link do Script para seguir <ExternalLink size={14} />
+                </a>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl space-y-2">
+                    <strong className="text-blue-400 block text-base border-b border-blue-500/20 pb-2">📣 CAMPANHA DE RECONHECIMENTO</strong>
+                    <ul className="space-y-1 text-xs">
+                      <li>🎯 <strong>Objetivo:</strong> Reconhecimento</li>
+                      <li>💰 <strong>Orçamento:</strong> R$700 (Total)</li>
+                      <li>🎯 <strong>Conjuntos:</strong> Maximizar Alcance ou Thruplay (Teste dois conjuntos)</li>
+                      <li>🗓️ <strong>Frequência:</strong> 7 a cada 7 dias</li>
+                      <li>👥 <strong>Público:</strong> Aberto (se o nicho não for específico)</li>
+                      <li>🚫 <strong>Excluir:</strong> Marketplace, Messenger e Anúncios In Stream</li>
+                      <li>📲 <strong>Criativo:</strong> Use Publicação Existente (Reels do Instagram que gere curiosidade)</li>
+                      <li className="text-red-400 mt-2 font-bold">🔗 Não usar link de site</li>
+                      <li className="text-red-400 font-bold">📉 Não marcar rastreamento</li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-xl space-y-2">
+                    <strong className="text-green-400 block text-base border-b border-green-500/20 pb-2">💸 CAMPANHA DE VENDAS</strong>
+                    <ul className="space-y-1 text-xs">
+                      <li>🎯 <strong>Objetivo:</strong> Conversões (Vendas)</li>
+                      <li>💰 <strong>Orçamento:</strong> R$1500 (Inicial para teste)</li>
+                      <li>🌐 <strong>Conjunto:</strong> Site {">"} Maximizar número de conversões</li>
+                      <li>👥 <strong>Público:</strong> Criado com base nos 95% de visualização da campanha de reconhecimento</li>
+                      <li>📌 <strong>Posicionamento:</strong> Aberto</li>
+                      <li>🎬 <strong>Criativo:</strong> Mini VSL, Híbrido, ou criativo com demonstração do produto</li>
+                      <li className="text-green-400 mt-2 font-bold">🔗 Usar link do site</li>
+                      <li className="text-green-400 font-bold">📈 Marcar rastreamento: Selecione o Pixel e evento de conversão do site</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )
+          },
+          {
+            id: "escala-7",
+            title: "7 • Estratégia Escala Diária",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1zCHoCAePisfJrN3xfGXBzyP3fOf1mZWk/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-red-500/10 text-red-400 rounded-lg">📈</span>
+                  <h4 className="font-bold text-white text-lg">Estratégia da Escala Diária</h4>
+                </div>
+                <p>
+                  🔥 Essa estratégia da escala diária tem me gerado muito resultado, é o que digo... só faça o que dá certo e traz vendas!
+                </p>
+                <div className="flex gap-2">
+                  <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors font-bold text-xs text-white">
+                    📄 Script da Escala Diária <ExternalLink size={14} />
+                  </a>
+                  <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg transition-colors font-bold text-xs">
+                    🔗 Link UTMfy <ExternalLink size={14} />
+                  </a>
+                </div>
+
+                <div className="bg-[#0A0A0A] border border-white/5 p-5 rounded-xl mt-4">
+                  <strong className="text-white block mb-4 text-base">🕒 O Passo a Passo da Escala Diária:</strong>
+                  <p className="mb-4 text-cyan-400 font-bold">📊 Crie 2 a 3 campanhas com 3 conjuntos cada, usando públicos diferentes e no máximo 3 criativos top.</p>
+                  
+                  <div className="space-y-4">
+                    <div className="border-l-2 border-white/10 pl-4">
+                      <strong className="text-white">🕙 10h:</strong>
+                      <div className="text-green-400">✅ Se fez venda → aumentar +20%</div>
+                      <div className="text-red-400">❌ Se não vendeu → desativar o conjunto que estourou o CPA ideal</div>
+                    </div>
+                    <div className="border-l-2 border-white/10 pl-4">
+                      <strong className="text-white">🕑 14h:</strong>
+                      <div className="text-green-400">✅ Se fez venda → aumentar +30%</div>
+                      <div className="text-red-400">❌ Se não vendeu → desativar o conjunto que estourou o CPA ideal</div>
+                    </div>
+                    <div className="border-l-2 border-white/10 pl-4">
+                      <strong className="text-white">🕔 17h:</strong>
+                      <div className="text-green-400">✅ Se fez venda → aumentar +40%</div>
+                      <div className="text-red-400">❌ Se não vendeu → desativar o conjunto que estourou o CPA ideal</div>
+                    </div>
+                    <div className="border-l-2 border-white/10 pl-4">
+                      <strong className="text-white">🕗 20h:</strong>
+                      <div className="text-green-400">✅ Se fez muita venda → aumentar +60% ou até 100%</div>
+                      <div className="text-red-400">❌ Se não vendeu → desativar o conjunto que estourou o CPA ideal</div>
+                    </div>
+                    <div className="border-l-2 border-primary pl-4">
+                      <strong className="text-primary">🕚 23h:</strong>
+                      <div>Se continuou vendendo e manteve CPA ideal → voltar ao valor inicial.</div>
+                      <div className="font-bold">🔁 Duplicar e programar a cópia para 00:00</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 rounded-r-xl">
+                  <p className="text-yellow-100">
+                    <strong className="text-yellow-400 block mb-1">⚠️ Importante:</strong> 
+                    Se a campanha não vender até o segundo dia, mate. No dia seguinte, faça o mesmo processo com as campanhas que venderam — use as duplicatas.
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          {
+            id: "escala-8",
+            title: "8 • Otimizações, Orçamento e Rotação de Criativos",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1vpn19ZBUz-MJcbPkH9krS1ZmX5R3rOfu/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <p>
+                  Assista essa aula após os dias que recomendo no vídeo anterior, nela explico como você vai <strong className="text-white">otimizar sua campanha de anúncios para vender mais.</strong>
+                </p>
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
+                  <strong className="text-white block mb-2">Qual o CPA ideal?</strong>
+                  <p>
+                    Exemplo: ao gastar R$100 pelo menos você precisa vender o dobro, R$200... isso no caso na fase de escala. 
+                  </p>
+                  <p className="mt-2 text-white/60 text-xs">
+                    Na fase de início (aprendizado) ao qual você está testando criativos, talvez você não chegue no lucro ideal pois seu pixel ainda está aprendendo.
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          {
+            id: "escala-9",
+            title: "9 • Venda 10X mais no Facebook ADS para WhatsApp",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1Fm5OkSNbE8vI1nqgXO2e0ZCR-HhCfK1b/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="bg-emerald-500/10 border-l-4 border-emerald-500 p-4 rounded-r-xl">
+                  <p className="text-emerald-100">
+                    <strong className="text-emerald-400 block mb-1 text-base">📱 Estratégia de WhatsApp:</strong> 
+                    Quer vender bastante sem investir muito no começo? Anuncie para levar seu público ao Whatsapp!
+                  </p>
+                </div>
+                <p>
+                  É muito mais barato (depende do público) do que anunciar para compra enviando as pessoas direto ao site. O contato humano converte demais!
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "escala-10",
+            title: "10 • Seleção de Público em outros Países",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1BsgBip7phx55pI_YQQjIQvy6BzwNuSSM/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-blue-500/10 text-blue-400 rounded-lg">🌍</span>
+                  <h4 className="font-bold text-white text-lg">Aula – Segmentação para Anunciar em Outros Países</h4>
+                </div>
+                <p>
+                  Essa aula é exclusivamente para lhe ajudar a como escolher a segmentação de público internacional. Vou deixar as listas que uso para a língua inglesa, como exemplo para vender o LabKids, um dos produtos que temos.
+                </p>
+                
+                <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg transition-colors font-bold text-xs mb-2">
+                  🔗 Link da Lista para Países de Língua Inglesa <ExternalLink size={14} />
+                </a>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-green-500/10 border border-green-500/20 p-4 rounded-xl">
+                    <strong className="text-green-400 block mb-2">✅ Primeira Lista (Recomendados):</strong>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <span>🇺🇸 Estados Unidos</span><span>🇨🇦 Canadá</span>
+                      <span>🇬🇧 Reino Unido</span><span>🇦🇺 Austrália</span>
+                      <span>🇫🇷 França</span><span>🇸🇪 Suécia</span>
+                      <span>🇳🇴 Noruega</span><span>🇩🇰 Dinamarca</span>
+                      <span className="col-span-2">🇸🇬 Singapura</span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl">
+                    <strong className="text-yellow-400 block mb-2">🧪 Segunda Lista (Testes):</strong>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <span>🇳🇿 Nova Zelândia</span><span>🇮🇪 Irlanda</span>
+                      <span>🇨🇭 Suíça</span><span>🇳🇱 Países Baixos</span>
+                      <span className="col-span-2">🇦🇪 Emirados Árabes</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-red-500/10 border-l-4 border-red-500 p-4 rounded-r-xl mt-4">
+                  <strong className="text-red-400 block mb-2">🚫 Países para Excluir:</strong>
+                  <p className="text-xs text-red-200 leading-relaxed">
+                    Brasil, Nigéria, Paquistão, Bangladesh, Egito, Argélia, Iraque, Irã, Venezuela, Zimbábue, Etiópia, Sudão, Afeganistão, Iêmen, Síria, Coreia do Norte, Chade, Burundi, Laos, Líbia, Somália, Congo, Guiné, Serra Leoa, Myanmar, Nepal, Angola, Moçambique, Haiti, República Centro-Africana, Madagascar, Mali, Níger, Tanzânia, Uganda, Camboja, Papua-Nova Guiné, Sudão do Sul, Djibouti, Gâmbia, Guiné-Bissau, Timor-Leste, Kiribati, Lesoto, Libéria, Índia, Alemanha, Rússia.
+                  </p>
+                </div>
+              </div>
+            )
+          }
+        ]
       }
     ]
   }
