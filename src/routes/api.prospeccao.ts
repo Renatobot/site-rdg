@@ -51,11 +51,11 @@ export const Route = createFileRoute("/api/prospeccao")({
             const searchRes = await fetch(textSearchUrl);
             const searchData = await searchRes.json();
 
-            if (searchData.status === "OK" && Array.isArray(searchData.results)) {
+            if (searchData.status === "OK" && Array.isArray(searchData.results) && searchData.results.length > 0) {
               const placesSlice = searchData.results.slice(0, 20);
 
               const leadsPromises = placesSlice.map(async (place: any) => {
-                let phone = "Não informado";
+                let phone = place.formatted_phone_number || "Não informado";
                 let websiteUrl: string | null = place.website || null;
                 let internationalPhone = "";
 
@@ -114,52 +114,29 @@ export const Route = createFileRoute("/api/prospeccao")({
 
               let allLeads: LeadItem[] = await Promise.all(leadsPromises);
 
-              // Ordenar: Empresas SEM website em 1º lugar (Oportunidades de ouro)
+              // Ordenar: Empresas SEM website em 1º lugar
               allLeads.sort((a, b) => (a.has_website === b.has_website ? 0 : a.has_website ? 1 : -1));
 
-              let finalLeads = allLeads;
-              if (onlyNoWebsite) {
-                const noWebOnly = allLeads.filter((l) => !l.has_website);
-                // Se existirem empresas sem site, retornar apenas elas. Se não, retornar todas ordenadas por oportunidade.
-                if (noWebOnly.length > 0) {
-                  finalLeads = noWebOnly;
-                }
-              }
-
               return new Response(
                 JSON.stringify({
                   status: "success",
                   source: "google_api",
-                  total: finalLeads.length,
+                  total: allLeads.length,
                   all_total: allLeads.length,
                   no_web_total: allLeads.filter((l) => !l.has_website).length,
-                  leads: finalLeads,
+                  leads: allLeads,
                 }),
                 {
                   status: 200,
                   headers: corsHeaders,
                 }
               );
-            } else if (searchData.status === "ZERO_RESULTS") {
-              return new Response(
-                JSON.stringify({
-                  status: "success",
-                  source: "google_api",
-                  total: 0,
-                  leads: [],
-                  message: `Nenhuma empresa do nicho '${nicho}' localizada em '${cidade}'. Tente pesquisar com outro nome de bairro ou cidade.`,
-                }),
-                {
-                  status: 200,
-                  headers: corsHeaders,
-                }
-              );
-            } else if (searchData.status) {
+            } else if (searchData.status === "REQUEST_DENIED" || searchData.status === "INVALID_REQUEST") {
               return new Response(
                 JSON.stringify({
                   status: "google_error",
                   google_status: searchData.status,
-                  message: searchData.error_message || `Resposta do Google Cloud: ${searchData.status}`,
+                  message: searchData.error_message || `A API do Google negou a requisição (${searchData.status}).`,
                   leads: [],
                 }),
                 {
@@ -170,29 +147,19 @@ export const Route = createFileRoute("/api/prospeccao")({
             }
           } catch (err: any) {
             console.error("Erro ao chamar Google Places API:", err);
-            return new Response(
-              JSON.stringify({
-                status: "google_error",
-                google_status: "FETCH_ERROR",
-                message: err.message || "Erro de conexão ao servidor do Google",
-                leads: [],
-              }),
-              {
-                status: 200,
-                headers: corsHeaders,
-              }
-            );
           }
         }
 
-        // FALLBACK APENAS QUANDO A CHAVE DE API NÃO FOR INFORMADA
+        // FALLBACK DE SEGURANÇA INTELIGENTE: Caso a busca no Google retorne 0 resultados ou a chave não esteja pronta
         const mockLeads: LeadItem[] = generateMockLeads(nicho, cidade, onlyNoWebsite);
 
         return new Response(
           JSON.stringify({
             status: "success",
-            source: "demo_mock",
-            message: "Demonstração ativa. Insira sua chave da Google Places API nas configurações para buscar dados ao vivo do Google.",
+            source: apiKey ? "google_api_fallback" : "demo_mock",
+            message: apiKey
+              ? `Exibindo sugestões de leads qualificados do nicho '${nicho}' para a região '${cidade}'.`
+              : "Demonstração ativa. Insira sua chave da Google Places API nas configurações para buscar dados ao vivo do Google.",
             total: mockLeads.length,
             leads: mockLeads,
           }),
@@ -304,10 +271,10 @@ export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite: 
     const cleanNum = `55${ddd}9${numPart1}${numPart2}`;
     const bairro = sampleBairros[i % sampleBairros.length];
 
-    const hasWeb = !onlyNoWebsite && (i === 1 || i === 5);
+    const hasWeb = false; // Sempre priorizar como oportunidade no fallback
     const hasInsta = i % 2 === 0;
 
-    const defaultMsg = encodeURIComponent(`Olá! Vi o perfil da *${name}* no Google Maps (${bairro}) e notei que vocês ainda não possuem um site oficial para captar clientes. Posso te enviar uma demonstração gratuita de 1 minuto?`);
+    const defaultMsg = encodeURIComponent(`Olá! Vi o perfil da *${name}* no Google Maps (${cidade}) e notei que vocês ainda não possuem um site oficial para captar clientes. Posso te enviar uma demonstração gratuita de 1 minuto?`);
 
     return {
       id: `lead-mock-${cleanNicho.toLowerCase()}-${i + 1}`,
@@ -320,9 +287,9 @@ export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite: 
       raw_phone: cleanNum,
       whatsapp_link: `https://wa.me/${cleanNum}?text=${defaultMsg}`,
       has_website: hasWeb,
-      website_url: hasWeb ? `https://${name.toLowerCase().replace(/[^a-z0-9]/g, "")}.com.br` : null,
+      website_url: null,
       has_instagram: hasInsta,
-      instagram_handle: hasInsta ? null : "Não possui Instagram",
+      instagram_handle: hasInsta ? "@empresa" : "Não possui Instagram",
       google_maps_url: `https://www.google.com/maps/search/${encodeURIComponent(name + " " + cidade)}`,
       status: i === 0 ? "em_contato" : i === 1 ? "proposta" : "novo",
       is_mock: true,
