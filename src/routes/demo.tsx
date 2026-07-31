@@ -1104,7 +1104,7 @@ function FullSiteDemoPage() {
             </div>
           </div>
 
-          {/* MAPA DO GOOGLE EMBUTIDO INTERATIVO */}
+          {/* MAPA EMBUTIDO INTERATIVO */}
           <div className="space-y-3 pt-6 border-t" style={{ borderColor: config.borderColor }}>
             <div className="flex items-center justify-between">
               <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: config.textColor }}>
@@ -1136,9 +1136,22 @@ function FullSiteDemoPage() {
             </div>
           </div>
 
+          {/* CRÉDITO PROFISSIONAL DE DESENVOLVIMENTO RDG DIGITAL */}
           <div className="pt-8 border-t flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]" style={{ borderColor: config.borderColor, color: config.mutedTextColor }}>
             <p>© {new Date().getFullYear()} {nome}. Todos os direitos reservados.</p>
-            <p>Site profissional desenvolvido para {nome}.</p>
+            <p className="flex items-center gap-1.5 font-medium">
+              <span>Site profissional desenvolvido por</span>
+              <a
+                href="https://www.rdgdigital.com.br"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-extrabold hover:underline inline-flex items-center gap-1 transition-colors"
+                style={{ color: config.accentColor }}
+              >
+                <span>RDG Digital</span>
+                <ArrowUpRight size={12} />
+              </a>
+            </p>
           </div>
         </div>
       </footer>
