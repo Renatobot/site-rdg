@@ -867,7 +867,7 @@ const COURSES = [
     modules: [
       {
         title: "O Mecanismo Exclusivo das Copys",
-        thumbnail: "/capa-capcut-1.png",
+        thumbnail: "https://drive.google.com/uc?export=view&id=1QpkXc-jJ5NTBHnd3QKVteSBE44n5MCOA",
         videos: [
           {
             id: "cap-1",
@@ -1014,6 +1014,220 @@ const COURSES = [
                     <strong className="text-white">Dica Prática:</strong> Use esta aula como um check-list sempre que for escrever um novo roteiro para seus vídeos do CapCut ou textos para seus anúncios.
                   </p>
                 </div>
+              </div>
+            )
+          }
+        ]
+      },
+      {
+        title: "Capcut Edição para Vender +",
+        thumbnail: "https://drive.google.com/uc?export=view&id=130TIxVVAIHAWS0RJ6WmDdtMkAqJbKJXz",
+        videos: [
+          {
+            id: "cap2-1",
+            title: "1 • CapCut o Inicio",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1VtJjTy8U-PM3WBaxAxC92T82p7SoRVMa/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-blue-500/10 text-blue-400 rounded-lg">🚀</span>
+                  <h4 className="font-bold text-white text-lg">Primeiros Passos no CapCut</h4>
+                </div>
+                <p>
+                  Nesta aula introdutória, vamos fazer um tour pela interface do CapCut. Você vai aprender como importar seus vídeos, configurar o formato ideal para as redes sociais e dominar as ferramentas básicas de corte e organização da timeline.
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap2-2",
+            title: "2 • A Mágica dos Efeitos",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1Vf21hKoPssBw6iYmtrdjwlvUTcRyl_wx/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-purple-500/10 text-purple-400 rounded-lg">✨</span>
+                  <h4 className="font-bold text-white text-lg">Efeitos que Prendem a Atenção</h4>
+                </div>
+                <p>
+                  Descubra como utilizar os efeitos visuais do CapCut de forma estratégica para reter a atenção da sua audiência, sem deixar o vídeo poluído ou amador.
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap2-3",
+            title: "3 • Use Certo a Transição",
+            duration: "~",
+            url: "https://drive.google.com/file/d/13-hjfsCMrfGT850k2AiYUZHT2bad4TjD/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-yellow-500/10 text-yellow-400 rounded-lg">🎞️</span>
+                  <h4 className="font-bold text-white text-lg">Transições Suaves e Dinâmicas</h4>
+                </div>
+                <p>
+                  Uma transição mal feita pode estragar todo o seu vídeo. Aprenda a usar transições imperceptíveis e efeitos de corte que mantêm o ritmo e o dinamismo do seu conteúdo sempre em alta.
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap2-4",
+            title: "4 • Textos que Chamam Atenção",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1pR7wFxGxUy9deaVvq7Zs6iXJasYAKUCK/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-green-500/10 text-green-400 rounded-lg">📝</span>
+                  <h4 className="font-bold text-white text-lg">Legendas e Textos Persuasivos</h4>
+                </div>
+                <p>
+                  A maioria das pessoas assiste vídeos sem som inicialmente. Dominar a arte de colocar textos e legendas chamativas na tela é essencial para garantir que a sua mensagem principal seja recebida e compreendida!
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap2-5",
+            title: "5 • Hacks para Ganhar Tempo",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1-jHpQ3FGcuQ9SIg4Wc8S35hNPQFYLfUA/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-red-500/10 text-red-400 rounded-lg">⏱️</span>
+                  <h4 className="font-bold text-white text-lg">Edição Muito Mais Rápida</h4>
+                </div>
+                <p>
+                  Tempo é dinheiro! Compartilharei com você meus hacks secretos de edição e atalhos no CapCut que vão reduzir pela metade o tempo que você gasta editando cada vídeo.
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap2-6",
+            title: "6 • Fotos em Vídeos Dinâmicos",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1gP2z6_JiWyw-KvNBLG6tKelrdTXklJC2/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-blue-500/10 text-blue-400 rounded-lg">📸</span>
+                  <h4 className="font-bold text-white text-lg">Dando Vida a Imagens Estáticas</h4>
+                </div>
+                <p>
+                  Tem apenas fotos do produto? Sem problemas! Aprenda técnicas de movimento, zoom (Ken Burns) e efeitos de sobreposição para transformar fotos estáticas em criativos de vídeo incrivelmente dinâmicos e que vendem muito.
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap2-7",
+            title: "7 • Gravação e Local com Melhorias",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1t6KnhQellU5K6VQhx6BKnMmZOjTpw-oG/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-primary/10 text-primary rounded-lg">🎥</span>
+                  <h4 className="font-bold text-white text-lg">Setup de Gravação Profissional</h4>
+                </div>
+                <p>
+                  A edição não faz milagres se a captação for muito ruim. Nesta aula, você vai aprender dicas cruciais de iluminação, enquadramento e áudio para gravar seus vídeos com qualidade profissional, mesmo usando apenas o seu celular.
+                </p>
+              </div>
+            )
+          }
+        ]
+      },
+      {
+        title: "Criativos para Alto CTR",
+        thumbnail: "https://drive.google.com/uc?export=view&id=1OWZB4B4FtGxK-PGujotsHiGWJJIzvcuA",
+        videos: [
+          {
+            id: "cap3-1",
+            title: "1 • Aulão Criando o Criativo Mini VSL",
+            duration: "~",
+            url: "https://drive.google.com/file/d/197qtqT6vbyyzX2uwuA1UfQA5F_wlS95Q/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-blue-500/10 text-blue-400 rounded-lg">🔥</span>
+                  <h4 className="font-bold text-white text-lg">Criativos no Formato Mini VSL</h4>
+                </div>
+                <p>
+                  Neste aulão completo, você vai aprender a estruturar e editar um criativo de alta conversão usando o formato Mini VSL. Esse é o formato que mais converte atualmente porque une retenção e persuasão em vídeos curtos e diretos.
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap3-2",
+            title: "2 • Criativos Híbridos",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1n7qCZf-9__jzhJx59_vVJd3QjUDV51AU/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-purple-500/10 text-purple-400 rounded-lg">🌪️</span>
+                  <h4 className="font-bold text-white text-lg">O Poder dos Criativos Híbridos</h4>
+                </div>
+                <p>
+                  Criativos híbridos misturam elementos de diferentes formatos (como imagens estáticas e vídeos dinâmicos) para quebrar o padrão visual do usuário e aumentar drasticamente o CTR (Taxa de Clique).
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap3-3",
+            title: "3 • Criativos Mostrando Produto + Moldes",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1fhjlihmOdMdT-4Qs-iPJDN3h9Id49-3y/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="p-2 bg-yellow-500/10 text-yellow-400 rounded-lg">📦</span>
+                  <h4 className="font-bold text-white text-lg">Exibição de Produto Perfeita</h4>
+                </div>
+                <p>
+                  Aprenda a exibir seu produto de forma irresistível utilizando moldes profissionais e técnicas de edição que valorizam cada detalhe, despertando um desejo imediato no seu cliente.
+                </p>
+              </div>
+            )
+          }
+        ]
+      },
+      {
+        title: "VSL 5 Dígitos 100% Editável",
+        thumbnail: "https://drive.google.com/uc?export=view&id=1sb7vkClvpvcao_sRt4clK1tgxZ9KcDEn",
+        videos: [
+          {
+            id: "cap4-1",
+            title: "Aula 1",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1gUE7QLn1VRPyx3etGBv8r8Ra4g7Qjee4/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <p>
+                  Esta é a primeira aula do módulo VSL 5 Dígitos 100% Editável. Aprenda a estruturar sua VSL milionária.
+                </p>
+              </div>
+            )
+          },
+          {
+            id: "cap4-2",
+            title: "Aula 2",
+            duration: "~",
+            url: "https://drive.google.com/file/d/1hrervNQAtR5WM1gt4etmho9fB2yd2V05/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <p>
+                  Continuação e finalização do módulo VSL 5 Dígitos.
+                </p>
               </div>
             )
           }
