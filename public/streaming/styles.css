@@ -262,14 +262,14 @@ video::-webkit-media-controls-fullscreen-button {
   background: rgba(8, 15, 25, 0.82) !important;
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(24px) !important;
-  border: 1px solid rgba(0, 255, 136, 0.5) !important;
-  box-shadow: 0 0 45px rgba(0, 255, 136, 0.35), inset 0 0 20px rgba(0, 255, 136, 0.12) !important;
+  border: 1px solid rgba(0, 220, 255, 0.5) !important;
+  box-shadow: 0 0 45px rgba(0, 220, 255, 0.35), inset 0 0 20px rgba(0, 220, 255, 0.12) !important;
 }
 
 .vip-glow-3d {
   position: absolute;
   inset: -3px;
-  background: linear-gradient(135deg, rgba(0, 255, 136, 0.6), rgba(0, 255, 102, 0.4), rgba(0, 230, 118, 0.5));
+  background: linear-gradient(135deg, rgba(0, 220, 255, 0.6), rgba(0, 200, 255, 0.4), rgba(0, 240, 255, 0.5));
   border-radius: inherit;
   z-index: -1;
   filter: blur(16px);
@@ -291,11 +291,11 @@ video::-webkit-media-controls-fullscreen-button {
 .typewriter-cursor::after {
   content: '▋';
   display: inline-block;
-  color: #00ff88;
+  color: #00dcff;
   font-size: 0.9em;
   margin-left: 2px;
   animation: tickerBlink 0.7s infinite;
-  text-shadow: 0 0 8px #00ff88;
+  text-shadow: 0 0 8px #00dcff;
 }
 
 @keyframes tickerBlink {
