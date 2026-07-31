@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as CursosRouteImport } from './routes/cursos'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ExtensaoRouteImport } from './routes/extensao'
 import { Route as GmnRouteImport } from './routes/gmn'
 import { Route as InstagramRouteImport } from './routes/instagram'
@@ -44,6 +45,11 @@ const ContatoRoute = ContatoRouteImport.update({
 const CursosRoute = CursosRouteImport.update({
   id: '/cursos',
   path: '/cursos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExtensaoRoute = ExtensaoRouteImport.update({
@@ -144,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
   '/cursos': typeof CursosRoute
+  '/demo': typeof DemoRoute
   '/extensao': typeof ExtensaoRoute
   '/gmn': typeof GmnRoute
   '/instagram': typeof InstagramRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
   '/cursos': typeof CursosRoute
+  '/demo': typeof DemoRoute
   '/extensao': typeof ExtensaoRoute
   '/gmn': typeof GmnRoute
   '/instagram': typeof InstagramRoute
@@ -191,6 +199,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
   '/cursos': typeof CursosRoute
+  '/demo': typeof DemoRoute
   '/extensao': typeof ExtensaoRoute
   '/gmn': typeof GmnRoute
   '/instagram': typeof InstagramRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/'
     | '/contato'
     | '/cursos'
+    | '/demo'
     | '/extensao'
     | '/gmn'
     | '/instagram'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/'
     | '/contato'
     | '/cursos'
+    | '/demo'
     | '/extensao'
     | '/gmn'
     | '/instagram'
@@ -262,6 +273,7 @@ export interface FileRouteTypes {
     | '/'
     | '/contato'
     | '/cursos'
+    | '/demo'
     | '/extensao'
     | '/gmn'
     | '/instagram'
@@ -286,6 +298,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContatoRoute: typeof ContatoRoute
   CursosRoute: typeof CursosRoute
+  DemoRoute: typeof DemoRoute
   ExtensaoRoute: typeof ExtensaoRoute
   GmnRoute: typeof GmnRoute
   InstagramRoute: typeof InstagramRoute
@@ -327,6 +340,13 @@ declare module '@tanstack/react-router' {
       path: '/cursos'
       fullPath: '/cursos'
       preLoaderRoute: typeof CursosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/extensao': {
@@ -462,6 +482,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContatoRoute: ContatoRoute,
   CursosRoute: CursosRoute,
+  DemoRoute: DemoRoute,
   ExtensaoRoute: ExtensaoRoute,
   GmnRoute: GmnRoute,
   InstagramRoute: InstagramRoute,

@@ -20,19 +20,12 @@ import {
   Globe,
   Instagram,
   Filter,
-  MonitorPlay,
   Bookmark,
   BookmarkCheck,
   MessageCircle,
   Kanban,
   Grid,
-  Smartphone,
-  Monitor,
-  Calendar,
-  Clock,
-  ShieldCheck,
-  Trash2,
-  MoveRight
+  ExternalLink
 } from "lucide-react";
 
 const TITLE = "Ferramenta de Prospecção B2B Google Maps — RDG Digital";
@@ -78,7 +71,6 @@ function ProspeccaoPage() {
 
   // Modal de Prévia Interativa de Site
   const [selectedDemoLead, setSelectedDemoLead] = useState<LeadItem | null>(null);
-  const [demoDevice, setDemoDevice] = useState<"mobile" | "desktop">("desktop");
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
   // Carregar chave de API e leads salvos do localStorage
@@ -90,7 +82,6 @@ function ProspeccaoPage() {
     if (saved) {
       try {
         const parsed: LeadItem[] = JSON.parse(saved);
-        // Garantir que todos tenham status
         const withStatus = parsed.map((l) => ({ ...l, status: l.status || "novo" }));
         setSavedLeads(withStatus);
       } catch (e) {
@@ -204,8 +195,22 @@ function ProspeccaoPage() {
     document.body.removeChild(link);
   };
 
-  const copyDemoLink = (leadName: string) => {
-    const demoUrl = `${window.location.origin}/membros?demo=${encodeURIComponent(leadName)}`;
+  const buildDemoUrl = (lead: LeadItem) => {
+    const params = new URLSearchParams({
+      nome: lead.name,
+      categoria: lead.category,
+      cidade: cidade,
+      endereco: lead.address,
+      phone: lead.phone,
+      raw_phone: lead.raw_phone,
+      rating: String(lead.rating),
+      reviews: String(lead.user_ratings_total),
+    });
+    return `${window.location.origin}/demo?${params.toString()}`;
+  };
+
+  const copyDemoLink = (lead: LeadItem) => {
+    const demoUrl = buildDemoUrl(lead);
     navigator.clipboard.writeText(demoUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
@@ -505,7 +510,6 @@ function ProspeccaoPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                {/* Toggle Kanban vs Grid */}
                 <div className="flex bg-[#0A0A0A] p-1 rounded-xl border border-white/10 text-xs">
                   <button
                     onClick={() => setSavedViewMode("kanban")}
@@ -561,7 +565,6 @@ function ProspeccaoPage() {
                         isOver ? "border-primary bg-primary/5 shadow-xl shadow-primary/10" : "border-white/10"
                       }`}
                     >
-                      {/* Header da Coluna */}
                       <div className={`p-4 border-b ${col.headerBorder} flex items-center justify-between bg-[#0A0A0A]/50 rounded-t-2xl`}>
                         <h4 className="font-extrabold text-xs text-white uppercase tracking-wider flex items-center gap-2">
                           <span>{col.title}</span>
@@ -571,7 +574,6 @@ function ProspeccaoPage() {
                         </span>
                       </div>
 
-                      {/* Lista de Cards da Coluna */}
                       <div className="p-3 space-y-3 overflow-y-auto custom-scrollbar flex-1 min-h-[150px]">
                         {colLeads.length === 0 ? (
                           <div className="h-28 border border-dashed border-white/10 rounded-xl flex items-center justify-center text-[11px] text-white/30 text-center p-3">
@@ -600,7 +602,6 @@ function ProspeccaoPage() {
                                 <p className="font-mono text-white/80">📞 {lead.phone}</p>
                               </div>
 
-                              {/* Mudar Status via Select para Mobile */}
                               <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2">
                                 <select
                                   value={lead.status || "novo"}
@@ -724,156 +725,86 @@ function ProspeccaoPage() {
       {/* MODAL GERADOR E VISUALIZADOR DE PRÉVIA DE SITE REAL INTERATIVO */}
       {selectedDemoLead && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-          <div className="bg-[#111218] border border-white/10 rounded-3xl max-w-4xl w-full flex flex-col max-h-[90vh] overflow-hidden relative shadow-2xl my-auto">
-            {/* Header Modal */}
-            <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-[#0A0A0A]">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
-                  <Sparkles size={16} />
+          <div className="bg-[#111218] border border-white/10 rounded-3xl max-w-3xl w-full flex flex-col relative shadow-2xl my-auto p-6 space-y-6">
+            <button
+              onClick={() => setSelectedDemoLead(null)}
+              className="absolute top-5 right-5 text-white/40 hover:text-white p-1"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="space-y-2">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center">
+                <Sparkles size={20} />
+              </div>
+              <h3 className="text-xl font-black text-white">Demonstração de Site Real Gerada</h3>
+              <p className="text-xs text-white/60 leading-relaxed">
+                Um site de alta conversão 100% completo com fotos, depoimentos e agendamento foi criado para <strong>{selectedDemoLead.name}</strong>.
+              </p>
+            </div>
+
+            {/* Preview Box */}
+            <div className="bg-gradient-to-br from-[#181928] to-[#0A0A0E] border border-primary/30 rounded-2xl p-5 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <MonitorPlay size={18} className="text-primary" />
+                  <span className="font-extrabold text-sm text-white">{selectedDemoLead.name}</span>
                 </div>
-                <div>
-                  <h3 className="font-extrabold text-sm sm:text-base text-white">
-                    Prévia do Site: <span className="text-primary">{selectedDemoLead.name}</span>
-                  </h3>
-                  <p className="text-[11px] text-white/50">Modelo de demonstração ao vivo pronto para enviar no WhatsApp</p>
-                </div>
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/30">
+                  SITE ONLINE
+                </span>
               </div>
 
-              <div className="flex items-center gap-3">
-                {/* Switcher Dispositivo */}
-                <div className="hidden sm:flex bg-white/5 p-1 rounded-xl border border-white/10 text-xs">
-                  <button
-                    onClick={() => setDemoDevice("desktop")}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
-                      demoDevice === "desktop" ? "bg-primary text-black" : "text-white/60 hover:text-white"
-                    }`}
-                  >
-                    <Monitor size={14} />
-                    <span>Computador</span>
-                  </button>
-                  <button
-                    onClick={() => setDemoDevice("mobile")}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
-                      demoDevice === "mobile" ? "bg-primary text-black" : "text-white/60 hover:text-white"
-                    }`}
-                  >
-                    <Smartphone size={14} />
-                    <span>Celular</span>
-                  </button>
-                </div>
+              <div className="text-xs text-white/70 space-y-2">
+                <p>📍 <strong>Localização:</strong> {selectedDemoLead.address}</p>
+                <p>⭐ <strong>Avaliação Google:</strong> {selectedDemoLead.rating} de 5.0 ({selectedDemoLead.user_ratings_total} avaliações)</p>
+                <p>📞 <strong>Contato Direto:</strong> {selectedDemoLead.phone}</p>
+              </div>
 
-                <button
-                  onClick={() => setSelectedDemoLead(null)}
-                  className="p-1.5 text-white/40 hover:text-white rounded-lg hover:bg-white/10"
+              <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                <a
+                  href={buildDemoUrl(selectedDemoLead)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 px-4 py-3 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
                 >
-                  <X size={20} />
+                  <span>🌐 Abrir Site Completo em Nova Aba</span>
+                  <ExternalLink size={14} />
+                </a>
+              </div>
+            </div>
+
+            {/* Link Copiável para WhatsApp */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                Link do Site de Demonstração para Enviar no WhatsApp:
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={buildDemoUrl(selectedDemoLead)}
+                  className="flex-1 bg-[#0A0A0A] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white/80 font-mono outline-none"
+                />
+                <button
+                  onClick={() => copyDemoLink(selectedDemoLead)}
+                  className="px-4 py-2.5 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all shrink-0 flex items-center gap-1.5"
+                >
+                  {copiedLink ? <Check size={14} /> : <Copy size={14} />}
+                  <span>{copiedLink ? "Copiado!" : "Copiar Link"}</span>
                 </button>
               </div>
             </div>
 
-            {/* Container da Prévia do Site (Interactive Mockup) */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 bg-[#050508] flex justify-center">
-              <div
-                className={`transition-all duration-300 bg-[#0A0A0C] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col justify-between ${
-                  demoDevice === "mobile" ? "w-[375px] min-h-[650px]" : "w-full min-h-[500px]"
-                }`}
-              >
-                {/* Mockup Header */}
-                <div className="h-14 bg-[#12131C] border-b border-white/10 px-5 flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-black text-sm text-white tracking-tight">
-                    <span className="w-3 h-3 rounded-full bg-primary inline-block" />
-                    <span>{selectedDemoLead.name.toUpperCase()}</span>
-                  </div>
-                  <a
-                    href={selectedDemoLead.whatsapp_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1.5 bg-emerald-500 text-black font-extrabold text-[11px] rounded-lg hover:bg-emerald-400 transition-all flex items-center gap-1"
-                  >
-                    <MessageCircle size={12} />
-                    <span>Agendar</span>
-                  </a>
-                </div>
-
-                {/* Mockup Hero */}
-                <div className="p-6 sm:p-10 text-center space-y-4 bg-gradient-to-b from-primary/10 via-transparent to-transparent relative">
-                  <span className="px-3 py-1 bg-primary/20 text-primary border border-primary/30 rounded-full text-[10px] font-extrabold uppercase tracking-wider">
-                    {selectedDemoLead.category} de Excelência
-                  </span>
-                  <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                    O Melhor Atendimento de {selectedDemoLead.category} da Região
-                  </h1>
-                  <p className="text-xs sm:text-sm text-white/70 max-w-lg mx-auto leading-relaxed">
-                    Tradição, qualidade e atendimento VIP para você. Venha conhecer nosso espaço ou agende pelo WhatsApp.
-                  </p>
-
-                  <div className="flex flex-wrap items-center justify-center gap-3 pt-2 text-xs">
-                    <div className="flex items-center gap-1 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-3 py-1.5 rounded-xl font-bold">
-                      <Star size={14} fill="currentColor" />
-                      <span>{selectedDemoLead.rating} ({selectedDemoLead.user_ratings_total} avaliações no Google)</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-4">
-                    <a
-                      href={selectedDemoLead.whatsapp_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm rounded-xl shadow-xl shadow-emerald-500/20 transition-all transform hover:scale-105"
-                    >
-                      <MessageCircle size={18} />
-                      <span>Agendar no WhatsApp Agora</span>
-                    </a>
-                  </div>
-                </div>
-
-                {/* Mockup Services Grid */}
-                <div className="p-6 bg-[#0E0F17] border-t border-white/5 space-y-4">
-                  <h4 className="text-xs font-bold text-white/50 uppercase tracking-wider text-center">
-                    Nossos Diferenciais & Serviços
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {[
-                      { icon: ShieldCheck, title: "Qualidade Garantida", desc: "Equipe altamente qualificada e experiente." },
-                      { icon: Calendar, title: "Agendamento Prático", desc: "Marque seu horário sem filas direto pelo celular." },
-                      { icon: MapPin, title: "Excelente Localização", desc: selectedDemoLead.address },
-                    ].map((srv, idx) => (
-                      <div key={idx} className="bg-[#141520] border border-white/10 rounded-xl p-4 space-y-1.5 text-left">
-                        <srv.icon size={18} className="text-primary mb-1" />
-                        <h5 className="font-bold text-xs text-white">{srv.title}</h5>
-                        <p className="text-[11px] text-white/50 leading-relaxed">{srv.desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Mockup Footer */}
-                <div className="p-4 bg-[#08080C] border-t border-white/5 text-center text-[10px] text-white/40">
-                  <p>© 2026 {selectedDemoLead.name} • {selectedDemoLead.address}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Footer Modal de Ações */}
-            <div className="p-4 border-t border-white/10 bg-[#0A0A0A] flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <button
-                  onClick={() => copyDemoLink(selectedDemoLead.name)}
-                  className="flex-1 sm:flex-initial px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5"
-                >
-                  {copiedLink ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                  <span>{copiedLink ? "Link Copiado!" : "Copiar Link de Demonstração"}</span>
-                </button>
-              </div>
-
+            <div className="flex items-center justify-end gap-3 pt-2">
               <a
                 href={selectedDemoLead.whatsapp_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+                className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
               >
-                <MessageCircle size={16} />
-                <span>Enviar Proposta no WhatsApp</span>
+                <MessageCircle size={18} />
+                <span>Enviar Proposta com o Link no WhatsApp</span>
               </a>
             </div>
           </div>
