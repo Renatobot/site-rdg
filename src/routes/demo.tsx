@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
 import {
@@ -5,11 +6,7 @@ import {
   MapPin,
   Star,
   MessageCircle,
-  ShieldCheck,
   Clock,
-  CheckCircle2,
-  Award,
-  Users,
   ArrowUpRight,
   Sparkles,
   Scissors,
@@ -29,6 +26,7 @@ const DESCRIPTION = "Página de demonstração de site de alta conversão para e
 const CANONICAL_URL = `${BASE_URL}/demo`;
 
 export interface DemoSearchParams {
+  place_id?: string;
   nome?: string;
   cliente?: string;
   categoria?: string;
@@ -48,6 +46,7 @@ export interface DemoSearchParams {
 export const Route = createFileRoute("/demo")({
   validateSearch: (search: Record<string, unknown>): DemoSearchParams => {
     return {
+      place_id: typeof search.place_id === "string" ? search.place_id : "",
       nome: typeof search.nome === "string" ? search.nome : typeof search.cliente === "string" ? search.cliente : "Navalha & Co.",
       categoria: typeof search.categoria === "string" ? search.categoria : "Barbearia",
       cidade: typeof search.cidade === "string" ? search.cidade : "São Paulo - SP",
@@ -205,7 +204,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // ESTÉTICA & SPA (Soft Nude Rose Gold, Warm Elegance)
+  // ESTÉTICA & SPA
   estetica: {
     isDark: false,
     bgColor: "#FAF7F2",
@@ -410,60 +409,73 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
 
 function FullSiteDemoPage() {
   const search = Route.useSearch();
+  const [storedLead, setStoredLead] = useState<any>(null);
 
-  const nome = search.nome || search.cliente || "Navalha & Co.";
-  const categoria = search.categoria || "Barbearia";
+  // Tentar restaurar o objeto de lead 100% completo da sessionStorage ao carregar
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = sessionStorage.getItem("active_demo_lead");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && (parsed.name === search.nome || parsed.id === search.place_id)) {
+            setStoredLead(parsed);
+          }
+        }
+      } catch (e) {
+        console.error("Erro ao carregar lead do sessionStorage:", e);
+      }
+    }
+  }, [search.nome, search.place_id]);
+
+  const nome = storedLead?.name || search.nome || search.cliente || "Navalha & Co.";
+  const categoria = storedLead?.category || search.categoria || "Barbearia";
   const cidade = search.cidade || "São Paulo - SP";
-  const endereco = search.endereco || `Rua Principal, 1500 - ${cidade}`;
-  const phone = search.phone || search.telefone || "+55 11 98888-7777";
-  const rawPhone = (search.raw_phone || phone).replace(/\D/g, "");
+  const endereco = storedLead?.address || search.endereco || `Rua Principal, 1500 - ${cidade}`;
+  const phone = storedLead?.phone || search.phone || search.telefone || "+55 11 98888-7777";
+  const rawPhone = (storedLead?.raw_phone || search.raw_phone || phone).replace(/\D/g, "");
   const waNum = rawPhone.length > 5 ? (rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`) : "5511988887777";
-  const rating = search.rating || "5.0";
-  const reviews = search.reviews || "340";
+  const rating = storedLead?.rating || search.rating || "5.0";
+  const reviews = storedLead?.user_ratings_total || search.reviews || "340";
+  const googleMapsUrl = storedLead?.google_maps_url || `https://www.google.com/maps/search/${encodeURIComponent(nome + " " + cidade)}`;
 
-  // 1. FOTOS REAIS DO GOOGLE MAPS DA EMPRESA
-  let realGooglePhotos: string[] = [];
-  if (search.photos) {
+  // Parse de fotos reais do Google Maps
+  let realGooglePhotos: string[] = storedLead?.photos || [];
+  if (realGooglePhotos.length === 0 && search.photos) {
     try {
       const parsed = JSON.parse(search.photos);
       if (Array.isArray(parsed) && parsed.length > 0) {
         realGooglePhotos = parsed;
       }
-    } catch (e) {
-      console.error("Erro ao ler fotos do Google Maps:", e);
-    }
+    } catch (e) {}
   }
 
-  // 2. AVALIAÇÕES REAIS (REVIEWS) DE CLIENTES DO GOOGLE MAPS DA EMPRESA
-  let realReviewsList: { author_name: string; rating: number; text: string; relative_time_description?: string }[] = [];
-  if (search.reviews_json) {
+  // Parse de avaliações reais de clientes do Google Maps
+  let realReviewsList: { author_name: string; rating: number; text: string; relative_time_description?: string }[] = storedLead?.reviews_list || [];
+  if (realReviewsList.length === 0 && search.reviews_json) {
     try {
       const parsed = JSON.parse(search.reviews_json);
       if (Array.isArray(parsed) && parsed.length > 0) {
         realReviewsList = parsed;
       }
-    } catch (e) {
-      console.error("Erro ao ler reviews do Google Maps:", e);
-    }
+    } catch (e) {}
   }
 
-  // 3. HORÁRIOS REAIS DE FUNCIONAMENTO DO GOOGLE MAPS
-  let realOpeningHours: string[] = [];
-  if (search.hours_json) {
+  // Parse de horários reais do Google Maps
+  let realOpeningHours: string[] = storedLead?.opening_hours || [];
+  if (realOpeningHours.length === 0 && search.hours_json) {
     try {
       const parsed = JSON.parse(search.hours_json);
       if (Array.isArray(parsed) && parsed.length > 0) {
         realOpeningHours = parsed;
       }
-    } catch (e) {
-      console.error("Erro ao ler horarios do Google Maps:", e);
-    }
+    } catch (e) {}
   }
 
   const defaultMsg = encodeURIComponent(`Olá! Vi o site oficial da *${nome}* em ${cidade} e gostaria de agendar um atendimento.`);
   const waUrl = `https://wa.me/${waNum}?text=${defaultMsg}`;
 
-  // Seleção de Nicho com Mapeamento Inteligente de Palavras-Chave
+  // Seleção de Nicho com Mapeamento Inteligente
   const lowerCat = categoria.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   
   let catKey = "default";
@@ -488,12 +500,8 @@ function FullSiteDemoPage() {
   const config = NICHE_CONFIGS[catKey] || NICHE_CONFIGS["default"];
   const NicheIcon = config.icon;
 
-  // Descrição do Negócio: Usar o Resumo Editorial do Google se disponível, ou o resumo configurado do nicho
-  const businessSummary = search.summary && search.summary.length > 15
-    ? search.summary
-    : `${nome} é uma das empresas mais bem avaliadas no segmento de ${categoria} em ${cidade}, acumulando ${reviews} avaliações positivas no Google Maps com nota ${rating}.`;
+  const businessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${categoria} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações no Google Maps.`;
 
-  // Imagens: Priorizar 100% as Fotos Reais do Google Maps
   const heroImage = realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback;
   const galleryImages = realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback;
 
@@ -574,14 +582,20 @@ function FullSiteDemoPage() {
             <NicheIcon size={22} />
           </div>
           <div>
-            <h2
-              className="font-bold text-xl tracking-wider uppercase"
-              style={{
-                fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
-                color: config.textColor,
-              }}
-            >
-              {nome}
+            <h2 className="font-bold text-xl tracking-wider uppercase">
+              <a
+                href={googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Ver perfil oficial no Google Maps"
+                className="hover:underline flex items-center gap-1.5"
+                style={{
+                  fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
+                  color: config.textColor,
+                }}
+              >
+                <span>{nome}</span>
+              </a>
             </h2>
             <p className="text-[10px] uppercase tracking-[0.25em] font-mono" style={{ color: config.mutedTextColor }}>
               {categoria} • {cidade}
@@ -610,7 +624,7 @@ function FullSiteDemoPage() {
         </div>
       </header>
 
-      {/* HERO SECTION - ADAPTADA PARA DADOS REAIS DO LEAD */}
+      {/* HERO SECTION */}
       <section className="relative overflow-hidden py-16 sm:py-24 px-5 sm:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
           
@@ -630,7 +644,14 @@ function FullSiteDemoPage() {
                 color: config.textColor,
               }}
             >
-              {nome}{" "}
+              <a
+                href={googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                {nome}
+              </a>{" "}
               <span className="italic block" style={{ color: config.accentColor }}>
                 {cidade}.
               </span>
@@ -673,15 +694,18 @@ function FullSiteDemoPage() {
                 <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: config.mutedTextColor }}>
                   Avaliação Google
                 </div>
-                <span
-                  className="block text-2xl sm:text-3xl font-bold"
+                <a
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-2xl sm:text-3xl font-bold hover:underline"
                   style={{
                     color: config.accentColor,
                     fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                   }}
                 >
                   ⭐ {rating}
-                </span>
+                </a>
               </div>
 
               <div className="space-y-1">
@@ -761,7 +785,7 @@ function FullSiteDemoPage() {
                 >
                   <div className="text-[10px] font-bold uppercase tracking-[0.25em] mb-1 flex items-center gap-1.5" style={{ color: config.accentColor }}>
                     <Clock size={12} />
-                    <span>Horário de Atendimento</span>
+                    <span>Horário de Atendimento (Google Maps)</span>
                   </div>
                   <div className="text-xs font-semibold">
                     {realOpeningHours[0]}
@@ -771,14 +795,24 @@ function FullSiteDemoPage() {
 
               {/* Badge de Fotos Reais do Google */}
               {realGooglePhotos.length > 0 && (
-                <div className="absolute top-4 right-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-lg bg-black/80 text-white border border-white/20">
+                <a
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute top-4 right-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-lg bg-black/80 text-white border border-white/20 hover:bg-black transition-all"
+                >
                   <Camera size={14} style={{ color: config.accentColor }} />
                   <span className="text-[11px]">Foto Real do Google Maps</span>
-                </div>
+                </a>
               )}
 
               {/* Badge de Nota Google */}
-              <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow-lg bg-white text-black border border-black/10">
+              <a
+                href={googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow-lg bg-white text-black border border-black/10 hover:bg-gray-100 transition-all"
+              >
                 <span className="text-blue-600 font-black">G</span>
                 <span>{rating}</span>
                 <div className="flex gap-0.5 text-amber-500">
@@ -786,7 +820,7 @@ function FullSiteDemoPage() {
                     <Star key={i} size={10} fill="currentColor" />
                   ))}
                 </div>
-              </div>
+              </a>
             </div>
           </div>
         </div>
@@ -910,10 +944,15 @@ function FullSiteDemoPage() {
             </div>
 
             {realGooglePhotos.length > 0 && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-600 border border-emerald-500/30">
+              <a
+                href={googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 hover:bg-emerald-500/30 transition-all"
+              >
                 <Camera size={14} />
                 <span>{realGooglePhotos.length} Fotos Reais Carregadas do Perfil</span>
-              </span>
+              </a>
             )}
           </div>
 
@@ -957,8 +996,11 @@ function FullSiteDemoPage() {
             >
               O que dizem sobre a {nome}.
             </h2>
-            <div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border"
+            <a
+              href={googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border hover:bg-white/5 transition-all"
               style={{
                 backgroundColor: config.cardBg,
                 borderColor: config.borderColor,
@@ -973,7 +1015,7 @@ function FullSiteDemoPage() {
                 ))}
               </div>
               <span style={{ color: config.mutedTextColor }}>({reviews} avaliações)</span>
-            </div>
+            </a>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -1033,7 +1075,7 @@ function FullSiteDemoPage() {
                     </div>
                     <div className="text-[10px]" style={{ color: config.mutedTextColor }}>Avaliação no Google Maps</div>
                   </div>
-                  <span className="text-blue-500 font-bold text-xs">Google G</span>
+                  <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 font-bold text-xs hover:underline">Google G</a>
                 </figcaption>
               </figure>
             ))}
@@ -1061,7 +1103,7 @@ function FullSiteDemoPage() {
             <h5 className="font-bold uppercase tracking-wider" style={{ color: config.textColor }}>Localização & Horários</h5>
             <p className="flex items-start gap-2">
               <MapPin size={14} className="shrink-0 mt-0.5" style={{ color: config.accentColor }} />
-              <span>{endereco}</span>
+              <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">{endereco}</a>
             </p>
             <p className="flex items-center gap-2">
               <Phone size={14} className="shrink-0" style={{ color: config.accentColor }} />
@@ -1070,7 +1112,7 @@ function FullSiteDemoPage() {
 
             {realOpeningHours.length > 0 && (
               <div className="pt-2 space-y-1 border-t" style={{ borderColor: config.borderColor }}>
-                <p className="font-bold text-[11px] text-white flex items-center gap-1">
+                <p className="font-bold text-[11px] flex items-center gap-1" style={{ color: config.textColor }}>
                   <Clock size={12} style={{ color: config.accentColor }} />
                   <span>Horários de Funcionamento (Google Maps):</span>
                 </p>

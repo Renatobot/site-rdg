@@ -56,14 +56,15 @@ function ProspeccaoPage() {
   const [activeTab, setActiveTab] = useState<"prospectar" | "salvos">("prospectar");
   const [savedViewMode, setSavedViewMode] = useState<"kanban" | "grid">("kanban");
 
-  const [nicho, setNicho] = useState<string>("Advocacia");
-  const [cidade, setCidade] = useState<string>("São Paulo - SP");
+  const [nicho, setNicho] = useState<string>("");
+  const [cidade, setCidade] = useState<string>("");
   const [onlyNoWebsite, setOnlyNoWebsite] = useState<boolean>(true);
   const [minRating, setMinRating] = useState<number>(0);
   const [apiKey, setApiKey] = useState<string>("");
   const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasSearched, setHasSearched] = useState<boolean>(false);
   const [leads, setLeads] = useState<LeadItem[]>([]);
   const [savedLeads, setSavedLeads] = useState<LeadItem[]>([]);
   const [sourceInfo, setSourceInfo] = useState<{ source: string; message?: string; googleStatus?: string } | null>(null);
@@ -76,7 +77,7 @@ function ProspeccaoPage() {
   const [selectedDemoLead, setSelectedDemoLead] = useState<LeadItem | null>(null);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
-  // Carregar chave de API e leads salvos do localStorage
+  // Carregar chave de API e leads salvos do localStorage SEM busca automatica
   useEffect(() => {
     const savedKey = localStorage.getItem("google_places_api_key") || "";
     if (savedKey) setApiKey(savedKey);
@@ -91,8 +92,6 @@ function ProspeccaoPage() {
         console.error(e);
       }
     }
-
-    handleSearch("Advocacia", "São Paulo - SP", savedKey);
   }, []);
 
   const handleSaveApiKey = (key: string) => {
@@ -100,15 +99,18 @@ function ProspeccaoPage() {
     setApiKey(trimmed);
     localStorage.setItem("google_places_api_key", trimmed);
     setIsConfigOpen(false);
-    handleSearch(nicho, cidade, trimmed);
+    if (nicho || cidade) {
+      handleSearch(nicho, cidade, trimmed);
+    }
   };
 
   const handleSearch = async (
-    targetNicho = nicho,
-    targetCidade = cidade,
+    targetNicho = nicho || "Advocacia",
+    targetCidade = cidade || "São Paulo - SP",
     targetApiKey = apiKey
   ) => {
     setIsLoading(true);
+    setHasSearched(true);
     let fetchedLeads: LeadItem[] = [];
     let source = targetApiKey ? "google_api" : "demo_mock";
     let googleStatus = "";
@@ -197,17 +199,24 @@ function ProspeccaoPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Leads_GoogleMaps_${nicho.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `Leads_GoogleMaps_${(nicho || "geral").replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   const buildDemoUrl = (lead: LeadItem) => {
+    // Salvar o objeto de lead 100% completo no sessionStorage para garantir que nada se perca por limite de URL
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("active_demo_lead", JSON.stringify(lead));
+      sessionStorage.setItem(`demo_lead_${lead.id}`, JSON.stringify(lead));
+    }
+
     const params = new URLSearchParams({
+      place_id: lead.id,
       nome: lead.name,
       categoria: lead.category,
-      cidade: cidade,
+      cidade: cidade || "São Paulo - SP",
       endereco: lead.address,
       phone: lead.phone,
       raw_phone: lead.raw_phone,
@@ -229,6 +238,11 @@ function ProspeccaoPage() {
     }
 
     return `${window.location.origin}/demo?${params.toString()}`;
+  };
+
+  const openDemoPage = (lead: LeadItem) => {
+    const demoUrl = buildDemoUrl(lead);
+    window.open(demoUrl, "_blank");
   };
 
   const copyDemoLink = (lead: LeadItem) => {
@@ -411,7 +425,7 @@ function ProspeccaoPage() {
                   type="text"
                   value={cidade}
                   onChange={(e) => setCidade(e.target.value)}
-                  placeholder="Ex: São Paulo - SP, Vila Madalena..."
+                  placeholder="Ex: São Paulo - SP, Rio de Janeiro - RJ..."
                   className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-primary outline-none transition-colors"
                 />
               </div>
@@ -457,7 +471,7 @@ function ProspeccaoPage() {
                 type="button"
                 onClick={() => {
                   setNicho(preset);
-                  handleSearch(preset, cidade);
+                  handleSearch(preset, cidade || "São Paulo - SP");
                 }}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all border ${
                   nicho.toLowerCase() === preset.toLowerCase()
@@ -479,7 +493,7 @@ function ProspeccaoPage() {
                   checked={onlyNoWebsite}
                   onChange={(e) => {
                     setOnlyNoWebsite(e.target.checked);
-                    handleSearch(nicho, cidade);
+                    if (hasSearched) handleSearch(nicho, cidade);
                   }}
                   className="rounded accent-primary w-4 h-4"
                 />
@@ -493,7 +507,7 @@ function ProspeccaoPage() {
                   value={minRating}
                   onChange={(e) => {
                     setMinRating(Number(e.target.value));
-                    handleSearch(nicho, cidade);
+                    if (hasSearched) handleSearch(nicho, cidade);
                   }}
                   className="bg-[#0A0A0A] border border-white/15 rounded-lg px-2.5 py-1 text-white font-bold outline-none"
                 >
@@ -549,6 +563,18 @@ function ProspeccaoPage() {
                 <p className="text-sm font-bold text-white">Buscando empresas no Google Maps...</p>
                 <p className="text-xs text-white/40">Filtrando telefones, Instagram e fotos reais do local</p>
               </div>
+            ) : !hasSearched && leads.length === 0 ? (
+              <div className="py-16 text-center space-y-4 bg-[#111218] rounded-3xl border border-white/10 p-8 max-w-2xl mx-auto shadow-2xl">
+                <div className="w-14 h-14 rounded-2xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center mx-auto">
+                  <Search size={28} />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-lg font-black text-white">Pronto para Prospectar Novos Clientes?</h4>
+                  <p className="text-xs text-white/60 leading-relaxed">
+                    Digite o <strong>Nicho da Empresa</strong> e a <strong>Cidade / Região</strong> nos campos acima e clique no botão <strong>Buscar Leads</strong>.
+                  </p>
+                </div>
+              </div>
             ) : leads.length === 0 ? (
               <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-white/10 p-6">
                 <Search size={36} className="text-white/20 mx-auto" />
@@ -564,6 +590,7 @@ function ProspeccaoPage() {
                     isSaved={isSaved(lead.id)}
                     onToggleSave={() => toggleSaveLead(lead)}
                     onOpenDemoModal={() => setSelectedDemoLead(lead)}
+                    onOpenDemoPage={() => openDemoPage(lead)}
                   />
                 ))}
               </div>
@@ -662,9 +689,15 @@ function ProspeccaoPage() {
                               className="bg-[#0A0A0A] border border-white/10 hover:border-primary/50 rounded-xl p-4 space-y-3 cursor-grab active:cursor-grabbing transition-all hover:shadow-lg group"
                             >
                               <div className="flex items-start justify-between gap-2">
-                                <h5 className="font-bold text-sm text-white group-hover:text-primary transition-colors line-clamp-1">
+                                <a
+                                  href={lead.google_maps_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title="Abrir no Google Maps"
+                                  className="font-bold text-sm text-white group-hover:text-primary transition-colors line-clamp-1 hover:underline"
+                                >
                                   {lead.name}
-                                </h5>
+                                </a>
                                 <div className="flex items-center gap-1 text-[10px] font-bold text-yellow-400 shrink-0">
                                   <Star size={10} fill="currentColor" />
                                   <span>{lead.rating}</span>
@@ -735,6 +768,7 @@ function ProspeccaoPage() {
                     isSaved={true}
                     onToggleSave={() => toggleSaveLead(lead)}
                     onOpenDemoModal={() => setSelectedDemoLead(lead)}
+                    onOpenDemoPage={() => openDemoPage(lead)}
                   />
                 ))}
               </div>
@@ -829,10 +863,16 @@ function ProspeccaoPage() {
             {/* Preview Box */}
             <div className="bg-gradient-to-br from-[#181928] to-[#0A0A0E] border border-primary/30 rounded-2xl p-5 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2">
+                <a
+                  href={selectedDemoLead.google_maps_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:underline text-white font-extrabold text-sm"
+                >
                   <Globe size={18} className="text-primary" />
-                  <span className="font-extrabold text-sm text-white">{selectedDemoLead.name}</span>
-                </div>
+                  <span>{selectedDemoLead.name}</span>
+                  <ExternalLink size={14} className="text-white/40" />
+                </a>
                 <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/30">
                   SITE ONLINE NO AR
                 </span>
@@ -846,15 +886,13 @@ function ProspeccaoPage() {
               </div>
 
               <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                <a
-                  href={buildDemoUrl(selectedDemoLead)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 px-4 py-3 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                <button
+                  onClick={() => openDemoPage(selectedDemoLead)}
+                  className="flex-1 px-4 py-3 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20 cursor-pointer"
                 >
                   <span>🌐 Abrir Site Completo em Nova Aba</span>
                   <ExternalLink size={14} />
-                </a>
+                </button>
                 <a
                   href={selectedDemoLead.instagram_url || `https://www.instagram.com/${selectedDemoLead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`}
                   target="_blank"
@@ -913,11 +951,13 @@ function LeadCard({
   isSaved,
   onToggleSave,
   onOpenDemoModal,
+  onOpenDemoPage,
 }: {
   lead: LeadItem;
   isSaved: boolean;
   onToggleSave: () => void;
   onOpenDemoModal: () => void;
+  onOpenDemoPage: () => void;
 }) {
   const instaTargetUrl = lead.instagram_url || `https://www.instagram.com/${lead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`;
   const photoCount = lead.google_photos_count || lead.photos?.length || 0;
@@ -931,12 +971,21 @@ function LeadCard({
       }`}
     >
       <div className="space-y-3">
-        {/* Header do Card: Nome, Categoria e Rating */}
+        {/* Header do Card: Nome Clicável para Google Maps, Categoria e Rating */}
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1 pr-2">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-extrabold text-base sm:text-lg text-white group-hover:text-primary transition-colors line-clamp-1">
-                {lead.name}
+                <a
+                  href={lead.google_maps_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Abrir no Google Maps"
+                  className="hover:underline inline-flex items-center gap-1.5"
+                >
+                  <span>{lead.name}</span>
+                  <ExternalLink size={14} className="text-white/40 group-hover:text-primary transition-colors" />
+                </a>
               </h3>
               <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-white/5 text-white/70 border border-white/10">
                 {lead.category}
