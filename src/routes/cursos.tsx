@@ -432,7 +432,7 @@ const COURSES = [
 
                 <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl mt-4">
                   <strong className="text-primary block mb-2">📥 Acesse a Lista Lookalike:</strong>
-                  <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors font-bold text-xs">
+                  <a href="https://drive.google.com/file/d/1OjVLfh6YyTDgcsEocU-7Am4ocCLP5S7N/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors font-bold text-xs">
                     🔗 Baixar a lista de E-mails <ExternalLink size={14} />
                   </a>
                 </div>
