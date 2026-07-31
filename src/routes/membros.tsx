@@ -695,7 +695,6 @@ function MembrosPage() {
                   { href: "#gerador-scripts", label: "Gerador de Scripts & Spintax", icon: MessageCircle },
                   { href: "#calculadora-roi", label: "Calculadora de Metas & ROI", icon: Calculator },
                   { href: "#outros-produtos", label: "Prompts (+700) & E-Book VIP", icon: Camera },
-                  { href: "#outros-produtos", label: "RDG Stream (Filmes & TV)", icon: Tv },
                   { href: "#faq", label: "Perguntas Frequentes & Suporte", icon: HelpCircle },
                 ].map((item, idx) => (
                   <a
@@ -1720,7 +1719,7 @@ function MembrosPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Produto 1: Pack de Prompts IA para Ensaios (Link direto para /prompts-instagram) */}
             <div className="bg-gradient-to-b from-[#14151F] to-[#111218] border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/40 transition-all space-y-4 group">
               <div className="space-y-3">
@@ -1797,57 +1796,6 @@ function MembrosPage() {
               </a>
             </div>
 
-            {/* Produto 3: BÔNUS EXCLUSIVO RDG STREAM (EM BREVE) */}
-            <div className="bg-gradient-to-b from-[#0D1326] to-[#111218] border border-cyan-500/30 rounded-2xl p-6 flex flex-col justify-between hover:border-cyan-400/60 transition-all space-y-4 group relative overflow-hidden shadow-xl shadow-cyan-500/5">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
-
-              <div className="space-y-3 relative z-10">
-                <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 flex items-center justify-center">
-                    <Tv size={20} />
-                  </div>
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-extrabold text-cyan-300 bg-cyan-500/15 rounded-full border border-cyan-500/30">
-                    <Flame size={12} className="text-cyan-400 animate-pulse" />
-                    <span>BÔNUS LIBERADO PARA ALUNOS VIP</span>
-                  </div>
-                </div>
-
-                <h3 className="text-lg font-extrabold text-white group-hover:text-cyan-300 transition-colors">
-                  RDG Stream — Streaming de TV Digital & Filmes VOD
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Plataforma exclusiva de streaming com +400 canais ao vivo (abertos, esportes e notícias) e catálogo VOD de filmes e séries em HD/4K. Liberado 100% gratuito para alunos ativos da RDG Digital!
-                </p>
-
-                {/* Video Presentation Embed */}
-                <div className="space-y-1.5 pt-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-                    <Video size={12} />
-                    <span>Vídeo de Apresentação Oficial:</span>
-                  </span>
-                  <div className="relative aspect-video bg-black/80 border border-white/10 rounded-xl overflow-hidden shadow-2xl">
-                    <iframe
-                      src="https://drive.google.com/file/d/1YzigKV9S21Rtok794V2KAW7lt5PhvDWE/preview"
-                      title="Vídeo de Apresentação — RDG Stream"
-                      className="w-full h-full border-0"
-                      allow="autoplay"
-                      allowFullScreen
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <a
-                href="/streaming"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-cyan-500/25 transition-all transform hover:scale-[1.02] relative z-10"
-              >
-                <Tv size={16} />
-                <span>ACESSAR PLATAFORMA DE STREAMING AGORA</span>
-                <ExternalLink size={14} />
-              </a>
-            </div>
           </div>
         </section>
 
