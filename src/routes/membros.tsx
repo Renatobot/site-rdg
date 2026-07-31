@@ -699,6 +699,7 @@ function MembrosPage() {
                   { href: "#calculadora-roi", label: "Calculadora de Metas & ROI", icon: Calculator },
                   { href: "#outros-produtos", label: "Prompts (+700) & E-Book VIP", icon: Camera },
                   { href: "/cursos", label: "Plataforma de Cursos (Novo)", icon: Video },
+                  { href: "/prospeccao", label: "Prospecção Google Maps B2B", icon: Search },
                   { href: "#faq", label: "Perguntas Frequentes & Suporte", icon: HelpCircle },
                 ].map((item, idx) => (
                   <a

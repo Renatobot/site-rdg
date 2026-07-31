@@ -19,11 +19,13 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MembrosRouteImport } from './routes/membros'
 import { Route as PromptsRouteImport } from './routes/prompts'
 import { Route as PromptsInstagramRouteImport } from './routes/prompts-instagram'
+import { Route as ProspeccaoRouteImport } from './routes/prospeccao'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as SistemasRouteImport } from './routes/sistemas'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as ApiProspeccaoRouteImport } from './routes/api.prospeccao'
 import { Route as ApiProxyRouteImport } from './routes/api.proxy'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -79,6 +81,11 @@ const PromptsInstagramRoute = PromptsInstagramRouteImport.update({
   path: '/prompts-instagram',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProspeccaoRoute = ProspeccaoRouteImport.update({
+  id: '/prospeccao',
+  path: '/prospeccao',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicosRoute = ServicosRouteImport.update({
   id: '/servicos',
   path: '/servicos',
@@ -106,6 +113,11 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
     path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiProspeccaoRoute = ApiProspeccaoRouteImport.update({
+  id: '/api/prospeccao',
+  path: '/api/prospeccao',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiProxyRoute = ApiProxyRouteImport.update({
   id: '/api/proxy',
   path: '/api/proxy',
@@ -139,11 +151,13 @@ export interface FileRoutesByFullPath {
   '/membros': typeof MembrosRoute
   '/prompts': typeof PromptsRoute
   '/prompts-instagram': typeof PromptsInstagramRoute
+  '/prospeccao': typeof ProspeccaoRoute
   '/servicos': typeof ServicosRoute
   '/sistemas': typeof SistemasRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/api/prospeccao': typeof ApiProspeccaoRoute
   '/api/proxy': typeof ApiProxyRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -160,11 +174,13 @@ export interface FileRoutesByTo {
   '/membros': typeof MembrosRoute
   '/prompts': typeof PromptsRoute
   '/prompts-instagram': typeof PromptsInstagramRoute
+  '/prospeccao': typeof ProspeccaoRoute
   '/servicos': typeof ServicosRoute
   '/sistemas': typeof SistemasRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/api/prospeccao': typeof ApiProspeccaoRoute
   '/api/proxy': typeof ApiProxyRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog': typeof BlogIndexRoute
@@ -182,11 +198,13 @@ export interface FileRoutesById {
   '/membros': typeof MembrosRoute
   '/prompts': typeof PromptsRoute
   '/prompts-instagram': typeof PromptsInstagramRoute
+  '/prospeccao': typeof ProspeccaoRoute
   '/servicos': typeof ServicosRoute
   '/sistemas': typeof SistemasRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/api/prospeccao': typeof ApiProspeccaoRoute
   '/api/proxy': typeof ApiProxyRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -205,11 +223,13 @@ export interface FileRouteTypes {
     | '/membros'
     | '/prompts'
     | '/prompts-instagram'
+    | '/prospeccao'
     | '/servicos'
     | '/sistemas'
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/api/prospeccao'
     | '/api/proxy'
     | '/blog/$slug'
     | '/blog/'
@@ -226,11 +246,13 @@ export interface FileRouteTypes {
     | '/membros'
     | '/prompts'
     | '/prompts-instagram'
+    | '/prospeccao'
     | '/servicos'
     | '/sistemas'
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/api/prospeccao'
     | '/api/proxy'
     | '/blog/$slug'
     | '/blog'
@@ -247,11 +269,13 @@ export interface FileRouteTypes {
     | '/membros'
     | '/prompts'
     | '/prompts-instagram'
+    | '/prospeccao'
     | '/servicos'
     | '/sistemas'
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/api/prospeccao'
     | '/api/proxy'
     | '/blog/$slug'
     | '/blog/'
@@ -269,11 +293,13 @@ export interface RootRouteChildren {
   MembrosRoute: typeof MembrosRoute
   PromptsRoute: typeof PromptsRoute
   PromptsInstagramRoute: typeof PromptsInstagramRoute
+  ProspeccaoRoute: typeof ProspeccaoRoute
   ServicosRoute: typeof ServicosRoute
   SistemasRoute: typeof SistemasRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  ApiProspeccaoRoute: typeof ApiProspeccaoRoute
   ApiProxyRoute: typeof ApiProxyRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -352,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PromptsInstagramRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prospeccao': {
+      id: '/prospeccao'
+      path: '/prospeccao'
+      fullPath: '/prospeccao'
+      preLoaderRoute: typeof ProspeccaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/servicos': {
       id: '/servicos'
       path: '/servicos'
@@ -385,6 +418,13 @@ declare module '@tanstack/react-router' {
       path: '/.well-known/oauth-protected-resource'
       fullPath: '/.well-known/oauth-protected-resource'
       preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/prospeccao': {
+      id: '/api/prospeccao'
+      path: '/api/prospeccao'
+      fullPath: '/api/prospeccao'
+      preLoaderRoute: typeof ApiProspeccaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/proxy': {
@@ -429,12 +469,14 @@ const rootRouteChildren: RootRouteChildren = {
   MembrosRoute: MembrosRoute,
   PromptsRoute: PromptsRoute,
   PromptsInstagramRoute: PromptsInstagramRoute,
+  ProspeccaoRoute: ProspeccaoRoute,
   ServicosRoute: ServicosRoute,
   SistemasRoute: SistemasRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  ApiProspeccaoRoute: ApiProspeccaoRoute,
   ApiProxyRoute: ApiProxyRoute,
   BlogSlugRoute: BlogSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
