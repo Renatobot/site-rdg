@@ -1484,46 +1484,9 @@ function CursosPage() {
 
           <div className="h-6 w-px bg-white/10 hidden sm:block"></div>
 
-          {/* Course Selector Dropdown */}
-          <div className="relative">
-            <button 
-              onClick={() => setIsCourseSelectorOpen(!isCourseSelectorOpen)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors sm:ml-4"
-            >
-              <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center border border-primary/30 shrink-0">
-                <MonitorPlay size={12} className="text-primary" />
-              </div>
-              <span className="font-bold text-sm truncate max-w-[200px]">{activeCourse.title}</span>
-              <ChevronDown size={14} className={`text-white/50 transition-transform ${isCourseSelectorOpen ? "rotate-180" : ""}`} />
-            </button>
-
-            {isCourseSelectorOpen && (
-              <div className="absolute top-full left-0 sm:left-4 mt-2 w-72 bg-[#111218] border border-white/10 rounded-xl shadow-2xl overflow-hidden py-2 z-50">
-                <div className="px-3 py-2 text-[10px] font-bold text-white/40 uppercase tracking-wider">
-                  Meus Cursos
-                </div>
-                {COURSES.map(course => (
-                  <button
-                    key={course.id}
-                    onClick={() => {
-                      setActiveCourseId(course.id);
-                      setActiveModuleIdx(null);
-                      setActiveVideoIdx(0);
-                      setIsCourseSelectorOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors ${activeCourse.id === course.id ? "bg-white/5" : ""}`}
-                  >
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${activeCourse.id === course.id ? "bg-primary text-black" : "bg-white/10 text-white/70"}`}>
-                      <Play size={14} fill={activeCourse.id === course.id ? "currentColor" : "none"} />
-                    </div>
-                    <div className="truncate">
-                      <p className={`text-sm font-bold truncate ${activeCourse.id === course.id ? "text-white" : "text-white/70"}`}>{course.title}</p>
-                      <p className="text-[10px] text-white/40 truncate">{course.modules.length} Módulos</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="flex items-center gap-2 text-white/80 font-bold sm:ml-4 text-sm">
+            <MonitorPlay size={16} className="text-primary" />
+            <span>RDG Cursos</span>
           </div>
         </div>
 
@@ -1538,62 +1501,129 @@ function CursosPage() {
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden relative">
         {activeModuleIdx === null ? (
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar relative">
-            <div className="max-w-6xl mx-auto space-y-8 relative z-10">
-              <div className="space-y-2">
-                <h1 className="text-3xl font-black text-white tracking-tight">{activeCourse.title}</h1>
-                <p className="text-white/60">{activeCourse.description}</p>
+          <>
+            {/* Left Sidebar: Course List */}
+            <aside 
+              className={`absolute lg:static top-0 left-0 h-full w-72 bg-[#0E0F17] border-r border-white/5 z-40 transform transition-transform duration-300 ease-in-out flex flex-col shrink-0 ${
+                isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+              }`}
+            >
+              <div className="p-5 border-b border-white/5 flex flex-col gap-2 shrink-0">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider">
+                    Meus Cursos
+                  </span>
+                  <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-white/50 hover:text-white p-1">
+                    <X size={18} />
+                  </button>
+                </div>
+                <h2 className="font-black text-sm text-white uppercase tracking-wider flex items-center gap-2">
+                  <MonitorPlay size={16} className="text-primary" />
+                  Selecione o Curso
+                </h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {activeCourse.modules.map((module, mIdx) => (
-                  <button
-                    key={mIdx}
-                    onClick={() => {
-                      setActiveModuleIdx(mIdx);
-                      setActiveVideoIdx(0);
-                      setIsSidebarOpen(true);
-                    }}
-                    className="group bg-[#111218] border border-white/10 rounded-3xl overflow-hidden hover:border-primary/50 transition-all hover:shadow-2xl hover:shadow-primary/10 text-left flex flex-col h-full transform hover:-translate-y-1 duration-300"
-                  >
-                    <div className="aspect-[4/3] w-full relative overflow-hidden bg-white/5">
-                      {module.thumbnail ? (
-                        <img 
-                          src={module.thumbnail} 
-                          alt={module.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Play size={48} className="text-white/10" />
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-1.5">
+                {COURSES.map(course => {
+                  const isActive = activeCourseId === course.id;
+                  return (
+                    <button
+                      key={course.id}
+                      onClick={() => {
+                        setActiveCourseId(course.id);
+                        setActiveModuleIdx(null);
+                        setActiveVideoIdx(0);
+                        if (window.innerWidth < 1024) setIsSidebarOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-3 flex items-center gap-3 rounded-xl transition-all ${
+                        isActive 
+                          ? "bg-primary text-black font-extrabold shadow-lg shadow-primary/10" 
+                          : "text-white/70 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        isActive ? "bg-black/10 text-black" : "bg-white/10 text-white/70"
+                      }`}>
+                        <Play size={14} fill={isActive ? "currentColor" : "none"} />
+                      </div>
+                      <div className="truncate flex-1">
+                        <p className="text-sm font-bold truncate">{course.title}</p>
+                        <p className={`text-[10px] truncate ${isActive ? "text-black/60" : "text-white/40"}`}>
+                          {course.modules.length} Módulos
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </aside>
+
+            {/* Overlay for mobile sidebar */}
+            {isSidebarOpen && (
+              <div 
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"
+                onClick={() => setIsSidebarOpen(false)}
+              />
+            )}
+
+            {/* Modules Grid */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar relative">
+              <div className="max-w-6xl mx-auto space-y-8 relative z-10">
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-black text-white tracking-tight">{activeCourse.title}</h1>
+                  <p className="text-white/60">{activeCourse.description}</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {activeCourse.modules.map((module, mIdx) => (
+                    <button
+                      key={mIdx}
+                      onClick={() => {
+                        setActiveModuleIdx(mIdx);
+                        setActiveVideoIdx(0);
+                        setIsSidebarOpen(true);
+                      }}
+                      className="group bg-[#111218] border border-white/10 rounded-3xl overflow-hidden hover:border-primary/50 transition-all hover:shadow-2xl hover:shadow-primary/10 text-left flex flex-col h-full transform hover:-translate-y-1 duration-300"
+                    >
+                      <div className="aspect-[4/3] w-full relative overflow-hidden bg-white/5">
+                        {module.thumbnail ? (
+                          <img 
+                            src={module.thumbnail} 
+                            alt={module.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Play size={48} className="text-white/10" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#111218] via-transparent to-transparent opacity-90" />
+                        
+                        <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                          <span className="px-3 py-1 bg-black/50 backdrop-blur-md rounded-lg text-xs font-bold text-white border border-white/10">
+                            Módulo {mIdx + 1}
+                          </span>
+                          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 shadow-lg shadow-primary/30">
+                            <Play fill="currentColor" size={16} />
+                          </div>
                         </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#111218] via-transparent to-transparent opacity-90" />
+                      </div>
                       
-                      <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                        <span className="px-3 py-1 bg-black/50 backdrop-blur-md rounded-lg text-xs font-bold text-white border border-white/10">
-                          Módulo {mIdx + 1}
-                        </span>
-                        <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 shadow-lg shadow-primary/30">
-                          <Play fill="currentColor" size={16} />
+                      <div className="p-6 flex-1 flex flex-col">
+                        <h3 className="font-bold text-xl text-white group-hover:text-primary transition-colors line-clamp-2 mb-3">
+                          {module.title}
+                        </h3>
+                        <div className="mt-auto flex items-center gap-2 text-xs font-bold text-white/50">
+                          <Video size={14} />
+                          <span>{module.videos.length} aulas</span>
                         </div>
                       </div>
-                    </div>
-                    
-                    <div className="p-6 flex-1 flex flex-col">
-                      <h3 className="font-bold text-xl text-white group-hover:text-primary transition-colors line-clamp-2 mb-3">
-                        {module.title}
-                      </h3>
-                      <div className="mt-auto flex items-center gap-2 text-xs font-bold text-white/50">
-                        <Video size={14} />
-                        <span>{module.videos.length} aulas</span>
-                      </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          </>
         ) : (
           <>
             {/* Sidebar (Modules) */}
