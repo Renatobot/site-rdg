@@ -867,7 +867,7 @@ const COURSES = [
     modules: [
       {
         title: "O Mecanismo Exclusivo das Copys",
-        thumbnail: "https://drive.google.com/uc?export=view&id=1QpkXc-jJ5NTBHnd3QKVteSBE44n5MCOA",
+        thumbnail: "/capa-capcut-1.png",
         videos: [
           {
             id: "cap-1",
@@ -888,6 +888,12 @@ const COURSES = [
                     <strong className="text-white block mb-1">💡 O que você vai aprender:</strong>
                     Como mapear as dores específicas do seu cliente ideal e criar uma comunicação tão assertiva que ele vai sentir que o produto foi feito exclusivamente para ele.
                   </p>
+                </div>
+                <div className="mt-4 flex flex-col gap-2">
+                  <a href="https://whimsical.com/no-subnicho-esta-o-valor-hdkmPXPGfQSubQdWBCEZY" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors w-fit">
+                    <span className="text-xl">📖</span>
+                    Explicação da Aula
+                  </a>
                 </div>
               </div>
             )
@@ -912,6 +918,16 @@ const COURSES = [
                     Quando você apresenta um mecanismo único, você tira a culpa do cliente pelos fracassos passados e devolve a esperança através do seu produto.
                   </p>
                 </div>
+                <div className="mt-4 flex flex-col gap-2">
+                  <a href="https://whimsical.com/o-mecanismo-exclusivo-KYYV7d6XyE6WwADco9XW1Z" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors w-fit">
+                    <span className="text-xl">📘</span>
+                    Explicação da Aula
+                  </a>
+                  <a href="https://docs.google.com/document/d/18ltqI2ewn61hiDz9U4nkj5DVJ6sw4AQLeoMAql63VDI/edit?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors w-fit">
+                    <span className="text-xl">🤖</span>
+                    Script para Chat GPT
+                  </a>
+                </div>
               </div>
             )
           },
@@ -932,6 +948,12 @@ const COURSES = [
                 <p>
                   Nesta aula, exploramos os diferentes níveis de consciência do consumidor (Inconsciente, Consciente do Problema, Consciente da Solução, Consciente do Produto e Totalmente Consciente) e como adaptar sua copy para cada um deles.
                 </p>
+                <div className="mt-4 flex flex-col gap-2">
+                  <a href="https://whimsical.com/o-nivel-de-consciencia-do-lead-tscproj-QVqfF1sqjUog79dn7i7ZU5" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors w-fit">
+                    <span className="text-xl">📘</span>
+                    Explicação da Aula
+                  </a>
+                </div>
               </div>
             )
           },
@@ -952,6 +974,12 @@ const COURSES = [
                 <p>
                   Aprenda a estruturar uma VSL (Video Sales Letter) altamente persuasiva que prende a atenção nos primeiros segundos e foca diretamente na dor e na solução, <strong>sem enrolação</strong>.
                 </p>
+                <div className="mt-4 flex flex-col gap-2">
+                  <a href="https://whimsical.com/a-vsl-sem-jornada-do-heroi-tscproj-XfyNTGPfZWm7bjhjgU3q5D" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors w-fit">
+                    <span className="text-xl">🧩</span>
+                    Explicação da Aula
+                  </a>
+                </div>
               </div>
             )
           },
@@ -972,6 +1000,12 @@ const COURSES = [
                 <p>
                   Nesta aula, veremos a importância de alinhar a mensagem do criativo com a abordagem de vendas que você fará no atendimento humano.
                 </p>
+                <div className="mt-4 flex flex-col gap-2">
+                  <a href="https://whimsical.com/x1-e-a-importancia-do-criativo-8fpw9eRtdN6p51MCWvNuda" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors w-fit">
+                    <span className="text-xl">🧩</span>
+                    Explicação da Aula
+                  </a>
+                </div>
               </div>
             )
           },
@@ -992,6 +1026,12 @@ const COURSES = [
                 <p>
                   Entenda os elementos essenciais que não podem faltar na sua página para converter o máximo de visitantes em compradores instantâneos.
                 </p>
+                <div className="mt-4 flex flex-col gap-2">
+                  <a href="https://whimsical.com/paginas-de-vendas-e-lowticket-PUg2Tuqu77uzvJpkQNAt1x" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors w-fit">
+                    <span className="text-xl">📌</span>
+                    Explicação da Aula
+                  </a>
+                </div>
               </div>
             )
           },
@@ -1014,6 +1054,12 @@ const COURSES = [
                     <strong className="text-white">Dica Prática:</strong> Use esta aula como um check-list sempre que for escrever um novo roteiro para seus vídeos do CapCut ou textos para seus anúncios.
                   </p>
                 </div>
+                <div className="mt-4 flex flex-col gap-2">
+                  <a href="https://whimsical.com/4-elementos-e-a-perfeita-copy-4gbnw29gykwo87bZ97pycH" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors w-fit">
+                    <span className="text-xl">📌</span>
+                    Explicação da Aula
+                  </a>
+                </div>
               </div>
             )
           }
@@ -1021,7 +1067,7 @@ const COURSES = [
       },
       {
         title: "Capcut Edição para Vender +",
-        thumbnail: "https://drive.google.com/uc?export=view&id=130TIxVVAIHAWS0RJ6WmDdtMkAqJbKJXz",
+        thumbnail: "/capa-capcut-2.png",
         videos: [
           {
             id: "cap2-1",
@@ -1146,7 +1192,7 @@ const COURSES = [
       },
       {
         title: "Criativos para Alto CTR",
-        thumbnail: "https://drive.google.com/uc?export=view&id=1OWZB4B4FtGxK-PGujotsHiGWJJIzvcuA",
+        thumbnail: "/capa-capcut-3.png",
         videos: [
           {
             id: "cap3-1",
@@ -1196,45 +1242,65 @@ const COURSES = [
                 <p>
                   Aprenda a exibir seu produto de forma irresistível utilizando moldes profissionais e técnicas de edição que valorizam cada detalhe, despertando um desejo imediato no seu cliente.
                 </p>
+                <div className="mt-4 flex flex-col gap-2">
+                  <a href="https://drive.google.com/drive/folders/18AtF39JDsuxTa_rM7MuWM7v6DonfAnWL?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors w-fit">
+                    <span className="text-xl">🧩</span>
+                    Link dos Moldes PSDs
+                  </a>
+                </div>
               </div>
             )
           }
         ]
       },
-      /*
       {
         title: "VSL 5 Dígitos 100% Editável",
-        thumbnail: "https://drive.google.com/uc?export=view&id=1sb7vkClvpvcao_sRt4clK1tgxZ9KcDEn",
+        thumbnail: "/capa-capcut-4.png",
         videos: [
           {
             id: "cap4-1",
-            title: "Aula 1",
+            title: "1 • Como Instalar a VSL 5D",
             duration: "~",
             url: "https://drive.google.com/file/d/1gUE7QLn1VRPyx3etGBv8r8Ra4g7Qjee4/preview",
             description: (
               <div className="space-y-4 text-sm text-white/80">
-                <p>
-                  Esta é a primeira aula do módulo VSL 5 Dígitos 100% Editável. Aprenda a estruturar sua VSL milionária.
-                </p>
+                <p>Nessa aula te explico como instalar a VSL matadora, não tem muito segredo basta seguir o Tutorial.</p>
+                <div className="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 rounded-r-xl">
+                  <p className="text-yellow-100">
+                    <strong className="text-yellow-400 block mb-1">⚠️ Nota Importante:</strong>
+                    Sempre coloque na pasta final que aparecer no CapCut (ex: com.lveditor.draft). Faça isso caso a pasta mostrada no vídeo seja diferente para você, sempre coloque no caminho final.
+                  </p>
+                </div>
               </div>
             )
           },
           {
             id: "cap4-2",
-            title: "Aula 2",
+            title: "Aula 2 - ⭐ Projeto CapCut da VSL",
             duration: "~",
             url: "https://drive.google.com/file/d/1hrervNQAtR5WM1gt4etmho9fB2yd2V05/preview",
             description: (
               <div className="space-y-4 text-sm text-white/80">
                 <p>
-                  Continuação e finalização do módulo VSL 5 Dígitos.
+                  Abaixo está o link para você baixar o Projeto completo da minha VSL. O link para baixar só vai estar disponível 7 dias após a compra (Uma segurança da plataforma).
                 </p>
+                <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl mt-4">
+                  <p className="text-red-200">
+                    <strong className="text-red-400 block mb-1">🚫 Atenção:</strong> 
+                    Proibido Revender o projeto criado por mim! Você pode apenas remodelar e editar para seu produto. Esta VSL, a copy e a edição foram registradas no IT's Mine.
+                  </p>
+                </div>
+                <div className="mt-4 flex flex-col gap-2">
+                  <a href="https://drive.google.com/file/d/19ld9kvm6-4pNtxQt7nz45gWrElskUJti/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold px-6 py-3 rounded-xl transition-all transform hover:scale-105 w-fit shadow-lg shadow-primary/20">
+                    <span className="text-xl">📦</span>
+                    Baixar Projeto da VSL
+                  </a>
+                </div>
               </div>
             )
           }
         ]
       }
-      */
     ]
   }
 ];
