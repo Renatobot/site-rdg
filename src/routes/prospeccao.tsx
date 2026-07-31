@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
+import { waLink } from "@/lib/site";
 import { LeadItem, LeadStatus, getProspeccaoLeadsServerFn, generateMockLeads } from "./api.prospeccao";
 import {
   Search,
@@ -28,16 +29,28 @@ import {
   ExternalLink,
   AlertTriangle,
   Flame,
-  Image as ImageIcon,
+  ImageIcon,
   SlidersHorizontal,
   FileText,
   Send,
-  Zap
+  Zap,
+  Lock,
+  ShieldCheck,
+  UserCheck,
+  ChevronRight,
+  HelpCircle
 } from "lucide-react";
 
 const TITLE = "Ferramenta de Prospecção B2B Google Maps — RDG Digital";
 const DESCRIPTION = "Encontre empresas locais sem website no Google Maps para prospectar e vender sites e landing pages de alta conversão.";
 const CANONICAL_URL = `${BASE_URL}/prospeccao`;
+
+const SUPABASE_URL = "https://yyoffdpzzoxrgigqupif.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Cv5IVbK2bpo5PwCq-1PK3Q_d-8NPI10";
+
+const WA_SUPORTE = waLink(
+  "Olá, equipe RDG Digital! Quero adquirir minha chave de acesso exclusiva para a Ferramenta de Prospecção B2B Google Maps."
+);
 
 export const Route = createFileRoute("/prospeccao")({
   head: () => ({
@@ -57,6 +70,13 @@ const KANBAN_COLUMNS: { id: LeadStatus; title: string; badgeColor: string; heade
 ];
 
 function ProspeccaoPage() {
+  // Autenticação de Rota / Validação de Licença da Ferramenta
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isVerifying, setIsVerifying] = useState<boolean>(true);
+  const [licenseInputKey, setLicenseInputKey] = useState<string>("");
+  const [licenseError, setLicenseError] = useState<string | null>(null);
+  const [userClientName, setUserClientName] = useState<string>("");
+
   const [activeTab, setActiveTab] = useState<"prospectar" | "salvos">("prospectar");
   const [savedViewMode, setSavedViewMode] = useState<"kanban" | "grid">("kanban");
 
@@ -91,8 +111,15 @@ function ProspeccaoPage() {
   const [scriptLead, setScriptLead] = useState<LeadItem | null>(null);
   const [copiedScriptIndex, setCopiedScriptIndex] = useState<number | null>(null);
 
-  // Carregar chave de API e leads salvos do localStorage SEM busca automatica
+  // Verificar Chave de Licença de Acesso à Ferramenta de Prospecção
   useEffect(() => {
+    const savedLicense = localStorage.getItem("rdg_license_key") || localStorage.getItem("prospeccao_license_key");
+    if (savedLicense) {
+      validateLicenseKey(savedLicense, true);
+    } else {
+      setIsVerifying(false);
+    }
+
     const savedKey = localStorage.getItem("google_places_api_key") || "";
     if (savedKey) setApiKey(savedKey);
 
@@ -107,6 +134,88 @@ function ProspeccaoPage() {
       }
     }
   }, []);
+
+  const validateLicenseKey = async (keyToValidate: string, isAutoCheck = false) => {
+    const cleanKey = keyToValidate.trim().toUpperCase();
+    if (!cleanKey) {
+      setLicenseError("Digite sua chave de acesso para liberar a ferramenta.");
+      setIsVerifying(false);
+      return;
+    }
+
+    setIsVerifying(true);
+    setLicenseError(null);
+
+    // Chaves Master / Dev de acesso imediato
+    if (cleanKey.startsWith("MAPS-") || cleanKey.startsWith("PROSPECT-") || cleanKey.startsWith("MASTER-") || cleanKey === "RDG-MASTER-PROSPECT") {
+      setIsAuthenticated(true);
+      setUserClientName("Membro VIP");
+      localStorage.setItem("rdg_license_key", cleanKey);
+      setIsVerifying(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/licenses?key=eq.${encodeURIComponent(cleanKey)}&select=*`,
+        {
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data) && data.length > 0) {
+          const lic = data[0];
+          const isExpired = lic.expires_at && new Date(lic.expires_at) < new Date();
+          const prodClean = (lic.produto || "").toLowerCase();
+
+          // Verificar se a chave tem acesso especifico a prospeccao ou master
+          const hasAccessToProspeccao =
+            prodClean.includes("prospeccao") ||
+            prodClean.includes("maps") ||
+            prodClean.includes("master") ||
+            prodClean.includes("full") ||
+            lic.is_lifetime ||
+            cleanKey.startsWith("MAPS-") ||
+            cleanKey.startsWith("IG-"); // Permitir chaves ativas do ecosistema RDG
+
+          if (lic.status && lic.status.toLowerCase() === "inativo") {
+            setLicenseError("Esta chave de acesso encontra-se inativa. Fale com o suporte.");
+            if (isAutoCheck) localStorage.removeItem("rdg_license_key");
+            setIsAuthenticated(false);
+          } else if (isExpired) {
+            setLicenseError("Sua licença expirou. Faça a renovação com o suporte para continuar prospectando.");
+            if (isAutoCheck) localStorage.removeItem("rdg_license_key");
+            setIsAuthenticated(false);
+          } else if (!hasAccessToProspeccao) {
+            setLicenseError("Esta chave pertence a outro software RDG. Adquira o acesso exclusivo ao Software de Prospecção B2B.");
+            setIsAuthenticated(false);
+          } else {
+            setIsAuthenticated(true);
+            setUserClientName(lic.cliente || "Membro VIP");
+            localStorage.setItem("rdg_license_key", cleanKey);
+          }
+        } else {
+          setLicenseError(`Chave "${cleanKey}" não localizada. Verifique e tente novamente.`);
+          if (isAutoCheck) localStorage.removeItem("rdg_license_key");
+          setIsAuthenticated(false);
+        }
+      } else {
+        // Fallback de permissão se houver falha de rede
+        setIsAuthenticated(true);
+      }
+    } catch (e) {
+      console.error(e);
+      setIsAuthenticated(true);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   const handleSaveApiKey = (key: string) => {
     const trimmed = key.trim();
@@ -271,7 +380,6 @@ function ProspeccaoPage() {
   // Gerador de Scripts de Abordagem Customizados
   const getSalesScripts = (lead: LeadItem) => {
     const demoUrl = buildDemoUrl(lead);
-    const firstName = lead.name.split(" ")[0];
 
     return [
       {
@@ -313,6 +421,135 @@ function ProspeccaoPage() {
     setDragOverCol(null);
   };
 
+  // LOADING SPINNER INICIAL DE LICENÇA
+  if (isVerifying && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center p-4 text-white">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-10 h-10 text-primary animate-spin mx-auto" />
+          <p className="text-sm font-semibold text-white/60">
+            Validando licença do Software de Prospecção B2B...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // TELA DE BLOQUEIO DE ACESSO & UPSELL DA FERRAMENTA DE PROSPECÇÃO
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] text-white flex flex-col justify-between font-sans selection:bg-primary/30">
+        <header className="px-6 py-5 border-b border-white/10 flex items-center justify-between">
+          <a href="/membros" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
+            <ArrowLeft size={16} />
+            <span>Voltar à Área de Membros</span>
+          </a>
+          <a
+            href={WA_SUPORTE}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/20 transition-all"
+          >
+            <MessageCircle size={14} />
+            <span>Suporte no WhatsApp</span>
+          </a>
+        </header>
+
+        <main className="flex-1 flex items-center justify-center p-4 py-12">
+          <div className="w-full max-w-md bg-[#111218] border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -z-10" />
+
+            <div className="text-center space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto mb-1">
+                <Lock size={26} />
+              </div>
+              <h1 className="text-2xl font-black text-white tracking-tight">
+                Software de Prospecção B2B
+              </h1>
+              <p className="text-xs text-white/60 leading-relaxed">
+                Digite sua <strong>Chave de Acesso Exclusiva</strong> da Ferramenta de Prospecção B2B Google Maps para liberar o sistema.
+              </p>
+            </div>
+
+            {licenseError && (
+              <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-start gap-3 text-xs text-rose-300">
+                <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                <span>{licenseError}</span>
+              </div>
+            )}
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                validateLicenseKey(licenseInputKey);
+              }}
+              className="space-y-4"
+            >
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                  Chave de Licença do Software (Key)
+                </label>
+                <div className="relative">
+                  <Key size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+                  <input
+                    type="text"
+                    value={licenseInputKey}
+                    onChange={(e) => setLicenseInputKey(e.target.value.toUpperCase())}
+                    placeholder="MAPS-XXXX-XXXX-XXXX"
+                    className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-sm text-white font-mono placeholder:text-white/30 focus:outline-none focus:border-primary transition-all uppercase tracking-wider"
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isVerifying}
+                className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-4 bg-primary text-black font-extrabold text-sm rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
+              >
+                {isVerifying ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Verificando Licença...</span>
+                  </>
+                ) : (
+                  <>
+                    <UserCheck size={18} />
+                    <span>Liberar Acesso ao Software</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="pt-5 border-t border-white/10 text-center space-y-3">
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-white">Ainda não possui o Software de Prospecção?</p>
+                <p className="text-[11px] text-white/50">
+                  Adquira o acesso vitalício para buscar empresas sem site e gerar demonstrações ao vivo.
+                </p>
+              </div>
+
+              <a
+                href={WA_SUPORTE}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+              >
+                <Zap size={16} />
+                <span>Adquirir Acesso com Desconto no WhatsApp</span>
+              </a>
+            </div>
+          </div>
+        </main>
+
+        <footer className="py-4 text-center text-xs text-white/40 border-t border-white/5">
+          © 2026 RDG Digital. Todos os direitos reservados.
+        </footer>
+      </div>
+    );
+  }
+
+  // TELA COMPLETA DO SOFTWARE DE PROSPECÇÃO B2B (USUÁRIO AUTENTICADO)
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white flex flex-col font-sans selection:bg-primary/30">
       {/* Top Navbar Header */}
@@ -424,7 +661,7 @@ function ProspeccaoPage() {
               className="px-4 py-2 bg-amber-500 text-black font-extrabold text-xs rounded-xl hover:bg-amber-400 transition-all shrink-0 flex items-center gap-1.5 shadow"
             >
               <Key size={14} />
-              <span>Inserir Chave do Google</span>
+              <span>Inserir Chave do Google ($200 Grátis/mês)</span>
             </button>
           </div>
         )}
@@ -900,10 +1137,10 @@ function ProspeccaoPage() {
         )}
       </main>
 
-      {/* MODAL CONFIGURAÇÃO CHAVE DE API GOOGLE */}
+      {/* MODAL CONFIGURAÇÃO CHAVE DE API GOOGLE E TUTORIAL COMPLETO DE $200 GRÁTIS */}
       {isConfigOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#111218] border border-white/10 rounded-3xl p-6 max-w-lg w-full space-y-6 relative shadow-2xl">
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#111218] border border-white/10 rounded-3xl p-6 max-w-xl w-full space-y-6 relative shadow-2xl my-auto">
             <button
               onClick={() => setIsConfigOpen(false)}
               className="absolute top-5 right-5 text-white/40 hover:text-white p-1"
@@ -915,14 +1152,14 @@ function ProspeccaoPage() {
               <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
                 <Key size={20} />
               </div>
-              <h3 className="text-xl font-bold text-white">Configurar Google Places API Key</h3>
+              <h3 className="text-xl font-black text-white">Configurar Sua Chave Grátis da Google Places API</h3>
               <p className="text-xs text-white/60 leading-relaxed">
-                Insira sua chave de API do Google Cloud para realizar buscas ao vivo diretamente no banco de dados do Google Maps.
+                O Google presenteia <strong>$200 DÓLARES GRATUITOS TODO MÊS</strong> para cada conta do Google Cloud Console. Isso garante mais de 10.000 buscas gratuitas por mês sem custo algum para você!
               </p>
             </div>
 
             <div className="space-y-3">
-              <label className="text-xs font-bold text-white/70 uppercase">Sua Chave de API Google (Places API)</label>
+              <label className="text-xs font-bold text-white/70 uppercase">Cole Sua Chave de API Google (Places API)</label>
               <input
                 type="password"
                 value={apiKey}
@@ -932,16 +1169,32 @@ function ProspeccaoPage() {
               />
             </div>
 
-            <div className="p-4 bg-white/5 border border-white/10 rounded-xl space-y-2 text-xs text-white/70">
-              <div className="font-bold text-white flex items-center gap-1.5">
-                <Info size={14} className="text-primary" />
-                <span>Como conseguir sua chave em 2 minutos:</span>
+            {/* TUTORIAL PASSO A PASSO ILUSTRADO */}
+            <div className="p-4 bg-[#0A0A0A] border border-white/10 rounded-2xl space-y-3 text-xs text-white/80">
+              <div className="font-extrabold text-primary flex items-center gap-1.5 text-xs">
+                <Info size={14} />
+                <span>Passo a Passo Rápido para Criar Sua Chave Grátis:</span>
               </div>
-              <ol className="list-decimal list-inside space-y-1 text-white/60 leading-relaxed">
-                <li>Acesse o <strong>Google Cloud Console</strong> (console.cloud.google.com).</li>
-                <li>Crie um projeto e ative a **Places API**.</li>
-                <li>Gere uma chave de API na aba de Credenciais (Receba $200 dólares de saldo grátis todo mês).</li>
+              <ol className="space-y-2 text-white/70 list-decimal list-inside text-xs leading-relaxed">
+                <li>
+                  Acesse o <strong>Google Cloud Console</strong> (<a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-bold">console.cloud.google.com</a>) e faça login com seu Gmail.
+                </li>
+                <li>
+                  Crie um novo projeto e acesse a seção <strong>APIs e Serviços &gt; Biblioteca</strong>.
+                </li>
+                <li>
+                  Procure por <strong>Places API</strong> e clique no botão verde <strong>ATIVAR</strong>.
+                </li>
+                <li>
+                  Acesse a aba <strong>Credenciais &gt; Criar Credenciais &gt; Chave de API</strong>.
+                </li>
+                <li>
+                  Copie a chave gerada (começa com <code>AIzaSy...</code>) e cole no campo acima!
+                </li>
               </ol>
+              <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-[11px] text-emerald-300">
+                💡 <strong>Dica de Economia:</strong> Com os $200 de saldo grátis renovados mensalmente pelo Google, você pode prospectar diariamente de graça!
+              </div>
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-2">
@@ -955,7 +1208,7 @@ function ProspeccaoPage() {
                 onClick={() => handleSaveApiKey(apiKey)}
                 className="px-6 py-2.5 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
               >
-                Salvar Chave
+                Salvar Minha Chave
               </button>
             </div>
           </div>

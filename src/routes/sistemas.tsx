@@ -1,16 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LOGO_URL } from "@/lib/site";
 import { websiteMeta } from "@/lib/seo";
-const TITLE = "RDG Digital — Tecnologia por trás do seu sistema";
+import { Search, Sparkles, MessageCircle, ArrowRight, ShieldCheck, Cpu } from "lucide-react";
+
+const TITLE = "Sistemas & Softwares Digitais — RDG Digital";
 const DESCRIPTION =
-  "Você está utilizando uma solução da RDG Digital. Sistemas e soluções digitais para uma experiência moderna, organizada e eficiente.";
+  "Conheça os softwares e soluções digitais da RDG Digital: Automação no Instagram, Prospecção B2B no Google Maps e Gerador de Demonstrações.";
 
 export const Route = createFileRoute("/sistemas")({
   component: SistemasPage,
   head: () => ({
     meta: [
       ...websiteMeta(TITLE, DESCRIPTION, "https://rdgdigital.com.br/sistemas"),
-      { name: "robots", content: "noindex, follow" },
+      { name: "robots", content: "index, follow" },
     ],
     links: [{ rel: "canonical", href: "https://rdgdigital.com.br/sistemas" }],
   }),
@@ -26,18 +28,9 @@ const DECOR_ICONS: { icon: string; top: string; left: string; size: string; rot:
 ];
 
 function SistemasPage() {
-  const goBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      window.history.back();
-    }
-  };
-
   return (
-    <main
-      aria-labelledby="sistemas-title"
-      className="relative isolate flex min-h-[100svh] items-center justify-center overflow-hidden bg-[#0B1220] px-5 py-12 text-white"
-    >
-      {/* halos radiais */}
+    <main className="relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden bg-[#0B1220] px-5 py-12 text-white font-sans">
+      {/* Halos radiais */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
@@ -46,195 +39,90 @@ function SistemasPage() {
             "radial-gradient(60% 50% at 50% 20%, rgba(0,217,255,0.14), transparent 70%), radial-gradient(50% 40% at 50% 100%, rgba(0,217,255,0.09), transparent 70%)",
         }}
       />
-      {/* grid sutil */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.04]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-          maskImage:
-            "radial-gradient(ellipse at center, black 40%, transparent 75%)",
-        }}
-      />
-      {/* pontos de luz extras */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-24 -left-24 -z-10 h-72 w-72 rounded-full"
-        style={{ background: "rgba(0,217,255,0.18)", filter: "blur(80px)" }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-24 -right-24 -z-10 h-80 w-80 rounded-full"
-        style={{ background: "rgba(0,217,255,0.14)", filter: "blur(90px)" }}
-      />
-      {/* ícones decorativos */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        {DECOR_ICONS.map((d, i) => (
-          <span
-            key={i}
-            className={`absolute select-none ${d.size}`}
-            style={{
-              top: d.top,
-              left: d.left,
-              opacity: 0.07,
-              transform: `translate(-50%, -50%) rotate(${d.rot})`,
-              filter: "grayscale(1) brightness(1.6)",
-            }}
-          >
-            {d.icon}
-          </span>
-        ))}
-      </div>
 
-      <section
-        className="bridge-card relative w-full max-w-xl rounded-3xl border border-white/10 bg-white/[0.03] px-5 py-9 text-center backdrop-blur-xl sm:px-10 sm:py-16"
-        style={{
-          boxShadow:
-            "0 30px 80px -30px rgba(0,217,255,0.28), inset 0 1px 0 rgba(255,255,255,0.06)",
-        }}
-      >
-        <div
-          className="bridge-item flex justify-center"
-          style={{ ["--d" as string]: "0ms" }}
-        >
-          <div className="bridge-float">
-            <img
-              src={LOGO_URL}
-              alt="RDG Digital"
-              draggable={false}              className="h-16 w-auto select-none sm:h-28"
-              style={{
-                filter:
-                  "drop-shadow(0 0 18px rgba(0,217,255,0.55)) drop-shadow(0 0 42px rgba(0,217,255,0.28))",
-              }}
-            />
+      <div className="w-full max-w-5xl mx-auto space-y-10 z-10 text-center">
+        {/* Logo & Header */}
+        <div className="flex flex-col items-center gap-4">
+          <img
+            src={LOGO_URL}
+            alt="RDG Digital"
+            className="h-16 sm:h-20 w-auto filter drop-shadow-[0_0_20px_rgba(0,217,255,0.5)]"
+          />
+          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white max-w-2xl">
+            Soluções & Softwares <span style={{ color: "#00D9FF" }}>RDG Digital</span>
+          </h1>
+          <p className="text-sm sm:text-base text-white/70 max-w-xl leading-relaxed">
+            Desenvolvemos tecnologias proprietárias de automação, prospecção e vendas para impulsionar negócios no ambiente digital.
+          </p>
+        </div>
+
+        {/* Grid de Sistemas da RDG Digital */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+          {/* Software 1: Prospecção B2B Google Maps */}
+          <div className="bg-gradient-to-b from-[#111A2E] to-[#0A0F1D] border border-[#00D9FF]/30 rounded-3xl p-6 sm:p-8 space-y-5 hover:border-[#00D9FF]/70 transition-all shadow-2xl relative overflow-hidden group">
+            <div className="w-12 h-12 rounded-2xl bg-[#00D9FF]/15 text-[#00D9FF] border border-[#00D9FF]/30 flex items-center justify-center">
+              <Search size={24} />
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-[10px] font-bold text-[#00D9FF] uppercase tracking-widest bg-[#00D9FF]/10 px-2.5 py-1 rounded-full border border-[#00D9FF]/20">
+                PROSPECÇÃO & VENDAS B2B
+              </span>
+              <h2 className="text-2xl font-bold text-white group-hover:text-[#00D9FF] transition-colors">
+                Software Prospecção Google Maps
+              </h2>
+              <p className="text-xs text-white/70 leading-relaxed">
+                Ferramenta inteligente que rastreia empresas locais sem website, constrói a demonstração do site oficial ao vivo e gera mensagens de abordagem no WhatsApp.
+              </p>
+            </div>
+
+            <div className="pt-2 flex items-center justify-between">
+              <Link
+                to="/prospeccao"
+                className="px-5 py-2.5 bg-[#00D9FF] text-black font-extrabold text-xs rounded-xl hover:bg-[#00D9FF]/90 transition-all flex items-center gap-2 shadow-lg shadow-[#00D9FF]/20"
+              >
+                <span>Acessar Prospecção</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+
+          {/* Software 2: RDG instaPRO Automação Instagram */}
+          <div className="bg-gradient-to-b from-[#1A112E] to-[#0D0A1D] border border-pink-500/30 rounded-3xl p-6 sm:p-8 space-y-5 hover:border-pink-500/70 transition-all shadow-2xl relative overflow-hidden group">
+            <div className="w-12 h-12 rounded-2xl bg-pink-500/15 text-pink-400 border border-pink-500/30 flex items-center justify-center">
+              <Cpu size={24} />
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-[10px] font-bold text-pink-400 uppercase tracking-widest bg-pink-500/10 px-2.5 py-1 rounded-full border border-pink-500/20">
+                AUTOMAÇÃO DE REDES SOCIAIS
+              </span>
+              <h2 className="text-2xl font-bold text-white group-hover:text-pink-400 transition-colors">
+                RDG instaPRO Automação
+              </h2>
+              <p className="text-xs text-white/70 leading-relaxed">
+                Extensão e robô inteligente para capturar seguidores de concorrentes no Instagram e disparar mensagens de Direct com sistema anti-bloqueio Spintax.
+              </p>
+            </div>
+
+            <div className="pt-2 flex items-center justify-between">
+              <Link
+                to="/extensao"
+                className="px-5 py-2.5 bg-pink-500 text-white font-extrabold text-xs rounded-xl hover:bg-pink-400 transition-all flex items-center gap-2 shadow-lg shadow-pink-500/20"
+              >
+                <span>Conhecer RDG instaPRO</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
           </div>
         </div>
 
-        <h1
-          id="sistemas-title"
-          className="bridge-item bridge-up mt-6 text-balance text-xl font-semibold leading-tight tracking-tight sm:mt-10 sm:text-3xl"
-          style={{ ["--d" as string]: "140ms" }}
-        >
-          Você está utilizando uma solução da{" "}
-          <span
-            style={{
-              color: "#00D9FF",
-              textShadow: "0 0 24px rgba(0,217,255,0.45)",
-            }}
-          >
-            RDG Digital
-          </span>
-        </h1>
-
-        <p
-          className="bridge-item bridge-up mx-auto mt-4 max-w-md text-pretty text-[13px] leading-relaxed text-white/70 sm:mt-6 sm:text-base"
-          style={{ ["--d" as string]: "280ms" }}
-        >
-          A RDG Digital desenvolve sistemas e soluções digitais que ajudam
-          empresas a oferecer uma experiência moderna, organizada e eficiente
-          para seus clientes.
-        </p>
-
-        <div
-          className="bridge-item mt-7 flex flex-col items-center gap-4 sm:mt-10 sm:gap-5"
-          style={{ ["--d" as string]: "420ms" }}
-        >
-          <Link
-            to="/"
-            className="bridge-cta group inline-flex items-center gap-2 rounded-full px-6 py-3 text-[13px] font-semibold text-[#04121A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00D9FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1220] sm:px-8 sm:py-3.5 sm:text-sm"
-            style={{
-              background:
-                "linear-gradient(135deg, #5EE7FF 0%, #00D9FF 50%, #1FA8C9 100%)",
-              boxShadow:
-                "0 10px 30px -10px rgba(0,217,255,0.55), 0 0 0 1px rgba(0,217,255,0.35) inset",
-            }}
-          >
-            <span aria-hidden>🚀</span>
-            Conhecer nossas soluções
-          </Link>
-
-          <button
-            type="button"
-            onClick={goBack}
-            className="bridge-back group inline-flex items-center gap-1.5 text-xs text-white/45 transition-colors duration-200 focus:outline-none"
-          >
-            <span
-              aria-hidden
-              className="inline-block transition-transform duration-200 group-hover:-translate-x-1"
-            >
-              ←
-            </span>
-            Voltar ao sistema
-          </button>
+        {/* Rodapé institucional */}
+        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/50">
+          <p>© {new Date().getFullYear()} RDG Digital. Todos os direitos reservados.</p>
+          <Link to="/membros" className="hover:text-white transition-colors">Área de Membros VIP</Link>
         </div>
-
-        <div
-          className="bridge-item mt-8 space-y-1.5 border-t border-white/5 pt-5 sm:mt-14 sm:pt-6"
-          style={{ ["--d" as string]: "560ms" }}
-        >
-          <p className="text-[13px] text-white/55 sm:text-sm">
-            Tecnologia que impulsiona negócios.
-          </p>
-          <p className="text-[11px] text-white/35">
-            © 2026 RDG Digital. Todos os direitos reservados.
-          </p>
-        </div>
-      </section>
-
-
-      <style>{`
-        @keyframes bridge-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes bridge-up {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes bridge-float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-3px); }
-        }
-        .bridge-item {
-          opacity: 0;
-          animation: bridge-in 0.7s ease-out forwards;
-          animation-delay: var(--d, 0ms);
-        }
-        .bridge-up {
-          animation: bridge-up 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-          animation-delay: var(--d, 0ms);
-        }
-        .bridge-float {
-          animation: bridge-float 5s ease-in-out infinite;
-        }
-        .bridge-cta {
-          transition: transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
-                      box-shadow 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
-                      filter 280ms ease;
-          will-change: transform;
-        }
-        .bridge-cta:hover {
-          transform: translateY(-2px) scale(1.03);
-          box-shadow: 0 22px 48px -12px rgba(0,217,255,0.75),
-                      0 0 0 1px rgba(0,217,255,0.55) inset,
-                      0 0 32px rgba(0,217,255,0.35);
-          filter: brightness(1.05);
-        }
-        .bridge-cta:active {
-          transform: translateY(0) scale(0.98);
-          transition-duration: 120ms;
-        }
-        .bridge-back:hover {
-          color: #00D9FF;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .bridge-item, .bridge-up { opacity: 1; transform: none; animation: none; }
-          .bridge-float { animation: none; }
-          .bridge-cta { transition: none; }
-        }
-      `}</style>
+      </div>
     </main>
   );
 }

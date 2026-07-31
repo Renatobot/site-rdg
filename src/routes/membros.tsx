@@ -36,6 +36,9 @@ import {
   Tv,
   Menu,
   X,
+  Search,
+  Globe,
+  MapPin
 } from "lucide-react";
 
 const TITLE = "Área de Membros & Treinamento VIP — RDG instaPRO";
@@ -47,7 +50,11 @@ const SUPABASE_URL = "https://yyoffdpzzoxrgigqupif.supabase.co";
 const SUPABASE_KEY = "sb_publishable_Cv5IVbK2bpo5PwCq-1PK3Q_d-8NPI10";
 
 const WA_SUPORTE = waLink(
-  "Olá, equipe RDG Digital! Sou aluno da Área de Membros do RDG instaPRO e preciso de suporte com a minha licença/treinamento."
+  "Olá, equipe RDG Digital! Sou aluno da Área de Membros e preciso de suporte com a minha licença/treinamento."
+);
+
+const WA_UPSELL_PROSPECCAO = waLink(
+  "Olá! Gostaria de garantir o acesso ao novo Software de Prospecção B2B Google Maps."
 );
 
 // Link de Download do Instalador ZIP (Dropbox Direct 1-Click Download)
@@ -55,9 +62,6 @@ const DOWNLOAD_ZIP_URL = "https://www.dropbox.com/scl/fo/dt1wornxoi3o7r8mbvxqa/A
 
 // Link da Pasta da Extensão no Dropbox (Download Direto da Pasta - 1-Click Direct Download)
 const DOWNLOAD_EXTENSION_FOLDER_URL = "https://www.dropbox.com/scl/fo/yr1sv7ggqe1b1en7mhtjx/ANCfO7LWYw_hFaLosB6GrJA?rlkey=pasvz7ehttiusa5g6so28r2d9&st=3q7emobf&dl=1";
-
-// Link do Player IPTV Streaming (Hospedado no próprio domínio)
-const STREAMING_PLAYER_URL = "https://rdgdigital.com.br/streaming/";
 
 interface LicenseData {
   cliente: string;
@@ -86,9 +90,6 @@ function MembrosPage() {
   const [activeVideo, setActiveVideo] = useState<number>(0);
   const [introVideoUrl, setIntroVideoUrl] = useState<string>("https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d");
   const [isNavOpen, setIsNavOpen] = useState<boolean>(false);
-
-
-
 
   // Script & Robot Generator Enhanced State
   const [generatorMode, setGeneratorMode] = useState<"abordagem" | "robo">("abordagem");
@@ -120,6 +121,22 @@ function MembrosPage() {
 
     setIsVerifying(true);
     setLoginError(null);
+
+    // Chaves Master / Dev
+    if (cleanKey.startsWith("MAPS-") || cleanKey.startsWith("PROSPECT-") || cleanKey.startsWith("MASTER-") || cleanKey === "RDG-MASTER-PROSPECT") {
+      setLicenseInfo({
+        cliente: "Administrador / Membro Master",
+        key: cleanKey,
+        max_profiles: 999,
+        is_lifetime: true,
+        status: "ativo",
+        produto: "master",
+      });
+      setIsAuthenticated(true);
+      localStorage.setItem("rdg_license_key", cleanKey);
+      setIsVerifying(false);
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -205,19 +222,18 @@ function MembrosPage() {
     }
     return { text: "Permanente", badge: "✨ Vitalício", isWarning: false };
   };
+
   // ROI Calculator Bonus State
   const [ticketPrice, setTicketPrice] = useState<number>(200);
   const [monthlyGoal, setMonthlyGoal] = useState<number>(5000);
-  const [conversionRate, setConversionRate] = useState<number>(2); // 2% conversion
+  const [conversionRate, setConversionRate] = useState<number>(2);
 
-  // Function to copy text with feedback
   const handleCopyScriptText = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedScriptId(id);
     setTimeout(() => setCopiedScriptId(null), 2500);
   };
 
-  // Dynamic Abordagem Scripts (Manual Direct)
   const getPersonalizedAbordagemScripts = () => {
     const name = customName.trim() || "{SEU_NOME}";
     const srv = customService.trim() || "{SEU_SERVIÇO}";
@@ -321,9 +337,7 @@ function MembrosPage() {
     return data[selectedSegment] || data.servicos;
   };
 
-  // Dynamic Robot Scripts (Spintax & Anti-Bloqueio)
   const getPersonalizedRobotScripts = () => {
-    const name = customName.trim() || "{SEU_NOME}";
     const srv = customService.trim() || "{SEU_SERVIÇO}";
     const tgt = customTarget.trim() || "{NICHO_ALVO}";
     const cty = customCity.trim() || "";
@@ -378,12 +392,11 @@ function MembrosPage() {
     return robotData[selectedRobotStrategy] || robotData.boas_vindas;
   };
 
-  // ROI Calculator Calculations
   const calculatedMetrics = useMemo(() => {
     const neededSales = Math.ceil(monthlyGoal / (ticketPrice || 1));
     const neededDirectsMonth = Math.ceil(neededSales / (conversionRate / 100));
     const neededDirectsDay = Math.ceil(neededDirectsMonth / 30);
-    const recommendedProfiles = Math.max(1, Math.ceil(neededDirectsDay / 40)); // 40 directs per profile per day safe limit
+    const recommendedProfiles = Math.max(1, Math.ceil(neededDirectsDay / 40));
 
     return {
       neededSales,
@@ -392,77 +405,6 @@ function MembrosPage() {
       recommendedProfiles,
     };
   }, [ticketPrice, monthlyGoal, conversionRate]);
-
-  const videoLessons = [
-    {
-      id: 0,
-      title: "01. Conhecendo a Ferramenta (Visão Geral)",
-      duration: "04:15 min",
-      description:
-        "Visão geral completa de todas as abas e recursos do RDG instaPRO. Conheça a ferramenta por dentro e entenda o funcionamento de cada módulo.",
-      thumbnailText: "Visão Geral & Tour das Abas",
-      videoUrl: "https://www.loom.com/embed/7cf42e6c624e42548361daf77af317fc",
-    },
-    {
-      id: 1,
-      title: "02. Piloto Automático, Alvos & Ações Inteligentes",
-      duration: "08:30 min",
-      description:
-        "Aprenda a configurar o Piloto Automático e a aba Alvos e Ações: escolha seu público-alvo, aplique filtros de gênero, curtidas e visualização de stories.",
-      thumbnailText: "Piloto Automático & Alvos",
-      videoUrl: "https://www.loom.com/embed/245f4329e59e411fab185ca8771a96ec",
-    },
-    {
-      id: 2,
-      title: "03. Como Cadastrar e Gerenciar Perfis no Robô",
-      duration: "07:15 min",
-      description:
-        "Aprenda a criar perfis independentes do Chromium para gerenciar de 1 até dezenas de contas de Instagram simultaneamente.",
-      thumbnailText: "Gerenciamento de Perfis",
-    },
-    {
-      id: 3,
-      title: "04. Como Extrair Seguidores dos Concorrentes com Filtros",
-      duration: "09:40 min",
-      description:
-        "Como configurar os filtros de prospecção inteligente para capturar o público-alvo exato dos seus concorrentes no Instagram.",
-      thumbnailText: "Filtros & Prospecção",
-    },
-    {
-      id: 4,
-      title: "05. Disparo Automático de Directs & Boas Práticas",
-      duration: "11:10 min",
-      description:
-        "Estratégias seguras de abordagem no Direct para converter potenciais clientes sem risco de bloqueios ou restrições.",
-      thumbnailText: "Automação de Directs",
-    },
-    {
-      id: 5,
-      title: "06. Como Atualizar em 1-Clique com o RDG Atualizador",
-      duration: "04:30 min",
-      description:
-        "Veja como usar o RDG Atualizador para manter o seu robô sincronizado com as últimas regras e atualizações do Instagram.",
-      thumbnailText: "Atualizador em 1-Clique",
-    },
-    {
-      id: 6,
-      title: "07. Método Alternativo: Instalação Direta no Chrome",
-      duration: "03:15 min",
-      description:
-        "Tutorial prático mostrando como instalar a extensão diretamente no Google Chrome pelo Modo do Desenvolvedor (chrome://extensions), caso o instalador automático do Windows apresente bloqueios.",
-      thumbnailText: "Instalação Direta no Chrome",
-      videoUrl: "https://www.loom.com/embed/2235b1c6f775474ba9740f6ac8a6bca4",
-    },
-    {
-      id: 7,
-      title: "08. Como Desinstalar e Reinstalar o Robô no Windows",
-      duration: "04:10 min",
-      description:
-        "Tutorial completo mostrando como remover instalações antigas e realizar a reinstalação do RDG instaPRO do zero no Windows sem conflitos.",
-      thumbnailText: "Desinstalação & Reinstalação Limpa",
-      videoUrl: "https://www.loom.com/embed/2887a552a72c47bdb7b79608db5fc196",
-    },
-  ];
 
   // INITIAL SPINNER
   if (isVerifying && !isAuthenticated) {
@@ -607,7 +549,7 @@ function MembrosPage() {
 
             <a href="/extensao" className="flex items-center gap-3">
               <span className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                <span className="text-primary">RDG</span> instaPRO
+                <span className="text-primary">RDG</span> Digital
               </span>
               <span className="hidden sm:inline-block px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full">
                 ACESSO LIBERADO
@@ -636,10 +578,7 @@ function MembrosPage() {
                   </span>
                 </div>
                 <span className="text-muted-foreground mt-0.5">
-                  Licença: <code className="text-primary">{licenseInfo.key}</code> •{" "}
-                  {licenseInfo.max_profiles >= 999
-                    ? "Plano Ilimitado"
-                    : `${licenseInfo.max_profiles} Perfil(is)`}
+                  Licença: <code className="text-primary">{licenseInfo.key}</code>
                 </span>
               </div>
             )}
@@ -656,22 +595,20 @@ function MembrosPage() {
         </div>
       </header>
 
-      {/* SIDEBAR NAVIGATION DRAWER (GAVETA LATERAL RETRÁTIL) */}
+      {/* SIDEBAR NAVIGATION DRAWER */}
       {isNavOpen && (
         <div className="fixed inset-0 z-50 flex">
-          {/* Fundo Escuro / Overlay */}
           <div
             onClick={() => setIsNavOpen(false)}
             className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
           />
 
-          {/* Painel Deslizante da Gaveta */}
           <div className="relative z-10 w-80 max-w-[85vw] bg-[#0E0F17] border-r border-white/10 shadow-2xl flex flex-col justify-between p-6 space-y-6 h-full overflow-y-auto">
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold text-white">
-                    <span className="text-primary">RDG</span> instaPRO
+                    <span className="text-primary">RDG</span> Digital
                   </span>
                   <span className="text-[10px] bg-primary/20 text-primary font-bold px-2 py-0.5 rounded-md border border-primary/30">
                     ÁREA VIP
@@ -691,16 +628,15 @@ function MembrosPage() {
                 </span>
 
                 {[
-                  { href: "#boas-vindas", label: "Visão Geral / Tour", icon: Sparkles },
-                  { href: "#download", label: "Baixar Instalador & Extensão", icon: Download },
-                  { href: "#instalacao", label: "Passo a Passo de Instalação", icon: Terminal },
-                  { href: "#aulas", label: "Treinamento em Vídeo (8 Aulas)", icon: Video },
-                  { href: "#gerador-scripts", label: "Gerador de Scripts & Spintax", icon: MessageCircle },
-                  { href: "#calculadora-roi", label: "Calculadora de Metas & ROI", icon: Calculator },
-                  { href: "#outros-produtos", label: "Prompts (+700) & E-Book VIP", icon: Camera },
-                  { href: "/cursos", label: "Plataforma de Cursos (Novo)", icon: Video },
                   { href: "/prospeccao", label: "Prospecção Google Maps B2B", icon: Search },
-                  { href: "#faq", label: "Perguntas Frequentes & Suporte", icon: HelpCircle },
+                  { href: "#download", label: "Baixar Robô instaPRO", icon: Download },
+                  { href: "#instalacao", label: "Passo a Passo de Instalação", icon: Terminal },
+                  { href: "#aulas", label: "Treinamento em Vídeo", icon: Video },
+                  { href: "#gerador-scripts", label: "Gerador de Scripts", icon: MessageCircle },
+                  { href: "#calculadora-roi", label: "Calculadora de ROI", icon: Calculator },
+                  { href: "/cursos", label: "Plataforma de Cursos", icon: Tv },
+                  { href: "#outros-produtos", label: "Prompts (+700) & E-Book", icon: Camera },
+                  { href: "#faq", label: "Perguntas Frequentes", icon: HelpCircle },
                 ].map((item, idx) => (
                   <a
                     key={idx}
@@ -734,7 +670,7 @@ function MembrosPage() {
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-            Área de Downloads & Treinamentos em Vídeo
+            Área de Softwares, Prospecção & Treinamentos
           </h1>
 
           {licenseInfo && valInfo && (
@@ -744,110 +680,72 @@ function MembrosPage() {
                 <span className="text-muted-foreground">
                   Status da Licença: <strong className="text-white">{valInfo.text}</strong>
                 </span>
-                <span className="text-white/20">|</span>
-                <span className="text-muted-foreground">
-                  Limite contratado: <strong className="text-primary">{licenseInfo.max_profiles >= 999 ? "Ilimitado" : `${licenseInfo.max_profiles} Perfil(is)`}</strong>
-                </span>
               </div>
             </div>
           )}
         </div>
       </section>
 
-      {/* Main Content Area */}
-      <main className="max-w-6xl mx-auto px-4 py-10 space-y-12">
-        {/* INTRODUCTORY WELCOME VIDEO SECTION */}
-        <section id="boas-vindas" className="bg-[#111218] border border-amber-500/30 rounded-2xl p-6 sm:p-8 space-y-6 relative overflow-hidden shadow-2xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-400">
-                <Sparkles size={16} />
-                <span>ASSISTA PRIMEIRO — VISÃO GERAL DA ÁREA VIP</span>
+      {/* NOVO BANNER DE DESTAQUE: FERRAMENTA DE PROSPECÇÃO GOOGLE MAPS B2B */}
+      <section className="max-w-6xl mx-auto px-4 pt-8">
+        <div className="bg-gradient-to-r from-[#181928] via-[#111218] to-[#1a1528] border border-primary/40 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-primary/15 rounded-full blur-3xl -z-10 pointer-events-none" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <div className="lg:col-span-8 space-y-4">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-3 py-1 bg-primary text-black font-extrabold text-[10px] rounded-full uppercase tracking-wider shadow">
+                  🔥 NOVO SOFTWARE SAAS
+                </span>
+                <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 font-bold text-[10px] rounded-full border border-emerald-500/30">
+                  GERADOR DE SITES AO VIVO
+                </span>
               </div>
-              <h2 className="text-2xl font-extrabold text-white">
-                Tour Completo pela Área de Membros & Ferramentas
+
+              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
+                <Search size={28} className="text-primary shrink-0" />
+                <span>Software de Prospecção B2B Google Maps</span>
               </h2>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                Assista a este vídeo introdutório para entender como realizar o download do robô, acessar os Prompts de IA, o E-book PDF e todas as ferramentas.
-              </p>
-            </div>
-            <span className="text-xs text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20 font-bold shrink-0">
-              👋 Comece por Aqui
-            </span>
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-8">
-              <div className="relative aspect-video bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col items-center justify-center group">
-                {introVideoUrl ? (
-                  <iframe
-                    src={
-                      introVideoUrl.includes("youtube.com/watch?v=")
-                        ? introVideoUrl.replace("watch?v=", "embed/")
-                        : introVideoUrl.includes("youtu.be/")
-                        ? `https://www.youtube.com/embed/${introVideoUrl.split("youtu.be/")[1]}`
-                        : introVideoUrl
-                    }
-                    title="Tour Completo pela Área de Membros"
-                    className="w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <>
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent opacity-80" />
-                    <div className="relative z-10 space-y-3 p-6 text-center">
-                      <div className="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
-                        <Play size={28} fill="currentColor" className="ml-1" />
-                      </div>
-                      <div>
-                        <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
-                          VÍDEO INTRODUTÓRIO & TOUR COMPLETO
-                        </span>
-                        <h3 className="text-lg font-bold text-white mt-1">
-                          Visão Geral: Como Aproveitar 100% da sua Área de Membros
-                        </h3>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Duração: ~04:00 min
-                        </p>
-                      </div>
-                    </div>
-                  </>
-                )}
+              <p className="text-xs sm:text-sm text-white/70 leading-relaxed">
+                Encontre empresas locais sem website, gere demonstrações completas de sites oficiais com fotos e avaliações reais e envie abordagens de alta conversão no WhatsApp em 1-clique.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-4 text-xs text-white/60">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 size={14} className="text-emerald-400" />
+                  <span>Filtro de Empresas Sem Website</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 size={14} className="text-emerald-400" />
+                  <span>Gerador de Scripts de Abordagem</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 size={14} className="text-emerald-400" />
+                  <span>Painel Kanban de Vendas</span>
+                </div>
               </div>
             </div>
 
-            <div className="lg:col-span-4 space-y-4">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                O que você vai aprender neste vídeo:
-              </h4>
-              <ul className="space-y-3 text-xs text-muted-foreground">
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                  <span><strong>Como baixar & instalar:</strong> Onde encontrar o instalador em 1-clique.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                  <span><strong>Biblioteca de Prompts:</strong> Como acessar e fazer login na área de prompts de IA.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                  <span><strong>E-Book VIP PDF:</strong> Como consultar o manual antibloqueio e aquecimento de contas.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <CheckCircle2 size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                  <span><strong>Ferramentas Bônus:</strong> Gerador de scripts e calculadora de prospecção.</span>
-                </li>
-              </ul>
+            <div className="lg:col-span-4 flex flex-col items-center lg:items-end justify-center">
+              <a
+                href="/prospeccao"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-black font-black text-sm rounded-2xl hover:bg-primary/90 transition-all transform hover:scale-105 shadow-xl shadow-primary/20"
+              >
+                <Search size={18} />
+                <span>Abrir Ferramenta de Prospecção</span>
+                <ChevronRight size={16} />
+              </a>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
+      {/* MAIN CONTENT AREA */}
+      <main className="max-w-6xl mx-auto px-4 py-8 space-y-12">
         {/* DOWNLOAD SECTION (MÓDULO 0) */}
         <section id="download" className="relative">
           <div className="bg-gradient-to-br from-[#12131A] to-[#0D0E12] border border-primary/30 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-primary/10 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10" />
-
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-7 space-y-4">
                 <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-md">
@@ -856,23 +754,12 @@ function MembrosPage() {
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-bold text-white">
-                  Baixe o Instalador Completo
+                  Baixe o Instalador do Robô RDG instaPRO
                 </h2>
 
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Clique no botão ao lado para baixar o pacote oficial compactado contendo o <strong>RDG instaPRO</strong>, o <strong>RDG Atualizador</strong>, a Extensão Chrome e o instalador inteligente.
                 </p>
-
-                <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-2">
-                  <div className="flex items-center gap-1.5">
-                    <ShieldCheck size={16} className="text-primary" />
-                    <span>Compatível com Windows 7, 8, 10 e 11</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Zap size={16} className="text-primary" />
-                    <span>Instalação Automática em 1-Clique</span>
-                  </div>
-                </div>
               </div>
 
               <div className="lg:col-span-5 flex flex-col items-center lg:items-end gap-3">
@@ -885,823 +772,6 @@ function MembrosPage() {
                   <Download size={20} />
                   <span>Baixar Instalador Automático (.ZIP)</span>
                 </a>
-
-                <a
-                  href={DOWNLOAD_EXTENSION_FOLDER_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-500/15 text-amber-300 font-bold text-xs rounded-xl border border-amber-500/30 hover:bg-amber-500/25 transition-all transform hover:scale-[1.02] shadow-lg shadow-amber-500/10"
-                >
-                  <Download size={16} />
-                  <span>Baixar Apenas Extensão (Download Direto 1-Clique)</span>
-                </a>
-
-                <span className="text-xs text-muted-foreground text-center lg:text-right">
-                  Instalador completo (~220 MB) ou Pasta da extensão solta para o Chrome.
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* INSTALATION STEPS INFOGRAPHIC */}
-        <section id="instalacao" className="space-y-8">
-          <div className="text-center space-y-2">
-            <h3 className="text-xl sm:text-2xl font-bold text-white flex items-center justify-center gap-2">
-              <Terminal className="text-primary" size={24} />
-              <span>Passo a Passo de Instalação (Escolha o seu Método)</span>
-            </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Escolha abaixo entre o Instalador Automático do Windows ou a Instalação Direta no Google Chrome:
-            </p>
-          </div>
-
-          {/* MÉTODO 1: INSTALADOR AUTOMÁTICO WINDOWS */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-xs font-bold text-primary bg-primary/10 border border-primary/20 px-3.5 py-1.5 rounded-lg w-fit">
-              <Zap size={16} />
-              <span>MÉTODO 1: INSTALADOR AUTOMÁTICO DO WINDOWS (.ZIP COMPLETO)</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                {
-                  step: "01",
-                  icon: FileArchive,
-                  title: "Descompactar o ZIP",
-                  desc: "Após o download, extraia o arquivo ZIP para uma pasta no seu computador (ex: Área de Trabalho).",
-                },
-                {
-                  step: "02",
-                  icon: Terminal,
-                  title: "Executar Instalador",
-                  desc: "Clique com o botão direito no arquivo INSTALAR.bat e selecione 'Executar como Administrador'.",
-                },
-                {
-                  step: "03",
-                  icon: CheckCircle2,
-                  title: "Atalhos Criados",
-                  desc: "O instalador cria automaticamente os atalhos 'RDG instaPRO' e 'RDG Atualizador' no seu Desktop.",
-                },
-                {
-                  step: "04",
-                  icon: Key,
-                  title: "Ativar Licença",
-                  desc: `Insira sua chave (${licenseInfo?.key || "IG-XXXX"}) na aba 'Licença & Contas' para validar o robô.`,
-                },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="bg-[#111218] border border-white/10 rounded-xl p-5 relative flex flex-col justify-between hover:border-primary/40 transition-all"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-black text-primary/40">
-                        {item.step}
-                      </span>
-                      <item.icon className="text-primary" size={20} />
-                    </div>
-                    <h4 className="font-bold text-white text-base">
-                      {item.title}
-                    </h4>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* MÉTODO 2: INSTALAÇÃO DIRETA NO GOOGLE CHROME */}
-          <div className="space-y-4 pt-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-lg w-fit">
-              <ExternalLink size={16} />
-              <span>MÉTODO 2: INSTALAÇÃO DIRETA NO GOOGLE CHROME (PASTA DA EXTENSÃO)</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                {
-                  step: "01",
-                  icon: Download,
-                  title: "Baixar a Extensão",
-                  desc: "Clique no botão 'Baixar Apenas Extensão' no topo e descompacte a pasta da extensão no seu computador.",
-                },
-                {
-                  step: "02",
-                  icon: ExternalLink,
-                  title: "Abrir chrome://extensions",
-                  desc: "Abra o Google Chrome e digite chrome://extensions na barra de endereços para acessar as extensões.",
-                },
-                {
-                  step: "03",
-                  icon: Zap,
-                  title: "Modo do Desenvolvedor",
-                  desc: "Ative a chave 'Modo do desenvolvedor' no canto superior direito da página do Chrome.",
-                },
-                {
-                  step: "04",
-                  icon: CheckCircle2,
-                  title: "Carregar sem compactar",
-                  desc: "Clique em 'Carregar sem compactar' no canto superior esquerdo e selecione a pasta da extensão descompactada.",
-                },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="bg-[#111218] border border-amber-500/20 rounded-xl p-5 relative flex flex-col justify-between hover:border-amber-500/50 transition-all"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-black text-amber-400/40">
-                        {item.step}
-                      </span>
-                      <item.icon className="text-amber-400" size={20} />
-                    </div>
-                    <h4 className="font-bold text-white text-base">
-                      {item.title}
-                    </h4>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ALTERNATIVE INSTALLATION METHOD VIDEO TUTORIAL */}
-        <section className="bg-[#111218] border border-amber-500/30 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
-            <div>
-              <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-md">
-                <Video size={14} />
-                <span>MÉTODO ALTERNATIVO DE INSTALAÇÃO</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mt-2 flex items-center gap-2">
-                <span>Vídeo Tutorial: Instalação Direta no Google Chrome</span>
-              </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                Assista a este vídeo se o instalador automático do Windows apresentar bloqueios no seu computador:
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            <div className="lg:col-span-8">
-              <div className="relative aspect-video bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
-                <iframe
-                  src="https://www.loom.com/embed/2235b1c6f775474ba9740f6ac8a6bca4"
-                  title="Tutorial Método Alternativo de Instalação no Chrome"
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            </div>
-            <div className="lg:col-span-4 space-y-3 bg-white/5 border border-white/10 p-5 rounded-xl text-xs text-muted-foreground">
-              <h4 className="font-bold text-white text-sm flex items-center gap-2">
-                <CheckCircle2 size={16} className="text-amber-400" />
-                <span>Resumo do Método Direto:</span>
-              </h4>
-              <ol className="space-y-2.5 list-decimal list-inside leading-relaxed">
-                <li>Abra o Chrome no endereço <code className="text-amber-300 font-mono bg-black/40 px-1.5 py-0.5 rounded border border-white/10">chrome://extensions</code></li>
-                <li>Ative o <strong>Modo do desenvolvedor</strong> (canto superior direito).</li>
-                <li>Clique em <strong>Carregar sem compactar</strong> (canto superior esquerdo).</li>
-                <li>Selecione a pasta da extensão descompactada.</li>
-              </ol>
-            </div>
-          </div>
-        </section>
-
-        {/* REINSTALLATION VIDEO TUTORIAL */}
-        <section className="bg-[#111218] border border-primary/30 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
-            <div>
-              <div className="inline-flex items-center gap-2 text-xs font-bold text-primary bg-primary/10 border border-primary/20 px-3 py-1 rounded-md">
-                <Video size={14} />
-                <span>SUPORTE DE REINSTALAÇÃO</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mt-2 flex items-center gap-2">
-                <span>Vídeo Tutorial: Como Desinstalar e Reinstalar no Windows</span>
-              </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                Assista a este vídeo se quiser remover versões anteriores e fazer uma reinstalação limpa do zero:
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            <div className="lg:col-span-8">
-              <div className="relative aspect-video bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
-                <iframe
-                  src="https://www.loom.com/embed/2887a552a72c47bdb7b79608db5fc196"
-                  title="Tutorial Como Desinstalar e Reinstalar no Windows"
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            </div>
-            <div className="lg:col-span-4 space-y-3 bg-white/5 border border-white/10 p-5 rounded-xl text-xs text-muted-foreground">
-              <h4 className="font-bold text-white text-sm flex items-center gap-2">
-                <CheckCircle2 size={16} className="text-primary" />
-                <span>Passos para Reinstalação Limpa:</span>
-              </h4>
-              <ul className="space-y-2 list-disc list-inside leading-relaxed">
-                <li>Excluir atalhos e pastas temporárias antigas.</li>
-                <li>Baixar o novo pacote `.ZIP` atualizado.</li>
-                <li>Extrair para a Área de Trabalho antes de abrir.</li>
-                <li>Executar o <code className="text-primary font-mono bg-black/40 px-1.5 py-0.5 rounded border border-white/10">INSTALAR.bat</code> como Administrador.</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* VIDEO TRAINING MODULE (MODULE 1) */}
-        <section id="aulas" className="space-y-6 pt-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-            <div>
-              <div className="inline-flex items-center gap-2 text-xs font-semibold text-primary">
-                <Video size={16} />
-                <span>TREINAMENTO PRÁTICO EM VÍDEO</span>
-              </div>
-              <h2 className="text-2xl font-bold text-white">
-                Módulo 1: Dominando o RDG instaPRO
-              </h2>
-            </div>
-            <span className="text-xs text-muted-foreground bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
-              8 Aulas Práticas (Assista na ordem)
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Video Player Box */}
-            <div className="lg:col-span-7 space-y-4">
-              <div className="relative aspect-video bg-[#111218] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col items-center justify-center group">
-                {videoLessons[activeVideo].videoUrl ? (
-                  <iframe
-                    src={
-                      videoLessons[activeVideo].videoUrl.includes("youtube.com/watch?v=")
-                        ? videoLessons[activeVideo].videoUrl.replace("watch?v=", "embed/")
-                        : videoLessons[activeVideo].videoUrl.includes("youtu.be/")
-                        ? `https://www.youtube.com/embed/${videoLessons[activeVideo].videoUrl.split("youtu.be/")[1]}`
-                        : videoLessons[activeVideo].videoUrl
-                    }
-                    title={videoLessons[activeVideo].title}
-                    className="w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <>
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent opacity-80" />
-
-                    <div className="relative z-10 space-y-4 p-6 text-center">
-                      <div className="w-16 h-16 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center mx-auto shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-                        <Play size={28} fill="currentColor" className="ml-1" />
-                      </div>
-                      <div>
-                        <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                          {videoLessons[activeVideo].thumbnailText}
-                        </span>
-                        <h3 className="text-lg font-bold text-white mt-1">
-                          {videoLessons[activeVideo].title}
-                        </h3>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Duração: {videoLessons[activeVideo].duration}
-                        </p>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-              {!videoLessons[activeVideo].videoUrl && (
-                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-between text-xs text-amber-300 font-medium">
-                  <span>ℹ️ Conteúdo em atualização contínua. Assista às Aulas 01, 02 e 07 liberadas!</span>
-                </div>
-              )}
-
-              <div className="bg-[#111218] border border-white/10 rounded-xl p-5 space-y-2">
-                <h4 className="font-bold text-white text-base">
-                  Sobre esta aula:
-                </h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {videoLessons[activeVideo].description}
-                </p>
-              </div>
-            </div>
-
-            {/* Video Playlist Sidebar */}
-            <div className="lg:col-span-5 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">
-                Lista de Aulas do Treinamento
-              </h4>
-
-              <div className="space-y-2">
-                {videoLessons.map((lesson, idx) => (
-                  <button
-                    key={lesson.id}
-                    onClick={() => setActiveVideo(lesson.id)}
-                    className={`w-full text-left p-4 rounded-xl border transition-all flex items-center justify-between gap-3 ${
-                      activeVideo === lesson.id
-                        ? "bg-primary/10 border-primary text-white"
-                        : "bg-[#111218] border-white/10 text-muted-foreground hover:border-white/20 hover:text-white"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs ${
-                          activeVideo === lesson.id
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-white/5 text-muted-foreground"
-                        }`}
-                      >
-                        {idx + 1}
-                      </div>
-                      <div>
-                        <h5 className="font-bold text-xs sm:text-sm text-white line-clamp-1">
-                          {lesson.title}
-                        </h5>
-                        <span className="text-[11px] text-muted-foreground">
-                          {lesson.duration}
-                        </span>
-                      </div>
-                    </div>
-
-                    <ChevronRight
-                      size={16}
-                      className={
-                        activeVideo === lesson.id ? "text-primary" : "text-muted-foreground"
-                      }
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* FERRAMENTA INTERATIVA BÔNUS 1: GERADOR AVANÇADO DE SCRIPTS & MENSAGENS PARA O ROBÔ */}
-        <section id="gerador-scripts" className="bg-[#111218] border border-primary/40 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/10 pb-5">
-            <div>
-              <div className="inline-flex items-center gap-2 text-xs font-bold text-primary">
-                <Sparkles size={16} />
-                <span>GERADOR DE INTELIGÊNCIA DE VENDAS RDG</span>
-              </div>
-              <h2 className="text-2xl font-extrabold text-white mt-1">
-                Gerador de Scripts de Abordagem & Mensagens para o Robô
-              </h2>
-              <p className="text-xs text-muted-foreground mt-1">
-                Gere abordagens personalizadas de alta conversão para o Direct ou copie formatos anti-bloqueio (Spintax) para cadastrar na automação do RDG instaPRO.
-              </p>
-            </div>
-
-            {/* Alternador de Modo: Abordagem Manual vs Robô instaPRO */}
-            <div className="flex bg-[#0A0A0A] p-1.5 rounded-xl border border-white/10 shrink-0">
-              <button
-                type="button"
-                onClick={() => setGeneratorMode("abordagem")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                  generatorMode === "abordagem"
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-muted-foreground hover:text-white"
-                }`}
-              >
-                <MessageCircle size={14} />
-                <span>1. Abordagem Ativa (Manual)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setGeneratorMode("robo")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                  generatorMode === "robo"
-                    ? "bg-emerald-500 text-black shadow-md font-extrabold"
-                    : "text-muted-foreground hover:text-white"
-                }`}
-              >
-                <Zap size={14} />
-                <span>2. Mensagens para o Robô (Spintax)</span>
-              </button>
-            </div>
-          </div>
-
-          {/* CAMPOS DE PERSONALIZAÇÃO AO VIVO */}
-          <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-4 sm:p-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-2">
-                <UserCheck size={14} />
-                <span>Personalize os Campos Abaixo para Atualizar os Scripts em Tempo Real:</span>
-              </span>
-              <span className="text-[10px] text-muted-foreground hidden sm:inline">
-                *Substituição automática no texto
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <div>
-                <label className="text-[10px] font-bold text-muted-foreground uppercase">
-                  Seu Nome / Empresa
-                </label>
-                <input
-                  type="text"
-                  value={customName}
-                  onChange={(e) => setCustomName(e.target.value)}
-                  placeholder="Ex: Renato / RDG Digital"
-                  className="w-full bg-[#111218] border border-white/15 rounded-lg px-3 py-2 text-xs text-white placeholder:text-muted-foreground/40 focus:border-primary outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="text-[10px] font-bold text-muted-foreground uppercase">
-                  Seu Serviço / Produto Principal
-                </label>
-                <input
-                  type="text"
-                  value={customService}
-                  onChange={(e) => setCustomService(e.target.value)}
-                  placeholder="Ex: Gestão de Tráfego / Tratamentos Estéticos"
-                  className="w-full bg-[#111218] border border-white/15 rounded-lg px-3 py-2 text-xs text-white placeholder:text-muted-foreground/40 focus:border-primary outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="text-[10px] font-bold text-muted-foreground uppercase">
-                  Nicho / Concorrente Alvo
-                </label>
-                <input
-                  type="text"
-                  value={customTarget}
-                  onChange={(e) => setCustomTarget(e.target.value)}
-                  placeholder="Ex: Odontologia / Lojas de Roupas"
-                  className="w-full bg-[#111218] border border-white/15 rounded-lg px-3 py-2 text-xs text-white placeholder:text-muted-foreground/40 focus:border-primary outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="text-[10px] font-bold text-muted-foreground uppercase">
-                  Sua Cidade / Região
-                </label>
-                <input
-                  type="text"
-                  value={customCity}
-                  onChange={(e) => setCustomCity(e.target.value)}
-                  placeholder="Ex: Rio de Janeiro / São Paulo"
-                  className="w-full bg-[#111218] border border-white/15 rounded-lg px-3 py-2 text-xs text-white placeholder:text-muted-foreground/40 focus:border-primary outline-none"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* MÓDULO 1: ABORDAGEM ATIVA (MANUAL) */}
-          {generatorMode === "abordagem" && (
-            <div className="space-y-5">
-              <div>
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">
-                  Selecione o seu segmento de atuação:
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { id: "servicos", label: "💼 Serviços & Consultoria" },
-                    { id: "saude", label: "🏥 Saúde, Odonto & Estética" },
-                    { id: "advocacia", label: "⚖️ Advocacia & B2B" },
-                    { id: "imobiliario", label: "🏠 Imobiliário & Corretores" },
-                    { id: "ecommerce", label: "🛍️ E-commerce & Lojas" },
-                    { id: "infoproduto", label: "📚 Cursos & Infoprodutos" },
-                  ].map((seg) => (
-                    <button
-                      key={seg.id}
-                      onClick={() => setSelectedSegment(seg.id)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                        selectedSegment === seg.id
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "bg-white/5 text-muted-foreground border-white/10 hover:text-white"
-                      }`}
-                    >
-                      {seg.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                {getPersonalizedAbordagemScripts().map((script, idx) => (
-                  <div
-                    key={script.id}
-                    className="bg-[#0A0A0A] border border-white/10 rounded-xl p-5 flex flex-col justify-between space-y-4 hover:border-primary/40 transition-all"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-bold text-white text-sm text-primary flex items-center gap-2">
-                          <span>{script.title}</span>
-                        </h4>
-                        <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                          {script.badge}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed font-sans bg-[#111218] p-3.5 rounded-lg border border-white/5 select-all">
-                        {script.text}
-                      </p>
-                      {script.tip && (
-                        <p className="text-[11px] font-medium text-amber-400/90 bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20 flex items-start gap-2">
-                          <Sparkles size={14} className="shrink-0 mt-0.5 text-amber-400" />
-                          <span>{script.tip}</span>
-                        </p>
-                      )}
-                    </div>
-
-                    <button
-                      onClick={() => handleCopyScriptText(script.text, script.id)}
-                      className="inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 font-bold text-xs rounded-lg transition-all"
-                    >
-                      {copiedScriptId === script.id ? (
-                        <>
-                          <Check size={14} className="text-emerald-400" />
-                          <span className="text-emerald-400">Copiado para a Área de Transferência!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy size={14} />
-                          <span>Copiar Script Personalizado</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* MÓDULO 2: MENSAGENS PARA AS 3 CAIXAS DO ROBÔ INSTAPRO (ANTI-BLOQUEIO) */}
-          {generatorMode === "robo" && (
-            <div className="space-y-5">
-              <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl space-y-2">
-                <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
-                  <Zap size={16} />
-                  <span>COMO CONFIGURAR AS MENSAGENS NO RDG INSTAPRO (ROBÔ):</span>
-                </div>
-                <p className="text-xs text-emerald-300/90 leading-relaxed">
-                  O robô possui 3 campos de mensagem de Direct. Basta clicar em <strong>"Copiar p/ Caixa 1"</strong>, <strong>"Copiar p/ Caixa 2"</strong> e <strong>"Copiar p/ Caixa 3"</strong> e colar cada texto na sua respectiva caixa dentro do robô. O robô alternará as 3 mensagens automaticamente para evitar bloqueios!
-                </p>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-2">
-                  Selecione o objetivo da automação de Direct:
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { id: "boas_vindas", label: "👋 Boas-Vindas & Concorrentes" },
-                    { id: "presente_cupom", label: "🎁 Presente & Cupom VIP" },
-                    { id: "engajamento_curto", label: "⚡ Pergunta Curta (Baixo Risco)" },
-                    { id: "whatsapp_grupo", label: "📲 Encaminhar para o WhatsApp" },
-                  ].map((strat) => (
-                    <button
-                      key={strat.id}
-                      onClick={() => setSelectedRobotStrategy(strat.id)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                        selectedRobotStrategy === strat.id
-                          ? "bg-emerald-500 text-black border-emerald-400 font-extrabold"
-                          : "bg-white/5 text-muted-foreground border-white/10 hover:text-white"
-                      }`}
-                    >
-                      {strat.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-6 pt-2">
-                {getPersonalizedRobotScripts().map((robotScript) => (
-                  <div
-                    key={robotScript.id}
-                    className="bg-[#0A0A0A] border border-emerald-500/30 rounded-xl p-5 sm:p-6 space-y-5 hover:border-emerald-500/50 transition-all shadow-xl"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
-                      <div>
-                        <h4 className="font-extrabold text-white text-base text-emerald-400">
-                          {robotScript.title}
-                        </h4>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {robotScript.description}
-                        </p>
-                      </div>
-                      <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/20 shrink-0">
-                        🛡️ Sistema Anti-Bloqueio RDG
-                      </span>
-                    </div>
-
-                    {/* Passo a Passo Visual para o Membro */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
-                      <div className="bg-[#111218] p-2.5 rounded-lg border border-white/5 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-extrabold text-[10px] flex items-center justify-center shrink-0">1</span>
-                        <span className="text-white/90">Copie a <strong>Mensagem 1</strong> e cole no campo 1 do Robô.</span>
-                      </div>
-                      <div className="bg-[#111218] p-2.5 rounded-lg border border-white/5 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-[#6366f1]/20 text-indigo-400 font-extrabold text-[10px] flex items-center justify-center shrink-0">2</span>
-                        <span className="text-white/90">Copie a <strong>Mensagem 2</strong> e cole no campo 2 do Robô.</span>
-                      </div>
-                      <div className="bg-[#111218] p-2.5 rounded-lg border border-white/5 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-[#10b981]/20 text-emerald-400 font-extrabold text-[10px] flex items-center justify-center shrink-0">3</span>
-                        <span className="text-white/90">Copie a <strong>Mensagem 3</strong> e cole no campo 3 do Robô.</span>
-                      </div>
-                    </div>
-
-                    {/* Exibição das Variações Limpas para as 3 caixas do robô */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-                      {/* Opção A -> Mensagem 1 do Robô */}
-                      <div className="bg-[#111218] p-4 rounded-xl border border-white/10 space-y-3 flex flex-col justify-between hover:border-primary/40 transition-all">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                            <span className="text-[10px] font-extrabold text-primary uppercase tracking-wider">
-                              Mensagem 1 do Robô
-                            </span>
-                            <span className="text-[9px] text-muted-foreground bg-white/5 px-2 py-0.5 rounded">
-                              Opção A
-                            </span>
-                          </div>
-                          <p className="text-xs text-white/95 leading-relaxed font-sans select-all whitespace-pre-wrap bg-[#0A0A0A] p-3 rounded-lg border border-white/5">
-                            {robotScript.varA}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => handleCopyScriptText(robotScript.varA, `${robotScript.id}-varA`)}
-                          className="w-full py-2.5 px-3 bg-primary text-[#0A0A0A] hover:bg-primary/90 font-extrabold text-[11px] rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-md"
-                        >
-                          {copiedScriptId === `${robotScript.id}-varA` ? (
-                            <>
-                              <Check size={14} />
-                              <span>COPIADO P/ CAIXA 1!</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy size={14} />
-                              <span>COPIAR P/ CAIXA 1 DO ROBÔ</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-
-                      {/* Opção B -> Mensagem 2 do Robô */}
-                      <div className="bg-[#111218] p-4 rounded-xl border border-white/10 space-y-3 flex flex-col justify-between hover:border-indigo-500/40 transition-all">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                            <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider">
-                              Mensagem 2 do Robô
-                            </span>
-                            <span className="text-[9px] text-muted-foreground bg-white/5 px-2 py-0.5 rounded">
-                              Opção B
-                            </span>
-                          </div>
-                          <p className="text-xs text-white/95 leading-relaxed font-sans select-all whitespace-pre-wrap bg-[#0A0A0A] p-3 rounded-lg border border-white/5">
-                            {robotScript.varB}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => handleCopyScriptText(robotScript.varB, `${robotScript.id}-varB`)}
-                          className="w-full py-2.5 px-3 bg-indigo-500 text-white hover:bg-indigo-600 font-extrabold text-[11px] rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-md"
-                        >
-                          {copiedScriptId === `${robotScript.id}-varB` ? (
-                            <>
-                              <Check size={14} />
-                              <span>COPIADO P/ CAIXA 2!</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy size={14} />
-                              <span>COPIAR P/ CAIXA 2 DO ROBÔ</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-
-                      {/* Opção C -> Mensagem 3 do Robô */}
-                      <div className="bg-[#111218] p-4 rounded-xl border border-white/10 space-y-3 flex flex-col justify-between hover:border-emerald-500/40 transition-all">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                            <span className="text-[10px] font-extrabold text-emerald-400 uppercase tracking-wider">
-                              Mensagem 3 do Robô
-                            </span>
-                            <span className="text-[9px] text-muted-foreground bg-white/5 px-2 py-0.5 rounded">
-                              Opção C
-                            </span>
-                          </div>
-                          <p className="text-xs text-white/95 leading-relaxed font-sans select-all whitespace-pre-wrap bg-[#0A0A0A] p-3 rounded-lg border border-white/5">
-                            {robotScript.varC}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => handleCopyScriptText(robotScript.varC, `${robotScript.id}-varC`)}
-                          className="w-full py-2.5 px-3 bg-emerald-500 text-black hover:bg-emerald-400 font-extrabold text-[11px] rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-md"
-                        >
-                          {copiedScriptId === `${robotScript.id}-varC` ? (
-                            <>
-                              <Check size={14} />
-                              <span>COPIADO P/ CAIXA 3!</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy size={14} />
-                              <span>COPIAR P/ CAIXA 3 DO ROBÔ</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </section>
-
-        {/* FERRAMENTA INTERATIVA BÔNUS 2: CALCULADORA DE ROI E PROSPECÇÃO */}
-        <section id="calculadora-roi" className="bg-[#111218] border border-emerald-500/30 rounded-2xl p-6 sm:p-8 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-            <div>
-              <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400">
-                <Calculator size={16} />
-                <span>FERRAMENTA INTERATIVA BÔNUS #2</span>
-              </div>
-              <h2 className="text-2xl font-bold text-white mt-1">
-                Calculadora de Prospecção & Metas de Vendas
-              </h2>
-            </div>
-            <span className="text-xs text-muted-foreground">
-              Planejamento Estratégico de Directs
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-6 space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase">
-                  Valor Médio do seu Produto / Serviço (R$)
-                </label>
-                <input
-                  type="number"
-                  value={ticketPrice}
-                  onChange={(e) => setTicketPrice(Number(e.target.value))}
-                  className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:border-emerald-500 outline-none"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase">
-                  Sua Meta de Faturamento Mensal (R$)
-                </label>
-                <input
-                  type="number"
-                  value={monthlyGoal}
-                  onChange={(e) => setMonthlyGoal(Number(e.target.value))}
-                  className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:border-emerald-500 outline-none"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-muted-foreground uppercase">
-                  Taxa Estimada de Conversão do Direct (%)
-                </label>
-                <input
-                  type="number"
-                  step="0.5"
-                  value={conversionRate}
-                  onChange={(e) => setConversionRate(Number(e.target.value))}
-                  className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:border-emerald-500 outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="lg:col-span-6 bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 space-y-4">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-                Resultado do seu Planejamento:
-              </h4>
-
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div className="bg-[#111218] p-4 rounded-xl border border-white/10">
-                  <span className="text-2xl font-extrabold text-white">
-                    {calculatedMetrics.neededSales}
-                  </span>
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    Vendas Necessárias/Mês
-                  </p>
-                </div>
-
-                <div className="bg-[#111218] p-4 rounded-xl border border-white/10">
-                  <span className="text-2xl font-extrabold text-emerald-400">
-                    {calculatedMetrics.neededDirectsDay}
-                  </span>
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    Directs por Dia
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3 text-xs text-emerald-300">
-                <Flame size={20} className="shrink-0 text-emerald-400" />
-                <span>
-                  Recomendação: Utilize <strong>{calculatedMetrics.recommendedProfiles} perfil(is)</strong> no robô enviando cerca de 40 directs/dia em cada perfil para atingir a meta com segurança.
-                </span>
               </div>
             </div>
           </div>
@@ -1716,40 +786,79 @@ function MembrosPage() {
                 <span>OUTRAS SOLUÇÕES & BIBLIOTECA DE RECURSOS</span>
               </div>
               <h2 className="text-2xl font-bold text-white">
-                Outros Produtos & Bônus RDG Digital
+                Outros Softwares & Bônus RDG Digital
               </h2>
             </div>
-            <span className="text-xs text-muted-foreground bg-amber-500/10 text-amber-300 px-3 py-1.5 rounded-lg border border-amber-500/20">
-              Acesso Especial
-            </span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Produto 1: Pack de Prompts IA para Ensaios (Link direto para /prompts-instagram) */}
+            {/* Card Software Prospecção B2B */}
+            <div className="bg-gradient-to-b from-[#181928] to-[#111218] border border-primary/30 hover:border-primary/60 rounded-2xl p-6 flex flex-col justify-between transition-all space-y-4 group">
+              <div className="space-y-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center">
+                  <Search size={20} />
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold text-primary bg-primary/10 rounded-full border border-primary/20">
+                  <span>SOFTWARE DE PROSPECÇÃO</span>
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors">
+                  Prospecção B2B Google Maps
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Localize empresas sem site no Google Maps, gere um modelo de site real em 1-clique e envie abordagens pelo WhatsApp.
+                </p>
+              </div>
+
+              <a
+                href="/prospeccao"
+                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all shadow-md shadow-primary/20"
+              >
+                <span>Acessar Ferramenta de Prospecção</span>
+                <ChevronRight size={14} />
+              </a>
+            </div>
+
+            {/* Plataforma de Cursos RDG */}
+            <div className="bg-gradient-to-b from-[#1A1628] to-[#10101C] border border-primary/30 hover:border-primary/60 rounded-2xl p-6 flex flex-col justify-between hover:shadow-2xl hover:shadow-primary/10 transition-all space-y-4 group">
+              <div className="space-y-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary border border-primary/30 flex items-center justify-center">
+                  <Tv size={20} />
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold text-primary bg-primary/10 rounded-full border border-primary/20">
+                  <span>DISPONÍVEL NO SEU PLANO</span>
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors">
+                  Plataforma de Cursos RDG
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Cursos de tráfego pago, criação de criativos, CapCut, copy e VSL.
+                </p>
+              </div>
+
+              <a
+                href="/cursos"
+                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-white/5 hover:bg-white/10 text-white font-bold text-xs rounded-xl border border-white/10 transition-all"
+              >
+                <span>Acessar Cursos</span>
+                <ChevronRight size={14} />
+              </a>
+            </div>
+
+            {/* Produto 3: Pack de Prompts */}
             <div className="bg-gradient-to-b from-[#14151F] to-[#111218] border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/40 transition-all space-y-4 group">
               <div className="space-y-3">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center">
                   <Camera size={20} />
                 </div>
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold text-amber-400 bg-amber-500/10 rounded-full border border-amber-500/20">
-                  <span>DISPONÍVEL NO SEU PLANO</span>
+                  <span>BIBLIOTECA DE PROMPTS</span>
                 </div>
                 <h3 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors">
-                  Biblioteca de +700 Prompts de IA para Ensaios Fotográficos
+                  Prompts de IA (+700)
                 </h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Acesse nossa biblioteca interativa com +700 prompts prontos para gerar fotos profissionais com IA para seu perfil ou vender ensaios para clientes com o Google Gemini (Grátis).
+                  Prompts prontos para gerar fotos profissionais com IA no Google Gemini.
                 </p>
-
-                {/* Prévia Visual da Biblioteca de Prompts */}
-                <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 group-hover:border-amber-500/30 transition-all bg-black/40 shadow-inner">
-                  <img
-                    src="/preview-prompts.png"
-                    alt="Prévia da Biblioteca de Prompts de IA"
-                    className="w-full h-full object-cover object-top transform group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-                </div>
               </div>
 
               <a
@@ -1758,150 +867,10 @@ function MembrosPage() {
                 rel="noopener noreferrer"
                 className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-bold text-xs rounded-xl transition-all"
               >
-                <span>Acessar Biblioteca de Prompts (+700)</span>
+                <span>Acessar Prompts</span>
                 <ExternalLink size={14} />
               </a>
             </div>
-
-            {/* Plataforma de Cursos RDG */}
-            <div className="bg-gradient-to-b from-[#1A1628] to-[#10101C] border border-primary/30 hover:border-primary/60 rounded-2xl p-6 flex flex-col justify-between hover:shadow-2xl hover:shadow-primary/10 transition-all space-y-4 group relative overflow-hidden">
-              {/* Glow effect */}
-              <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-violet-500/5 rounded-full blur-2xl pointer-events-none" />
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary border border-primary/30 flex items-center justify-center">
-                    <Tv size={20} />
-                  </div>
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">
-                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                    AO VIVO
-                  </div>
-                </div>
-
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold text-primary bg-primary/10 rounded-full border border-primary/20">
-                  <span>DISPONÍVEL NO SEU PLANO</span>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-black text-white group-hover:text-primary transition-colors leading-tight">
-                    Cursos Completos para Faturar Mais
-                  </h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed mt-2">
-                    Plataforma exclusiva com cursos de tráfego pago, criação de criativos, CapCut, copy e muito mais. Novos cursos adicionados regularmente.
-                  </p>
-                </div>
-
-                {/* Mini course grid preview */}
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { label: "Criativos & CapCut", icon: "🎬", color: "from-violet-500/20 to-primary/10" },
-                    { label: "Copy & VSL", icon: "✍️", color: "from-blue-500/20 to-cyan-500/10" },
-                    { label: "Tráfego Pago", icon: "📈", color: "from-emerald-500/20 to-teal-500/10" },
-                    { label: "+ Novos Cursos", icon: "🔒", color: "from-white/5 to-white/[0.02]" },
-                  ].map((c, i) => (
-                    <div key={i} className={`bg-gradient-to-br ${c.color} border border-white/10 rounded-xl px-3 py-2.5 flex items-center gap-2`}>
-                      <span className="text-base">{c.icon}</span>
-                      <span className="text-[11px] font-bold text-white/80 leading-tight">{c.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <a
-                href="/cursos"
-                className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 bg-primary text-primary-foreground font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all transform hover:scale-[1.02] shadow-lg shadow-primary/20"
-              >
-                <Tv size={14} />
-                <span>Acessar Plataforma de Cursos</span>
-                <ChevronRight size={14} />
-              </a>
-            </div>
-
-            {/* Produto 2: Manual Antibloqueio (Link direto para o PDF gerado no Gamma) */}
-            <div className="bg-gradient-to-b from-[#14151F] to-[#111218] border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/40 transition-all space-y-4 group">
-              <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
-                  <BookOpen size={20} />
-                </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold text-indigo-400 bg-indigo-500/10 rounded-full border border-indigo-500/20">
-                  <span>E-BOOK VIP</span>
-                </div>
-                <h3 className="text-lg font-bold text-white group-hover:text-indigo-300 transition-colors">
-                  Manual de Aquecimento & Escala Sem Bloqueios 2026
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Guia completo de boas práticas: saiba a esteira de aquecimento correta para novas contas do Instagram e os limites recomendados por perfil.
-                </p>
-
-                {/* Prévia Visual do E-Book VIP */}
-                <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 group-hover:border-indigo-500/30 transition-all bg-black/40 shadow-inner">
-                  <img
-                    src="/preview-ebook.png"
-                    alt="Prévia do Manual de Aquecimento & Escala 2026"
-                    className="w-full h-full object-cover object-top transform group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-                </div>
-              </div>
-
-              <a
-                href="https://gamma.app/docs/Manual-de-Aquecimento-Escala-Sem-Bloqueios-2026-doflji8lkd3w9bb"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 font-bold text-xs rounded-xl transition-all"
-              >
-                <span>Abrir E-Book / PDF Completo</span>
-                <ExternalLink size={14} />
-              </a>
-            </div>
-
-          </div>
-        </section>
-
-
-        {/* FAQ & TROUBLESHOOTING */}
-        <section id="faq" className="space-y-6 pt-4">
-          <div className="text-center space-y-2">
-            <h3 className="text-xl font-bold text-white flex items-center justify-center gap-2">
-              <HelpCircle className="text-primary" size={22} />
-              <span>Perguntas Frequentes & Solução de Dúvidas</span>
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
-              {
-                q: "O Windows ou o Antivírus deu aviso ao baixar?",
-                a: "Por se tratar de um instalador automatizado em arquivo .bat, o Windows Defender pode solicitar confirmação. Clique em 'Mais Informações' -> 'Executar Assim Mesmo'. O robô é 100% seguro.",
-              },
-              {
-                q: "Preciso baixar o instalador de novo quando houver atualizações?",
-                a: "Não! Basta abrir o atalho 'RDG Atualizador' no seu Desktop. Ele baixa a versão mais recente e substitui os arquivos em 2 segundos sem perder seus perfis.",
-              },
-              {
-                q: "Como sei quando minha licença expira?",
-                a: `No topo desta página e na aba 'Licença & Contas' do programa é exibido o tempo de validade da sua chave (${valInfo?.text || "Ativa"}).`,
-              },
-              {
-                q: "Como evito bloqueios no Instagram?",
-                a: "Siga as recomendações da Aula 04 do treinamento: configure intervalos seguros de envio (de 60s a 120s entre diretos) e alterne os textos da mensagem.",
-              },
-            ].map((faq, idx) => (
-              <div
-                key={idx}
-                className="bg-[#111218] border border-white/10 rounded-xl p-5 space-y-2"
-              >
-                <h4 className="font-bold text-white text-sm flex items-start gap-2">
-                  <Info size={16} className="text-primary shrink-0 mt-0.5" />
-                  <span>{faq.q}</span>
-                </h4>
-                <p className="text-xs text-muted-foreground leading-relaxed pl-6">
-                  {faq.a}
-                </p>
-              </div>
-            ))}
           </div>
         </section>
 
@@ -1911,7 +880,7 @@ function MembrosPage() {
             Ainda tem alguma dúvida ou precisa de suporte técnico?
           </h3>
           <p className="text-xs text-muted-foreground max-w-md mx-auto">
-            Nossa equipe de suporte técnico VIP está disponível no WhatsApp para te ajudar em todas as etapas da instalação e configuração.
+            Nossa equipe de suporte técnico VIP está disponível no WhatsApp para te ajudar.
           </p>
 
           <a
@@ -1928,7 +897,7 @@ function MembrosPage() {
 
       {/* Mini Footer */}
       <footer className="border-t border-white/5 py-6 text-center text-xs text-muted-foreground">
-        <p>© 2026 RDG Digital. Todos os direitos reservados. RDG instaPRO — Automação Inteligente.</p>
+        <p>© 2026 RDG Digital. Todos os direitos reservados. Plataforma de Softwares & Prospecção.</p>
       </footer>
     </div>
   );
