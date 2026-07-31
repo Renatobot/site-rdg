@@ -87,6 +87,30 @@ function MembrosPage() {
   const [introVideoUrl, setIntroVideoUrl] = useState<string>("https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d");
   const [isNavOpen, setIsNavOpen] = useState<boolean>(false);
 
+  // PLR Course State
+  const [activeCourseModule, setActiveCourseModule] = useState<number>(0);
+  const [activeCourseVideoIdx, setActiveCourseVideoIdx] = useState<number>(0);
+
+  const COURSE_MODULES = [
+    {
+      title: "Módulo 1: Introdução",
+      videos: [
+        { id: "aula-1", title: "Aula 1: O que é PLR?", duration: "10:00", url: "" },
+        { id: "aula-2", title: "Aula 2: Direitos de Revenda", duration: "15:00", url: "" }
+      ]
+    },
+    {
+      title: "Módulo 2: Configuração",
+      videos: [
+        { id: "aula-3", title: "Aula 3: Hospedagem e Domínio", duration: "12:00", url: "" },
+        { id: "aula-4", title: "Aula 4: Subindo os Arquivos", duration: "20:00", url: "" }
+      ]
+    }
+  ];
+
+  const currentCourseVideo = COURSE_MODULES[activeCourseModule]?.videos[activeCourseVideoIdx];
+
+
   // Script & Robot Generator Enhanced State
   const [generatorMode, setGeneratorMode] = useState<"abordagem" | "robo">("abordagem");
   const [selectedSegment, setSelectedSegment] = useState<string>("servicos");
@@ -695,6 +719,7 @@ function MembrosPage() {
                   { href: "#gerador-scripts", label: "Gerador de Scripts & Spintax", icon: MessageCircle },
                   { href: "#calculadora-roi", label: "Calculadora de Metas & ROI", icon: Calculator },
                   { href: "#outros-produtos", label: "Prompts (+700) & E-Book VIP", icon: Camera },
+                  { href: "#curso-plr", label: "Curso PLR em Vídeo (Bônus)", icon: Video },
                   { href: "#faq", label: "Perguntas Frequentes & Suporte", icon: HelpCircle },
                 ].map((item, idx) => (
                   <a
@@ -1796,6 +1821,145 @@ function MembrosPage() {
               </a>
             </div>
 
+          </div>
+        </section>
+
+        {/* BÔNUS: CURSO PLR EM VÍDEO (GOOGLE DRIVE PLAYER) */}
+        <section id="curso-plr" className="bg-[#111218] border border-cyan-500/30 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4 relative z-10">
+            <div>
+              <div className="inline-flex items-center gap-2 text-xs font-bold text-cyan-400">
+                <Video size={16} />
+                <span>BÔNUS EXCLUSIVO LIBERADO</span>
+              </div>
+              <h2 className="text-2xl font-bold text-white mt-1">
+                Treinamento: PLR em Vídeo Completo
+              </h2>
+            </div>
+            <span className="text-[10px] text-cyan-400 bg-cyan-500/10 px-3 py-1.5 rounded-lg border border-cyan-500/20 font-bold uppercase tracking-wider">
+              {COURSE_MODULES.length} Módulos Disponíveis
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+            {/* Sidebar Módulos (Estilo Hotmart) */}
+            <div className="lg:col-span-4 bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden h-fit sm:max-h-[500px] sm:overflow-y-auto">
+              <div className="p-4 bg-[#111218] border-b border-white/10 sticky top-0 z-10">
+                <h3 className="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                  <BookOpen size={16} className="text-cyan-400" />
+                  <span>Conteúdo do Curso</span>
+                </h3>
+              </div>
+              
+              <div className="divide-y divide-white/5">
+                {COURSE_MODULES.map((module, mIdx) => (
+                  <div key={mIdx} className="bg-[#0A0A0A]">
+                    <div className="px-4 py-3 bg-white/[0.02] flex items-center justify-between">
+                      <span className="text-xs font-bold text-white/90">{module.title}</span>
+                      <span className="text-[10px] text-muted-foreground">{module.videos.length} aulas</span>
+                    </div>
+                    <div className="flex flex-col">
+                      {module.videos.map((video, vIdx) => {
+                        const isActive = activeCourseModule === mIdx && activeCourseVideoIdx === vIdx;
+                        return (
+                          <button
+                            key={video.id}
+                            onClick={() => {
+                              setActiveCourseModule(mIdx);
+                              setActiveCourseVideoIdx(vIdx);
+                              document.getElementById("plr-player")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                            }}
+                            className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors border-l-2 ${
+                              isActive
+                                ? "bg-cyan-500/10 border-cyan-400 hover:bg-cyan-500/15"
+                                : "border-transparent hover:bg-white/5"
+                            }`}
+                          >
+                            <div className={`mt-0.5 shrink-0 ${isActive ? "text-cyan-400" : "text-muted-foreground"}`}>
+                              {isActive ? <Play size={14} fill="currentColor" /> : <Video size={14} />}
+                            </div>
+                            <div className="space-y-1">
+                              <p className={`text-xs font-semibold ${isActive ? "text-white" : "text-muted-foreground"}`}>
+                                {video.title}
+                              </p>
+                              <span className="text-[10px] text-muted-foreground/60 flex items-center gap-1">
+                                <Clock size={10} />
+                                {video.duration}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Video Player Principal */}
+            <div className="lg:col-span-8 flex flex-col gap-4" id="plr-player">
+              <div className="relative aspect-video bg-black border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                {currentCourseVideo?.url ? (
+                  <iframe
+                    src={currentCourseVideo.url}
+                    className="w-full h-full border-0"
+                    allow="autoplay; fullscreen"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0A0A0A] space-y-4 p-6 text-center">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-muted-foreground">
+                      <Play size={32} />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold">{currentCourseVideo?.title}</h4>
+                      <p className="text-xs text-muted-foreground mt-1">Aguardando a inclusão do vídeo no Google Drive...</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="bg-[#0A0A0A] border border-white/10 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-base font-extrabold text-white">{currentCourseVideo?.title}</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Módulo atual: {COURSE_MODULES[activeCourseModule]?.title}</p>
+                </div>
+                
+                {/* Controles Próximo/Anterior (Simplificados) */}
+                <div className="flex items-center gap-2 shrink-0">
+                  <button 
+                    disabled={activeCourseModule === 0 && activeCourseVideoIdx === 0}
+                    onClick={() => {
+                      if (activeCourseVideoIdx > 0) {
+                        setActiveCourseVideoIdx(prev => prev - 1);
+                      } else if (activeCourseModule > 0) {
+                        setActiveCourseModule(prev => prev - 1);
+                        setActiveCourseVideoIdx(COURSE_MODULES[activeCourseModule - 1].videos.length - 1);
+                      }
+                    }}
+                    className="px-3 py-2 bg-white/5 hover:bg-white/10 disabled:opacity-50 text-xs font-bold rounded-lg border border-white/10 transition-colors"
+                  >
+                    Anterior
+                  </button>
+                  <button 
+                    disabled={activeCourseModule === COURSE_MODULES.length - 1 && activeCourseVideoIdx === COURSE_MODULES[activeCourseModule].videos.length - 1}
+                    onClick={() => {
+                      if (activeCourseVideoIdx < COURSE_MODULES[activeCourseModule].videos.length - 1) {
+                        setActiveCourseVideoIdx(prev => prev + 1);
+                      } else if (activeCourseModule < COURSE_MODULES.length - 1) {
+                        setActiveCourseModule(prev => prev + 1);
+                        setActiveCourseVideoIdx(0);
+                      }
+                    }}
+                    className="px-3 py-2 bg-cyan-500 hover:bg-cyan-400 text-black disabled:opacity-50 text-xs font-extrabold rounded-lg transition-colors"
+                  >
+                    Próxima Aula
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
