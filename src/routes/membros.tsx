@@ -1723,7 +1723,7 @@ function MembrosPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Produto 1: Pack de Prompts IA para Ensaios (Link direto para /prompts-instagram) */}
             <div className="bg-gradient-to-b from-[#14151F] to-[#111218] border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-amber-500/40 transition-all space-y-4 group">
               <div className="space-y-3">
@@ -1759,6 +1759,54 @@ function MembrosPage() {
               >
                 <span>Acessar Biblioteca de Prompts (+700)</span>
                 <ExternalLink size={14} />
+              </a>
+            </div>
+
+            {/* Produto Novo: Formação de Criativos e CapCut */}
+            <div className="bg-gradient-to-b from-[#1E1B29] to-[#12101C] border border-primary/20 hover:border-primary/50 rounded-2xl p-6 flex flex-col justify-between hover:shadow-2xl hover:shadow-primary/5 transition-all space-y-4 group relative overflow-hidden">
+              {/* Premium Glow effect */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+              
+              <div className="space-y-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary border border-primary/30 flex items-center justify-center">
+                  <Tv size={20} />
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold text-primary bg-primary/10 rounded-full border border-primary/20">
+                  <span>DISPONÍVEL NO SEU PLANO</span>
+                </div>
+                <h3 className="text-lg font-bold text-white group-hover:text-primary transition-colors">
+                  Curso de Criação de Criativos & Edição no CapCut
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Aprenda a criar roteiros altamente persuasivos e edite criativos/VSLs que convertem no CapCut. Acesso completo a 4 módulos com materiais de apoio inclusos.
+                </p>
+
+                {/* Video Lessons Preview Card */}
+                <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 group-hover:border-primary/30 transition-all bg-black/40 shadow-inner">
+                  <img
+                    src="/capa-capcut-2.png"
+                    alt="Prévia do Curso de CapCut e Criativos"
+                    className="w-full h-full object-cover object-top transform group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+                  
+                  {/* Badge overlays on preview */}
+                  <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center text-[10px] font-extrabold text-white bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/5">
+                    <span className="flex items-center gap-1">
+                      <BookOpen size={10} className="text-primary" />
+                      4 Módulos Completos
+                    </span>
+                    <span className="text-primary">Acessar Aulas</span>
+                  </div>
+                </div>
+              </div>
+
+              <a
+                href="/cursos"
+                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-primary text-primary-foreground font-bold text-xs rounded-xl hover:bg-primary/90 transition-all transform hover:scale-[1.01]"
+              >
+                <span>Acessar Formação Premium</span>
+                <ChevronRight size={14} />
               </a>
             </div>
 
