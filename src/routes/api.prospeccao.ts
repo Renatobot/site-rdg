@@ -19,6 +19,7 @@ export interface LeadItem {
   has_instagram: boolean;
   instagram_handle: string | null;
   google_maps_url: string;
+  photos?: string[];
   status?: LeadStatus;
   is_mock?: boolean;
 }
@@ -66,17 +67,27 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
             let phone = place.formatted_phone_number || "Não informado";
             let websiteUrl: string | null = place.website || null;
             let internationalPhone = "";
+            let placePhotos: string[] = [];
 
             if (place.place_id) {
               try {
-                const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=formatted_phone_number,international_phone_number,website,url&language=pt-BR&key=${apiKey}`;
+                // Solicitar photos também do perfil do Google Maps
+                const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=formatted_phone_number,international_phone_number,website,url,photos&language=pt-BR&key=${apiKey}`;
                 const detailsRes = await fetch(detailsUrl);
                 const detailsData = await detailsRes.json();
+
                 if (detailsData.result) {
                   phone = detailsData.result.formatted_phone_number || detailsData.result.international_phone_number || phone;
                   internationalPhone = detailsData.result.international_phone_number || "";
                   if (detailsData.result.website) {
                     websiteUrl = detailsData.result.website;
+                  }
+
+                  // Extrair fotos reais do Google Maps
+                  if (Array.isArray(detailsData.result.photos) && detailsData.result.photos.length > 0) {
+                    placePhotos = detailsData.result.photos.slice(0, 6).map(
+                      (p: any) => `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${p.photo_reference}&key=${apiKey}`
+                    );
                   }
                 }
               } catch (e) {
@@ -113,6 +124,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
               has_instagram: hasInstagram,
               instagram_handle: hasInstagram ? "@empresa" : "Não possui Instagram",
               google_maps_url: place.url || `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
+              photos: placePhotos,
               status: "novo",
               is_mock: false,
             };

@@ -6,14 +6,14 @@ import {
   Star,
   MessageCircle,
   ShieldCheck,
-  Calendar,
   Clock,
   CheckCircle2,
   Award,
   Users,
   ChevronRight,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Camera
 } from "lucide-react";
 
 const TITLE = "Demonstração de Website — RDG Digital";
@@ -31,6 +31,7 @@ export interface DemoSearchParams {
   raw_phone?: string;
   rating?: string;
   reviews?: string;
+  photos?: string;
 }
 
 export const Route = createFileRoute("/demo")({
@@ -44,6 +45,7 @@ export const Route = createFileRoute("/demo")({
       raw_phone: typeof search.raw_phone === "string" ? search.raw_phone : "",
       rating: typeof search.rating === "string" ? search.rating : "4.9",
       reviews: typeof search.reviews === "string" ? search.reviews : "249",
+      photos: typeof search.photos === "string" ? search.photos : "",
     };
   },
   head: () => ({
@@ -53,7 +55,7 @@ export const Route = createFileRoute("/demo")({
   component: FullSiteDemoPage,
 });
 
-// Imagens em alta resolução do Unsplash por Categoria
+// Imagens em alta resolução do Unsplash por Categoria (Fallback)
 const CATEGORY_IMAGES: Record<string, { hero: string; gallery: string[]; services: { title: string; desc: string }[] }> = {
   imobiliaria: {
     hero: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
@@ -148,6 +150,19 @@ function FullSiteDemoPage() {
   const rating = search.rating || "4.9";
   const reviews = search.reviews || "249";
 
+  // Parse de fotos reais do perfil do Google Maps
+  let realGooglePhotos: string[] = [];
+  if (search.photos) {
+    try {
+      const parsed = JSON.parse(search.photos);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        realGooglePhotos = parsed;
+      }
+    } catch (e) {
+      console.error("Erro ao ler fotos do Google Maps:", e);
+    }
+  }
+
   const defaultMsg = encodeURIComponent(`Olá! Vi o site oficial da *${nome}* e gostaria de agendar um atendimento.`);
   const waUrl = `https://wa.me/${waNum}?text=${defaultMsg}`;
 
@@ -157,6 +172,10 @@ function FullSiteDemoPage() {
   ) || "default";
 
   const assets = CATEGORY_IMAGES[catKey] || CATEGORY_IMAGES["default"];
+
+  // Usar fotos reais do Google Maps se disponíveis!
+  const heroImage = realGooglePhotos.length > 0 ? realGooglePhotos[0] : assets.hero;
+  const galleryImages = realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 4) : assets.gallery;
 
   return (
     <div className="min-h-screen bg-[#07080D] text-white flex flex-col font-sans selection:bg-primary/30">
@@ -212,7 +231,7 @@ function FullSiteDemoPage() {
       <section className="relative min-h-[550px] flex items-center justify-center overflow-hidden py-20 px-6">
         <div className="absolute inset-0 z-0">
           <img
-            src={assets.hero}
+            src={heroImage}
             alt={nome}
             className="w-full h-full object-cover object-center filter brightness-40"
           />
@@ -223,6 +242,12 @@ function FullSiteDemoPage() {
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full text-xs font-bold text-white/90 shadow-xl">
             <Star size={14} className="text-yellow-400" fill="currentColor" />
             <span>{rating} no Google Maps ({reviews} avaliações de clientes)</span>
+            {realGooglePhotos.length > 0 && (
+              <span className="ml-2 text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <Camera size={10} />
+                <span>Fotos Reais do Local</span>
+              </span>
+            )}
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
@@ -331,16 +356,23 @@ function FullSiteDemoPage() {
       <section className="py-16 bg-[#0E0F17] border-y border-white/10 px-6">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="text-center space-y-2">
-            <h3 className="text-xl sm:text-3xl font-black text-white">Conheça Nossa Estrutura</h3>
-            <p className="text-xs text-white/50">Ambiente preparado para oferecer o máximo conforto e segurança</p>
+            <h3 className="text-xl sm:text-3xl font-black text-white flex items-center justify-center gap-2">
+              <span>Conheça Nossa Estrutura</span>
+              {realGooglePhotos.length > 0 && (
+                <span className="text-xs font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+                  FOTOS REAIS DO GOOGLE MAPS
+                </span>
+              )}
+            </h3>
+            <p className="text-xs text-white/50">Ambiente preparado para oferecer o máximo conforto e segurança em {cidade}</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {assets.gallery.map((img, idx) => (
+            {galleryImages.map((img, idx) => (
               <div key={idx} className="h-64 rounded-2xl overflow-hidden border border-white/10 group relative">
                 <img
                   src={img}
-                  alt={`${nome} galeria ${idx + 1}`}
+                  alt={`${nome} foto ${idx + 1}`}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 filter brightness-90 group-hover:brightness-100"
                 />
               </div>

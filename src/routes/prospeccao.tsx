@@ -27,7 +27,8 @@ import {
   Grid,
   ExternalLink,
   AlertTriangle,
-  Flame
+  Flame,
+  Image as ImageIcon
 } from "lucide-react";
 
 const TITLE = "Ferramenta de Prospecção B2B Google Maps — RDG Digital";
@@ -213,6 +214,11 @@ function ProspeccaoPage() {
       rating: String(lead.rating),
       reviews: String(lead.user_ratings_total),
     });
+
+    if (Array.isArray(lead.photos) && lead.photos.length > 0) {
+      params.set("photos", JSON.stringify(lead.photos));
+    }
+
     return `${window.location.origin}/demo?${params.toString()}`;
   };
 
@@ -532,7 +538,7 @@ function ProspeccaoPage() {
               <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-white/10">
                 <Loader2 size={36} className="animate-spin text-primary mx-auto" />
                 <p className="text-sm font-bold text-white">Buscando empresas no Google Maps...</p>
-                <p className="text-xs text-white/40">Filtrando telefones e presenças digitais</p>
+                <p className="text-xs text-white/40">Filtrando telefones e fotos reais da estrutura</p>
               </div>
             ) : leads.length === 0 ? (
               <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-white/10 p-6">
@@ -818,6 +824,12 @@ function ProspeccaoPage() {
                 <p>📍 <strong>Localização:</strong> {selectedDemoLead.address}</p>
                 <p>⭐ <strong>Avaliação Google:</strong> {selectedDemoLead.rating} de 5.0 ({selectedDemoLead.user_ratings_total} avaliações)</p>
                 <p>📞 <strong>Contato Direto:</strong> {selectedDemoLead.phone}</p>
+                {Array.isArray(selectedDemoLead.photos) && selectedDemoLead.photos.length > 0 && (
+                  <p className="text-emerald-400 flex items-center gap-1 font-bold pt-1">
+                    <ImageIcon size={12} />
+                    <span>{selectedDemoLead.photos.length} Fotos Reais do Perfil do Google Maps Integradas ao Site!</span>
+                  </p>
+                )}
               </div>
 
               <div className="pt-2 flex flex-col sm:flex-row gap-3">
@@ -940,15 +952,10 @@ function LeadCard({
               </span>
             )}
 
-            {lead.has_instagram ? (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-pink-400 bg-pink-500/10 px-2.5 py-0.5 rounded-full border border-pink-500/20">
-                <Instagram size={10} />
-                <span>Instagram Ativo</span>
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white/40 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10">
-                <Instagram size={10} />
-                <span>Não possui Instagram</span>
+            {Array.isArray(lead.photos) && lead.photos.length > 0 && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                <ImageIcon size={10} />
+                <span>{lead.photos.length} Fotos do Google</span>
               </span>
             )}
           </div>
