@@ -52,7 +52,6 @@ export const Route = createFileRoute("/api/prospeccao")({
             const searchData = await searchRes.json();
 
             if (searchData.status === "OK" && Array.isArray(searchData.results)) {
-              // Buscar detalhes estendidos (Telefone/Website) em paralelo para máxima velocidade
               const placesSlice = searchData.results.slice(0, 20);
 
               const leadsPromises = placesSlice.map(async (place: any) => {
@@ -113,18 +112,28 @@ export const Route = createFileRoute("/api/prospeccao")({
                 return lead;
               });
 
-              let leads: LeadItem[] = await Promise.all(leadsPromises);
+              let allLeads: LeadItem[] = await Promise.all(leadsPromises);
 
+              // Ordenar: Empresas SEM website em 1º lugar (Oportunidades de ouro)
+              allLeads.sort((a, b) => (a.has_website === b.has_website ? 0 : a.has_website ? 1 : -1));
+
+              let finalLeads = allLeads;
               if (onlyNoWebsite) {
-                leads = leads.filter((l) => !l.has_website);
+                const noWebOnly = allLeads.filter((l) => !l.has_website);
+                // Se existirem empresas sem site, retornar apenas elas. Se não, retornar todas ordenadas por oportunidade.
+                if (noWebOnly.length > 0) {
+                  finalLeads = noWebOnly;
+                }
               }
 
               return new Response(
                 JSON.stringify({
                   status: "success",
                   source: "google_api",
-                  total: leads.length,
-                  leads,
+                  total: finalLeads.length,
+                  all_total: allLeads.length,
+                  no_web_total: allLeads.filter((l) => !l.has_website).length,
+                  leads: finalLeads,
                 }),
                 {
                   status: 200,
@@ -138,7 +147,7 @@ export const Route = createFileRoute("/api/prospeccao")({
                   source: "google_api",
                   total: 0,
                   leads: [],
-                  message: `Nenhuma empresa do nicho '${nicho}' sem site localizada em '${cidade}'.`,
+                  message: `Nenhuma empresa do nicho '${nicho}' localizada em '${cidade}'. Tente pesquisar com outro nome de bairro ou cidade.`,
                 }),
                 {
                   status: 200,
@@ -146,7 +155,6 @@ export const Route = createFileRoute("/api/prospeccao")({
                 }
               );
             } else if (searchData.status) {
-              // Retornar o erro do Google Places (REQUEST_DENIED, OVER_QUERY_LIMIT, etc)
               return new Response(
                 JSON.stringify({
                   status: "google_error",

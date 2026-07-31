@@ -26,7 +26,8 @@ import {
   Kanban,
   Grid,
   ExternalLink,
-  AlertTriangle
+  AlertTriangle,
+  Flame
 } from "lucide-react";
 
 const TITLE = "Ferramenta de Prospecção B2B Google Maps — RDG Digital";
@@ -57,7 +58,7 @@ function ProspeccaoPage() {
   const [nicho, setNicho] = useState<string>("Barbearia");
   const [cidade, setCidade] = useState<string>("São Paulo - SP");
   const [onlyNoWebsite, setOnlyNoWebsite] = useState<boolean>(true);
-  const [minRating, setMinRating] = useState<number>(4.0);
+  const [minRating, setMinRating] = useState<number>(0);
   const [apiKey, setApiKey] = useState<string>("");
   const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
 
@@ -471,7 +472,7 @@ function ProspeccaoPage() {
                   }}
                   className="rounded accent-primary w-4 h-4"
                 />
-                <span className="font-semibold text-white">Priorizar Empresas Sem Website</span>
+                <span className="font-semibold text-white">Priorizar Empresas Sem Website no Topo</span>
               </label>
 
               <div className="flex items-center gap-2">
@@ -485,7 +486,7 @@ function ProspeccaoPage() {
                   }}
                   className="bg-[#0A0A0A] border border-white/15 rounded-lg px-2.5 py-1 text-white font-bold outline-none"
                 >
-                  <option value={0}>Todas</option>
+                  <option value={0}>Todas as notas</option>
                   <option value={4.0}>⭐ 4.0+</option>
                   <option value={4.5}>⭐ 4.5+ (Melhores)</option>
                   <option value={4.8}>⭐ 4.8+ (Excelentes)</option>
@@ -540,8 +541,8 @@ function ProspeccaoPage() {
             ) : leads.length === 0 ? (
               <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-white/10 p-6">
                 <Search size={36} className="text-white/20 mx-auto" />
-                <p className="text-base font-bold text-white">Nenhum lead sem site localizado nesta região.</p>
-                <p className="text-xs text-white/40">Tente desmarcar a opção "Priorizar Empresas Sem Website" ou buscar por outra região/nicho.</p>
+                <p className="text-base font-bold text-white">Nenhum lead localizado para a busca atual.</p>
+                <p className="text-xs text-white/40">Tente buscar digitando o nome do bairro ou cidade próxima.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -889,7 +890,13 @@ function LeadCard({
   onOpenDemoModal: () => void;
 }) {
   return (
-    <div className="bg-[#111218] border border-white/10 hover:border-primary/40 rounded-2xl p-5 space-y-4 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 flex flex-col justify-between group">
+    <div
+      className={`bg-[#111218] border rounded-2xl p-5 space-y-4 transition-all duration-300 hover:shadow-xl flex flex-col justify-between group ${
+        !lead.has_website
+          ? "border-amber-500/40 hover:border-amber-500/80 hover:shadow-amber-500/10"
+          : "border-white/10 hover:border-primary/40 hover:shadow-primary/5"
+      }`}
+    >
       <div className="space-y-3">
         {/* Header do Card: Nome, Categoria e Rating */}
         <div className="flex items-start justify-between gap-3">
@@ -924,16 +931,16 @@ function LeadCard({
           </div>
 
           {/* Status do Instagram / Site */}
-          <div className="flex items-center gap-2 pt-1">
-            {lead.has_website ? (
+          <div className="flex items-center gap-2 pt-1 flex-wrap">
+            {!lead.has_website ? (
+              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-300 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">
+                <Flame size={10} className="text-amber-400" />
+                <span>OPORTUNIDADE DE OURO (Sem Website)</span>
+              </span>
+            ) : (
               <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20">
                 <Globe size={10} />
                 <span>Possui Website</span>
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
-                <Globe size={10} />
-                <span>Não possui Website</span>
               </span>
             )}
 
