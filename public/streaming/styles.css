@@ -257,15 +257,13 @@ video::-webkit-media-controls-fullscreen-button {
   overflow: hidden;
 }
 
-/* 3D Neon Glassmorphism & Outdoor Digital Ticker */
 .vip-neon-glass {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)) !important;
-  backdrop-filter: blur(28px) !important;
-  -webkit-backdrop-filter: blur(28px) !important;
-  border: 1px solid rgba(0, 220, 255, 0.25) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 0 25px rgba(0, 220, 255, 0.15) !important;
+  background: linear-gradient(to top, rgba(0, 220, 255, 0.15), rgba(0, 220, 255, 0.02)) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(0, 220, 255, 0.1) !important;
+  border-top: 2px solid #00dcff !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
 }
 
 .vip-glow-3d {

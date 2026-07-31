@@ -28,7 +28,7 @@
   <!-- HLS.js for Streaming Playback -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-  <link rel="stylesheet" href="/streaming/styles.css?v=28" />
+  <link rel="stylesheet" href="/streaming/styles.css?v=29" />
 </head>
 <body class="bg-[#070913] text-slate-100 font-sans min-h-screen flex flex-col overflow-x-hidden selection:bg-cyan-500 selection:text-black">
 
@@ -262,12 +262,10 @@
     <main class="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5">
       
       <!-- BANNER CONVERSÃO PLANO VIP (3D GLASSMORPHISM + NEON AURA + OUTDOOR DIGITAL) -->
-      <div id="vipPromoBanner" class="relative rounded-3xl vip-neon-glass p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 transition-all duration-500 group overflow-hidden">
+      <div id="vipPromoBanner" class="relative rounded-3xl vip-neon-glass p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 transition-all duration-500 group">
         
-        <!-- Glowing Neon 3D Aura Background (Pulsing) -->
+        <!-- Glowing Neon 3D Aura Background (Behind card) -->
         <div class="vip-glow-3d pointer-events-none"></div>
-        <div class="absolute -top-16 -right-16 w-64 h-64 bg-[#00dcff]/25 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
-        <div class="absolute -bottom-16 -left-16 w-64 h-64 bg-[#00c3ff]/20 rounded-full blur-3xl animate-pulse pointer-events-none" style="animation-delay:1.5s;"></div>
         
         <div class="flex items-start sm:items-center gap-4 z-10 flex-1">
           <!-- Crown Icon with Neon Badge -->
@@ -936,11 +934,8 @@
       <!-- 3D Glow Aura Behind Modal -->
       <div class="vip-glow-3d pointer-events-none"></div>
 
-      <div class="relative w-full vip-neon-glass rounded-3xl p-6 sm:p-8 space-y-6 overflow-hidden">
-        <!-- Glow background decoration spheres -->
-        <div class="absolute -top-24 -right-24 w-56 h-56 bg-[#00dcff]/25 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
-        <div class="absolute -bottom-24 -left-24 w-56 h-56 bg-[#00c3ff]/20 rounded-full blur-3xl pointer-events-none animate-pulse" style="animation-delay:1s;"></div>
-
+      <div class="relative w-full vip-neon-glass rounded-3xl p-6 sm:p-8 space-y-6">
+        
         <!-- Header -->
         <div class="flex items-center justify-between border-b border-white/10 pb-4 relative z-10">
           <div class="flex items-center gap-3">
