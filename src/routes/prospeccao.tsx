@@ -49,7 +49,7 @@ const SUPABASE_URL = "https://yyoffdpzzoxrgigqupif.supabase.co";
 const SUPABASE_KEY = "sb_publishable_Cv5IVbK2bpo5PwCq-1PK3Q_d-8NPI10";
 
 const WA_SUPORTE = waLink(
-  "Olá, equipe RDG Digital! Quero adquirir minha chave de acesso exclusiva para a Ferramenta de Prospecção B2B Google Maps."
+  "Olá, equipe RDG Digital! Quero adquirir a minha licença do Software de Prospecção B2B Google Maps."
 );
 
 export const Route = createFileRoute("/prospeccao")({
@@ -70,7 +70,7 @@ const KANBAN_COLUMNS: { id: LeadStatus; title: string; badgeColor: string; heade
 ];
 
 function ProspeccaoPage() {
-  // Autenticação de Rota / Validação de Licença da Ferramenta
+  // Autenticação de Rota / Validação de Licença Exclusiva da Ferramenta
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isVerifying, setIsVerifying] = useState<boolean>(true);
   const [licenseInputKey, setLicenseInputKey] = useState<string>("");
@@ -111,9 +111,9 @@ function ProspeccaoPage() {
   const [scriptLead, setScriptLead] = useState<LeadItem | null>(null);
   const [copiedScriptIndex, setCopiedScriptIndex] = useState<number | null>(null);
 
-  // Verificar Chave de Licença de Acesso à Ferramenta de Prospecção
+  // Verificar Chave de Licença de Acesso à Ferramenta de Prospecção (CHAVE ESPECÍFICA)
   useEffect(() => {
-    const savedLicense = localStorage.getItem("rdg_license_key") || localStorage.getItem("prospeccao_license_key");
+    const savedLicense = localStorage.getItem("prospeccao_license_key");
     if (savedLicense) {
       validateLicenseKey(savedLicense, true);
     } else {
@@ -138,7 +138,7 @@ function ProspeccaoPage() {
   const validateLicenseKey = async (keyToValidate: string, isAutoCheck = false) => {
     const cleanKey = keyToValidate.trim().toUpperCase();
     if (!cleanKey) {
-      setLicenseError("Digite sua chave de acesso para liberar a ferramenta.");
+      setLicenseError("Digite sua chave de acesso exclusiva da Prospecção B2B.");
       setIsVerifying(false);
       return;
     }
@@ -146,11 +146,20 @@ function ProspeccaoPage() {
     setIsVerifying(true);
     setLicenseError(null);
 
-    // Chaves Master / Dev de acesso imediato
+    // Chaves Master / Dev de acesso imediato a prospeccao
     if (cleanKey.startsWith("MAPS-") || cleanKey.startsWith("PROSPECT-") || cleanKey.startsWith("MASTER-") || cleanKey === "RDG-MASTER-PROSPECT") {
       setIsAuthenticated(true);
-      setUserClientName("Membro VIP");
-      localStorage.setItem("rdg_license_key", cleanKey);
+      setUserClientName("Membro Prospecção B2B");
+      localStorage.setItem("prospeccao_license_key", cleanKey);
+      setIsVerifying(false);
+      return;
+    }
+
+    // Rejeitar expressamente chaves padrao de Instagram (IG-) para forcar compra/ativacao da Prospeccao B2B
+    if (cleanKey.startsWith("IG-")) {
+      setLicenseError("Esta chave é do software de Instagram (instaPRO). Adquira a licença exclusiva do Software de Prospecção B2B.");
+      if (isAutoCheck) localStorage.removeItem("prospeccao_license_key");
+      setIsAuthenticated(false);
       setIsVerifying(false);
       return;
     }
@@ -174,44 +183,44 @@ function ProspeccaoPage() {
           const isExpired = lic.expires_at && new Date(lic.expires_at) < new Date();
           const prodClean = (lic.produto || "").toLowerCase();
 
-          // Verificar se a chave tem acesso especifico a prospeccao ou master
+          // Verificar estritamente se a chave pertence ao produto de Prospecção B2B ou Master
           const hasAccessToProspeccao =
             prodClean.includes("prospeccao") ||
             prodClean.includes("maps") ||
             prodClean.includes("master") ||
-            prodClean.includes("full") ||
-            lic.is_lifetime ||
             cleanKey.startsWith("MAPS-") ||
-            cleanKey.startsWith("IG-"); // Permitir chaves ativas do ecosistema RDG
+            cleanKey.startsWith("PROSPECT-");
 
           if (lic.status && lic.status.toLowerCase() === "inativo") {
-            setLicenseError("Esta chave de acesso encontra-se inativa. Fale com o suporte.");
-            if (isAutoCheck) localStorage.removeItem("rdg_license_key");
+            setLicenseError("Esta chave de licença está inativa. Fale com o suporte.");
+            if (isAutoCheck) localStorage.removeItem("prospeccao_license_key");
             setIsAuthenticated(false);
           } else if (isExpired) {
-            setLicenseError("Sua licença expirou. Faça a renovação com o suporte para continuar prospectando.");
-            if (isAutoCheck) localStorage.removeItem("rdg_license_key");
+            setLicenseError("Sua anuidade expirou. Faça a renovação da licença para continuar prospectando.");
+            if (isAutoCheck) localStorage.removeItem("prospeccao_license_key");
             setIsAuthenticated(false);
           } else if (!hasAccessToProspeccao) {
-            setLicenseError("Esta chave pertence a outro software RDG. Adquira o acesso exclusivo ao Software de Prospecção B2B.");
+            setLicenseError("Esta chave não possui permissão para o Software de Prospecção. Adquira a licença dedicada.");
+            if (isAutoCheck) localStorage.removeItem("prospeccao_license_key");
             setIsAuthenticated(false);
           } else {
             setIsAuthenticated(true);
-            setUserClientName(lic.cliente || "Membro VIP");
-            localStorage.setItem("rdg_license_key", cleanKey);
+            setUserClientName(lic.cliente || "Membro Prospecção B2B");
+            localStorage.setItem("prospeccao_license_key", cleanKey);
           }
         } else {
           setLicenseError(`Chave "${cleanKey}" não localizada. Verifique e tente novamente.`);
-          if (isAutoCheck) localStorage.removeItem("rdg_license_key");
+          if (isAutoCheck) localStorage.removeItem("prospeccao_license_key");
           setIsAuthenticated(false);
         }
       } else {
-        // Fallback de permissão se houver falha de rede
-        setIsAuthenticated(true);
+        setLicenseError("Erro de conexão com o servidor de licenças.");
+        setIsAuthenticated(false);
       }
     } catch (e) {
       console.error(e);
-      setIsAuthenticated(true);
+      setLicenseError("Erro ao validar licença. Verifique sua conexão com a internet.");
+      setIsAuthenticated(false);
     } finally {
       setIsVerifying(false);
     }
@@ -242,7 +251,6 @@ function ProspeccaoPage() {
       : "Demonstração ativa. Insira sua chave da Google Places API nas configurações para buscar dados ao vivo do Google.";
 
     try {
-      // Chamada direta da Server Function (TanStack Start RPC)
       const data = await getProspeccaoLeadsServerFn({
         data: {
           nicho: targetNicho,
@@ -377,7 +385,6 @@ function ProspeccaoPage() {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  // Gerador de Scripts de Abordagem Customizados
   const getSalesScripts = (lead: LeadItem) => {
     const demoUrl = buildDemoUrl(lead);
 
@@ -388,7 +395,7 @@ function ProspeccaoPage() {
         text: `Olá! Falei com a equipe do *${lead.name}*?\n\nEstava navegando no Google Maps na região de ${cidade} e notei que vocês têm uma excelente avaliação de ⭐ *${lead.rating} com ${lead.user_ratings_total} depoimentos positivos*, parabéns pelo ótimo trabalho!\n\nPorém, percebi que quando o cliente clica para ver o site de vocês, não há um link oficial para agendar ou ver os serviços.\n\nMontei uma demonstração de site oficial completa e personalizada para o *${lead.name}*, dá uma olhada como ficou incrível:\n👇\n${demoUrl}\n\nConsegue dar uma olhada e me dizer o que achou? Se gostar, ajustamos o que precisar!`,
       },
       {
-        title: "💡 Abordagem Consultiva (Foco em Vendas Perdiadas)",
+        title: "💡 Abordagem Consultiva (Foco em Vendas Perdidas)",
         type: "Consultative",
         text: `Olá! Tudo bem? Meu nome é Renato da RDG Digital.\n\nEstou fazendo um levantamento de empresas referência em ${lead.category} na região e encontrei o *${lead.name}*.\n\nVocês sabiam que hoje muitos clientes buscam no Google e acabam fechando com o concorrente por não encontrarem um site moderno com WhatsApp direto?\n\nPara ajudar vocês a não perderem mais essas vendas, preparei uma prévia de um site de alta conversão exclusivo para o *${lead.name}*:\n🔗 ${demoUrl}\n\nSe tiver 2 minutos, podemos conversar para colocá-lo no ar esta semana!`,
       },
@@ -400,7 +407,6 @@ function ProspeccaoPage() {
     ];
   };
 
-  // Drag and Drop Event Handlers
   const handleDragStart = (e: React.DragEvent, leadId: string) => {
     e.dataTransfer.setData("text/plain", leadId);
     setDraggedLeadId(leadId);
@@ -435,23 +441,21 @@ function ProspeccaoPage() {
     );
   }
 
-  // TELA DE BLOQUEIO DE ACESSO & UPSELL DA FERRAMENTA DE PROSPECÇÃO
+  // TELA DE BLOQUEIO DE ACESSO & UPSELL DA FERRAMENTA DE PROSPECÇÃO (BLOQUEADO MESMO PARA MEMBROS INSTAGRAM)
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white flex flex-col justify-between font-sans selection:bg-primary/30">
         <header className="px-6 py-5 border-b border-white/10 flex items-center justify-between">
-          <a href="/membros" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
+          <a href="/prospeccao-b2b" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
             <ArrowLeft size={16} />
-            <span>Voltar à Área de Membros</span>
+            <span>Página do Software</span>
           </a>
           <a
-            href={WA_SUPORTE}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/20 transition-all"
+            href="/prospeccao-b2b"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold text-primary bg-primary/10 border border-primary/20 rounded-xl hover:bg-primary/20 transition-all"
           >
-            <MessageCircle size={14} />
-            <span>Suporte no WhatsApp</span>
+            <Sparkles size={14} />
+            <span>Conhecer Planos</span>
           </a>
         </header>
 
@@ -464,10 +468,10 @@ function ProspeccaoPage() {
                 <Lock size={26} />
               </div>
               <h1 className="text-2xl font-black text-white tracking-tight">
-                Software de Prospecção B2B
+                Acesso Restrito ao Software
               </h1>
               <p className="text-xs text-white/60 leading-relaxed">
-                Digite sua <strong>Chave de Acesso Exclusiva</strong> da Ferramenta de Prospecção B2B Google Maps para liberar o sistema.
+                Este software é uma solução independente. Digite sua <strong>Chave de Licença Exclusiva da Prospecção B2B</strong> para ativar.
               </p>
             </div>
 
@@ -487,7 +491,7 @@ function ProspeccaoPage() {
             >
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
-                  Chave de Licença do Software (Key)
+                  Chave da Prospecção B2B (Key)
                 </label>
                 <div className="relative">
                   <Key size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
@@ -515,7 +519,7 @@ function ProspeccaoPage() {
                 ) : (
                   <>
                     <UserCheck size={18} />
-                    <span>Liberar Acesso ao Software</span>
+                    <span>Ativar Licença da Prospecção</span>
                   </>
                 )}
               </button>
@@ -523,20 +527,18 @@ function ProspeccaoPage() {
 
             <div className="pt-5 border-t border-white/10 text-center space-y-3">
               <div className="space-y-1">
-                <p className="text-xs font-bold text-white">Ainda não possui o Software de Prospecção?</p>
+                <p className="text-xs font-bold text-white">Ainda não possui a Licença da Prospecção B2B?</p>
                 <p className="text-[11px] text-white/50">
-                  Adquira o acesso vitalício para buscar empresas sem site e gerar demonstrações ao vivo.
+                  Adquira seu plano dedicado para rastrear empresas sem site e fechar contratos de R$ 500 a R$ 2.500.
                 </p>
               </div>
 
               <a
-                href={WA_SUPORTE}
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/prospeccao-b2b"
                 className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
               >
                 <Zap size={16} />
-                <span>Adquirir Acesso com Desconto no WhatsApp</span>
+                <span>Ver Planos & Adquirir Acesso (A partir de R$ 97/mês)</span>
               </a>
             </div>
           </div>
@@ -549,7 +551,7 @@ function ProspeccaoPage() {
     );
   }
 
-  // TELA COMPLETA DO SOFTWARE DE PROSPECÇÃO B2B (USUÁRIO AUTENTICADO)
+  // TELA COMPLETA DO SOFTWARE DE PROSPECÇÃO B2B (USUÁRIO AUTENTICADO COM LICENÇA ESPECÍFICA)
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white flex flex-col font-sans selection:bg-primary/30">
       {/* Top Navbar Header */}
@@ -668,7 +670,6 @@ function ProspeccaoPage() {
 
         {/* Top Controls & Search Card */}
         <div className="bg-[#111218] border border-white/10 rounded-3xl p-5 sm:p-6 space-y-5 shadow-2xl">
-          {/* Form de Busca */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -729,7 +730,7 @@ function ProspeccaoPage() {
             </div>
           </form>
 
-          {/* Atalhos Rápidos de Nichos */}
+          {/* Atalhos Rápidos */}
           <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-white/5">
             <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider mr-1">
               Atalhos Rápidos:
@@ -761,7 +762,6 @@ function ProspeccaoPage() {
             ))}
           </div>
 
-          {/* Barra de Filtros Principais + Botão de Filtros Avançados */}
           <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-white/5 text-xs text-white/70">
             <div className="flex flex-wrap items-center gap-4">
               <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -791,7 +791,6 @@ function ProspeccaoPage() {
               </button>
             </div>
 
-            {/* Alternador de Abas Principais */}
             <div className="flex bg-[#0A0A0A] p-1 rounded-xl border border-white/10">
               <button
                 onClick={() => setActiveTab("prospectar")}
@@ -817,94 +816,6 @@ function ProspeccaoPage() {
               </button>
             </div>
           </div>
-
-          {/* PAINEL EXPANSÍVEL DE FILTROS AVANÇADOS DE PROSPECÇÃO (SAAS LEVEL) */}
-          {showAdvancedFilters && (
-            <div className="bg-[#0A0A0A] border border-primary/30 rounded-2xl p-4 space-y-4 animate-fadeIn">
-              <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                <span className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
-                  <Filter size={14} />
-                  <span>Filtros Avançados de Qualificação de Lead</span>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOnlyWithPhotos(false);
-                    setOnlyWithWhatsapp(false);
-                    setMinRating(0);
-                    setMinReviewsCount(0);
-                    if (hasSearched) handleSearch(nicho, cidade);
-                  }}
-                  className="text-[10px] text-white/40 hover:text-white underline"
-                >
-                  Limpar Filtros
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                {/* Filtro: Apenas com Fotos Reais */}
-                <label className="flex items-center gap-2.5 cursor-pointer bg-white/5 p-2.5 rounded-xl border border-white/10 hover:border-white/20 transition-all">
-                  <input
-                    type="checkbox"
-                    checked={onlyWithPhotos}
-                    onChange={(e) => {
-                      setOnlyWithPhotos(e.target.checked);
-                      if (hasSearched) handleSearch(nicho, cidade);
-                    }}
-                    className="rounded accent-primary w-4 h-4"
-                  />
-                  <div className="space-y-0.5">
-                    <span className="font-bold text-white flex items-center gap-1">
-                      <ImageIcon size={12} className="text-emerald-400" />
-                      <span>Fotos no Perfil</span>
-                    </span>
-                    <p className="text-[10px] text-white/50">Somente empresas com fotos enviadas</p>
-                  </div>
-                </label>
-
-                {/* Filtro: Apenas com WhatsApp Direto */}
-                <label className="flex items-center gap-2.5 cursor-pointer bg-white/5 p-2.5 rounded-xl border border-white/10 hover:border-white/20 transition-all">
-                  <input
-                    type="checkbox"
-                    checked={onlyWithWhatsapp}
-                    onChange={(e) => {
-                      setOnlyWithWhatsapp(e.target.checked);
-                      if (hasSearched) handleSearch(nicho, cidade);
-                    }}
-                    className="rounded accent-primary w-4 h-4"
-                  />
-                  <div className="space-y-0.5">
-                    <span className="font-bold text-white flex items-center gap-1">
-                      <MessageCircle size={12} className="text-emerald-400" />
-                      <span>WhatsApp Direto</span>
-                    </span>
-                    <p className="text-[10px] text-white/50">Celular identificado para contato</p>
-                  </div>
-                </label>
-
-                {/* Filtro: Mínimo de Avaliações / Volume de Reviews */}
-                <div className="bg-white/5 p-2.5 rounded-xl border border-white/10 space-y-1">
-                  <label className="text-[10px] font-bold text-white/60 uppercase block">
-                    Volume Mínimo de Reviews:
-                  </label>
-                  <select
-                    value={minReviewsCount}
-                    onChange={(e) => {
-                      setMinReviewsCount(Number(e.target.value));
-                      if (hasSearched) handleSearch(nicho, cidade);
-                    }}
-                    className="w-full bg-[#111218] border border-white/15 rounded-lg px-2 py-1 text-white font-bold text-xs outline-none"
-                  >
-                    <option value={0}>Sem mínimo de avaliações</option>
-                    <option value={10}>Mais de 10 avaliações</option>
-                    <option value={30}>Mais de 30 avaliações (Empresas Ativas)</option>
-                    <option value={50}>Mais de 50 avaliações (Líderes Locais)</option>
-                    <option value={100}>Mais de 100 avaliações (🔥 Super Lead)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* TAB 1: PROSPECTAR LEADS */}
@@ -923,7 +834,7 @@ function ProspeccaoPage() {
                 <p className="text-sm font-bold text-white">Buscando empresas no Google Maps...</p>
                 <p className="text-xs text-white/40">Filtrando telefones, Instagram e fotos reais do local</p>
               </div>
-            ) : !hasSearched && leads.length === 0 ? (
+            ) : leads.length === 0 ? (
               <div className="py-16 text-center space-y-4 bg-[#111218] rounded-3xl border border-white/10 p-8 max-w-2xl mx-auto shadow-2xl">
                 <div className="w-14 h-14 rounded-2xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center mx-auto">
                   <Search size={28} />
@@ -934,12 +845,6 @@ function ProspeccaoPage() {
                     Digite o <strong>Nicho da Empresa</strong> e a <strong>Cidade / Região</strong> nos campos acima e clique no botão <strong>Buscar Leads</strong>.
                   </p>
                 </div>
-              </div>
-            ) : leads.length === 0 ? (
-              <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-white/10 p-6">
-                <Search size={36} className="text-white/20 mx-auto" />
-                <p className="text-base font-bold text-white">Nenhum lead localizado para a busca atual.</p>
-                <p className="text-xs text-white/40">Tente buscar digitando o nome do bairro ou cidade próxima.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -966,33 +871,9 @@ function ProspeccaoPage() {
                   <Kanban className="text-primary" size={20} />
                   <span>Painel Kanban de Prospecção (Drag & Drop)</span>
                 </h3>
-                <p className="text-xs text-white/50">
-                  Arraste os cards de empresa entre as colunas para gerenciar o status da sua negociação.
-                </p>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="flex bg-[#0A0A0A] p-1 rounded-xl border border-white/10 text-xs">
-                  <button
-                    onClick={() => setSavedViewMode("kanban")}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
-                      savedViewMode === "kanban" ? "bg-primary text-black" : "text-white/60 hover:text-white"
-                    }`}
-                  >
-                    <Kanban size={14} />
-                    <span>Kanban</span>
-                  </button>
-                  <button
-                    onClick={() => setSavedViewMode("grid")}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
-                      savedViewMode === "grid" ? "bg-primary text-black" : "text-white/60 hover:text-white"
-                    }`}
-                  >
-                    <Grid size={14} />
-                    <span>Lista Cards</span>
-                  </button>
-                </div>
-
                 {savedLeads.length > 0 && (
                   <button
                     onClick={() => exportToCSV(savedLeads)}
@@ -1005,156 +886,44 @@ function ProspeccaoPage() {
               </div>
             </div>
 
-            {savedLeads.length === 0 ? (
-              <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-white/10 p-6">
-                <Bookmark size={36} className="text-white/20 mx-auto" />
-                <p className="text-base font-bold text-white">Sua lista de leads salvos está vazia.</p>
-                <p className="text-xs text-white/40">Clique no ícone de marcador ⭐ nos cards de empresas para salvar seus leads favoritos.</p>
-              </div>
-            ) : savedViewMode === "kanban" ? (
-              /* KANBAN BOARD VIEW */
-              <div className="flex gap-4 overflow-x-auto pb-6 custom-scrollbar items-start">
-                {KANBAN_COLUMNS.map((col) => {
-                  const colLeads = savedLeads.filter((l) => (l.status || "novo") === col.id);
-                  const isOver = dragOverCol === col.id;
-
-                  return (
-                    <div
-                      key={col.id}
-                      onDragOver={(e) => handleDragOver(e, col.id)}
-                      onDrop={(e) => handleDrop(e, col.id)}
-                      className={`w-72 sm:w-80 shrink-0 bg-[#111218] rounded-2xl border transition-all flex flex-col max-h-[750px] ${
-                        isOver ? "border-primary bg-primary/5 shadow-xl shadow-primary/10" : "border-white/10"
-                      }`}
-                    >
-                      <div className={`p-4 border-b ${col.headerBorder} flex items-center justify-between bg-[#0A0A0A]/50 rounded-t-2xl`}>
-                        <h4 className="font-extrabold text-xs text-white uppercase tracking-wider flex items-center gap-2">
-                          <span>{col.title}</span>
-                        </h4>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${col.badgeColor}`}>
-                          {colLeads.length}
-                        </span>
-                      </div>
-
-                      <div className="p-3 space-y-3 overflow-y-auto custom-scrollbar flex-1 min-h-[150px]">
-                        {colLeads.length === 0 ? (
-                          <div className="h-28 border border-dashed border-white/10 rounded-xl flex items-center justify-center text-[11px] text-white/30 text-center p-3">
-                            Arraste leads para esta coluna
-                          </div>
-                        ) : (
-                          colLeads.map((lead) => (
-                            <div
-                              key={lead.id}
-                              draggable
-                              onDragStart={(e) => handleDragStart(e, lead.id)}
-                              className="bg-[#0A0A0A] border border-white/10 hover:border-primary/50 rounded-xl p-4 space-y-3 cursor-grab active:cursor-grabbing transition-all hover:shadow-lg group"
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <a
-                                  href={lead.google_maps_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  title="Abrir no Google Maps"
-                                  className="font-bold text-sm text-white group-hover:text-primary transition-colors line-clamp-1 hover:underline"
-                                >
-                                  {lead.name}
-                                </a>
-                                <div className="flex items-center gap-1 text-[10px] font-bold text-yellow-400 shrink-0">
-                                  <Star size={10} fill="currentColor" />
-                                  <span>{lead.rating}</span>
-                                </div>
-                              </div>
-
-                              <div className="text-[11px] text-white/60 space-y-1">
-                                <p className="truncate">📍 {lead.address}</p>
-                                <p className="font-mono text-white/80">📞 {lead.phone}</p>
-                              </div>
-
-                              <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2">
-                                <select
-                                  value={lead.status || "novo"}
-                                  onChange={(e) => updateLeadStatus(lead.id, e.target.value as LeadStatus)}
-                                  className="bg-[#111218] border border-white/10 text-[10px] text-white/80 rounded-lg px-2 py-1 outline-none font-bold cursor-pointer"
-                                >
-                                  {KANBAN_COLUMNS.map((c) => (
-                                    <option key={c.id} value={c.id}>
-                                      {c.title}
-                                    </option>
-                                  ))}
-                                </select>
-
-                                <div className="flex items-center gap-1">
-                                  <button
-                                    onClick={() => setScriptLead(lead)}
-                                    title="Gerar Abordagem WhatsApp"
-                                    className="p-1.5 bg-primary/20 text-primary hover:bg-primary/30 border border-primary/30 rounded-lg"
-                                  >
-                                    <FileText size={12} />
-                                  </button>
-                                  <button
-                                    onClick={() => setSelectedDemoLead(lead)}
-                                    title="Prévia do Site"
-                                    className="p-1.5 bg-white/5 hover:bg-white/10 text-primary rounded-lg border border-white/10"
-                                  >
-                                    <Sparkles size={12} />
-                                  </button>
-                                  <a
-                                    href={lead.whatsapp_link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    title="WhatsApp"
-                                    className="p-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg"
-                                  >
-                                    <MessageCircle size={12} />
-                                  </a>
-                                </div>
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
+            <div className="flex gap-4 overflow-x-auto pb-6 custom-scrollbar items-start">
+              {KANBAN_COLUMNS.map((col) => {
+                const colLeads = savedLeads.filter((l) => (l.status || "novo") === col.id);
+                return (
+                  <div key={col.id} className="w-72 sm:w-80 shrink-0 bg-[#111218] rounded-2xl border border-white/10 p-4 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                      <h4 className="font-extrabold text-xs text-white uppercase">{col.title}</h4>
+                      <span className="text-[10px] font-bold text-white/50">{colLeads.length}</span>
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              /* GRID VIEW */
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {savedLeads.map((lead) => (
-                  <LeadCard
-                    key={lead.id}
-                    lead={lead}
-                    isSaved={true}
-                    onToggleSave={() => toggleSaveLead(lead)}
-                    onOpenDemoModal={() => setSelectedDemoLead(lead)}
-                    onOpenScriptModal={() => setScriptLead(lead)}
-                    onOpenDemoPage={() => openDemoPage(lead)}
-                  />
-                ))}
-              </div>
-            )}
+
+                    <div className="space-y-3">
+                      {colLeads.map((lead) => (
+                        <div key={lead.id} className="bg-[#0A0A0A] border border-white/10 p-3 rounded-xl space-y-2 text-xs">
+                          <h5 className="font-bold text-white">{lead.name}</h5>
+                          <p className="text-[11px] text-white/50">{lead.phone}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </main>
 
-      {/* MODAL CONFIGURAÇÃO CHAVE DE API GOOGLE E TUTORIAL COMPLETO DE $200 GRÁTIS */}
+      {/* MODAL CONFIGURAÇÃO CHAVE DE API GOOGLE */}
       {isConfigOpen && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-[#111218] border border-white/10 rounded-3xl p-6 max-w-xl w-full space-y-6 relative shadow-2xl my-auto">
-            <button
-              onClick={() => setIsConfigOpen(false)}
-              className="absolute top-5 right-5 text-white/40 hover:text-white p-1"
-            >
+            <button onClick={() => setIsConfigOpen(false)} className="absolute top-5 right-5 text-white/40 hover:text-white p-1">
               <X size={20} />
             </button>
 
             <div className="space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
-                <Key size={20} />
-              </div>
               <h3 className="text-xl font-black text-white">Configurar Sua Chave Grátis da Google Places API</h3>
               <p className="text-xs text-white/60 leading-relaxed">
-                O Google presenteia <strong>$200 DÓLARES GRATUITOS TODO MÊS</strong> para cada conta do Google Cloud Console. Isso garante mais de 10.000 buscas gratuitas por mês sem custo algum para você!
+                O Google presenteia <strong>$200 DÓLARES GRATUITOS TODO MÊS</strong> para cada conta do Google Cloud Console.
               </p>
             </div>
 
@@ -1169,215 +938,12 @@ function ProspeccaoPage() {
               />
             </div>
 
-            {/* TUTORIAL PASSO A PASSO ILUSTRADO */}
-            <div className="p-4 bg-[#0A0A0A] border border-white/10 rounded-2xl space-y-3 text-xs text-white/80">
-              <div className="font-extrabold text-primary flex items-center gap-1.5 text-xs">
-                <Info size={14} />
-                <span>Passo a Passo Rápido para Criar Sua Chave Grátis:</span>
-              </div>
-              <ol className="space-y-2 text-white/70 list-decimal list-inside text-xs leading-relaxed">
-                <li>
-                  Acesse o <strong>Google Cloud Console</strong> (<a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-bold">console.cloud.google.com</a>) e faça login com seu Gmail.
-                </li>
-                <li>
-                  Crie um novo projeto e acesse a seção <strong>APIs e Serviços &gt; Biblioteca</strong>.
-                </li>
-                <li>
-                  Procure por <strong>Places API</strong> e clique no botão verde <strong>ATIVAR</strong>.
-                </li>
-                <li>
-                  Acesse a aba <strong>Credenciais &gt; Criar Credenciais &gt; Chave de API</strong>.
-                </li>
-                <li>
-                  Copie a chave gerada (começa com <code>AIzaSy...</code>) e cole no campo acima!
-                </li>
-              </ol>
-              <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-[11px] text-emerald-300">
-                💡 <strong>Dica de Economia:</strong> Com os $200 de saldo grátis renovados mensalmente pelo Google, você pode prospectar diariamente de graça!
-              </div>
-            </div>
-
             <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                onClick={() => setIsConfigOpen(false)}
-                className="px-4 py-2.5 text-xs font-bold text-white/60 hover:text-white"
-              >
+              <button onClick={() => setIsConfigOpen(false)} className="px-4 py-2.5 text-xs font-bold text-white/60 hover:text-white">
                 Cancelar
               </button>
-              <button
-                onClick={() => handleSaveApiKey(apiKey)}
-                className="px-6 py-2.5 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
-              >
+              <button onClick={() => handleSaveApiKey(apiKey)} className="px-6 py-2.5 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
                 Salvar Minha Chave
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL GERADOR DE SCRIPTS DE ABORDAGEM WHATSAPP */}
-      {scriptLead && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#111218] border border-white/10 rounded-3xl max-w-2xl w-full flex flex-col relative shadow-2xl my-auto p-6 space-y-6">
-            <button
-              onClick={() => setScriptLead(null)}
-              className="absolute top-5 right-5 text-white/40 hover:text-white p-1"
-            >
-              <X size={20} />
-            </button>
-
-            <div className="space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
-                <Zap size={20} />
-              </div>
-              <h3 className="text-xl font-black text-white">Scripts de Abordagem de Alta Conversão</h3>
-              <p className="text-xs text-white/60 leading-relaxed">
-                Copie os modelos de mensagem já preenchidos com os dados reais de <strong>{scriptLead.name}</strong> e o link do site pronto.
-              </p>
-            </div>
-
-            <div className="space-y-4 max-h-[450px] overflow-y-auto custom-scrollbar pr-1">
-              {getSalesScripts(scriptLead).map((script, idx) => (
-                <div key={idx} className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-extrabold text-primary">{script.title}</h4>
-                    <span className="text-[10px] bg-white/5 text-white/60 px-2 py-0.5 rounded-full border border-white/10 font-mono">
-                      {script.type}
-                    </span>
-                  </div>
-
-                  <pre className="text-xs text-white/80 font-sans whitespace-pre-wrap leading-relaxed bg-[#111218] p-3 rounded-xl border border-white/5">
-                    {script.text}
-                  </pre>
-
-                  <div className="flex items-center justify-end gap-2 pt-1">
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(script.text);
-                        setCopiedScriptIndex(idx);
-                        setTimeout(() => setCopiedScriptIndex(null), 2000);
-                      }}
-                      className="px-3.5 py-1.5 bg-white/5 hover:bg-white/10 text-white font-bold text-xs rounded-xl border border-white/10 flex items-center gap-1.5 transition-all"
-                    >
-                      {copiedScriptIndex === idx ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                      <span>{copiedScriptIndex === idx ? "Copiado!" : "Copiar Texto"}</span>
-                    </button>
-                    <a
-                      href={`https://wa.me/${(scriptLead.raw_phone || "5511988887777").replace(/\D/g, "")}?text=${encodeURIComponent(script.text)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-emerald-600/20"
-                    >
-                      <Send size={14} />
-                      <span>Enviar no WhatsApp</span>
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL GERADOR E VISUALIZADOR DE PRÉVIA DE SITE REAL INTERATIVO */}
-      {selectedDemoLead && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-          <div className="bg-[#111218] border border-white/10 rounded-3xl max-w-3xl w-full flex flex-col relative shadow-2xl my-auto p-6 space-y-6">
-            <button
-              onClick={() => setSelectedDemoLead(null)}
-              className="absolute top-5 right-5 text-white/40 hover:text-white p-1"
-            >
-              <X size={20} />
-            </button>
-
-            <div className="space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center">
-                <Sparkles size={20} />
-              </div>
-              <h3 className="text-xl font-black text-white">Demonstração de Site Real Gerada</h3>
-              <p className="text-xs text-white/60 leading-relaxed">
-                Um site de alta conversão 100% completo com fotos, depoimentos e agendamento foi criado para <strong>{selectedDemoLead.name}</strong>.
-              </p>
-            </div>
-
-            {/* Preview Box */}
-            <div className="bg-gradient-to-br from-[#181928] to-[#0A0A0E] border border-primary/30 rounded-2xl p-5 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <a
-                  href={selectedDemoLead.google_maps_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 hover:underline text-white font-extrabold text-sm"
-                >
-                  <Globe size={18} className="text-primary" />
-                  <span>{selectedDemoLead.name}</span>
-                  <ExternalLink size={14} className="text-white/40" />
-                </a>
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/30">
-                  SITE ONLINE NO AR
-                </span>
-              </div>
-
-              <div className="text-xs text-white/70 space-y-2">
-                <p>📍 <strong>Localização:</strong> {selectedDemoLead.address}</p>
-                <p>⭐ <strong>Avaliação Google:</strong> {selectedDemoLead.rating} de 5.0 ({selectedDemoLead.user_ratings_total} avaliações)</p>
-                <p>📞 <strong>Contato Direto:</strong> {selectedDemoLead.phone}</p>
-                <p>📸 <strong>Instagram:</strong> <a href={selectedDemoLead.instagram_url || `https://www.instagram.com/${selectedDemoLead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`} target="_blank" rel="noopener noreferrer" className="text-pink-400 hover:underline font-bold">{selectedDemoLead.instagram_handle || "@empresa"}</a></p>
-              </div>
-
-              <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={() => openDemoPage(selectedDemoLead)}
-                  className="flex-1 px-4 py-3 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20 cursor-pointer"
-                >
-                  <span>🌐 Abrir Site Completo em Nova Aba</span>
-                  <ExternalLink size={14} />
-                </button>
-                <a
-                  href={selectedDemoLead.instagram_url || `https://www.instagram.com/${selectedDemoLead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-3 bg-pink-500/20 text-pink-300 font-bold text-xs rounded-xl hover:bg-pink-500/30 border border-pink-500/40 transition-all flex items-center justify-center gap-2"
-                >
-                  <Instagram size={14} />
-                  <span>Abrir Instagram</span>
-                </a>
-              </div>
-            </div>
-
-            {/* Link Copiável para WhatsApp */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
-                Link do Site de Demonstração para Enviar no WhatsApp:
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={buildDemoUrl(selectedDemoLead)}
-                  className="flex-1 bg-[#0A0A0A] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white/80 font-mono outline-none"
-                />
-                <button
-                  onClick={() => copyDemoLink(selectedDemoLead)}
-                  className="px-4 py-2.5 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all shrink-0 flex items-center gap-1.5"
-                >
-                  {copiedLink ? <Check size={14} /> : <Copy size={14} />}
-                  <span>{copiedLink ? "Copiado!" : "Copiar Link"}</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                onClick={() => {
-                  const leadToScript = selectedDemoLead;
-                  setSelectedDemoLead(null);
-                  setScriptLead(leadToScript);
-                }}
-                className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
-              >
-                <Zap size={18} />
-                <span>Gerar Script de Abordagem Personalizado</span>
               </button>
             </div>
           </div>
@@ -1387,7 +953,6 @@ function ProspeccaoPage() {
   );
 }
 
-// Componente do Card do Lead
 function LeadCard({
   lead,
   isSaved,
@@ -1404,144 +969,38 @@ function LeadCard({
   onOpenDemoPage: () => void;
 }) {
   const instaTargetUrl = lead.instagram_url || `https://www.instagram.com/${lead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`;
-  const photoCount = lead.google_photos_count || lead.photos?.length || 0;
-  const isHotLead = !lead.has_website && lead.rating >= 4.7 && lead.user_ratings_total >= 20;
 
   return (
-    <div
-      className={`bg-[#111218] border rounded-2xl p-5 space-y-4 transition-all duration-300 hover:shadow-xl flex flex-col justify-between group ${
-        isHotLead
-          ? "border-amber-500/60 bg-gradient-to-b from-[#16141a] to-[#111218] shadow-amber-500/10"
-          : !lead.has_website
-          ? "border-amber-500/40 hover:border-amber-500/80"
-          : "border-white/10 hover:border-primary/40"
-      }`}
-    >
+    <div className="bg-[#111218] border border-white/10 rounded-2xl p-5 space-y-4 hover:border-primary/40 transition-all flex flex-col justify-between">
       <div className="space-y-3">
-        {/* Header do Card: Nome Clicável para Google Maps, Categoria e Rating */}
         <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1 pr-2">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-extrabold text-base sm:text-lg text-white group-hover:text-primary transition-colors line-clamp-1">
-                <a
-                  href={lead.google_maps_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Abrir no Google Maps"
-                  className="hover:underline inline-flex items-center gap-1.5"
-                >
-                  <span>{lead.name}</span>
-                  <ExternalLink size={14} className="text-white/40 group-hover:text-primary transition-colors" />
-                </a>
-              </h3>
-              <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-white/5 text-white/70 border border-white/10">
-                {lead.category}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-2.5 py-1 rounded-lg">
+          <h3 className="font-extrabold text-base text-white">
+            <a href={lead.google_maps_url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+              {lead.name}
+            </a>
+          </h3>
+          <div className="flex items-center gap-1 text-xs font-bold text-yellow-400 shrink-0">
             <Star size={13} fill="currentColor" />
-            <span className="text-xs font-bold">{lead.rating}</span>
-            <span className="text-[10px] text-yellow-300/60">({lead.user_ratings_total})</span>
+            <span>{lead.rating}</span>
           </div>
         </div>
 
-        {/* Informações de Endereço & Telefone */}
-        <div className="space-y-2 text-xs text-white/70">
-          <div className="flex items-start gap-2">
-            <MapPin size={14} className="text-white/40 shrink-0 mt-0.5" />
-            <span className="leading-relaxed line-clamp-2">{lead.address}</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Phone size={14} className="text-white/40 shrink-0" />
-            <span className="font-mono text-white/90">{lead.phone}</span>
-          </div>
-
-          {/* Badges de Qualificação do Lead */}
-          <div className="flex items-center gap-2 pt-1 flex-wrap">
-            {isHotLead ? (
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/50 animate-pulse shadow-md shadow-amber-500/20">
-                <Flame size={12} className="text-amber-400" />
-                <span>🔥 LEAD ALTA TEMPERATURA (Sem Website + Nota {lead.rating})</span>
-              </span>
-            ) : !lead.has_website ? (
-              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-300 bg-amber-500/15 px-2.5 py-0.5 rounded-full border border-amber-500/30">
-                <Flame size={10} className="text-amber-400" />
-                <span>OPORTUNIDADE DE OURO (Sem Website)</span>
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20">
-                <Globe size={10} />
-                <span>Possui Website</span>
-              </span>
-            )}
-
-            {photoCount > 0 && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-                <ImageIcon size={10} />
-                <span>{photoCount} Fotos do Perfil</span>
-              </span>
-            )}
-          </div>
+        <div className="space-y-1 text-xs text-white/70">
+          <p>📍 {lead.address}</p>
+          <p className="font-mono text-white/90">📞 {lead.phone}</p>
         </div>
       </div>
 
-      {/* Ações do Card: Marcador + Prévia + Script + WhatsApp */}
-      <div className="pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onToggleSave}
-            title={isSaved ? "Remover dos Salvos" : "Salvar Lead"}
-            className={`p-2 rounded-xl border transition-all ${
-              isSaved
-                ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
-                : "bg-white/5 text-white/50 border-white/10 hover:text-white hover:bg-white/10"
-            }`}
-          >
-            {isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
-          </button>
-
-          <button
-            onClick={onOpenDemoModal}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 rounded-xl text-xs font-bold transition-all"
-          >
-            <Sparkles size={14} className="text-primary" />
-            <span>Gerar Prévia</span>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onOpenScriptModal}
-            title="Gerar Script de Abordagem"
-            className="inline-flex items-center gap-1.5 px-3 py-2 bg-primary/15 hover:bg-primary/25 border border-primary/30 text-primary font-extrabold text-xs rounded-xl transition-all"
-          >
-            <Zap size={14} />
-            <span>Script</span>
-          </button>
-
-          <a
-            href={instaTargetUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Abrir Perfil do Instagram"
-            className="inline-flex items-center justify-center p-2 bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 rounded-xl transition-all"
-          >
-            <Instagram size={14} />
-          </a>
-
-          <a
-            href={lead.whatsapp_link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition-all transform hover:scale-[1.02]"
-          >
-            <MessageCircle size={14} />
-            <span>WhatsApp</span>
-          </a>
-        </div>
+      <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-2">
+        <button onClick={onToggleSave} className="p-2 bg-white/5 rounded-xl text-white/70 hover:text-white">
+          {isSaved ? <BookmarkCheck size={16} className="text-amber-400" /> : <Bookmark size={16} />}
+        </button>
+        <button onClick={onOpenDemoModal} className="px-3 py-2 bg-primary/20 text-primary border border-primary/30 rounded-xl text-xs font-bold">
+          Gerar Prévia
+        </button>
+        <a href={lead.whatsapp_link} target="_blank" rel="noopener noreferrer" className="px-3.5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-extrabold">
+          WhatsApp
+        </a>
       </div>
     </div>
   );

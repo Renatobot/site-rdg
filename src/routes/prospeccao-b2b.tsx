@@ -42,10 +42,10 @@ const CANONICAL_URL = `${BASE_URL}/prospeccao-b2b`;
 const SERIF = "'Cormorant Garamond', 'Times New Roman', serif";
 
 const WA_PLANO_PROSPECCAO_INDIVIDUAL = waLink(
-  "Olá, equipe RDG Digital! Quero adquirir a Licença Individual do Software de Prospecção B2B Google Maps por R$ 97/mês."
+  "Olá, equipe RDG Digital! Quero assinar o Plano Mensal Operator do Software de Prospecção B2B Google Maps por R$ 97/mês."
 );
-const WA_PLANO_PROSPECCAO_VITALICIO = waLink(
-  "Olá, equipe RDG Digital! Quero adquirir a Licença Vitalícia Agência do Software de Prospecção B2B Google Maps por R$ 297."
+const WA_PLANO_PROSPECCAO_ANUAL = waLink(
+  "Olá, equipe RDG Digital! Quero assinar o Plano Anual Agência do Software de Prospecção B2B Google Maps por R$ 497/ano."
 );
 const WA_DUVIDAS = waLink(
   "Olá, equipe RDG Digital! Tenho dúvidas sobre o Software de Prospecção B2B Google Maps."
@@ -83,8 +83,6 @@ function ProspeccaoSalesPage() {
     </div>
   );
 }
-
-/* ---------------- Ícones Ambientais Flutuantes no Fundo ---------------- */
 
 function FloatingIcons() {
   const items = [
@@ -124,8 +122,6 @@ function FloatingIcons() {
   );
 }
 
-/* ---------------- Top Navbar (Exatamente igual ao Screenshot 1) ---------------- */
-
 function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#0A0A0A]/90 backdrop-blur-md">
@@ -145,7 +141,7 @@ function Navbar() {
             Ver Planos
           </a>
           <a
-            href={WA_PLANO_PROSPECCAO_VITALICIO}
+            href={WA_PLANO_PROSPECCAO_ANUAL}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-primary px-5 py-2 text-[10px] font-light uppercase tracking-[0.2em] text-[#0A0A0A] transition-transform hover:scale-[1.02] hover:brightness-110 font-bold"
@@ -159,8 +155,6 @@ function Navbar() {
   );
 }
 
-/* ---------------- Section Eyebrow Component ---------------- */
-
 function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return (
     <span className="inline-flex items-center gap-2 border border-primary/40 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
@@ -168,8 +162,6 @@ function SectionEyebrow({ children }: { children: React.ReactNode }) {
     </span>
   );
 }
-
-/* ---------------- Hero Section (Idêntico visualmente ao Screenshot 1) ---------------- */
 
 function Hero() {
   return (
@@ -214,8 +206,6 @@ function Hero() {
   );
 }
 
-/* ---------------- Metrics Strip ---------------- */
-
 function MetricsStrip() {
   const items = [
     { k: "+10.000", l: "Buscas grátis/mês no Google" },
@@ -253,10 +243,8 @@ function MetricsStrip() {
   );
 }
 
-/* ---------------- Live Software Interface Showcase ---------------- */
-
 function LiveSoftwareShowcase() {
-  const [activeTab, setActiveTab] = useState<"busca" | "demo" | "scripts" | "kanban">("busca");
+  const [activeTab, setActiveTab] = useState<"busca" | "demo" | "scripts">("busca");
 
   return (
     <section className="border-b border-white/10 py-20 sm:py-28">
@@ -319,10 +307,8 @@ function LiveSoftwareShowcase() {
             </div>
           </div>
 
-          {/* Interface Visual Simulada da Ferramenta */}
           <div className="lg:col-span-8">
             <div className="relative overflow-hidden border border-white/20 bg-[#0B0F19] text-slate-100 shadow-2xl rounded-lg">
-              {/* Header de janela estilo navegação */}
               <div className="flex items-center justify-between bg-[#070A12] px-4 py-3 border-b border-white/10">
                 <div className="flex items-center gap-2">
                   <span className="h-3 w-3 rounded-full bg-red-500/80 inline-block" />
@@ -339,7 +325,6 @@ function LiveSoftwareShowcase() {
                 </div>
               </div>
 
-              {/* Status Header Cards */}
               <div className="grid grid-cols-3 gap-2 p-3 bg-[#0E1322] border-b border-white/10">
                 <div className="flex items-center gap-2 bg-[#141A2E] p-2.5 border border-white/5 rounded">
                   <span className="text-base">📍</span>
@@ -364,7 +349,6 @@ function LiveSoftwareShowcase() {
                 </div>
               </div>
 
-              {/* Conteúdo da janela simulada */}
               <div className="p-4 sm:p-6 space-y-4 min-h-[340px]">
                 {activeTab === "busca" && (
                   <div className="space-y-4 animate-[fadeIn_0.3s_ease]">
@@ -390,7 +374,6 @@ function LiveSoftwareShowcase() {
                       </div>
                     </div>
 
-                    {/* Exemplo de Card de Lead */}
                     <div className="bg-[#141A2E] border border-amber-500/40 p-4 rounded-lg space-y-3">
                       <div className="flex items-start justify-between">
                         <div>
@@ -456,8 +439,6 @@ function LiveSoftwareShowcase() {
   );
 }
 
-/* ---------------- Como Funciona em 4 Passos ---------------- */
-
 function HowItWorks() {
   const steps = [
     {
@@ -512,8 +493,6 @@ function HowItWorks() {
   );
 }
 
-/* ---------------- Diferenciais do Software ---------------- */
-
 function Differentials() {
   const items = [
     {
@@ -530,7 +509,7 @@ function Differentials() {
     },
     {
       title: "White-Label Total para o Cliente",
-      desc: "As demonstrações geradas têm aparência de um site oficial pronto para o cliente publicar.",
+      desc: "As demonstrações geradas têm aparência de um site profissional já pronto para o cliente publicar.",
     },
   ];
 
@@ -559,8 +538,6 @@ function Differentials() {
     </section>
   );
 }
-
-/* ---------------- Gerador de Scripts de Vendas ---------------- */
 
 function ScriptGeneratorShowcase() {
   return (
@@ -602,8 +579,6 @@ function ScriptGeneratorShowcase() {
   );
 }
 
-/* ---------------- Bônus Exclusivos ---------------- */
-
 function BonusSection() {
   const bonuses = [
     { title: "Bônus #1: +700 Prompts de IA para Fotografia", desc: "Biblioteca completa de prompts para criar fotos profissionais para os sites." },
@@ -633,7 +608,7 @@ function BonusSection() {
   );
 }
 
-/* ---------------- Pricing Section (Idêntico ao Screenshot 1) ---------------- */
+/* ---------------- Pricing Section (Plano Mensal R$ 97 + Plano Anual R$ 497) ---------------- */
 
 function PricingSection() {
   return (
@@ -649,7 +624,7 @@ function PricingSection() {
         </h2>
 
         <div className="mt-16 grid gap-8 md:grid-cols-2 max-w-4xl mx-auto text-left">
-          {/* Plano Mensal Individual */}
+          {/* Plano Mensal Operator */}
           <div className="border border-white/10 bg-[#0A0A0A] p-8 space-y-6 flex flex-col justify-between hover:border-primary/40 transition-colors">
             <div className="space-y-4">
               <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest">PLANO MENSAL</span>
@@ -676,21 +651,21 @@ function PricingSection() {
             </a>
           </div>
 
-          {/* Plano Vitalício Agência (Destaque) */}
+          {/* Plano Anual Agência (R$ 497/ano - Destaque) */}
           <div className="border border-primary bg-gradient-to-b from-[#181928] to-[#0A0A0A] p-8 space-y-6 flex flex-col justify-between relative shadow-2xl">
             <span className="absolute top-0 right-8 -translate-y-1/2 bg-primary text-black font-extrabold text-[10px] uppercase tracking-widest px-3 py-1 rounded-full shadow">
-              🔥 OPORTUNIDADE VITALÍCIA (MAIS VENDIDO)
+              🔥 MELHOR CUSTO-BENEFÍCIO (ANUIDADE)
             </span>
 
             <div className="space-y-4">
-              <span className="font-mono text-xs text-primary uppercase tracking-widest">PLANO VITALÍCIO AGÊNCIA</span>
-              <h3 className="text-2xl font-light text-white" style={{ fontFamily: SERIF }}>Licença Vitalícia Completa</h3>
+              <span className="font-mono text-xs text-primary uppercase tracking-widest">PLANO ANUAL AGÊNCIA</span>
+              <h3 className="text-2xl font-light text-white" style={{ fontFamily: SERIF }}>Licença Anual Completa</h3>
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-light text-primary" style={{ fontFamily: SERIF }}>R$ 297</span>
-                <span className="text-xs text-muted-foreground">pagamento único</span>
+                <span className="text-4xl font-light text-primary" style={{ fontFamily: SERIF }}>R$ 497</span>
+                <span className="text-xs text-muted-foreground">/ano</span>
               </div>
               <ul className="space-y-3 pt-4 border-t border-white/10 text-xs text-foreground/90">
-                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> <strong>Acesso Vitalício Sem Mensalidades</strong></li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> <strong>Licença de Acesso Valida por 1 Ano Inteiro</strong></li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Buscas Ilimitadas no Google Maps</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Gerador de Sites de Demonstração Ilimitados</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Todos os 3 Bônus Exclusivos Inclusos</li>
@@ -699,12 +674,12 @@ function PricingSection() {
             </div>
 
             <a
-              href={WA_PLANO_PROSPECCAO_VITALICIO}
+              href={WA_PLANO_PROSPECCAO_ANUAL}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-4 text-center bg-primary hover:bg-primary/90 text-black font-extrabold text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary/20"
             >
-              Garantir Licença Vitalícia (R$ 297)
+              Garantir Licença Anual (R$ 497/ano)
             </a>
           </div>
         </div>
@@ -712,8 +687,6 @@ function PricingSection() {
     </section>
   );
 }
-
-/* ---------------- FAQ Section ---------------- */
 
 function FAQSection() {
   const faqs = [
@@ -758,8 +731,6 @@ function FAQSection() {
   );
 }
 
-/* ---------------- Final CTA & Footer ---------------- */
-
 function FinalCTA() {
   return (
     <section className="py-20 text-center border-b border-white/10">
@@ -772,12 +743,12 @@ function FinalCTA() {
         </p>
 
         <a
-          href={WA_PLANO_PROSPECCAO_VITALICIO}
+          href={WA_PLANO_PROSPECCAO_ANUAL}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-3 bg-primary px-8 py-4 text-xs font-extrabold uppercase tracking-widest text-black shadow-xl shadow-primary/20 hover:scale-105 transition-transform"
         >
-          <span>Garantir Licença no WhatsApp</span>
+          <span>Garantir Licença Anual no WhatsApp</span>
           <ArrowRight size={16} />
         </a>
       </div>
