@@ -69,9 +69,12 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
             let internationalPhone = "";
             let placePhotos: string[] = [];
 
+            // Fotos trazidas da busca inicial TextSearch se disponíveis
+            let rawPhotos: any[] = Array.isArray(place.photos) ? place.photos : [];
+
             if (place.place_id) {
               try {
-                // Solicitar photos também do perfil do Google Maps
+                // Solicitar detalhes adicionais e fotos do local
                 const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=formatted_phone_number,international_phone_number,website,url,photos&language=pt-BR&key=${apiKey}`;
                 const detailsRes = await fetch(detailsUrl);
                 const detailsData = await detailsRes.json();
@@ -82,17 +85,20 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
                   if (detailsData.result.website) {
                     websiteUrl = detailsData.result.website;
                   }
-
-                  // Extrair fotos reais do Google Maps
                   if (Array.isArray(detailsData.result.photos) && detailsData.result.photos.length > 0) {
-                    placePhotos = detailsData.result.photos.slice(0, 6).map(
-                      (p: any) => `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${p.photo_reference}&key=${apiKey}`
-                    );
+                    rawPhotos = detailsData.result.photos;
                   }
                 }
               } catch (e) {
                 console.error("Erro nos detalhes do local:", e);
               }
+            }
+
+            // Converter referências em URLs do Google Places Photo API
+            if (rawPhotos.length > 0) {
+              placePhotos = rawPhotos.slice(0, 6).map(
+                (p: any) => `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${p.photo_reference}&key=${apiKey}`
+              );
             }
 
             const hasWebsite = Boolean(
@@ -124,7 +130,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
               has_instagram: hasInstagram,
               instagram_handle: hasInstagram ? "@empresa" : "Não possui Instagram",
               google_maps_url: place.url || `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
-              photos: placePhotos,
+              photos: placePhotos.length > 0 ? placePhotos : getNicheSamplePhotos(nicho),
               status: "novo",
               is_mock: false,
             };
@@ -134,13 +140,13 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
 
           let allLeads: LeadItem[] = await Promise.all(leadsPromises);
 
-          // Ordenar: Empresas SEM website em 1º lugar (Oportunidades de ouro)
+          // Ordenar: Empresas SEM website em 1º lugar
           allLeads.sort((a, b) => (a.has_website === b.has_website ? 0 : a.has_website ? 1 : -1));
 
           return {
             status: "success",
             source: "google_api",
-            message: `Foram encontradas ${allLeads.length} empresas no Google Maps para ${nicho} em ${cidade}.`,
+            message: `Foram encontradas ${allLeads.length} empresas reais no Google Maps para ${nicho} em ${cidade}.`,
             total: allLeads.length,
             leads: allLeads,
           };
@@ -160,7 +166,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
       }
     }
 
-    // Fallback de segurança garantido
+    // Fallback de demonstração
     const mockLeads: LeadItem[] = generateMockLeads(nicho, cidade, onlyNoWebsite);
 
     return {
@@ -200,6 +206,43 @@ export const Route = createFileRoute("/api/prospeccao")({
     },
   },
 });
+
+// Fotos de Amostra por Nicho
+function getNicheSamplePhotos(nicho: string): string[] {
+  const lower = nicho.toLowerCase();
+  if (lower.includes("barbea") || lower.includes("cabel")) {
+    return [
+      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=800&q=80"
+    ];
+  } else if (lower.includes("odonto") || lower.includes("denti")) {
+    return [
+      "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80"
+    ];
+  } else if (lower.includes("estetic") || lower.includes("spa")) {
+    return [
+      "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1512290900673-7002b521761c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=800&q=80"
+    ];
+  } else if (lower.includes("pet") || lower.includes("vet")) {
+    return [
+      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=800&q=80"
+    ];
+  }
+  return [
+    "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1542744801-30d009c534a5?auto=format&fit=crop&w=800&q=80"
+  ];
+}
 
 // Gerador de Leads Simulados por Nicho
 export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite: boolean): LeadItem[] {
@@ -291,6 +334,8 @@ export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite: 
     "Vila Madalena", "Bela Vista", "Sumarezinho", "Vila Mariana", "Tatuapé", "Pinheiros", "Moema", "Jardins"
   ];
 
+  const nichePhotos = getNicheSamplePhotos(nicho);
+
   return sampleNames.map((name, i) => {
     const ddd = "11";
     const numPart1 = Math.floor(Math.random() * 8999 + 9000);
@@ -319,6 +364,7 @@ export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite: 
       has_instagram: hasInsta,
       instagram_handle: hasInsta ? "@empresa" : "Não possui Instagram",
       google_maps_url: `https://www.google.com/maps/search/${encodeURIComponent(name + " " + cidade)}`,
+      photos: nichePhotos,
       status: i === 0 ? "em_contato" : i === 1 ? "proposta" : "novo",
       is_mock: true,
     };

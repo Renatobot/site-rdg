@@ -138,7 +138,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     textColor: "#0F172A",
     mutedTextColor: "#475569",
     borderColor: "rgba(15, 23, 42, 0.08)",
-    accentColor: "#0284C7", // Azul Oceano Clean
+    accentColor: "#0284C7",
     accentText: "#FFFFFF",
     fontSerif: false,
     heroTagline: "Odontologia Digital & Estética Humanizada",
@@ -179,7 +179,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     textColor: "#2B2625",
     mutedTextColor: "#6E6562",
     borderColor: "rgba(43, 38, 37, 0.08)",
-    accentColor: "#C58882", // Rose Gold Sofisticado
+    accentColor: "#C58882",
     accentText: "#FFFFFF",
     fontSerif: true,
     heroTagline: "Beleza Natural & Rejuvenescimento",
@@ -209,7 +209,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // PET SHOP & VETERINÁRIA (Light Warm, Friendly Coral & Emerald)
+  // PET SHOP & VETERINÁRIA (Light Warm, Friendly Coral)
   petshop: {
     isDark: false,
     bgColor: "#FFFBF5",
@@ -218,7 +218,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     textColor: "#1C1917",
     mutedTextColor: "#57534E",
     borderColor: "rgba(28, 25, 23, 0.08)",
-    accentColor: "#F97316", // Coral Amigável
+    accentColor: "#F97316",
     accentText: "#FFFFFF",
     fontSerif: false,
     heroTagline: "Carinho & Saúde para seu Melhor Amigo",
@@ -255,7 +255,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     textColor: "#FAFAFA",
     mutedTextColor: "#A3A3A3",
     borderColor: "rgba(255, 255, 255, 0.12)",
-    accentColor: "#E63946", // Vermelho Carmim Autêntico
+    accentColor: "#E63946",
     accentText: "#FFFFFF",
     fontSerif: true,
     heroTagline: "Arte na Pele & Biossegurança Absoluta",
@@ -285,13 +285,13 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
   // ADVOCACIA & CONSULTORIA JURÍDICA (Deep Imperial Navy, Gold)
   advocacia: {
     isDark: true,
-    bgColor: "#0B132B", // Navy Imperial Profundo
+    bgColor: "#0B132B",
     surfaceColor: "#1C2541",
     cardBg: "#1C2541",
     textColor: "#F8FAFC",
     mutedTextColor: "#94A3B8",
     borderColor: "rgba(255, 255, 255, 0.12)",
-    accentColor: "#D4AF37", // Ouro Jurídico
+    accentColor: "#D4AF37",
     accentText: "#0B132B",
     fontSerif: true,
     heroTagline: "Direito Estratégico & Blindagem Patrimonial",
@@ -328,7 +328,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     textColor: "#0F172A",
     mutedTextColor: "#475569",
     borderColor: "rgba(15, 23, 42, 0.08)",
-    accentColor: "#D97706", // Âmbar Bronze
+    accentColor: "#D97706",
     accentText: "#FFFFFF",
     fontSerif: false,
     heroTagline: "Imóveis de Alto Padrão & Oportunidades",
@@ -466,7 +466,7 @@ function FullSiteDemoPage() {
         }}
       >
         <Sparkles size={14} className="animate-pulse" style={{ color: config.accentColor }} />
-        <span>PÁGINA DEMO CRIADA EXCLUSIVAMENTE PARA <strong style={{ color: config.accentColor }}>{nome.toUpperCase()}</strong></span>
+        <span>MODELO DE SITE OFICIAL — GERADO EXCLUSIVAMENTE PARA <strong style={{ color: config.accentColor }}>{nome.toUpperCase()}</strong></span>
         <a
           href={waUrl}
           target="_blank"
@@ -624,6 +624,9 @@ function FullSiteDemoPage() {
               <img
                 src={heroImage}
                 alt={nome}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = config.heroFallback;
+                }}
                 className="w-full h-full object-cover transition duration-700 hover:scale-105 filter brightness-95"
               />
 
@@ -788,7 +791,7 @@ function FullSiteDemoPage() {
             {realGooglePhotos.length > 0 && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-600 border border-emerald-500/30">
                 <Camera size={14} />
-                <span>Exibindo Fotos Reais do Google Maps</span>
+                <span>Exibindo Fotos do Google Maps</span>
               </span>
             )}
           </div>
@@ -799,6 +802,9 @@ function FullSiteDemoPage() {
                 <img
                   src={imgUrl}
                   alt={`${nome} galeria ${i + 1}`}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = config.galleryFallback[i % config.galleryFallback.length];
+                  }}
                   className="w-full h-full object-cover transition duration-700 group-hover:scale-110 filter brightness-95 group-hover:brightness-100"
                 />
               </div>
