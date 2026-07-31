@@ -266,6 +266,21 @@ video::-webkit-media-controls-fullscreen-button {
   box-shadow: 0 0 45px rgba(0, 220, 255, 0.35), 0 10px 30px rgba(0, 0, 0, 0.5) !important;
 }
 
+/* Glass Neon effect scaled for buttons */
+.btn-neon-glass {
+  background: linear-gradient(to top, rgba(0, 220, 255, 0.15), transparent) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(0, 220, 255, 0.1) !important;
+  border-top: 2px solid #00dcff !important;
+  box-shadow: 0 0 20px rgba(0, 220, 255, 0.4), 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+  color: #00dcff !important;
+}
+.btn-neon-glass:hover {
+  background: linear-gradient(to top, rgba(0, 220, 255, 0.25), rgba(0, 220, 255, 0.05)) !important;
+  box-shadow: 0 0 30px rgba(0, 220, 255, 0.6), 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+}
+
 .vip-glow-3d {
   position: absolute;
   inset: -3px;

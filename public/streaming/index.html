@@ -28,7 +28,7 @@
   <!-- HLS.js for Streaming Playback -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-  <link rel="stylesheet" href="/streaming/styles.css?v=30" />
+  <link rel="stylesheet" href="/streaming/styles.css?v=31" />
 </head>
 <body class="bg-[#070913] text-slate-100 font-sans min-h-screen flex flex-col overflow-x-hidden selection:bg-cyan-500 selection:text-black">
 
@@ -176,7 +176,7 @@
       </button>
 
       <!-- 0. SEJA VIP PROMO BUTTON -->
-      <button id="btnHeaderVip" onclick="rdgOpenModal('vipModal')" class="flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs font-black text-[#070913] bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-300 hover:to-green-400 border border-emerald-300/40 rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-500/20 active:scale-95">
+      <button id="btnHeaderVip" onclick="rdgOpenModal('vipModal')" class="flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs font-black btn-neon-glass rounded-xl transition-all cursor-pointer active:scale-95">
         <span class="text-sm">👑</span>
         <span class="hidden sm:inline">SEJA VIP</span>
       </button>
@@ -188,7 +188,7 @@
       </button>
 
       <!-- 2. CARREGAR LISTA M3U -->
-      <button id="btnHeaderLoad" onclick="rdgOpenModal('loadModal')" class="flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#00dcff] hover:bg-[#38bdf8] text-[#060814] font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 border border-cyan-300/30 cursor-pointer">
+      <button id="btnHeaderLoad" onclick="rdgOpenModal('loadModal')" class="flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 font-extrabold text-xs rounded-xl btn-neon-glass transition-all active:scale-95 cursor-pointer">
         <i data-lucide="plus-circle" class="w-4 h-4"></i>
         <span class="hidden sm:inline">Carregar Lista</span>
       </button>
