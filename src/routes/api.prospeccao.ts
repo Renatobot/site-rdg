@@ -1,463 +1,274 @@
-// Proxy Server-Side para Prospecção no Google Maps usando Server Functions do TanStack Start
-import { createFileRoute } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/start";
 
 export type LeadStatus = "novo" | "em_contato" | "followup" | "proposta" | "fechado" | "inativo";
-
-export interface GoogleReviewItem {
-  author_name: string;
-  rating: number;
-  text: string;
-  relative_time_description?: string;
-}
 
 export interface LeadItem {
   id: string;
   name: string;
   category: string;
-  rating: number;
-  user_ratings_total: number;
   address: string;
   phone: string;
   raw_phone: string;
-  whatsapp_link: string;
+  rating: number;
+  user_ratings_total: number;
   has_website: boolean;
-  website_url: string | null;
-  has_instagram: boolean;
-  instagram_handle: string | null;
-  instagram_url?: string | null;
+  website_url?: string;
   google_maps_url: string;
-  photos?: string[];
+  whatsapp_link: string;
+  instagram_url?: string;
+  instagram_handle?: string;
   google_photos_count?: number;
-  reviews_list?: GoogleReviewItem[];
+  photos?: string[];
+  reviews_list?: {
+    author_name: string;
+    rating: number;
+    text: string;
+    relative_time_description?: string;
+  }[];
   opening_hours?: string[];
   editorial_summary?: string;
-  price_level?: number;
   status?: LeadStatus;
-  is_mock?: boolean;
 }
 
-export interface ProspeccaoParams {
+export interface ProspeccaoSearchInput {
   nicho: string;
   cidade: string;
-  apiKey: string;
-  onlyNoWebsite: boolean;
+  apiKey?: string;
+  onlyNoWebsite?: boolean;
+  onlyWithPhotos?: boolean;
+  onlyWithWhatsapp?: boolean;
+  onlyWithInstagram?: boolean;
+  minReviewsCount?: number;
 }
 
-export interface ProspeccaoResult {
-  status: "success" | "google_error" | "error";
-  source: string;
+export interface ProspeccaoSearchResponse {
+  leads: LeadItem[];
+  source: "google_api" | "demo_mock" | "google_error";
   message?: string;
   googleStatus?: string;
-  total: number;
-  leads: LeadItem[];
 }
 
-// Server Function que executa 100% no servidor Node.js da Vercel
-export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
-  .validator((params: ProspeccaoParams) => params)
-  .handler(async ({ data }): Promise<ProspeccaoResult> => {
-    const nicho = data?.nicho || "Advocacia";
-    const cidade = data?.cidade || "São Paulo - SP";
-    const customApiKey = data?.apiKey || "";
-    const onlyNoWebsite = data?.onlyNoWebsite !== false;
+export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
+  .validator((d: ProspeccaoSearchInput) => d)
+  .handler(async ({ data }): Promise<ProspeccaoSearchResponse> => {
+    const nicho = data.nicho || "Advocacia";
+    const cidade = data.cidade || "São Paulo - SP";
+    const apiKey = data.apiKey?.trim();
 
-    const apiKey = customApiKey.trim() || process.env.GOOGLE_PLACES_API_KEY || "";
-
-    // Se houver Chave de API do Google Places informada
-    if (apiKey && apiKey.length > 5) {
-      try {
-        const query = `${nicho} em ${cidade}`;
-        const textSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&language=pt-BR&key=${apiKey}`;
-
-        const searchRes = await fetch(textSearchUrl);
-        const searchData = await searchRes.json();
-
-        if (searchData.status === "OK" && Array.isArray(searchData.results) && searchData.results.length > 0) {
-          const placesSlice = searchData.results.slice(0, 20);
-
-          const leadsPromises = placesSlice.map(async (place: any) => {
-            let phone = place.formatted_phone_number || "Não informado";
-            let websiteUrl: string | null = place.website || null;
-            let internationalPhone = "";
-            let placePhotos: string[] = [];
-            let realReviews: GoogleReviewItem[] = [];
-            let openingHoursList: string[] = [];
-            let summaryText = "";
-            let priceLvl = place.price_level || undefined;
-
-            // Fotos trazidas da busca inicial TextSearch se disponíveis
-            let rawPhotos: any[] = Array.isArray(place.photos) ? place.photos : [];
-
-            if (place.place_id) {
-              try {
-                // Solicitar detalhes adicionais: fotos, reviews reais, horário de funcionamento e resumo editorial
-                const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=formatted_phone_number,international_phone_number,website,url,photos,reviews,opening_hours,editorial_summary,price_level&language=pt-BR&key=${apiKey}`;
-                const detailsRes = await fetch(detailsUrl);
-                const detailsData = await detailsRes.json();
-
-                if (detailsData.result) {
-                  const res = detailsData.result;
-                  phone = res.formatted_phone_number || res.international_phone_number || phone;
-                  internationalPhone = res.international_phone_number || "";
-                  if (res.website) {
-                    websiteUrl = res.website;
-                  }
-                  if (Array.isArray(res.photos) && res.photos.length > 0) {
-                    rawPhotos = res.photos;
-                  }
-                  if (Array.isArray(res.reviews) && res.reviews.length > 0) {
-                    realReviews = res.reviews.map((r: any) => ({
-                      author_name: r.author_name || "Cliente Google",
-                      rating: r.rating || 5,
-                      text: r.text || "",
-                      relative_time_description: r.relative_time_description || "recente"
-                    })).filter((r: any) => r.text.length > 10);
-                  }
-                  if (res.opening_hours && Array.isArray(res.opening_hours.weekday_text)) {
-                    openingHoursList = res.opening_hours.weekday_text;
-                  }
-                  if (res.editorial_summary && res.editorial_summary.overview) {
-                    summaryText = res.editorial_summary.overview;
-                  }
-                  if (res.price_level !== undefined) {
-                    priceLvl = res.price_level;
-                  }
-                }
-              } catch (e) {
-                console.error("Erro nos detalhes do local:", e);
-              }
-            }
-
-            const totalGooglePhotosCount = rawPhotos.length;
-
-            // Converter referências no servidor em URLs públicas do Google CDN (lh3.googleusercontent.com)
-            if (rawPhotos.length > 0) {
-              const photoPromises = rawPhotos.slice(0, 10).map(async (p: any) => {
-                try {
-                  const gUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${p.photo_reference}&key=${apiKey}`;
-                  const photoRes = await fetch(gUrl);
-                  if (photoRes.url && (photoRes.url.includes("googleusercontent") || photoRes.url.includes("ggpht"))) {
-                    return photoRes.url;
-                  }
-                  return `/api/photo?ref=${encodeURIComponent(p.photo_reference)}&key=${encodeURIComponent(apiKey)}`;
-                } catch (e) {
-                  return `/api/photo?ref=${encodeURIComponent(p.photo_reference)}&key=${encodeURIComponent(apiKey)}`;
-                }
-              });
-
-              const resolved = await Promise.all(photoPromises);
-              placePhotos = resolved.filter(Boolean) as string[];
-            }
-
-            const hasWebsite = Boolean(
-              websiteUrl &&
-                !websiteUrl.toLowerCase().includes("instagram.com") &&
-                !websiteUrl.toLowerCase().includes("wa.me") &&
-                !websiteUrl.toLowerCase().includes("facebook.com")
-            );
-            const hasInstagram = Boolean(websiteUrl?.toLowerCase().includes("instagram.com"));
-
-            const cleanNum = (internationalPhone || phone).replace(/\D/g, "");
-            const waNum = cleanNum ? (cleanNum.startsWith("55") ? cleanNum : `55${cleanNum}`) : "5511999999999";
-            const defaultMsg = encodeURIComponent(
-              `Olá! Vi o perfil da *${place.name}* no Google Maps (${cidade}) e notei que vocês ainda não possuem um site oficial para captação de clientes. Vocês aceitam propostas por aqui?`
-            );
-
-            // Formatação do link e handle do Instagram
-            const cleanNameNoSpace = place.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-            const instaUrl = hasInstagram
-              ? websiteUrl
-              : `https://www.instagram.com/${cleanNameNoSpace}/`;
-
-            const instaHandle = hasInstagram
-              ? "@" + (websiteUrl?.split("instagram.com/")[1]?.split("/")[0]?.replace(/[^a-zA-Z0-9._]/g, "") || cleanNameNoSpace)
-              : `@${cleanNameNoSpace}`;
-
-            const lead: LeadItem = {
-              id: place.place_id || `place-${Math.random()}`,
-              name: place.name || "Empresa sem Nome",
-              category: nicho,
-              rating: place.rating || 4.7,
-              user_ratings_total: place.user_ratings_total || Math.floor(Math.random() * 150 + 20),
-              address: place.formatted_address || cidade,
-              phone: phone !== "Não informado" ? phone : "Telefone não cadastrado",
-              raw_phone: waNum,
-              whatsapp_link: `https://wa.me/${waNum}?text=${defaultMsg}`,
-              has_website: hasWebsite,
-              website_url: websiteUrl,
-              has_instagram: true,
-              instagram_handle: instaHandle,
-              instagram_url: instaUrl,
-              google_maps_url: place.url || `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
-              photos: placePhotos.length > 0 ? placePhotos : getNicheSamplePhotos(nicho),
-              google_photos_count: totalGooglePhotosCount > 0 ? totalGooglePhotosCount : placePhotos.length,
-              reviews_list: realReviews,
-              opening_hours: openingHoursList,
-              editorial_summary: summaryText,
-              price_level: priceLvl,
-              status: "novo",
-              is_mock: false,
-            };
-
-            return lead;
-          });
-
-          let allLeads: LeadItem[] = await Promise.all(leadsPromises);
-
-          // Ordenar: Empresas SEM website em 1º lugar
-          allLeads.sort((a, b) => (a.has_website === b.has_website ? 0 : a.has_website ? 1 : -1));
-
-          return {
-            status: "success",
-            source: "google_api",
-            message: `Foram encontradas ${allLeads.length} empresas reais no Google Maps para ${nicho} em ${cidade}.`,
-            total: allLeads.length,
-            leads: allLeads,
-          };
-        } else if (searchData.status && searchData.status !== "OK") {
-          const mockLeads: LeadItem[] = generateMockLeads(nicho, cidade, false);
-          return {
-            status: "google_error",
-            source: "google_error",
-            googleStatus: searchData.status,
-            message: searchData.error_message || `Resposta do Google Cloud: ${searchData.status}`,
-            total: mockLeads.length,
-            leads: mockLeads,
-          };
-        }
-      } catch (err: any) {
-        console.error("Erro interno ao chamar Google Places API:", err);
-      }
+    if (!apiKey) {
+      return {
+        leads: generateMockLeads(nicho, cidade, data.onlyNoWebsite),
+        source: "demo_mock",
+        message: "Demonstração com dados simulados. Insira sua chave da Google Places API nas configurações para buscar ao vivo.",
+      };
     }
 
-    // Fallback de demonstração
-    const mockLeads: LeadItem[] = generateMockLeads(nicho, cidade, onlyNoWebsite);
+    try {
+      const query = `${nicho} em ${cidade}`;
+      const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}&language=pt-BR`;
 
-    return {
-      status: "success",
-      source: apiKey ? "google_api_fallback" : "demo_mock",
-      message: apiKey
-        ? `Exibindo leads qualificados do nicho '${nicho}' para a região '${cidade}'.`
-        : "Demonstração ativa. Insira sua chave da Google Places API nas configurações para buscar dados ao vivo do Google.",
-      total: mockLeads.length,
-      leads: mockLeads,
-    };
+      const res = await fetch(searchUrl);
+      const json = await res.json();
+
+      if (json.status !== "OK" && json.status !== "ZERO_RESULTS") {
+        console.error("Google Places API error status:", json.status, json.error_message);
+        return {
+          leads: generateMockLeads(nicho, cidade, data.onlyNoWebsite),
+          source: "google_error",
+          googleStatus: json.status,
+          message: json.error_message || `Falha na Google API (Status: ${json.status}). Verifique se a Places API está ativada e se há Billing ativo no Google Cloud Console.`,
+        };
+      }
+
+      const results = json.results || [];
+      if (results.length === 0) {
+        return {
+          leads: [],
+          source: "google_api",
+          message: `Nenhuma empresa encontrada no Google Maps para "${query}".`,
+        };
+      }
+
+      // Processar até 15 empresas principais
+      const detailedLeadsProm = results.slice(0, 15).map(async (place: any): Promise<LeadItem> => {
+        const placeId = place.place_id;
+        let phone = "(11) 98888-7777";
+        let rawPhone = "5511988887777";
+        let website = place.website;
+        let photos: string[] = [];
+        let reviewsList: any[] = [];
+        let openingHours: string[] = [];
+        let editorialSummary = "";
+
+        // Detalhes aprofundados por place_id
+        try {
+          const detailUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_phone_number,international_phone_number,website,photos,reviews,opening_hours,editorial_summary,url&key=${apiKey}&language=pt-BR`;
+          const detailRes = await fetch(detailUrl);
+          const detailJson = await detailRes.json();
+
+          if (detailJson.status === "OK" && detailJson.result) {
+            const r = detailJson.result;
+            if (r.website) website = r.website;
+            if (r.formatted_phone_number || r.international_phone_number) {
+              phone = r.formatted_phone_number || r.international_phone_number;
+              rawPhone = phone.replace(/\D/g, "");
+            }
+            if (r.url) place.url = r.url;
+
+            if (r.editorial_summary?.overview) {
+              editorialSummary = r.editorial_summary.overview;
+            }
+
+            if (r.opening_hours?.weekday_text) {
+              openingHours = r.opening_hours.weekday_text;
+            }
+
+            if (r.photos && r.photos.length > 0) {
+              photos = r.photos.slice(0, 8).map((p: any) =>
+                `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${p.photo_reference}&key=${apiKey}`
+              );
+            }
+
+            if (r.reviews && r.reviews.length > 0) {
+              reviewsList = r.reviews.map((rev: any) => ({
+                author_name: rev.author_name,
+                rating: rev.rating,
+                text: rev.text,
+                relative_time_description: rev.relative_time_description,
+              }));
+            }
+          }
+        } catch (e) {
+          console.error("Erro ao buscar Place Details para:", placeId, e);
+        }
+
+        const nameClean = place.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+        const instaHandle = `@${nameClean.slice(0, 16)}`;
+        const instagramUrl = `https://www.instagram.com/${nameClean.slice(0, 16)}/`;
+
+        const waNumber = rawPhone.length > 5 ? (rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`) : "5511988887777";
+        const waMsg = encodeURIComponent(
+          `Olá! Encontrei o perfil de *${place.name}* no Google Maps e gostaria de enviar a demonstração do novo site oficial de vocês.`
+        );
+
+        return {
+          id: placeId,
+          name: place.name,
+          category: place.types?.[0]?.replace(/_/g, " ") || nicho,
+          address: place.formatted_address || place.vicinity || cidade,
+          phone,
+          raw_phone: rawPhone,
+          rating: place.rating || 4.8,
+          user_ratings_total: place.user_ratings_total || 45,
+          has_website: Boolean(website),
+          website_url: website || undefined,
+          google_maps_url: place.url || `https://www.google.com/maps/search/?api=1&query=google_place_id:${placeId}`,
+          whatsapp_link: `https://wa.me/${waNumber}?text=${waMsg}`,
+          instagram_url: instagramUrl,
+          instagram_handle: instaHandle,
+          google_photos_count: photos.length,
+          photos,
+          reviews_list: reviewsList,
+          opening_hours: openingHours,
+          editorial_summary: editorialSummary,
+          status: "novo",
+        };
+      });
+
+      let leads = await Promise.all(detailedLeadsProm);
+
+      // Aplicar ordenação: Sem Website primeiro
+      if (data.onlyNoWebsite) {
+        leads.sort((a, b) => (a.has_website === b.has_website ? 0 : a.has_website ? 1 : -1));
+      }
+
+      // Aplicar filtros avançados
+      if (data.onlyWithPhotos) {
+        leads = leads.filter((l) => (l.google_photos_count || 0) > 0 || (l.photos && l.photos.length > 0));
+      }
+
+      if (data.minReviewsCount && data.minReviewsCount > 0) {
+        leads = leads.filter((l) => l.user_ratings_total >= (data.minReviewsCount || 0));
+      }
+
+      if (data.onlyWithWhatsapp) {
+        leads = leads.filter((l) => l.raw_phone && l.raw_phone.length >= 8);
+      }
+
+      return {
+        leads,
+        source: "google_api",
+        message: `Busca ao vivo realizada! Retornados ${leads.length} resultados reais do Google Maps.`,
+      };
+    } catch (err: any) {
+      console.error("Erro no processamento da busca:", err);
+      return {
+        leads: generateMockLeads(nicho, cidade, data.onlyNoWebsite),
+        source: "google_error",
+        message: err?.message || "Erro desconhecido ao conectar com os servidores do Google.",
+      };
+    }
   });
 
-export const Route = createFileRoute("/api/prospeccao")({
-  server: {
-    handlers: {
-      GET: async ({ request }) => {
-        const reqUrl = new URL(request.url);
-        const nicho = reqUrl.searchParams.get("nicho") || "Advocacia";
-        const cidade = reqUrl.searchParams.get("cidade") || "São Paulo - SP";
-        const customApiKey = reqUrl.searchParams.get("apiKey") || "";
-        const onlyNoWebsite = reqUrl.searchParams.get("onlyNoWebsite") !== "false";
-
-        const res = await getProspeccaoLeadsServerFn({
-          data: { nicho, cidade, apiKey: customApiKey, onlyNoWebsite },
-        });
-
-        return new Response(JSON.stringify(res), {
-          status: 200,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Content-Type": "application/json",
-          },
-        });
-      },
-    },
-  },
-});
-
-// Fotos de Amostra por Nicho
-function getNicheSamplePhotos(nicho: string): string[] {
-  const lower = nicho.toLowerCase();
-  if (lower.includes("barbea") || lower.includes("cabel")) {
-    return [
-      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=800&q=80"
-    ];
-  } else if (lower.includes("odonto") || lower.includes("denti")) {
-    return [
-      "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80"
-    ];
-  } else if (lower.includes("estetic") || lower.includes("spa")) {
-    return [
-      "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1512290900673-7002b521761c?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=800&q=80"
-    ];
-  } else if (lower.includes("pet") || lower.includes("vet")) {
-    return [
-      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=800&q=80"
-    ];
-  } else if (lower.includes("restauran") || lower.includes("bistr") || lower.includes("pizz") || lower.includes("hamburg") || lower.includes("comida") || lower.includes("gourmet") || lower.includes("bar") || lower.includes("boteco")) {
-    return [
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80"
-    ];
-  }
-  return [
-    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80"
-  ];
-}
-
-// Gerador de Leads Simulados por Nicho
-export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite: boolean): LeadItem[] {
-  const cleanNicho = nicho.trim().charAt(0).toUpperCase() + nicho.trim().slice(1);
-  const lowerNicho = nicho.toLowerCase();
-
-  let sampleNames: string[] = [];
-
-  if (lowerNicho.includes("imobili") || lowerNicho.includes("corret")) {
-    sampleNames = [
-      "Vila Real Negócios Imobiliários",
-      "Madalena Imóveis & Consultoria",
-      "Prime Imóveis de Alto Padrão",
-      "Paulista Empreendimentos Imobiliários",
-      "Jardins Gestão Imobiliária",
-      "Morada & Cia Imobiliária",
-      "Bela Vista Imóveis",
-      "Santos & Silva Corretora de Imóveis",
-    ];
-  } else if (lowerNicho.includes("barbea") || lowerNicho.includes("cabel")) {
-    sampleNames = [
-      "BARBEARIA MADALENA",
-      "Barbearia Black Zone Bela Vista",
-      "São Paulo Barbearia VIP",
-      "Barber SP Central",
-      "Barbearia Hena Tatuapé",
-      "Barbearia Ninja das Tesouras",
-      "Lord Barber Club",
-      "Espaço Homem Barbearia",
-    ];
-  } else if (lowerNicho.includes("odonto") || lowerNicho.includes("denti")) {
-    sampleNames = [
-      "Odonto Clean Clínica Integrada",
-      "Clínica Dental Sorriso Real",
-      "Studio Odontológico VIP",
-      "Odonto Prime Alinhadores",
-      "Dra. Camila Santos Odontologia Estética",
-      "Implantes & Ortodontia Bela Vista",
-      "Centro Odontológico Madalena",
-      "Oral Care Odontologia",
-    ];
-  } else if (lowerNicho.includes("estétic") || lowerNicho.includes("estetic")) {
-    sampleNames = [
-      "Espaço Beleza & Estética Avançada",
-      "Studio Luminous Estética Corporal",
-      "Clínica Dermato & Estética VIP",
-      "Espaço Bella Estética Facial",
-      "Harmonização & Estética Paulistana",
-      "Centro Estético Dra. Juliana",
-      "Clínica de Estética Bela Vita",
-      "Glow Estética & SPA",
-    ];
-  } else if (lowerNicho.includes("advoc") || lowerNicho.includes("direito")) {
-    sampleNames = [
-      "Mendes & Associados Advocacia",
-      "Jardins Consultoria Jurídica",
-      "Bela Vista Advocacia Empresarial",
-      "Dr. Roberto Silva & Advogados",
-      "Oliveira & Costa Sociedade de Advogados",
-      "Advocacia Trabalhista & Cível Madalena",
-      "Paulista Advocacia Especializada",
-      "Ferreira & Santos Advogados",
-    ];
-  } else if (lowerNicho.includes("restauran") || lowerNicho.includes("bistr") || lowerNicho.includes("pizz") || lowerNicho.includes("hamburg")) {
-    sampleNames = [
-      "Restaurante Sabor & Arte",
-      "Bistrô Vila Madalena",
-      "Cantina & Pizzaria Tradizionale",
-      "Espaço Gourmet Jardins",
-      "Pizzaria Forno a Lenha Bella Vista",
-      "Restaurante Varanda Paulistana",
-      "Parrilla & Cia Grill",
-      "Empório & Bistrô Central",
-    ];
-  } else {
-    sampleNames = [
-      `${cleanNicho} Madalena`,
-      `${cleanNicho} Black Zone`,
-      `Studio ${cleanNicho} VIP`,
-      `${cleanNicho} Elite & Co.`,
-      `Espaço ${cleanNicho} Central`,
-      `${cleanNicho} Premium Style`,
-      `Centro de ${cleanNicho} Express`,
-      `${cleanNicho} Paulistana`,
-    ];
-  }
-
-  const sampleBairros = [
-    "Vila Madalena", "Bela Vista", "Sumarezinho", "Vila Mariana", "Tatuapé", "Pinheiros", "Moema", "Jardins"
+export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite = true): LeadItem[] {
+  const sampleNames = [
+    `${nicho} Imperial`,
+    `Grupo ${nicho} & Associados`,
+    `Estúdio ${nicho} Prime`,
+    `Centro de ${nicho} ${cidade.split("-")[0].trim()}`,
+    `${nicho} Excellence`,
+    `Clínica ${nicho} Vida`,
+    `${nicho} Conceito VIP`,
+    `Oficina ${nicho} São José`,
   ];
 
-  const nichePhotos = getNicheSamplePhotos(nicho);
-
-  return sampleNames.map((name, i) => {
-    const ddd = "11";
-    const numPart1 = Math.floor(Math.random() * 8999 + 9000);
-    const numPart2 = Math.floor(Math.random() * 8999 + 1000);
-    const fullPhone = `+55 ${ddd} 9${numPart1}-${numPart2}`;
-    const cleanNum = `55${ddd}9${numPart1}${numPart2}`;
-    const bairro = sampleBairros[i % sampleBairros.length];
-
-    const hasWeb = false;
-    const cleanNameNoSpace = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-    const instaHandle = `@${cleanNameNoSpace}`;
-    const instaUrl = `https://www.instagram.com/${cleanNameNoSpace}/`;
-
-    const defaultMsg = encodeURIComponent(`Olá! Vi o perfil da *${name}* no Google Maps (${cidade}) e notei que vocês ainda não possuem um site oficial para captar clientes. Posso te enviar uma demonstração gratuita de 1 minuto?`);
+  const mockLeads: LeadItem[] = sampleNames.map((name, index) => {
+    const hasWebsite = index % 3 === 0;
+    const cleanName = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    const phone = `(11) 9${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const rawPhone = `55119${Math.floor(10000000 + Math.random() * 90000000)}`;
 
     return {
-      id: `lead-mock-${cleanNicho.toLowerCase()}-${i + 1}`,
-      name: name,
-      category: cleanNicho,
-      rating: parseFloat((Math.random() * 0.4 + 4.6).toFixed(1)),
-      user_ratings_total: Math.floor(Math.random() * 250 + 45),
-      address: `Rua das Flores, ${100 + i * 45} - ${bairro}, ${cidade}`,
-      phone: fullPhone,
-      raw_phone: cleanNum,
-      whatsapp_link: `https://wa.me/${cleanNum}?text=${defaultMsg}`,
-      has_website: hasWeb,
-      website_url: null,
-      has_instagram: true,
-      instagram_handle: instaHandle,
-      instagram_url: instaUrl,
+      id: `mock_lead_${index}_${Date.now()}`,
+      name,
+      category: nicho,
+      address: `Av. Paulista, ${100 + index * 150} - Bairro Central, ${cidade}`,
+      phone,
+      raw_phone: rawPhone,
+      rating: Number((4.5 + Math.random() * 0.5).toFixed(1)),
+      user_ratings_total: 25 + index * 34,
+      has_website: hasWebsite,
+      website_url: hasWebsite ? `https://www.${cleanName}.com.br` : undefined,
       google_maps_url: `https://www.google.com/maps/search/${encodeURIComponent(name + " " + cidade)}`,
-      photos: nichePhotos,
-      google_photos_count: Math.floor(Math.random() * 8 + 4),
+      whatsapp_link: `https://wa.me/${rawPhone}?text=${encodeURIComponent(`Olá! Gostaria de enviar a demonstração do novo site oficial de ${name}.`)}`,
+      instagram_url: `https://www.instagram.com/${cleanName}/`,
+      instagram_handle: `@${cleanName}`,
+      google_photos_count: 6,
+      photos: [
+        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=800&q=80"
+      ],
       reviews_list: [
-        { author_name: "Carlos Eduardo", rating: 5, text: `Atendimento excelente na ${name}! Recomendo fortemente para quem busca qualidade na região.`, relative_time_description: "há 2 semanas" },
-        { author_name: "Fernanda Lima", rating: 5, text: "Estrutura impecável e ambiente super acolhedor. Voltarei mais vezes com certeza!", relative_time_description: "há 1 mês" }
+        { author_name: "Marcos Silva", rating: 5, text: "Excelente atendimento e ambiente super agradável. Recomendo muito!", relative_time_description: "há 1 semana" },
+        { author_name: "Fernanda Lima", rating: 5, text: "Serviço de altíssima qualidade e profissionais atenciosos.", relative_time_description: "há 3 semanas" }
       ],
       opening_hours: [
-        "Segunda-feira: 09:00 – 19:00",
-        "Terça-feira: 09:00 – 19:00",
-        "Quarta-feira: 09:00 – 19:00",
-        "Quinta-feira: 09:00 – 19:00",
-        "Sexta-feira: 09:00 – 20:00",
-        "Sábado: 09:00 – 18:00",
-        "Domingo: Fechado"
+        "segunda-feira: 09:00 – 19:00",
+        "terça-feira: 09:00 – 19:00",
+        "quarta-feira: 09:00 – 19:00",
+        "quinta-feira: 09:00 – 19:00",
+        "sexta-feira: 09:00 – 19:00",
+        "sábado: 09:00 – 16:00"
       ],
-      editorial_summary: `${name} é uma referência em ${cleanNicho} na região de ${cidade}, destacando-se pelo atendimento humanizado e infraestrutura completa.`,
-      status: i === 0 ? "em_contato" : i === 1 ? "proposta" : "novo",
-      is_mock: true,
+      editorial_summary: `${name} é uma empresa de ${nicho} com excelente reputação e atendimento diferenciado na região de ${cidade}.`,
+      status: "novo",
     };
   });
+
+  if (onlyNoWebsite) {
+    mockLeads.sort((a, b) => (a.has_website === b.has_website ? 0 : a.has_website ? 1 : -1));
+  }
+
+  return mockLeads;
 }

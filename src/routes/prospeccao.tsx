@@ -28,7 +28,11 @@ import {
   ExternalLink,
   AlertTriangle,
   Flame,
-  Image as ImageIcon
+  Image as ImageIcon,
+  SlidersHorizontal,
+  FileText,
+  Send,
+  Zap
 } from "lucide-react";
 
 const TITLE = "Ferramenta de Prospecção B2B Google Maps — RDG Digital";
@@ -56,10 +60,16 @@ function ProspeccaoPage() {
   const [activeTab, setActiveTab] = useState<"prospectar" | "salvos">("prospectar");
   const [savedViewMode, setSavedViewMode] = useState<"kanban" | "grid">("kanban");
 
+  // Filtros de Busca
   const [nicho, setNicho] = useState<string>("");
   const [cidade, setCidade] = useState<string>("");
   const [onlyNoWebsite, setOnlyNoWebsite] = useState<boolean>(true);
+  const [onlyWithPhotos, setOnlyWithPhotos] = useState<boolean>(false);
+  const [onlyWithWhatsapp, setOnlyWithWhatsapp] = useState<boolean>(false);
   const [minRating, setMinRating] = useState<number>(0);
+  const [minReviewsCount, setMinReviewsCount] = useState<number>(0);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false);
+
   const [apiKey, setApiKey] = useState<string>("");
   const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
 
@@ -76,6 +86,10 @@ function ProspeccaoPage() {
   // Modal de Prévia Interativa de Site
   const [selectedDemoLead, setSelectedDemoLead] = useState<LeadItem | null>(null);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  // Modal Gerador de Scripts de Abordagem WhatsApp
+  const [scriptLead, setScriptLead] = useState<LeadItem | null>(null);
+  const [copiedScriptIndex, setCopiedScriptIndex] = useState<number | null>(null);
 
   // Carregar chave de API e leads salvos do localStorage SEM busca automatica
   useEffect(() => {
@@ -126,6 +140,9 @@ function ProspeccaoPage() {
           cidade: targetCidade,
           apiKey: targetApiKey,
           onlyNoWebsite,
+          onlyWithPhotos,
+          onlyWithWhatsapp,
+          minReviewsCount,
         },
       });
 
@@ -143,7 +160,7 @@ function ProspeccaoPage() {
       fetchedLeads = generateMockLeads(targetNicho, targetCidade, onlyNoWebsite);
     }
 
-    const filtered = fetchedLeads.filter((l: LeadItem) => l.rating >= minRating);
+    const filtered = fetchedLeads.filter((l: LeadItem) => l.rating >= minRating && l.user_ratings_total >= minReviewsCount);
     setLeads(filtered.length > 0 ? filtered : fetchedLeads);
     setSourceInfo({ source, message, googleStatus });
     setIsLoading(false);
@@ -206,7 +223,6 @@ function ProspeccaoPage() {
   };
 
   const buildDemoUrl = (lead: LeadItem) => {
-    // Salvar o objeto de lead 100% completo no sessionStorage para garantir que nada se perca por limite de URL
     if (typeof window !== "undefined") {
       sessionStorage.setItem("active_demo_lead", JSON.stringify(lead));
       sessionStorage.setItem(`demo_lead_${lead.id}`, JSON.stringify(lead));
@@ -250,6 +266,30 @@ function ProspeccaoPage() {
     navigator.clipboard.writeText(demoUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  // Gerador de Scripts de Abordagem Customizados
+  const getSalesScripts = (lead: LeadItem) => {
+    const demoUrl = buildDemoUrl(lead);
+    const firstName = lead.name.split(" ")[0];
+
+    return [
+      {
+        title: "🔥 Abordagem por Elogio de Nota do Google (Alta Conversão)",
+        type: "Direct Pitch",
+        text: `Olá! Falei com a equipe do *${lead.name}*?\n\nEstava navegando no Google Maps na região de ${cidade} e notei que vocês têm uma excelente avaliação de ⭐ *${lead.rating} com ${lead.user_ratings_total} depoimentos positivos*, parabéns pelo ótimo trabalho!\n\nPorém, percebi que quando o cliente clica para ver o site de vocês, não há um link oficial para agendar ou ver os serviços.\n\nMontei uma demonstração de site oficial completa e personalizada para o *${lead.name}*, dá uma olhada como ficou incrível:\n👇\n${demoUrl}\n\nConsegue dar uma olhada e me dizer o que achou? Se gostar, ajustamos o que precisar!`,
+      },
+      {
+        title: "💡 Abordagem Consultiva (Foco em Vendas Perdiadas)",
+        type: "Consultative",
+        text: `Olá! Tudo bem? Meu nome é Renato da RDG Digital.\n\nEstou fazendo um levantamento de empresas referência em ${lead.category} na região e encontrei o *${lead.name}*.\n\nVocês sabiam que hoje muitos clientes buscam no Google e acabam fechando com o concorrente por não encontrarem um site moderno com WhatsApp direto?\n\nPara ajudar vocês a não perderem mais essas vendas, preparei uma prévia de um site de alta conversão exclusivo para o *${lead.name}*:\n🔗 ${demoUrl}\n\nSe tiver 2 minutos, podemos conversar para colocá-lo no ar esta semana!`,
+      },
+      {
+        title: "🚀 Abordagem Rápida e Direta (Vídeo / Demonstração)",
+        type: "Quick Offer",
+        text: `Olá! Tudo bem?\n\nDesenvolvemos o modelo oficial de site exclusivo para o *${lead.name}* com todas as fotos, avaliações e agendamento pelo WhatsApp.\n\nAcesse a prévia aqui: ${demoUrl}\n\nVocês têm interesse em colocar este site no ar no domínio oficial de vocês hoje?`,
+      },
+    ];
   };
 
   // Drag and Drop Event Handlers
@@ -484,7 +524,7 @@ function ProspeccaoPage() {
             ))}
           </div>
 
-          {/* Filtros Secundários */}
+          {/* Barra de Filtros Principais + Botão de Filtros Avançados */}
           <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-white/5 text-xs text-white/70">
             <div className="flex flex-wrap items-center gap-4">
               <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -500,23 +540,18 @@ function ProspeccaoPage() {
                 <span className="font-semibold text-white">Priorizar Empresas Sem Website no Topo</span>
               </label>
 
-              <div className="flex items-center gap-2">
-                <Filter size={14} className="text-white/40" />
-                <span className="text-white/50">Avaliação Mínima:</span>
-                <select
-                  value={minRating}
-                  onChange={(e) => {
-                    setMinRating(Number(e.target.value));
-                    if (hasSearched) handleSearch(nicho, cidade);
-                  }}
-                  className="bg-[#0A0A0A] border border-white/15 rounded-lg px-2.5 py-1 text-white font-bold outline-none"
-                >
-                  <option value={0}>Todas as notas</option>
-                  <option value={4.0}>⭐ 4.0+</option>
-                  <option value={4.5}>⭐ 4.5+ (Melhores)</option>
-                  <option value={4.8}>⭐ 4.8+ (Excelentes)</option>
-                </select>
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold border transition-all ${
+                  showAdvancedFilters || onlyWithPhotos || onlyWithWhatsapp || minReviewsCount > 0
+                    ? "bg-primary/20 text-primary border-primary/40"
+                    : "bg-white/5 text-white/70 border-white/10 hover:text-white"
+                }`}
+              >
+                <SlidersHorizontal size={14} />
+                <span>Filtros Avançados SaaS</span>
+              </button>
             </div>
 
             {/* Alternador de Abas Principais */}
@@ -545,6 +580,94 @@ function ProspeccaoPage() {
               </button>
             </div>
           </div>
+
+          {/* PAINEL EXPANSÍVEL DE FILTROS AVANÇADOS DE PROSPECÇÃO (SAAS LEVEL) */}
+          {showAdvancedFilters && (
+            <div className="bg-[#0A0A0A] border border-primary/30 rounded-2xl p-4 space-y-4 animate-fadeIn">
+              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                <span className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                  <Filter size={14} />
+                  <span>Filtros Avançados de Qualificação de Lead</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOnlyWithPhotos(false);
+                    setOnlyWithWhatsapp(false);
+                    setMinRating(0);
+                    setMinReviewsCount(0);
+                    if (hasSearched) handleSearch(nicho, cidade);
+                  }}
+                  className="text-[10px] text-white/40 hover:text-white underline"
+                >
+                  Limpar Filtros
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                {/* Filtro: Apenas com Fotos Reais */}
+                <label className="flex items-center gap-2.5 cursor-pointer bg-white/5 p-2.5 rounded-xl border border-white/10 hover:border-white/20 transition-all">
+                  <input
+                    type="checkbox"
+                    checked={onlyWithPhotos}
+                    onChange={(e) => {
+                      setOnlyWithPhotos(e.target.checked);
+                      if (hasSearched) handleSearch(nicho, cidade);
+                    }}
+                    className="rounded accent-primary w-4 h-4"
+                  />
+                  <div className="space-y-0.5">
+                    <span className="font-bold text-white flex items-center gap-1">
+                      <ImageIcon size={12} className="text-emerald-400" />
+                      <span>Fotos no Perfil</span>
+                    </span>
+                    <p className="text-[10px] text-white/50">Somente empresas com fotos enviadas</p>
+                  </div>
+                </label>
+
+                {/* Filtro: Apenas com WhatsApp Direto */}
+                <label className="flex items-center gap-2.5 cursor-pointer bg-white/5 p-2.5 rounded-xl border border-white/10 hover:border-white/20 transition-all">
+                  <input
+                    type="checkbox"
+                    checked={onlyWithWhatsapp}
+                    onChange={(e) => {
+                      setOnlyWithWhatsapp(e.target.checked);
+                      if (hasSearched) handleSearch(nicho, cidade);
+                    }}
+                    className="rounded accent-primary w-4 h-4"
+                  />
+                  <div className="space-y-0.5">
+                    <span className="font-bold text-white flex items-center gap-1">
+                      <MessageCircle size={12} className="text-emerald-400" />
+                      <span>WhatsApp Direto</span>
+                    </span>
+                    <p className="text-[10px] text-white/50">Celular identificado para contato</p>
+                  </div>
+                </label>
+
+                {/* Filtro: Mínimo de Avaliações / Volume de Reviews */}
+                <div className="bg-white/5 p-2.5 rounded-xl border border-white/10 space-y-1">
+                  <label className="text-[10px] font-bold text-white/60 uppercase block">
+                    Volume Mínimo de Reviews:
+                  </label>
+                  <select
+                    value={minReviewsCount}
+                    onChange={(e) => {
+                      setMinReviewsCount(Number(e.target.value));
+                      if (hasSearched) handleSearch(nicho, cidade);
+                    }}
+                    className="w-full bg-[#111218] border border-white/15 rounded-lg px-2 py-1 text-white font-bold text-xs outline-none"
+                  >
+                    <option value={0}>Sem mínimo de avaliações</option>
+                    <option value={10}>Mais de 10 avaliações</option>
+                    <option value={30}>Mais de 30 avaliações (Empresas Ativas)</option>
+                    <option value={50}>Mais de 50 avaliações (Líderes Locais)</option>
+                    <option value={100}>Mais de 100 avaliações (🔥 Super Lead)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* TAB 1: PROSPECTAR LEADS */}
@@ -590,6 +713,7 @@ function ProspeccaoPage() {
                     isSaved={isSaved(lead.id)}
                     onToggleSave={() => toggleSaveLead(lead)}
                     onOpenDemoModal={() => setSelectedDemoLead(lead)}
+                    onOpenScriptModal={() => setScriptLead(lead)}
                     onOpenDemoPage={() => openDemoPage(lead)}
                   />
                 ))}
@@ -723,15 +847,13 @@ function ProspeccaoPage() {
                                 </select>
 
                                 <div className="flex items-center gap-1">
-                                  <a
-                                    href={lead.instagram_url || `https://www.instagram.com/${lead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    title="Instagram"
-                                    className="p-1.5 bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 border border-pink-500/30 rounded-lg"
+                                  <button
+                                    onClick={() => setScriptLead(lead)}
+                                    title="Gerar Abordagem WhatsApp"
+                                    className="p-1.5 bg-primary/20 text-primary hover:bg-primary/30 border border-primary/30 rounded-lg"
                                   >
-                                    <Instagram size={12} />
-                                  </a>
+                                    <FileText size={12} />
+                                  </button>
                                   <button
                                     onClick={() => setSelectedDemoLead(lead)}
                                     title="Prévia do Site"
@@ -768,6 +890,7 @@ function ProspeccaoPage() {
                     isSaved={true}
                     onToggleSave={() => toggleSaveLead(lead)}
                     onOpenDemoModal={() => setSelectedDemoLead(lead)}
+                    onOpenScriptModal={() => setScriptLead(lead)}
                     onOpenDemoPage={() => openDemoPage(lead)}
                   />
                 ))}
@@ -834,6 +957,70 @@ function ProspeccaoPage() {
               >
                 Salvar Chave
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL GERADOR DE SCRIPTS DE ABORDAGEM WHATSAPP */}
+      {scriptLead && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#111218] border border-white/10 rounded-3xl max-w-2xl w-full flex flex-col relative shadow-2xl my-auto p-6 space-y-6">
+            <button
+              onClick={() => setScriptLead(null)}
+              className="absolute top-5 right-5 text-white/40 hover:text-white p-1"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="space-y-2">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+                <Zap size={20} />
+              </div>
+              <h3 className="text-xl font-black text-white">Scripts de Abordagem de Alta Conversão</h3>
+              <p className="text-xs text-white/60 leading-relaxed">
+                Copie os modelos de mensagem já preenchidos com os dados reais de <strong>{scriptLead.name}</strong> e o link do site pronto.
+              </p>
+            </div>
+
+            <div className="space-y-4 max-h-[450px] overflow-y-auto custom-scrollbar pr-1">
+              {getSalesScripts(scriptLead).map((script, idx) => (
+                <div key={idx} className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-extrabold text-primary">{script.title}</h4>
+                    <span className="text-[10px] bg-white/5 text-white/60 px-2 py-0.5 rounded-full border border-white/10 font-mono">
+                      {script.type}
+                    </span>
+                  </div>
+
+                  <pre className="text-xs text-white/80 font-sans whitespace-pre-wrap leading-relaxed bg-[#111218] p-3 rounded-xl border border-white/5">
+                    {script.text}
+                  </pre>
+
+                  <div className="flex items-center justify-end gap-2 pt-1">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(script.text);
+                        setCopiedScriptIndex(idx);
+                        setTimeout(() => setCopiedScriptIndex(null), 2000);
+                      }}
+                      className="px-3.5 py-1.5 bg-white/5 hover:bg-white/10 text-white font-bold text-xs rounded-xl border border-white/10 flex items-center gap-1.5 transition-all"
+                    >
+                      {copiedScriptIndex === idx ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                      <span>{copiedScriptIndex === idx ? "Copiado!" : "Copiar Texto"}</span>
+                    </button>
+                    <a
+                      href={`https://wa.me/${(scriptLead.raw_phone || "5511988887777").replace(/\D/g, "")}?text=${encodeURIComponent(script.text)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-emerald-600/20"
+                    >
+                      <Send size={14} />
+                      <span>Enviar no WhatsApp</span>
+                    </a>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -928,15 +1115,17 @@ function ProspeccaoPage() {
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-2">
-              <a
-                href={selectedDemoLead.whatsapp_link}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => {
+                  const leadToScript = selectedDemoLead;
+                  setSelectedDemoLead(null);
+                  setScriptLead(leadToScript);
+                }}
                 className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
               >
-                <MessageCircle size={18} />
-                <span>Enviar Proposta com o Link no WhatsApp</span>
-              </a>
+                <Zap size={18} />
+                <span>Gerar Script de Abordagem Personalizado</span>
+              </button>
             </div>
           </div>
         </div>
@@ -951,23 +1140,28 @@ function LeadCard({
   isSaved,
   onToggleSave,
   onOpenDemoModal,
+  onOpenScriptModal,
   onOpenDemoPage,
 }: {
   lead: LeadItem;
   isSaved: boolean;
   onToggleSave: () => void;
   onOpenDemoModal: () => void;
+  onOpenScriptModal: () => void;
   onOpenDemoPage: () => void;
 }) {
   const instaTargetUrl = lead.instagram_url || `https://www.instagram.com/${lead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`;
   const photoCount = lead.google_photos_count || lead.photos?.length || 0;
+  const isHotLead = !lead.has_website && lead.rating >= 4.7 && lead.user_ratings_total >= 20;
 
   return (
     <div
       className={`bg-[#111218] border rounded-2xl p-5 space-y-4 transition-all duration-300 hover:shadow-xl flex flex-col justify-between group ${
-        !lead.has_website
-          ? "border-amber-500/40 hover:border-amber-500/80 hover:shadow-amber-500/10"
-          : "border-white/10 hover:border-primary/40 hover:shadow-primary/5"
+        isHotLead
+          ? "border-amber-500/60 bg-gradient-to-b from-[#16141a] to-[#111218] shadow-amber-500/10"
+          : !lead.has_website
+          ? "border-amber-500/40 hover:border-amber-500/80"
+          : "border-white/10 hover:border-primary/40"
       }`}
     >
       <div className="space-y-3">
@@ -1012,10 +1206,15 @@ function LeadCard({
             <span className="font-mono text-white/90">{lead.phone}</span>
           </div>
 
-          {/* Status do Instagram / Site */}
+          {/* Badges de Qualificação do Lead */}
           <div className="flex items-center gap-2 pt-1 flex-wrap">
-            {!lead.has_website ? (
-              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-300 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/40 animate-pulse">
+            {isHotLead ? (
+              <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-300 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/50 animate-pulse shadow-md shadow-amber-500/20">
+                <Flame size={12} className="text-amber-400" />
+                <span>🔥 LEAD ALTA TEMPERATURA (Sem Website + Nota {lead.rating})</span>
+              </span>
+            ) : !lead.has_website ? (
+              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-amber-300 bg-amber-500/15 px-2.5 py-0.5 rounded-full border border-amber-500/30">
                 <Flame size={10} className="text-amber-400" />
                 <span>OPORTUNIDADE DE OURO (Sem Website)</span>
               </span>
@@ -1029,14 +1228,14 @@ function LeadCard({
             {photoCount > 0 && (
               <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                 <ImageIcon size={10} />
-                <span>{photoCount} Fotos do Google</span>
+                <span>{photoCount} Fotos do Perfil</span>
               </span>
             )}
           </div>
         </div>
       </div>
 
-      {/* Ações do Card: Marcador + Gerar Prévia na Esquerda | Instagram + WhatsApp na Direita */}
+      {/* Ações do Card: Marcador + Prévia + Script + WhatsApp */}
       <div className="pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <button
@@ -1061,15 +1260,23 @@ function LeadCard({
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={onOpenScriptModal}
+            title="Gerar Script de Abordagem"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-primary/15 hover:bg-primary/25 border border-primary/30 text-primary font-extrabold text-xs rounded-xl transition-all"
+          >
+            <Zap size={14} />
+            <span>Script</span>
+          </button>
+
           <a
             href={instaTargetUrl}
             target="_blank"
             rel="noopener noreferrer"
             title="Abrir Perfil do Instagram"
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-pink-500/10"
+            className="inline-flex items-center justify-center p-2 bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 rounded-xl transition-all"
           >
             <Instagram size={14} />
-            <span>Instagram</span>
           </a>
 
           <a
