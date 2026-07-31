@@ -2,6 +2,8 @@
 // Rota: /api/prospeccao?nicho=<NICHO>&cidade=<CIDADE>&apiKey=<CHAVE_OPCIONAL>&onlyNoWebsite=<BOOLEAN>
 import { createFileRoute } from "@tanstack/react-router";
 
+export type LeadStatus = "novo" | "em_contato" | "followup" | "proposta" | "fechado" | "inativo";
+
 export interface LeadItem {
   id: string;
   name: string;
@@ -17,6 +19,7 @@ export interface LeadItem {
   has_instagram: boolean;
   instagram_handle: string | null;
   google_maps_url: string;
+  status?: LeadStatus;
   is_mock?: boolean;
 }
 
@@ -95,6 +98,7 @@ export const Route = createFileRoute("/api/prospeccao")({
                   has_instagram: hasInstagram,
                   instagram_handle: hasInstagram ? "@empresa" : "Não possui Instagram",
                   google_maps_url: place.url || `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
+                  status: "novo",
                   is_mock: false,
                 };
 
@@ -252,6 +256,7 @@ export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite: 
       has_instagram: hasInsta,
       instagram_handle: hasInsta ? null : "Não possui Instagram",
       google_maps_url: `https://www.google.com/maps/search/${encodeURIComponent(name + " " + cidade)}`,
+      status: i === 0 ? "em_contato" : i === 1 ? "proposta" : "novo",
       is_mock: true,
     };
   });

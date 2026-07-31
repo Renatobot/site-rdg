@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
-import { LeadItem, generateMockLeads } from "./api.prospeccao";
+import { LeadItem, LeadStatus, generateMockLeads } from "./api.prospeccao";
 import {
   Search,
   MapPin,
@@ -23,7 +23,16 @@ import {
   MonitorPlay,
   Bookmark,
   BookmarkCheck,
-  MessageCircle
+  MessageCircle,
+  Kanban,
+  Grid,
+  Smartphone,
+  Monitor,
+  Calendar,
+  Clock,
+  ShieldCheck,
+  Trash2,
+  MoveRight
 } from "lucide-react";
 
 const TITLE = "Ferramenta de Prospecção B2B Google Maps — RDG Digital";
@@ -38,8 +47,19 @@ export const Route = createFileRoute("/prospeccao")({
   component: ProspeccaoPage,
 });
 
+const KANBAN_COLUMNS: { id: LeadStatus; title: string; badgeColor: string; headerBorder: string }[] = [
+  { id: "novo", title: "📥 Novos Leads", badgeColor: "bg-blue-500/10 text-blue-400 border-blue-500/20", headerBorder: "border-blue-500/40" },
+  { id: "em_contato", title: "💬 Em Contato", badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/20", headerBorder: "border-amber-500/40" },
+  { id: "followup", title: "⏳ Follow-Up", badgeColor: "bg-purple-500/10 text-purple-400 border-purple-500/20", headerBorder: "border-purple-500/40" },
+  { id: "proposta", title: "🎯 Proposta Enviada", badgeColor: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20", headerBorder: "border-cyan-500/40" },
+  { id: "fechado", title: "✅ Cliente Fechado", badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", headerBorder: "border-emerald-500/40" },
+  { id: "inativo", title: "❌ Sem Interesse", badgeColor: "bg-rose-500/10 text-rose-400 border-rose-500/20", headerBorder: "border-rose-500/40" },
+];
+
 function ProspeccaoPage() {
   const [activeTab, setActiveTab] = useState<"prospectar" | "salvos">("prospectar");
+  const [savedViewMode, setSavedViewMode] = useState<"kanban" | "grid">("kanban");
+
   const [nicho, setNicho] = useState<string>("Imobiliária");
   const [cidade, setCidade] = useState<string>("São Paulo - SP");
   const [onlyNoWebsite, setOnlyNoWebsite] = useState<boolean>(true);
@@ -52,8 +72,13 @@ function ProspeccaoPage() {
   const [savedLeads, setSavedLeads] = useState<LeadItem[]>([]);
   const [sourceInfo, setSourceInfo] = useState<{ source: string; message?: string } | null>(null);
 
-  // Modal de Prévia de Site
+  // Drag and Drop Kanban State
+  const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
+  const [dragOverCol, setDragOverCol] = useState<LeadStatus | null>(null);
+
+  // Modal de Prévia Interativa de Site
   const [selectedDemoLead, setSelectedDemoLead] = useState<LeadItem | null>(null);
+  const [demoDevice, setDemoDevice] = useState<"mobile" | "desktop">("desktop");
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
   // Carregar chave de API e leads salvos do localStorage
@@ -64,13 +89,15 @@ function ProspeccaoPage() {
     const saved = localStorage.getItem("saved_prospect_leads");
     if (saved) {
       try {
-        setSavedLeads(JSON.parse(saved));
+        const parsed: LeadItem[] = JSON.parse(saved);
+        // Garantir que todos tenham status
+        const withStatus = parsed.map((l) => ({ ...l, status: l.status || "novo" }));
+        setSavedLeads(withStatus);
       } catch (e) {
         console.error(e);
       }
     }
 
-    // Busca inicial automática
     handleSearch("Imobiliária", "São Paulo - SP", savedKey);
   }, []);
 
@@ -112,7 +139,6 @@ function ProspeccaoPage() {
       console.error("Erro na busca de leads via API:", err);
     }
 
-    // Fallback garantido no próprio cliente se a API não retornar
     if (fetchedLeads.length === 0) {
       fetchedLeads = generateMockLeads(targetNicho, targetCidade, onlyNoWebsite);
     }
@@ -130,8 +156,20 @@ function ProspeccaoPage() {
     if (exists) {
       updated = savedLeads.filter((l) => l.id !== lead.id);
     } else {
-      updated = [...savedLeads, lead];
+      updated = [...savedLeads, { ...lead, status: lead.status || "novo" }];
     }
+
+    setSavedLeads(updated);
+    localStorage.setItem("saved_prospect_leads", JSON.stringify(updated));
+  };
+
+  const updateLeadStatus = (leadId: string, newStatus: LeadStatus) => {
+    const updated = savedLeads.map((l) => {
+      if (l.id === leadId) {
+        return { ...l, status: newStatus };
+      }
+      return l;
+    });
 
     setSavedLeads(updated);
     localStorage.setItem("saved_prospect_leads", JSON.stringify(updated));
@@ -142,10 +180,11 @@ function ProspeccaoPage() {
   const exportToCSV = (leadsToExport: LeadItem[]) => {
     if (leadsToExport.length === 0) return;
 
-    const headers = ["Nome", "Categoria", "Avaliação", "Reviews", "Endereço", "Telefone", "WhatsApp", "Possui Website", "URL Website"];
+    const headers = ["Nome", "Categoria", "Status Kanban", "Avaliação", "Reviews", "Endereço", "Telefone", "WhatsApp", "Possui Website", "URL Website"];
     const rows = leadsToExport.map((l) => [
       `"${l.name.replace(/"/g, '""')}"`,
       `"${l.category}"`,
+      `"${l.status || "novo"}"`,
       l.rating,
       l.user_ratings_total,
       `"${l.address.replace(/"/g, '""')}"`,
@@ -170,6 +209,27 @@ function ProspeccaoPage() {
     navigator.clipboard.writeText(demoUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  // Drag and Drop Event Handlers
+  const handleDragStart = (e: React.DragEvent, leadId: string) => {
+    e.dataTransfer.setData("text/plain", leadId);
+    setDraggedLeadId(leadId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, colId: LeadStatus) => {
+    e.preventDefault();
+    setDragOverCol(colId);
+  };
+
+  const handleDrop = (e: React.DragEvent, colId: LeadStatus) => {
+    e.preventDefault();
+    const leadId = e.dataTransfer.getData("text/plain") || draggedLeadId;
+    if (leadId) {
+      updateLeadStatus(leadId, colId);
+    }
+    setDraggedLeadId(null);
+    setDragOverCol(null);
   };
 
   return (
@@ -372,7 +432,7 @@ function ProspeccaoPage() {
               </div>
             </div>
 
-            {/* Alternador de Abas */}
+            {/* Alternador de Abas Principais */}
             <div className="flex bg-[#0A0A0A] p-1 rounded-xl border border-white/10">
               <button
                 onClick={() => setActiveTab("prospectar")}
@@ -393,14 +453,14 @@ function ProspeccaoPage() {
                     : "text-white/60 hover:text-white"
                 }`}
               >
-                <Bookmark size={14} />
+                <Kanban size={14} />
                 <span>Meus Leads Salvos ({savedLeads.length})</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* LISTAGEM DE LEADS */}
+        {/* TAB 1: PROSPECTAR LEADS */}
         {activeTab === "prospectar" ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -431,24 +491,52 @@ function ProspeccaoPage() {
             )}
           </div>
         ) : (
-          /* Aba de Leads Salvos */
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
-                <Bookmark className="text-primary" size={18} />
-                <span>Meus Leads Salvos</span>
-                <span className="text-xs font-normal text-white/50">({savedLeads.length} salvos)</span>
-              </h3>
+          /* TAB 2: MEUS LEADS SALVOS (KANBAN BOARD DRAG & DROP) */
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#111218] p-4 sm:p-5 rounded-2xl border border-white/10">
+              <div className="space-y-1">
+                <h3 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
+                  <Kanban className="text-primary" size={20} />
+                  <span>Painel Kanban de Prospecção (Drag & Drop)</span>
+                </h3>
+                <p className="text-xs text-white/50">
+                  Arraste os cards de empresa entre as colunas para gerenciar o status da sua negociação.
+                </p>
+              </div>
 
-              {savedLeads.length > 0 && (
-                <button
-                  onClick={() => exportToCSV(savedLeads)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 text-emerald-300 rounded-xl text-xs font-bold hover:bg-emerald-500/25 border border-emerald-500/30 transition-all"
-                >
-                  <Download size={14} />
-                  <span>Baixar CSV</span>
-                </button>
-              )}
+              <div className="flex items-center gap-3">
+                {/* Toggle Kanban vs Grid */}
+                <div className="flex bg-[#0A0A0A] p-1 rounded-xl border border-white/10 text-xs">
+                  <button
+                    onClick={() => setSavedViewMode("kanban")}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
+                      savedViewMode === "kanban" ? "bg-primary text-black" : "text-white/60 hover:text-white"
+                    }`}
+                  >
+                    <Kanban size={14} />
+                    <span>Kanban</span>
+                  </button>
+                  <button
+                    onClick={() => setSavedViewMode("grid")}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
+                      savedViewMode === "grid" ? "bg-primary text-black" : "text-white/60 hover:text-white"
+                    }`}
+                  >
+                    <Grid size={14} />
+                    <span>Lista Cards</span>
+                  </button>
+                </div>
+
+                {savedLeads.length > 0 && (
+                  <button
+                    onClick={() => exportToCSV(savedLeads)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 text-emerald-300 rounded-xl text-xs font-bold hover:bg-emerald-500/25 border border-emerald-500/30 transition-all"
+                  >
+                    <Download size={14} />
+                    <span>Exportar CSV</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {savedLeads.length === 0 ? (
@@ -457,7 +545,104 @@ function ProspeccaoPage() {
                 <p className="text-base font-bold text-white">Sua lista de leads salvos está vazia.</p>
                 <p className="text-xs text-white/40">Clique no ícone de marcador ⭐ nos cards de empresas para salvar seus leads favoritos.</p>
               </div>
+            ) : savedViewMode === "kanban" ? (
+              /* KANBAN BOARD VIEW */
+              <div className="flex gap-4 overflow-x-auto pb-6 custom-scrollbar items-start">
+                {KANBAN_COLUMNS.map((col) => {
+                  const colLeads = savedLeads.filter((l) => (l.status || "novo") === col.id);
+                  const isOver = dragOverCol === col.id;
+
+                  return (
+                    <div
+                      key={col.id}
+                      onDragOver={(e) => handleDragOver(e, col.id)}
+                      onDrop={(e) => handleDrop(e, col.id)}
+                      className={`w-72 sm:w-80 shrink-0 bg-[#111218] rounded-2xl border transition-all flex flex-col max-h-[750px] ${
+                        isOver ? "border-primary bg-primary/5 shadow-xl shadow-primary/10" : "border-white/10"
+                      }`}
+                    >
+                      {/* Header da Coluna */}
+                      <div className={`p-4 border-b ${col.headerBorder} flex items-center justify-between bg-[#0A0A0A]/50 rounded-t-2xl`}>
+                        <h4 className="font-extrabold text-xs text-white uppercase tracking-wider flex items-center gap-2">
+                          <span>{col.title}</span>
+                        </h4>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${col.badgeColor}`}>
+                          {colLeads.length}
+                        </span>
+                      </div>
+
+                      {/* Lista de Cards da Coluna */}
+                      <div className="p-3 space-y-3 overflow-y-auto custom-scrollbar flex-1 min-h-[150px]">
+                        {colLeads.length === 0 ? (
+                          <div className="h-28 border border-dashed border-white/10 rounded-xl flex items-center justify-center text-[11px] text-white/30 text-center p-3">
+                            Arraste leads para esta coluna
+                          </div>
+                        ) : (
+                          colLeads.map((lead) => (
+                            <div
+                              key={lead.id}
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, lead.id)}
+                              className="bg-[#0A0A0A] border border-white/10 hover:border-primary/50 rounded-xl p-4 space-y-3 cursor-grab active:cursor-grabbing transition-all hover:shadow-lg group"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <h5 className="font-bold text-sm text-white group-hover:text-primary transition-colors line-clamp-1">
+                                  {lead.name}
+                                </h5>
+                                <div className="flex items-center gap-1 text-[10px] font-bold text-yellow-400 shrink-0">
+                                  <Star size={10} fill="currentColor" />
+                                  <span>{lead.rating}</span>
+                                </div>
+                              </div>
+
+                              <div className="text-[11px] text-white/60 space-y-1">
+                                <p className="truncate">📍 {lead.address}</p>
+                                <p className="font-mono text-white/80">📞 {lead.phone}</p>
+                              </div>
+
+                              {/* Mudar Status via Select para Mobile */}
+                              <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2">
+                                <select
+                                  value={lead.status || "novo"}
+                                  onChange={(e) => updateLeadStatus(lead.id, e.target.value as LeadStatus)}
+                                  className="bg-[#111218] border border-white/10 text-[10px] text-white/80 rounded-lg px-2 py-1 outline-none font-bold cursor-pointer"
+                                >
+                                  {KANBAN_COLUMNS.map((c) => (
+                                    <option key={c.id} value={c.id}>
+                                      {c.title}
+                                    </option>
+                                  ))}
+                                </select>
+
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() => setSelectedDemoLead(lead)}
+                                    title="Prévia do Site"
+                                    className="p-1.5 bg-white/5 hover:bg-white/10 text-primary rounded-lg border border-white/10"
+                                  >
+                                    <Sparkles size={12} />
+                                  </button>
+                                  <a
+                                    href={lead.whatsapp_link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="WhatsApp"
+                                    className="p-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg"
+                                  >
+                                    <MessageCircle size={12} />
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
+              /* GRID VIEW */
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {savedLeads.map((lead) => (
                   <LeadCard
@@ -536,74 +721,159 @@ function ProspeccaoPage() {
         </div>
       )}
 
-      {/* MODAL GERADOR DE PRÉVIA DE SITE DEMO */}
+      {/* MODAL GERADOR E VISUALIZADOR DE PRÉVIA DE SITE REAL INTERATIVO */}
       {selectedDemoLead && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#111218] border border-white/10 rounded-3xl p-6 max-w-xl w-full space-y-6 relative shadow-2xl">
-            <button
-              onClick={() => setSelectedDemoLead(null)}
-              className="absolute top-5 right-5 text-white/40 hover:text-white p-1"
-            >
-              <X size={20} />
-            </button>
-
-            <div className="space-y-2">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center">
-                <Sparkles size={20} />
-              </div>
-              <h3 className="text-xl font-bold text-white">Demonstração de Site Irresistível</h3>
-              <p className="text-xs text-white/60 leading-relaxed">
-                Envie um modelo visual personalizado com as informações exatas da <strong>{selectedDemoLead.name}</strong> para fechar o contrato no WhatsApp.
-              </p>
-            </div>
-
-            {/* Visual Card Preview do Demo */}
-            <div className="bg-gradient-to-br from-[#1A1628] to-[#0A0A0A] border border-primary/30 rounded-2xl p-5 space-y-3 shadow-xl">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2">
-                  <MonitorPlay size={18} className="text-primary" />
-                  <span className="font-bold text-sm text-white">{selectedDemoLead.name}</span>
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+          <div className="bg-[#111218] border border-white/10 rounded-3xl max-w-4xl w-full flex flex-col max-h-[90vh] overflow-hidden relative shadow-2xl my-auto">
+            {/* Header Modal */}
+            <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between bg-[#0A0A0A]">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
+                  <Sparkles size={16} />
                 </div>
-                <span className="text-[10px] bg-primary/20 text-primary px-2.5 py-0.5 rounded-full font-bold">
-                  PRÉVIA PRONTA
-                </span>
+                <div>
+                  <h3 className="font-extrabold text-sm sm:text-base text-white">
+                    Prévia do Site: <span className="text-primary">{selectedDemoLead.name}</span>
+                  </h3>
+                  <p className="text-[11px] text-white/50">Modelo de demonstração ao vivo pronto para enviar no WhatsApp</p>
+                </div>
               </div>
-              <p className="text-xs text-white/70 leading-relaxed">
-                Este modelo traz a logo, endereço no mapa, botões de agendamento no WhatsApp e depoimentos fictícios prontos para apresentar ao dono do estabelecimento.
-              </p>
-            </div>
 
-            {/* Link Copiável */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
-                Link da Demonstração para Enviar no WhatsApp:
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={`${window.location.origin}/membros?demo=${encodeURIComponent(selectedDemoLead.name)}`}
-                  className="flex-1 bg-[#0A0A0A] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white/80 font-mono outline-none"
-                />
+              <div className="flex items-center gap-3">
+                {/* Switcher Dispositivo */}
+                <div className="hidden sm:flex bg-white/5 p-1 rounded-xl border border-white/10 text-xs">
+                  <button
+                    onClick={() => setDemoDevice("desktop")}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
+                      demoDevice === "desktop" ? "bg-primary text-black" : "text-white/60 hover:text-white"
+                    }`}
+                  >
+                    <Monitor size={14} />
+                    <span>Computador</span>
+                  </button>
+                  <button
+                    onClick={() => setDemoDevice("mobile")}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
+                      demoDevice === "mobile" ? "bg-primary text-black" : "text-white/60 hover:text-white"
+                    }`}
+                  >
+                    <Smartphone size={14} />
+                    <span>Celular</span>
+                  </button>
+                </div>
+
                 <button
-                  onClick={() => copyDemoLink(selectedDemoLead.name)}
-                  className="px-4 py-2.5 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all shrink-0 flex items-center gap-1.5"
+                  onClick={() => setSelectedDemoLead(null)}
+                  className="p-1.5 text-white/40 hover:text-white rounded-lg hover:bg-white/10"
                 >
-                  {copiedLink ? <Check size={14} /> : <Copy size={14} />}
-                  <span>{copiedLink ? "Copiado!" : "Copiar Link"}</span>
+                  <X size={20} />
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
+            {/* Container da Prévia do Site (Interactive Mockup) */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 bg-[#050508] flex justify-center">
+              <div
+                className={`transition-all duration-300 bg-[#0A0A0C] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col justify-between ${
+                  demoDevice === "mobile" ? "w-[375px] min-h-[650px]" : "w-full min-h-[500px]"
+                }`}
+              >
+                {/* Mockup Header */}
+                <div className="h-14 bg-[#12131C] border-b border-white/10 px-5 flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-black text-sm text-white tracking-tight">
+                    <span className="w-3 h-3 rounded-full bg-primary inline-block" />
+                    <span>{selectedDemoLead.name.toUpperCase()}</span>
+                  </div>
+                  <a
+                    href={selectedDemoLead.whatsapp_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 bg-emerald-500 text-black font-extrabold text-[11px] rounded-lg hover:bg-emerald-400 transition-all flex items-center gap-1"
+                  >
+                    <MessageCircle size={12} />
+                    <span>Agendar</span>
+                  </a>
+                </div>
+
+                {/* Mockup Hero */}
+                <div className="p-6 sm:p-10 text-center space-y-4 bg-gradient-to-b from-primary/10 via-transparent to-transparent relative">
+                  <span className="px-3 py-1 bg-primary/20 text-primary border border-primary/30 rounded-full text-[10px] font-extrabold uppercase tracking-wider">
+                    {selectedDemoLead.category} de Excelência
+                  </span>
+                  <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                    O Melhor Atendimento de {selectedDemoLead.category} da Região
+                  </h1>
+                  <p className="text-xs sm:text-sm text-white/70 max-w-lg mx-auto leading-relaxed">
+                    Tradição, qualidade e atendimento VIP para você. Venha conhecer nosso espaço ou agende pelo WhatsApp.
+                  </p>
+
+                  <div className="flex flex-wrap items-center justify-center gap-3 pt-2 text-xs">
+                    <div className="flex items-center gap-1 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-3 py-1.5 rounded-xl font-bold">
+                      <Star size={14} fill="currentColor" />
+                      <span>{selectedDemoLead.rating} ({selectedDemoLead.user_ratings_total} avaliações no Google)</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <a
+                      href={selectedDemoLead.whatsapp_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm rounded-xl shadow-xl shadow-emerald-500/20 transition-all transform hover:scale-105"
+                    >
+                      <MessageCircle size={18} />
+                      <span>Agendar no WhatsApp Agora</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Mockup Services Grid */}
+                <div className="p-6 bg-[#0E0F17] border-t border-white/5 space-y-4">
+                  <h4 className="text-xs font-bold text-white/50 uppercase tracking-wider text-center">
+                    Nossos Diferenciais & Serviços
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      { icon: ShieldCheck, title: "Qualidade Garantida", desc: "Equipe altamente qualificada e experiente." },
+                      { icon: Calendar, title: "Agendamento Prático", desc: "Marque seu horário sem filas direto pelo celular." },
+                      { icon: MapPin, title: "Excelente Localização", desc: selectedDemoLead.address },
+                    ].map((srv, idx) => (
+                      <div key={idx} className="bg-[#141520] border border-white/10 rounded-xl p-4 space-y-1.5 text-left">
+                        <srv.icon size={18} className="text-primary mb-1" />
+                        <h5 className="font-bold text-xs text-white">{srv.title}</h5>
+                        <p className="text-[11px] text-white/50 leading-relaxed">{srv.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Mockup Footer */}
+                <div className="p-4 bg-[#08080C] border-t border-white/5 text-center text-[10px] text-white/40">
+                  <p>© 2026 {selectedDemoLead.name} • {selectedDemoLead.address}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Modal de Ações */}
+            <div className="p-4 border-t border-white/10 bg-[#0A0A0A] flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  onClick={() => copyDemoLink(selectedDemoLead.name)}
+                  className="flex-1 sm:flex-initial px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5"
+                >
+                  {copiedLink ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                  <span>{copiedLink ? "Link Copiado!" : "Copiar Link de Demonstração"}</span>
+                </button>
+              </div>
+
               <a
                 href={selectedDemoLead.whatsapp_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+                className="w-full sm:w-auto px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
               >
                 <MessageCircle size={16} />
-                <span>Enviar Proposta no WhatsApp Agora</span>
+                <span>Enviar Proposta no WhatsApp</span>
               </a>
             </div>
           </div>
@@ -613,7 +883,7 @@ function ProspeccaoPage() {
   );
 }
 
-// Componente do Card do Lead (Visual Escuro idêntico à Imagem do Usuário)
+// Componente do Card do Lead
 function LeadCard({
   lead,
   isSaved,
