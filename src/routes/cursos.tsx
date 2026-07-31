@@ -514,7 +514,7 @@ const COURSES = [
 
                 <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl mt-4">
                   <strong className="text-primary flex items-center gap-2 mb-2">🔍 Saiba como personalizar suas colunas:</strong>
-                  <a href="#" className="hover:underline flex items-center gap-1 w-fit font-bold">
+                  <a href="https://www.facebook.com/business/help/1452248935049010?id=354406972049255" target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1 w-fit font-bold">
                     🔗 Clique aqui para ver o passo a passo oficial no Facebook <ExternalLink size={12} />
                   </a>
                 </div>
@@ -548,7 +548,7 @@ const COURSES = [
                 <p>
                   📌 Claro, também ensino outras estratégias nas próximas aulas, como a campanha ideal para quem tem pouco orçamento.
                 </p>
-                <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 rounded-lg transition-colors font-bold text-xs mt-2">
+                <a href="https://docs.google.com/document/d/18bn0iTY1D2kT2sJ-WaVumPMP3WSESPhT7mFEKIBmlxk/edit?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 text-primary hover:bg-primary/30 rounded-lg transition-colors font-bold text-xs mt-2">
                   🔗 Link das UTMs <ExternalLink size={14} />
                 </a>
               </div>
@@ -575,7 +575,7 @@ const COURSES = [
                 </div>
                 <div className="bg-white/5 border border-white/10 p-4 rounded-xl mt-4">
                   <strong className="text-white block mb-2">🔁 Planejamento e Fluxo Estratégico:</strong>
-                  <a href="#" className="text-cyan-400 hover:underline flex items-center gap-1 font-bold">
+                  <a href="https://whimsical.com/validacao-de-oferta-com-pouco-orcamento-EZxXzU5Wcz2KKeaYA1AGez" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline flex items-center gap-1 font-bold">
                     📊 Acesse aqui o Fluxo usado no vídeo <ExternalLink size={12} />
                   </a>
                 </div>
@@ -599,7 +599,7 @@ const COURSES = [
                 <p>
                   📢 Recomendo muito essas campanhas segmentadas por Estado, são ótimas para escalar! Você pode usá-las junto com outras estratégias ensinadas no curso.
                 </p>
-                <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 rounded-lg transition-colors font-bold text-xs">
+                <a href="https://docs.google.com/document/d/1nQonW98TJdZVBucVADAMd0x1IujKtXtYDKaqbxgeJBk/edit?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 rounded-lg transition-colors font-bold text-xs">
                   📄 Link da Lista dos Estados <ExternalLink size={14} />
                 </a>
 
@@ -652,7 +652,7 @@ const COURSES = [
                 <p>
                   💡 Essa campanha usa uma estratégia para baratear custos, combinando campanha de Reconhecimento com Campanha de Vendas.
                 </p>
-                <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors font-bold text-xs text-white mb-2">
+                <a href="https://docs.google.com/document/d/1axLY7dS76i3LqBH1M1_MuxhJGnznjpd19t3LnfS5XrA/edit?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors font-bold text-xs text-white mb-2">
                   📄 Link do Script para seguir <ExternalLink size={14} />
                 </a>
 
@@ -704,10 +704,10 @@ const COURSES = [
                   🔥 Essa estratégia da escala diária tem me gerado muito resultado, é o que digo... só faça o que dá certo e traz vendas!
                 </p>
                 <div className="flex gap-2">
-                  <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors font-bold text-xs text-white">
+                  <a href="https://docs.google.com/document/d/19BrPMABa5-WeKXU8BYG5cpTxnqmnFYGTZOdAVlgxrg4/edit?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors font-bold text-xs text-white">
                     📄 Script da Escala Diária <ExternalLink size={14} />
                   </a>
-                  <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg transition-colors font-bold text-xs">
+                  <a href="https://app.utmify.com.br/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg transition-colors font-bold text-xs">
                     🔗 Link UTMfy <ExternalLink size={14} />
                   </a>
                 </div>
@@ -810,7 +810,7 @@ const COURSES = [
                   Essa aula é exclusivamente para lhe ajudar a como escolher a segmentação de público internacional. Vou deixar as listas que uso para a língua inglesa, como exemplo para vender o LabKids, um dos produtos que temos.
                 </p>
                 
-                <a href="#" className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg transition-colors font-bold text-xs mb-2">
+                <a href="https://docs.google.com/document/d/1Qnvj0lo-b1ur7LQaekRpobydMuq77oD4Qq_4ik-zYgo/edit?usp=sharing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg transition-colors font-bold text-xs mb-2">
                   🔗 Link da Lista para Países de Língua Inglesa <ExternalLink size={14} />
                 </a>
 
