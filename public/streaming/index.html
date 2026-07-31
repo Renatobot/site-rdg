@@ -30,7 +30,7 @@
 
   <link rel="stylesheet" href="/streaming/styles.css?v=31" />
 </head>
-<body class="bg-[#070913] text-slate-100 font-sans min-h-screen flex flex-col overflow-x-hidden selection:bg-cyan-500 selection:text-black">
+<body class="bg-[#070913] text-slate-100 font-sans min-h-screen flex flex-col overflow-x-hidden selection:bg-cyan-500 selection:text-black" style="background-color: #070913; color: #f1f5f9;">
 
   <!-- STANDALONE LOGIN OVERLAY (Shows if not authenticated) -->
   <div id="loginOverlay" class="fixed inset-0 z-[9999999] bg-[#070913] flex flex-col items-center justify-center p-6 transition-all duration-500 opacity-100">
@@ -1149,6 +1149,8 @@
 
 
 
-    <script src="/streaming/app31.js?v=36"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/regenerator-runtime@0.14.1/runtime.min.js"></script>
+    <script type="module" src="/streaming/app31.js?v=37"></script>
+    <script nomodule src="/streaming/app31-legacy.js?v=37"></script>
 </body>
 </html>
