@@ -4454,7 +4454,7 @@ function initVipTickerBillboard() {
         setTimeout(typeStep, 2800);
         return;
       }
-      setTimeout(typeStep, 45);
+      setTimeout(typeStep, 20); // Faster typing speed
     }
   }
 
