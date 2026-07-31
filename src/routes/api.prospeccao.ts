@@ -4,6 +4,13 @@ import { createServerFn } from "@tanstack/react-start";
 
 export type LeadStatus = "novo" | "em_contato" | "followup" | "proposta" | "fechado" | "inativo";
 
+export interface GoogleReviewItem {
+  author_name: string;
+  rating: number;
+  text: string;
+  relative_time_description?: string;
+}
+
 export interface LeadItem {
   id: string;
   name: string;
@@ -22,6 +29,10 @@ export interface LeadItem {
   google_maps_url: string;
   photos?: string[];
   google_photos_count?: number;
+  reviews_list?: GoogleReviewItem[];
+  opening_hours?: string[];
+  editorial_summary?: string;
+  price_level?: number;
   status?: LeadStatus;
   is_mock?: boolean;
 }
@@ -70,25 +81,47 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
             let websiteUrl: string | null = place.website || null;
             let internationalPhone = "";
             let placePhotos: string[] = [];
+            let realReviews: GoogleReviewItem[] = [];
+            let openingHoursList: string[] = [];
+            let summaryText = "";
+            let priceLvl = place.price_level || undefined;
 
             // Fotos trazidas da busca inicial TextSearch se disponíveis
             let rawPhotos: any[] = Array.isArray(place.photos) ? place.photos : [];
 
             if (place.place_id) {
               try {
-                // Solicitar detalhes adicionais e fotos do local
-                const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=formatted_phone_number,international_phone_number,website,url,photos&language=pt-BR&key=${apiKey}`;
+                // Solicitar detalhes adicionais: fotos, reviews reais, horário de funcionamento e resumo editorial
+                const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=formatted_phone_number,international_phone_number,website,url,photos,reviews,opening_hours,editorial_summary,price_level&language=pt-BR&key=${apiKey}`;
                 const detailsRes = await fetch(detailsUrl);
                 const detailsData = await detailsRes.json();
 
                 if (detailsData.result) {
-                  phone = detailsData.result.formatted_phone_number || detailsData.result.international_phone_number || phone;
-                  internationalPhone = detailsData.result.international_phone_number || "";
-                  if (detailsData.result.website) {
-                    websiteUrl = detailsData.result.website;
+                  const res = detailsData.result;
+                  phone = res.formatted_phone_number || res.international_phone_number || phone;
+                  internationalPhone = res.international_phone_number || "";
+                  if (res.website) {
+                    websiteUrl = res.website;
                   }
-                  if (Array.isArray(detailsData.result.photos) && detailsData.result.photos.length > 0) {
-                    rawPhotos = detailsData.result.photos;
+                  if (Array.isArray(res.photos) && res.photos.length > 0) {
+                    rawPhotos = res.photos;
+                  }
+                  if (Array.isArray(res.reviews) && res.reviews.length > 0) {
+                    realReviews = res.reviews.map((r: any) => ({
+                      author_name: r.author_name || "Cliente Google",
+                      rating: r.rating || 5,
+                      text: r.text || "",
+                      relative_time_description: r.relative_time_description || "recente"
+                    })).filter((r: any) => r.text.length > 10);
+                  }
+                  if (res.opening_hours && Array.isArray(res.opening_hours.weekday_text)) {
+                    openingHoursList = res.opening_hours.weekday_text;
+                  }
+                  if (res.editorial_summary && res.editorial_summary.overview) {
+                    summaryText = res.editorial_summary.overview;
+                  }
+                  if (res.price_level !== undefined) {
+                    priceLvl = res.price_level;
                   }
                 }
               } catch (e) {
@@ -100,7 +133,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
 
             // Converter referências no servidor em URLs públicas do Google CDN (lh3.googleusercontent.com)
             if (rawPhotos.length > 0) {
-              const photoPromises = rawPhotos.slice(0, 8).map(async (p: any) => {
+              const photoPromises = rawPhotos.slice(0, 10).map(async (p: any) => {
                 try {
                   const gUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${p.photo_reference}&key=${apiKey}`;
                   const photoRes = await fetch(gUrl);
@@ -159,6 +192,10 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
               google_maps_url: place.url || `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
               photos: placePhotos.length > 0 ? placePhotos : getNicheSamplePhotos(nicho),
               google_photos_count: totalGooglePhotosCount > 0 ? totalGooglePhotosCount : placePhotos.length,
+              reviews_list: realReviews,
+              opening_hours: openingHoursList,
+              editorial_summary: summaryText,
+              price_level: priceLvl,
               status: "novo",
               is_mock: false,
             };
@@ -405,6 +442,20 @@ export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite: 
       google_maps_url: `https://www.google.com/maps/search/${encodeURIComponent(name + " " + cidade)}`,
       photos: nichePhotos,
       google_photos_count: Math.floor(Math.random() * 8 + 4),
+      reviews_list: [
+        { author_name: "Carlos Eduardo", rating: 5, text: `Atendimento excelente na ${name}! Recomendo fortemente para quem busca qualidade na região.`, relative_time_description: "há 2 semanas" },
+        { author_name: "Fernanda Lima", rating: 5, text: "Estrutura impecável e ambiente super acolhedor. Voltarei mais vezes com certeza!", relative_time_description: "há 1 mês" }
+      ],
+      opening_hours: [
+        "Segunda-feira: 09:00 – 19:00",
+        "Terça-feira: 09:00 – 19:00",
+        "Quarta-feira: 09:00 – 19:00",
+        "Quinta-feira: 09:00 – 19:00",
+        "Sexta-feira: 09:00 – 20:00",
+        "Sábado: 09:00 – 18:00",
+        "Domingo: Fechado"
+      ],
+      editorial_summary: `${name} é uma referência em ${cleanNicho} na região de ${cidade}, destacando-se pelo atendimento humanizado e infraestrutura completa.`,
       status: i === 0 ? "em_contato" : i === 1 ? "proposta" : "novo",
       is_mock: true,
     };

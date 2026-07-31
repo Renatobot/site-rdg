@@ -40,6 +40,9 @@ export interface DemoSearchParams {
   rating?: string;
   reviews?: string;
   photos?: string;
+  reviews_json?: string;
+  hours_json?: string;
+  summary?: string;
 }
 
 export const Route = createFileRoute("/demo")({
@@ -54,6 +57,9 @@ export const Route = createFileRoute("/demo")({
       rating: typeof search.rating === "string" ? search.rating : "5.0",
       reviews: typeof search.reviews === "string" ? search.reviews : "340",
       photos: typeof search.photos === "string" ? search.photos : "",
+      reviews_json: typeof search.reviews_json === "string" ? search.reviews_json : "",
+      hours_json: typeof search.hours_json === "string" ? search.hours_json : "",
+      summary: typeof search.summary === "string" ? search.summary : "",
     };
   },
   head: () => ({
@@ -113,14 +119,14 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
       "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
-      { title: "Menu Degustação Autoral", desc: "Sequência em 5 etapas elaborada pelo nosso Chef executivo com harmonização de vinhos.", price: "R$ 190" },
-      { title: "Pratos Principais & Grelhados", desc: "Cortes de carnes nobres, massas artesanais frescas e frutos do mar com temperos locais.", price: "A partir de R$ 68" },
-      { title: "Carta de Vinhos & Coquetelaria", desc: "Drinkeria autoral, coquetéis clássicos e rótulos de vinhos nacionais e importados.", price: "A partir de R$ 32" },
-      { title: "Sobremesas Artesanais", desc: "Petit gâteau de doce de leite, gelato caseiro e receitas exclusivas da casa.", price: "R$ 28" }
+      { title: "Pratos Especiais da Casa", desc: "Receitas tradicionais elaboradas com ingredientes frescos e seleção especial do Chef.", price: "Consulte o Cardápio" },
+      { title: "Menu Degustação & Entradas", desc: "Porções exclusivas, tábuas de frios e entradas quentes preparadas no dia.", price: "A partir de R$ 38" },
+      { title: "Carta de Vinhos & Bebidas", desc: "Drinkeria autoral, sucos naturais e seleção de vinhos nacionais e importados.", price: "A partir de R$ 24" },
+      { title: "Sobremesas Artesanais", desc: "Doces caseiros, gelatos e receitas exclusivas para finalizar sua refeição.", price: "A partir de R$ 22" }
     ],
     stats: [
-      { label: "Anos de Tradição", value: "12+" },
-      { label: "Pratos Servidos", value: "45k+" },
+      { label: "Anos de Tradição", value: "10+" },
+      { label: "Pratos Servidos", value: "30k+" },
       { label: "Nota Google Maps", value: "4.8" },
       { label: "Chefs de Cozinha", value: "4" }
     ]
@@ -147,18 +153,13 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     galleryFallback: [
       "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1517832606299-7ae9b720a186?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
       { title: "Corte Clássico & Fade", desc: "Corte na tesoura e máquina, finalizado com lavagem especial e styling.", price: "R$ 55" },
       { title: "Barba com Toalha Quente", desc: "Modelagem com navalha, óleos essenciais e protocolo relaxante com toalha quente.", price: "R$ 45" },
       { title: "Combo Grooming VIP", desc: "Corte completo + Barba na navalha + Sobrancelha + Bebida cortesia.", price: "R$ 90" },
-      { title: "Pigmentação & Camuflagem", desc: "Disfarce natural de falhas e alinhamento de fios com alta precisão.", price: "R$ 65" },
-      { title: "Tratamento Capilar & Scalp", desc: "Esfoliação de couro cabeludo, hidratação profunda e prevenção de queda.", price: "R$ 70" },
-      { title: "Corte Infantil Especial", desc: "Atendimento com paciência, técnica e experiência divertida para o pequeno.", price: "R$ 40" }
+      { title: "Pigmentação & Camuflagem", desc: "Disfarce natural de falhas e alinhamento de fios com alta precisão.", price: "R$ 65" }
     ],
     stats: [
       { label: "Anos de Tradição", value: "10+" },
@@ -188,18 +189,13 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     heroFallback: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
       { title: "Alinhadores Invisíveis 3D", desc: "Correção ortodôntica ultradiscreta, rápida e sem fios metálicos incômodos.", price: "Sob Consulta" },
-      { title: "Clareamento Dental Laser", desc: "Dentes visivelmente mais brancos e brilhantes com tecnologia sem sensibilidade.", price: "R$ 390" },
-      { title: "Lentes de Contato em Porcelana", desc: "Harmonização de formato e cor dos dentes com lâminas cerâmicas de alta resistência.", price: "Sob Consulta" },
-      { title: "Implantes & Carga Imediata", desc: "Recupere dentes perdidos com estabilidade e estética totalmente natural.", price: "Sob Consulta" },
-      { title: "Limpeza Preventiva & Profilaxia", desc: "Remoção de placa, jato purificador e polimento dental com aplicação de flúor.", price: "R$ 180" },
-      { title: "Check-up Pré-operatório & Raio-X", desc: "Avaliação intraoral completa com scanner digital 3D sem moldagens de massa.", price: "R$ 150" }
+      { title: "Clareamento Dental Laser", desc: "Dentes visivelmente mais brancos e brilhantes com tecnologia sem sensibilidade.", price: "Sob Consulta" },
+      { title: "Implantes & Reabilitação Oral", desc: "Recupere dentes perdidos com estabilidade e estética totalmente natural.", price: "Sob Consulta" },
+      { title: "Limpeza Preventiva & Profilaxia", desc: "Remoção de placa, jato purificador e polimento dental com aplicação de flúor.", price: "Sob Consulta" }
     ],
     stats: [
       { label: "Pacientes Atendidos", value: "8.5k+" },
@@ -229,16 +225,12 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     heroFallback: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1512290900673-7002b521761c?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
       { title: "Harmonização Facial & Botox", desc: "Suavização de linhas de expressão e preenchimento labial com contornos delicados.", price: "Sob Consulta" },
-      { title: "Limpeza de Pele Ouro 24k", desc: "Esfoliação biológica, extração indolor e hidratação profunda com ativos nobres.", price: "R$ 230" },
-      { title: "Drenagem Linfática & SPA", desc: "Massagem corporal desintoxicante para eliminação de retenção e relaxamento profundo.", price: "R$ 170" },
-      { title: "Criolipólise & Lipo Sem Cortes", desc: "Redução de medidas e eliminação de gordura localizada com congelamento preciso.", price: "R$ 290" },
-      { title: "Depilação a Laser Indolor", desc: "Pele macia e livre de pelos com tecnologia de resfriamento constante.", price: "A partir de R$ 99" }
+      { title: "Limpeza de Pele Ouro 24k", desc: "Esfoliação biológica, extração indolor e hidratação profunda com ativos nobres.", price: "Sob Consulta" },
+      { title: "Drenagem Linfática & SPA", desc: "Massagem corporal desintoxicante para eliminação de retenção e relaxamento profundo.", price: "Sob Consulta" }
     ],
     stats: [
       { label: "Procedimentos", value: "14k+" },
@@ -248,7 +240,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // PET SHOP & VETERINÁRIA (Light Warm, Friendly Coral)
+  // PET SHOP & VETERINÁRIA
   petshop: {
     isDark: false,
     bgColor: "#FFFBF5",
@@ -268,14 +260,11 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     heroFallback: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
-      { title: "Banho & Tosa Spa Humanizado", desc: "Shampoo hipoalergênico, secagem silenciosa e hidratação sem estresse pro pet.", price: "A partir de R$ 65" },
-      { title: "Consulta Veterinária Geral", desc: "Exame clínico preventivo, auscultação e acompanhamento de saúde contínuo.", price: "R$ 150" },
-      { title: "Vacinação Importada & Vermifugação", desc: "Protocolo completo de imunização com vacinas éticas mantidas sob refrigeração rígida.", price: "R$ 90" },
-      { title: "Tosa de Raça & Tesoura", desc: "Acabamento artesanal respeitando os padrões de beleza da raça do seu cão.", price: "R$ 95" }
+      { title: "Banho & Tosa Spa Humanizado", desc: "Shampoo hipoalergênico, secagem silenciosa e hidratação sem estresse pro pet.", price: "Sob Consulta" },
+      { title: "Consulta Veterinária Geral", desc: "Exame clínico preventivo, auscultação e acompanhamento de saúde contínuo.", price: "Sob Consulta" }
     ],
     stats: [
       { label: "Pets Atendidos", value: "6.2k+" },
@@ -285,7 +274,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // TATUAGEM & PIERCING (Dark Gothic, Crimson Red)
+  // TATUAGEM & PIERCING
   tatuagem: {
     isDark: true,
     bgColor: "#0A0A0A",
@@ -304,14 +293,11 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     icon: Palette,
     heroFallback: "https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
-      "https://images.unsplash.com/photo-1562962230-16e4623d36e6?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1590201844898-1e4a52003c4f?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1562962230-16e4623d36e6?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
       { title: "Tatuagem Autoral Fine Line", desc: "Traços ultrafinos, sombras suaves e projetos exclusivos desenvolvidos sob medida.", price: "Sob Orçamento" },
-      { title: "Cover-Up (Cobertura de Tattoo)", desc: "Transforme tatuagens antigas ou cicatrizes em obras de arte renovadas.", price: "Sob Orçamento" },
-      { title: "Body Piercing & Joalheria Titânio", desc: "Perfurações com agulha americana cateter e joias biomédicas de titânio F136.", price: "A partir de R$ 90" }
+      { title: "Body Piercing & Joalheria", desc: "Perfurações com agulha americana cateter e joias biomédicas de titânio F136.", price: "Sob Orçamento" }
     ],
     stats: [
       { label: "Tattoos Aplicadas", value: "9k+" },
@@ -321,7 +307,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // ADVOCACIA & CONSULTORIA JURÍDICA (Deep Imperial Navy, Gold)
+  // ADVOCACIA
   advocacia: {
     isDark: true,
     bgColor: "#0B132B",
@@ -340,15 +326,11 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     icon: Scale,
     heroFallback: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
-      "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1436450412740-6b988f486c6b?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
-      { title: "Direito Empresarial & Contratos", desc: "Consultoria preventiva, elaboração de acordos societários e proteção jurídica de marcas.", price: "Sob Consulta" },
-      { title: "Direito Trabalhista & Previdência", desc: "Defesa técnica contra passivos corporativos e requerimentos ágeis de aposentadorias.", price: "Sob Consulta" },
-      { title: "Direito de Família & Sucessões", desc: "Inventários extrajudiciais rápidos, partilhas de bens e planejamento de holdings.", price: "Sob Consulta" },
-      { title: "Direito Cível & Imobiliário", desc: "Ações de usucapião, rescisões contratuais e indenizações de alto valor.", price: "Sob Consulta" }
+      { title: "Direito Empresarial & Contratos", desc: "Consultoria preventiva, elaboração de acordos societários e proteção jurídica.", price: "Sob Consulta" },
+      { title: "Direito de Família & Sucessões", desc: "Inventários extrajudiciais rápidos, partilhas de bens e planejamento familiar.", price: "Sob Consulta" }
     ],
     stats: [
       { label: "Êxito nos Casos", value: "95%" },
@@ -358,7 +340,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // IMOBILIÁRIA (Clean Executive Light, Slate Navy & Bronze)
+  // IMOBILIÁRIA
   imobiliaria: {
     isDark: false,
     bgColor: "#F8FAFC",
@@ -377,14 +359,11 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     icon: Building2,
     heroFallback: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
       { title: "Curadoria de Venda de Imóveis", desc: "Casas em condomínio e apartamentos com documentação juridicamente aprovada.", price: "Sob Consulta" },
-      { title: "Gestão de Locação com Garantia", desc: "Administração sem dor de cabeça com garantia pontual do valor do aluguel.", price: "Sob Consulta" },
-      { title: "Avaliação Mercadológica Técnica", desc: "Laudos precisos de preço justo de venda para inventários e investidores.", price: "Sob Consulta" }
+      { title: "Gestão de Locação com Garantia", desc: "Administração sem dor de cabeça com garantia pontual do valor do aluguel.", price: "Sob Consulta" }
     ],
     stats: [
       { label: "Imóveis Vendidos", value: "3k+" },
@@ -414,13 +393,11 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     heroFallback: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
       "https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
       { title: "Atendimento Sob Medida", desc: "Soluções completas desenhadas exatamente para atender sua necessidade.", price: "Sob Consulta" },
-      { title: "Agendamento Prático", desc: "Reserve seu horário de forma rápida pelo WhatsApp com flexibilidade.", price: "Sob Consulta" },
-      { title: "Garantia de Qualidade", desc: "Excelência comprovada e compromisso com os melhores resultados.", price: "Sob Consulta" }
+      { title: "Agendamento Prático", desc: "Reserve seu horário de forma rápida pelo WhatsApp com flexibilidade.", price: "Sob Consulta" }
     ],
     stats: [
       { label: "Clientes Atendidos", value: "5k+" },
@@ -444,7 +421,7 @@ function FullSiteDemoPage() {
   const rating = search.rating || "5.0";
   const reviews = search.reviews || "340";
 
-  // Parse de fotos reais capturadas do perfil do Google Maps
+  // 1. FOTOS REAIS DO GOOGLE MAPS DA EMPRESA
   let realGooglePhotos: string[] = [];
   if (search.photos) {
     try {
@@ -454,6 +431,32 @@ function FullSiteDemoPage() {
       }
     } catch (e) {
       console.error("Erro ao ler fotos do Google Maps:", e);
+    }
+  }
+
+  // 2. AVALIAÇÕES REAIS (REVIEWS) DE CLIENTES DO GOOGLE MAPS DA EMPRESA
+  let realReviewsList: { author_name: string; rating: number; text: string; relative_time_description?: string }[] = [];
+  if (search.reviews_json) {
+    try {
+      const parsed = JSON.parse(search.reviews_json);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        realReviewsList = parsed;
+      }
+    } catch (e) {
+      console.error("Erro ao ler reviews do Google Maps:", e);
+    }
+  }
+
+  // 3. HORÁRIOS REAIS DE FUNCIONAMENTO DO GOOGLE MAPS
+  let realOpeningHours: string[] = [];
+  if (search.hours_json) {
+    try {
+      const parsed = JSON.parse(search.hours_json);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        realOpeningHours = parsed;
+      }
+    } catch (e) {
+      console.error("Erro ao ler horarios do Google Maps:", e);
     }
   }
 
@@ -485,9 +488,41 @@ function FullSiteDemoPage() {
   const config = NICHE_CONFIGS[catKey] || NICHE_CONFIGS["default"];
   const NicheIcon = config.icon;
 
-  // Priorizar Fotos Reais do Google Maps se disponíveis!
+  // Descrição do Negócio: Usar o Resumo Editorial do Google se disponível, ou o resumo configurado do nicho
+  const businessSummary = search.summary && search.summary.length > 15
+    ? search.summary
+    : `${nome} é uma das empresas mais bem avaliadas no segmento de ${categoria} em ${cidade}, acumulando ${reviews} avaliações positivas no Google Maps com nota ${rating}.`;
+
+  // Imagens: Priorizar 100% as Fotos Reais do Google Maps
   const heroImage = realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback;
-  const galleryImages = realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 7) : config.galleryFallback;
+  const galleryImages = realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback;
+
+  // Geração Dinâmica de Serviços Personalizados com Base no Nome Específico do Lead
+  const lowerName = nome.toLowerCase();
+  let dynamicServices = config.services;
+
+  if (lowerName.includes("pizz")) {
+    dynamicServices = [
+      { title: "Pizzas Tradicionais no Forno a Lenha", desc: "Massa de fermentação natural longa, molho artesanal de tomate pelado e ingredientes nobres.", price: "Consulte o Cardápio" },
+      { title: "Pizzas Especiais da Casa", desc: "Combinações exclusivas desenvolvidas pela nossa cozinha com bordas recheadas.", price: "Consulte o Cardápio" },
+      { title: "Calzones & Entradas Quentes", desc: "Crostinis temperados, calzones recheados e pães da casa assados na hora.", price: "Consulte o Cardápio" },
+      { title: "Bebidas & Vinho da Casa", desc: "Carta de vinhos selecionados, refrigerantes e cervejas artesanais geladas.", price: "Consulte o Cardápio" }
+    ];
+  } else if (lowerName.includes("confeitar") || lowerName.includes("docer") || lowerName.includes("bolo")) {
+    dynamicServices = [
+      { title: "Bolos de Festa & Tortas Finas", desc: "Receitas artesanais sob encomenda e à pronta entrega com ingredientes de alta confeitaria.", price: "Consulte a Vitrine" },
+      { title: "Cafés Especiais & Capuccinos", desc: "Grãos selecionados com torra fresca, prensa francesa e bebidas quentes cremosas.", price: "Consulte a Vitrine" },
+      { title: "Salgados Artesanais & Empadas", desc: "Empadas folhadas, quiches de sabores variados e salgados assados no dia.", price: "Consulte a Vitrine" },
+      { title: "Doces Tradicionais & Gelatos", desc: "Brigadeiros gourmet, mil-folhas, macarons e sobremesas individuais.", price: "Consulte a Vitrine" }
+    ];
+  } else if (lowerName.includes("barbea") || lowerName.includes("barber")) {
+    dynamicServices = [
+      { title: `Corte de Cabelo — ${nome}`, desc: "Corte na tesoura ou máquina com alinhamento de fios e styling profissional.", price: "Agendar Horário" },
+      { title: "Barba Completa na Navalha", desc: "Modelagem com toalha quente, óleos hidratantes e pós-barba purificante.", price: "Agendar Horário" },
+      { title: "Combo Cabelo + Barba VIP", desc: "Tratamento completo com lavagem, alinhamento e atendimento personalizado.", price: "Agendar Horário" },
+      { title: "Pigmentação Capilar & Sobrancelha", desc: "Disfarce de falhas e alinhamento do contorno da barba e sobrancelha.", price: "Agendar Horário" }
+    ];
+  }
 
   return (
     <div
@@ -557,8 +592,8 @@ function FullSiteDemoPage() {
         <nav className="hidden md:flex items-center gap-6 text-xs uppercase tracking-[0.2em] font-semibold" style={{ color: config.mutedTextColor }}>
           <a href="#servicos" className="hover:opacity-100 transition-opacity">Serviços</a>
           <a href="#galeria" className="hover:opacity-100 transition-opacity">Galeria</a>
-          <a href="#depoimentos" className="hover:opacity-100 transition-opacity">Avaliações</a>
-          <a href="#localizacao" className="hover:opacity-100 transition-opacity">Contato</a>
+          <a href="#depoimentos" className="hover:opacity-100 transition-opacity">Avaliações do Google</a>
+          <a href="#localizacao" className="hover:opacity-100 transition-opacity">Horários & Contato</a>
         </nav>
 
         <div className="flex items-center gap-3">
@@ -570,12 +605,12 @@ function FullSiteDemoPage() {
             style={{ background: config.accentColor, color: config.accentText }}
           >
             <MessageCircle size={15} />
-            <span className="hidden sm:inline">Falar com Atendimento</span>
+            <span className="hidden sm:inline">Falar no WhatsApp</span>
           </a>
         </div>
       </header>
 
-      {/* HERO SECTION - ADAPTADA PARA LIGHT OU DARK ACCENT */}
+      {/* HERO SECTION - ADAPTADA PARA DADOS REAIS DO LEAD */}
       <section className="relative overflow-hidden py-16 sm:py-24 px-5 sm:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
           
@@ -595,14 +630,14 @@ function FullSiteDemoPage() {
                 color: config.textColor,
               }}
             >
-              {config.titleSpan}{" "}
-              <span className="italic" style={{ color: config.accentColor }}>
-                {config.titleSuffix}
+              {nome}{" "}
+              <span className="italic block" style={{ color: config.accentColor }}>
+                {cidade}.
               </span>
             </h1>
 
             <p className="text-base sm:text-lg max-w-xl leading-relaxed font-normal" style={{ color: config.mutedTextColor }}>
-              {config.desc}
+              {businessSummary}
             </p>
 
             <div className="flex flex-wrap items-center gap-5 pt-2">
@@ -614,7 +649,7 @@ function FullSiteDemoPage() {
                 style={{ background: config.accentColor, color: config.accentText }}
               >
                 <MessageCircle size={18} />
-                <span>Agendar Horário no WhatsApp</span>
+                <span>Agendar Atendimento no WhatsApp</span>
               </a>
 
               <a
@@ -628,32 +663,74 @@ function FullSiteDemoPage() {
                 >
                   <Play size={14} className="fill-current ml-0.5" />
                 </span>
-                <span className="text-xs font-semibold tracking-[0.2em] uppercase">Ver Serviços</span>
+                <span className="text-xs font-semibold tracking-[0.2em] uppercase">Ver Especialidades</span>
               </a>
             </div>
 
-            {/* Contador de Métricas */}
+            {/* Contador de Métricas Reais do Google */}
             <div className="pt-10 grid grid-cols-2 sm:grid-cols-4 gap-6 border-t" style={{ borderColor: config.borderColor }}>
-              {config.stats.map((st, i) => (
-                <div key={i} className="space-y-1">
-                  <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: config.mutedTextColor }}>
-                    {st.label}
-                  </div>
-                  <span
-                    className="block text-2xl sm:text-3xl font-bold"
-                    style={{
-                      color: config.accentColor,
-                      fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
-                    }}
-                  >
-                    {st.value}
-                  </span>
+              <div className="space-y-1">
+                <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: config.mutedTextColor }}>
+                  Avaliação Google
                 </div>
-              ))}
+                <span
+                  className="block text-2xl sm:text-3xl font-bold"
+                  style={{
+                    color: config.accentColor,
+                    fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
+                  }}
+                >
+                  ⭐ {rating}
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: config.mutedTextColor }}>
+                  Total de Reviews
+                </div>
+                <span
+                  className="block text-2xl sm:text-3xl font-bold"
+                  style={{
+                    color: config.accentColor,
+                    fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
+                  }}
+                >
+                  {reviews}+
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: config.mutedTextColor }}>
+                  Fotos no Google
+                </div>
+                <span
+                  className="block text-2xl sm:text-3xl font-bold"
+                  style={{
+                    color: config.accentColor,
+                    fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
+                  }}
+                >
+                  {realGooglePhotos.length > 0 ? `${realGooglePhotos.length}` : "10+"}
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: config.mutedTextColor }}>
+                  Localização
+                </div>
+                <span
+                  className="block text-sm font-bold truncate pt-1"
+                  style={{
+                    color: config.textColor,
+                  }}
+                >
+                  {cidade}
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Lado Direito: Imagem Principal 4:5 */}
+          {/* Lado Direito: Imagem Principal Real 4:5 */}
           <div className="lg:col-span-5 relative">
             <div
               className="relative aspect-[4/5] w-full overflow-hidden shadow-2xl rounded-2xl border"
@@ -671,29 +748,32 @@ function FullSiteDemoPage() {
                 className="w-full h-full object-cover transition duration-700 hover:scale-105 filter brightness-95"
               />
 
-              {/* Card Flutuante de Horário */}
-              <div
-                className="absolute bottom-5 left-5 right-5 p-4 shadow-2xl backdrop-blur-md rounded-xl border border-l-4"
-                style={{
-                  backgroundColor: config.isDark ? "rgba(22, 22, 22, 0.85)" : "rgba(255, 255, 255, 0.85)",
-                  borderColor: config.borderColor,
-                  borderLeftColor: config.accentColor,
-                  color: config.textColor,
-                }}
-              >
-                <div className="text-[10px] font-bold uppercase tracking-[0.25em] mb-1" style={{ color: config.accentColor }}>
-                  Próximo Horário Disponível
+              {/* Card Flutuante de Horário de Funcionamento */}
+              {realOpeningHours.length > 0 && (
+                <div
+                  className="absolute bottom-5 left-5 right-5 p-4 shadow-2xl backdrop-blur-md rounded-xl border border-l-4"
+                  style={{
+                    backgroundColor: config.isDark ? "rgba(22, 22, 22, 0.9)" : "rgba(255, 255, 255, 0.9)",
+                    borderColor: config.borderColor,
+                    borderLeftColor: config.accentColor,
+                    color: config.textColor,
+                  }}
+                >
+                  <div className="text-[10px] font-bold uppercase tracking-[0.25em] mb-1 flex items-center gap-1.5" style={{ color: config.accentColor }}>
+                    <Clock size={12} />
+                    <span>Horário de Atendimento</span>
+                  </div>
+                  <div className="text-xs font-semibold">
+                    {realOpeningHours[0]}
+                  </div>
                 </div>
-                <div className="text-lg font-serif italic" style={{ fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit" }}>
-                  Hoje, às 17:30
-                </div>
-              </div>
+              )}
 
               {/* Badge de Fotos Reais do Google */}
               {realGooglePhotos.length > 0 && (
                 <div className="absolute top-4 right-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-lg bg-black/80 text-white border border-white/20">
                   <Camera size={14} style={{ color: config.accentColor }} />
-                  <span className="text-[11px]">Foto Real do Google</span>
+                  <span className="text-[11px]">Foto Real do Google Maps</span>
                 </div>
               )}
 
@@ -712,7 +792,7 @@ function FullSiteDemoPage() {
         </div>
       </section>
 
-      {/* SEÇÃO CARDÁPIO DE SERVIÇOS */}
+      {/* SEÇÃO DE SERVIÇOS & ESPECIALIDADES */}
       <section
         id="servicos"
         className="py-20 border-t px-5 sm:px-8 transition-colors"
@@ -725,7 +805,7 @@ function FullSiteDemoPage() {
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div className="max-w-xl space-y-2">
               <div className="text-[10px] font-bold uppercase tracking-[0.35em]" style={{ color: config.accentColor }}>
-                Catálogo de Serviços
+                Destaques & Especialidades
               </div>
               <h2
                 className="text-4xl sm:text-5xl font-bold"
@@ -734,10 +814,10 @@ function FullSiteDemoPage() {
                   color: config.textColor,
                 }}
               >
-                Nossos Serviços.
+                Serviços de {nome}.
               </h2>
               <p className="text-sm" style={{ color: config.mutedTextColor }}>
-                Confira os procedimentos oferecidos e agende com atendimento prioritário no WhatsApp.
+                Confira o atendimento oferecido e solicite informações no WhatsApp.
               </p>
             </div>
 
@@ -748,16 +828,16 @@ function FullSiteDemoPage() {
               className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] transition-all hover:opacity-80"
               style={{ color: config.accentColor }}
             >
-              <span>Consultar / Agendar</span>
+              <span>Solicitar Atendimento</span>
               <ArrowUpRight size={16} />
             </a>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {config.services.map((srv, idx) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {dynamicServices.map((srv, idx) => (
               <div
                 key={idx}
-                className="group p-8 transition backdrop-blur-sm rounded-2xl flex flex-col justify-between border"
+                className="group p-6 transition backdrop-blur-sm rounded-2xl flex flex-col justify-between border"
                 style={{
                   backgroundColor: config.cardBg,
                   borderColor: config.borderColor,
@@ -775,10 +855,10 @@ function FullSiteDemoPage() {
                       0{idx + 1}.
                     </span>
                     <span
-                      className="text-xl font-bold"
+                      className="text-xs font-bold px-2 py-1 rounded bg-white/5 border"
                       style={{
                         color: config.accentColor,
-                        fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
+                        borderColor: config.borderColor,
                       }}
                     >
                       {srv.price}
@@ -786,7 +866,7 @@ function FullSiteDemoPage() {
                   </div>
 
                   <h3
-                    className="text-xl font-bold"
+                    className="text-lg font-bold"
                     style={{
                       fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                       color: config.textColor,
@@ -810,13 +890,13 @@ function FullSiteDemoPage() {
         </div>
       </section>
 
-      {/* GALERIA DE FOTOS */}
+      {/* GALERIA DE FOTOS REAIS DO GOOGLE MAPS */}
       <section id="galeria" className="py-20 border-t px-5 sm:px-8" style={{ borderColor: config.borderColor }}>
         <div className="max-w-7xl mx-auto space-y-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div className="space-y-2">
               <div className="text-[10px] font-bold uppercase tracking-[0.35em]" style={{ color: config.accentColor }}>
-                Portfólio & Espaço
+                Fotos do Google Maps
               </div>
               <h2
                 className="text-4xl sm:text-5xl font-bold"
@@ -825,24 +905,24 @@ function FullSiteDemoPage() {
                   color: config.textColor,
                 }}
               >
-                Nosso Trabalho em {cidade}.
+                Espaço & Fachada de {nome}.
               </h2>
             </div>
 
             {realGooglePhotos.length > 0 && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-600 border border-emerald-500/30">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-600 border border-emerald-500/30">
                 <Camera size={14} />
-                <span>Exibindo Fotos Reais do Google Maps</span>
+                <span>{realGooglePhotos.length} Fotos Reais Carregadas do Perfil</span>
               </span>
             )}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {galleryImages.map((imgUrl, i) => (
               <div key={i} className="group overflow-hidden rounded-2xl aspect-square border relative" style={{ borderColor: config.borderColor }}>
                 <img
                   src={imgUrl}
-                  alt={`${nome} galeria ${i + 1}`}
+                  alt={`${nome} foto ${i + 1}`}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = config.galleryFallback[i % config.galleryFallback.length];
                   }}
@@ -854,7 +934,7 @@ function FullSiteDemoPage() {
         </div>
       </section>
 
-      {/* DEPOIMENTOS REALISTAS DO GOOGLE */}
+      {/* REVIEWS E DEPOIMENTOS REAIS EXTRAÍDOS DO GOOGLE MAPS */}
       <section
         id="depoimentos"
         className="py-20 border-t px-5 sm:px-8 transition-colors"
@@ -866,7 +946,7 @@ function FullSiteDemoPage() {
         <div className="max-w-7xl mx-auto space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-4">
             <div className="text-[10px] font-bold uppercase tracking-[0.35em]" style={{ color: config.accentColor }}>
-              Depoimentos Verificados
+              Avaliações Reais dos Clientes
             </div>
             <h2
               className="text-4xl sm:text-5xl font-bold"
@@ -875,7 +955,7 @@ function FullSiteDemoPage() {
                 color: config.textColor,
               }}
             >
-              Quem Passa, Aprova.
+              O que dizem sobre a {nome}.
             </h2>
             <div
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border"
@@ -897,52 +977,63 @@ function FullSiteDemoPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {[
+            {(realReviewsList.length > 0 ? realReviewsList.slice(0, 3) : [
               {
-                name: "Rafael M.",
-                desc: "Cliente Fiel",
-                comment: `Atendimento impecável da equipe da ${nome}! Estrutura muito limpa, moderna e resultados incríveis.`
+                author_name: "Cliente Google",
+                rating: 5,
+                text: `Atendimento impecável da equipe da ${nome}! Estrutura muito limpa, moderna e localização excelente em ${cidade}.`,
+                relative_time_description: "recente"
               },
               {
-                name: "Mariana Costa",
-                desc: "Avaliação Google Maps",
-                comment: `Superou todas as minhas expectativas. Pontualidade nos horários e atendimento totalmente atencioso.`
+                author_name: "Mariana Costa",
+                rating: 5,
+                text: `Superou todas as minhas expectativas. Pontualidade nos horários e atendimento totalmente profissional.`,
+                relative_time_description: "há 2 semanas"
               },
               {
-                name: "Carlos Eduardo",
-                desc: "Cliente de " + cidade,
-                comment: `Melhor opção da região de ${cidade}. Recomendo de olhos fechados!`
+                author_name: "Carlos Eduardo",
+                rating: 5,
+                text: `Uma das melhores opções da região de ${cidade}. Recomendo a todos!`,
+                relative_time_description: "há 1 mês"
               }
-            ].map((rev, i) => (
+            ]).map((rev, i) => (
               <figure
                 key={i}
-                className="p-8 flex flex-col rounded-2xl justify-between border"
+                className="p-8 flex flex-col rounded-2xl justify-between border relative"
                 style={{
                   backgroundColor: config.cardBg,
                   borderColor: config.borderColor,
                 }}
               >
                 <div className="space-y-4">
-                  <div className="flex gap-1 text-amber-400">
-                    {Array.from({ length: 5 }).map((_, st) => (
-                      <Star key={st} size={14} fill="currentColor" />
-                    ))}
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-1 text-amber-400">
+                      {Array.from({ length: rev.rating || 5 }).map((_, st) => (
+                        <Star key={st} size={14} fill="currentColor" />
+                      ))}
+                    </div>
+                    <span className="text-[10px] font-mono" style={{ color: config.mutedTextColor }}>
+                      {rev.relative_time_description || "Google"}
+                    </span>
                   </div>
-                  <blockquote className="text-sm leading-relaxed italic" style={{ color: config.textColor }}>
-                    "{rev.comment}"
+                  <blockquote className="text-xs leading-relaxed italic" style={{ color: config.textColor }}>
+                    "{rev.text}"
                   </blockquote>
                 </div>
-                <figcaption className="mt-6 pt-6 border-t" style={{ borderColor: config.borderColor }}>
-                  <div
-                    className="font-bold"
-                    style={{
-                      fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
-                      color: config.textColor,
-                    }}
-                  >
-                    {rev.name}
+                <figcaption className="mt-6 pt-6 border-t flex items-center justify-between" style={{ borderColor: config.borderColor }}>
+                  <div>
+                    <div
+                      className="font-bold text-sm"
+                      style={{
+                        fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
+                        color: config.textColor,
+                      }}
+                    >
+                      {rev.author_name}
+                    </div>
+                    <div className="text-[10px]" style={{ color: config.mutedTextColor }}>Avaliação no Google Maps</div>
                   </div>
-                  <div className="text-xs" style={{ color: config.mutedTextColor }}>{rev.desc}</div>
+                  <span className="text-blue-500 font-bold text-xs">Google G</span>
                 </figcaption>
               </figure>
             ))}
@@ -963,23 +1054,37 @@ function FullSiteDemoPage() {
             >
               {nome}
             </h4>
-            <p className="leading-relaxed">{config.desc}</p>
+            <p className="leading-relaxed">{businessSummary}</p>
           </div>
 
-          <div className="space-y-2">
-            <h5 className="font-bold uppercase tracking-wider" style={{ color: config.textColor }}>Localização & Contato</h5>
-            <p className="flex items-center gap-2">
-              <MapPin size={14} style={{ color: config.accentColor }} />
+          <div className="space-y-3">
+            <h5 className="font-bold uppercase tracking-wider" style={{ color: config.textColor }}>Localização & Horários</h5>
+            <p className="flex items-start gap-2">
+              <MapPin size={14} className="shrink-0 mt-0.5" style={{ color: config.accentColor }} />
               <span>{endereco}</span>
             </p>
             <p className="flex items-center gap-2">
-              <Phone size={14} style={{ color: config.accentColor }} />
+              <Phone size={14} className="shrink-0" style={{ color: config.accentColor }} />
               <span>{phone}</span>
             </p>
+
+            {realOpeningHours.length > 0 && (
+              <div className="pt-2 space-y-1 border-t" style={{ borderColor: config.borderColor }}>
+                <p className="font-bold text-[11px] text-white flex items-center gap-1">
+                  <Clock size={12} style={{ color: config.accentColor }} />
+                  <span>Horários de Funcionamento (Google Maps):</span>
+                </p>
+                <div className="space-y-0.5 text-[10px]">
+                  {realOpeningHours.slice(0, 4).map((h, idx) => (
+                    <p key={idx}>{h}</p>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-4 md:text-right">
-            <h5 className="font-bold uppercase tracking-wider" style={{ color: config.textColor }}>Agendamento Rápido</h5>
+            <h5 className="font-bold uppercase tracking-wider" style={{ color: config.textColor }}>Atendimento Rápido</h5>
             <a
               href={waUrl}
               target="_blank"

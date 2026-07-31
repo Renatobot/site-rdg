@@ -218,6 +218,15 @@ function ProspeccaoPage() {
     if (Array.isArray(lead.photos) && lead.photos.length > 0) {
       params.set("photos", JSON.stringify(lead.photos));
     }
+    if (Array.isArray(lead.reviews_list) && lead.reviews_list.length > 0) {
+      params.set("reviews_json", JSON.stringify(lead.reviews_list));
+    }
+    if (Array.isArray(lead.opening_hours) && lead.opening_hours.length > 0) {
+      params.set("hours_json", JSON.stringify(lead.opening_hours));
+    }
+    if (lead.editorial_summary) {
+      params.set("summary", lead.editorial_summary);
+    }
 
     return `${window.location.origin}/demo?${params.toString()}`;
   };
@@ -949,21 +958,9 @@ function LeadCard({
             <span className="leading-relaxed line-clamp-2">{lead.address}</span>
           </div>
 
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <div className="flex items-center gap-2">
-              <Phone size={14} className="text-white/40 shrink-0" />
-              <span className="font-mono text-white/90">{lead.phone}</span>
-            </div>
-
-            <a
-              href={instaTargetUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-pink-400 hover:text-pink-300 bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/30 px-2.5 py-0.5 rounded-lg transition-all"
-            >
-              <Instagram size={12} />
-              <span>{lead.instagram_handle || "Instagram"}</span>
-            </a>
+          <div className="flex items-center gap-2">
+            <Phone size={14} className="text-white/40 shrink-0" />
+            <span className="font-mono text-white/90">{lead.phone}</span>
           </div>
 
           {/* Status do Instagram / Site */}
@@ -990,7 +987,7 @@ function LeadCard({
         </div>
       </div>
 
-      {/* Ações do Card */}
+      {/* Ações do Card: Marcador + Gerar Prévia na Esquerda | Instagram + WhatsApp na Direita */}
       <div className="pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <button
@@ -1005,17 +1002,6 @@ function LeadCard({
             {isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
           </button>
 
-          <a
-            href={instaTargetUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Abrir perfil do Instagram"
-            className="p-2 rounded-xl bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 border border-pink-500/30 transition-all flex items-center gap-1.5 text-xs font-bold"
-          >
-            <Instagram size={14} />
-            <span className="hidden sm:inline">Instagram</span>
-          </a>
-
           <button
             onClick={onOpenDemoModal}
             className="flex items-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 rounded-xl text-xs font-bold transition-all"
@@ -1025,15 +1011,28 @@ function LeadCard({
           </button>
         </div>
 
-        <a
-          href={lead.whatsapp_link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition-all transform hover:scale-[1.02]"
-        >
-          <MessageCircle size={14} />
-          <span>WhatsApp</span>
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href={instaTargetUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Abrir Perfil do Instagram"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-pink-500/10"
+          >
+            <Instagram size={14} />
+            <span>Instagram</span>
+          </a>
+
+          <a
+            href={lead.whatsapp_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition-all transform hover:scale-[1.02]"
+          >
+            <MessageCircle size={14} />
+            <span>WhatsApp</span>
+          </a>
+        </div>
       </div>
     </div>
   );
