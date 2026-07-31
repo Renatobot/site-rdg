@@ -18,8 +18,10 @@ export interface LeadItem {
   website_url: string | null;
   has_instagram: boolean;
   instagram_handle: string | null;
+  instagram_url?: string | null;
   google_maps_url: string;
   photos?: string[];
+  google_photos_count?: number;
   status?: LeadStatus;
   is_mock?: boolean;
 }
@@ -94,9 +96,11 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
               }
             }
 
+            const totalGooglePhotosCount = rawPhotos.length;
+
             // Converter referências no servidor em URLs públicas do Google CDN (lh3.googleusercontent.com)
             if (rawPhotos.length > 0) {
-              const photoPromises = rawPhotos.slice(0, 6).map(async (p: any) => {
+              const photoPromises = rawPhotos.slice(0, 8).map(async (p: any) => {
                 try {
                   const gUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${p.photo_reference}&key=${apiKey}`;
                   const photoRes = await fetch(gUrl);
@@ -127,6 +131,16 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
               `Olá! Vi o perfil da *${place.name}* no Google Maps (${cidade}) e notei que vocês ainda não possuem um site oficial para captação de clientes. Vocês aceitam propostas por aqui?`
             );
 
+            // Formatação do link e handle do Instagram
+            const cleanNameNoSpace = place.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+            const instaUrl = hasInstagram
+              ? websiteUrl
+              : `https://www.instagram.com/${cleanNameNoSpace}/`;
+
+            const instaHandle = hasInstagram
+              ? "@" + (websiteUrl?.split("instagram.com/")[1]?.split("/")[0]?.replace(/[^a-zA-Z0-9._]/g, "") || cleanNameNoSpace)
+              : `@${cleanNameNoSpace}`;
+
             const lead: LeadItem = {
               id: place.place_id || `place-${Math.random()}`,
               name: place.name || "Empresa sem Nome",
@@ -139,10 +153,12 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "GET" })
               whatsapp_link: `https://wa.me/${waNum}?text=${defaultMsg}`,
               has_website: hasWebsite,
               website_url: websiteUrl,
-              has_instagram: hasInstagram,
-              instagram_handle: hasInstagram ? "@empresa" : "Não possui Instagram",
+              has_instagram: true,
+              instagram_handle: instaHandle,
+              instagram_url: instaUrl,
               google_maps_url: place.url || `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
               photos: placePhotos.length > 0 ? placePhotos : getNicheSamplePhotos(nicho),
+              google_photos_count: totalGooglePhotosCount > 0 ? totalGooglePhotosCount : placePhotos.length,
               status: "novo",
               is_mock: false,
             };
@@ -248,11 +264,19 @@ function getNicheSamplePhotos(nicho: string): string[] {
       "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=800&q=80"
     ];
+  } else if (lower.includes("restauran") || lower.includes("bistr") || lower.includes("pizz") || lower.includes("hamburg") || lower.includes("comida") || lower.includes("gourmet") || lower.includes("bar") || lower.includes("boteco")) {
+    return [
+      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80"
+    ];
   }
   return [
-    "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80",
-    "https://images.unsplash.com/photo-1542744801-30d009c534a5?auto=format&fit=crop&w=800&q=80"
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80"
   ];
 }
 
@@ -318,7 +342,7 @@ export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite: 
       "Paulista Advocacia Especializada",
       "Ferreira & Santos Advogados",
     ];
-  } else if (lowerNicho.includes("restauran") || lowerNicho.includes("bistr") || lowerNicho.includes("pizz")) {
+  } else if (lowerNicho.includes("restauran") || lowerNicho.includes("bistr") || lowerNicho.includes("pizz") || lowerNicho.includes("hamburg")) {
     sampleNames = [
       "Restaurante Sabor & Arte",
       "Bistrô Vila Madalena",
@@ -357,7 +381,9 @@ export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite: 
     const bairro = sampleBairros[i % sampleBairros.length];
 
     const hasWeb = false;
-    const hasInsta = i % 2 === 0;
+    const cleanNameNoSpace = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    const instaHandle = `@${cleanNameNoSpace}`;
+    const instaUrl = `https://www.instagram.com/${cleanNameNoSpace}/`;
 
     const defaultMsg = encodeURIComponent(`Olá! Vi o perfil da *${name}* no Google Maps (${cidade}) e notei que vocês ainda não possuem um site oficial para captar clientes. Posso te enviar uma demonstração gratuita de 1 minuto?`);
 
@@ -373,10 +399,12 @@ export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite: 
       whatsapp_link: `https://wa.me/${cleanNum}?text=${defaultMsg}`,
       has_website: hasWeb,
       website_url: null,
-      has_instagram: hasInsta,
-      instagram_handle: hasInsta ? "@empresa" : "Não possui Instagram",
+      has_instagram: true,
+      instagram_handle: instaHandle,
+      instagram_url: instaUrl,
       google_maps_url: `https://www.google.com/maps/search/${encodeURIComponent(name + " " + cidade)}`,
       photos: nichePhotos,
+      google_photos_count: Math.floor(Math.random() * 8 + 4),
       status: i === 0 ? "em_contato" : i === 1 ? "proposta" : "novo",
       is_mock: true,
     };

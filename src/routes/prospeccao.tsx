@@ -117,7 +117,7 @@ function ProspeccaoPage() {
       : "Demonstração ativa. Insira sua chave da Google Places API nas configurações para buscar dados ao vivo do Google.";
 
     try {
-      // Chamada direta da Server Function (TanStack Start RPC - sem 404)
+      // Chamada direta da Server Function (TanStack Start RPC)
       const data = await getProspeccaoLeadsServerFn({
         data: {
           nicho: targetNicho,
@@ -137,7 +137,6 @@ function ProspeccaoPage() {
       console.error("Erro na busca de leads via Server Function:", err);
     }
 
-    // Fallback de segurança caso NENHUM lead tenha retornado da API
     if (fetchedLeads.length === 0) {
       fetchedLeads = generateMockLeads(targetNicho, targetCidade, onlyNoWebsite);
     }
@@ -179,7 +178,7 @@ function ProspeccaoPage() {
   const exportToCSV = (leadsToExport: LeadItem[]) => {
     if (leadsToExport.length === 0) return;
 
-    const headers = ["Nome", "Categoria", "Status Kanban", "Avaliação", "Reviews", "Endereço", "Telefone", "WhatsApp", "Possui Website", "URL Website"];
+    const headers = ["Nome", "Categoria", "Status Kanban", "Avaliação", "Reviews", "Endereço", "Telefone", "WhatsApp", "Instagram URL", "Possui Website", "URL Website"];
     const rows = leadsToExport.map((l) => [
       `"${l.name.replace(/"/g, '""')}"`,
       `"${l.category}"`,
@@ -189,6 +188,7 @@ function ProspeccaoPage() {
       `"${l.address.replace(/"/g, '""')}"`,
       `"${l.phone}"`,
       `"${l.raw_phone}"`,
+      `"${l.instagram_url || ""}"`,
       l.has_website ? "Sim" : "Não",
       `"${l.website_url || ""}"`,
     ]);
@@ -538,7 +538,7 @@ function ProspeccaoPage() {
               <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-white/10">
                 <Loader2 size={36} className="animate-spin text-primary mx-auto" />
                 <p className="text-sm font-bold text-white">Buscando empresas no Google Maps...</p>
-                <p className="text-xs text-white/40">Filtrando telefones e fotos reais da estrutura</p>
+                <p className="text-xs text-white/40">Filtrando telefones, Instagram e fotos reais do local</p>
               </div>
             ) : leads.length === 0 ? (
               <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-white/10 p-6">
@@ -681,6 +681,15 @@ function ProspeccaoPage() {
                                 </select>
 
                                 <div className="flex items-center gap-1">
+                                  <a
+                                    href={lead.instagram_url || `https://www.instagram.com/${lead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="Instagram"
+                                    className="p-1.5 bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 border border-pink-500/30 rounded-lg"
+                                  >
+                                    <Instagram size={12} />
+                                  </a>
                                   <button
                                     onClick={() => setSelectedDemoLead(lead)}
                                     title="Prévia do Site"
@@ -824,12 +833,7 @@ function ProspeccaoPage() {
                 <p>📍 <strong>Localização:</strong> {selectedDemoLead.address}</p>
                 <p>⭐ <strong>Avaliação Google:</strong> {selectedDemoLead.rating} de 5.0 ({selectedDemoLead.user_ratings_total} avaliações)</p>
                 <p>📞 <strong>Contato Direto:</strong> {selectedDemoLead.phone}</p>
-                {Array.isArray(selectedDemoLead.photos) && selectedDemoLead.photos.length > 0 && (
-                  <p className="text-emerald-400 flex items-center gap-1 font-bold pt-1">
-                    <ImageIcon size={12} />
-                    <span>{selectedDemoLead.photos.length} Fotos Reais do Perfil do Google Maps Integradas ao Site!</span>
-                  </p>
-                )}
+                <p>📸 <strong>Instagram:</strong> <a href={selectedDemoLead.instagram_url || `https://www.instagram.com/${selectedDemoLead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`} target="_blank" rel="noopener noreferrer" className="text-pink-400 hover:underline font-bold">{selectedDemoLead.instagram_handle || "@empresa"}</a></p>
               </div>
 
               <div className="pt-2 flex flex-col sm:flex-row gap-3">
@@ -841,6 +845,15 @@ function ProspeccaoPage() {
                 >
                   <span>🌐 Abrir Site Completo em Nova Aba</span>
                   <ExternalLink size={14} />
+                </a>
+                <a
+                  href={selectedDemoLead.instagram_url || `https://www.instagram.com/${selectedDemoLead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-3 bg-pink-500/20 text-pink-300 font-bold text-xs rounded-xl hover:bg-pink-500/30 border border-pink-500/40 transition-all flex items-center justify-center gap-2"
+                >
+                  <Instagram size={14} />
+                  <span>Abrir Instagram</span>
                 </a>
               </div>
             </div>
@@ -897,6 +910,9 @@ function LeadCard({
   onToggleSave: () => void;
   onOpenDemoModal: () => void;
 }) {
+  const instaTargetUrl = lead.instagram_url || `https://www.instagram.com/${lead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`;
+  const photoCount = lead.google_photos_count || lead.photos?.length || 0;
+
   return (
     <div
       className={`bg-[#111218] border rounded-2xl p-5 space-y-4 transition-all duration-300 hover:shadow-xl flex flex-col justify-between group ${
@@ -933,9 +949,21 @@ function LeadCard({
             <span className="leading-relaxed line-clamp-2">{lead.address}</span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Phone size={14} className="text-white/40 shrink-0" />
-            <span className="font-mono text-white/90">{lead.phone}</span>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Phone size={14} className="text-white/40 shrink-0" />
+              <span className="font-mono text-white/90">{lead.phone}</span>
+            </div>
+
+            <a
+              href={instaTargetUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-pink-400 hover:text-pink-300 bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/30 px-2.5 py-0.5 rounded-lg transition-all"
+            >
+              <Instagram size={12} />
+              <span>{lead.instagram_handle || "Instagram"}</span>
+            </a>
           </div>
 
           {/* Status do Instagram / Site */}
@@ -952,10 +980,10 @@ function LeadCard({
               </span>
             )}
 
-            {Array.isArray(lead.photos) && lead.photos.length > 0 && (
+            {photoCount > 0 && (
               <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                 <ImageIcon size={10} />
-                <span>{lead.photos.length} Fotos do Google</span>
+                <span>{photoCount} Fotos do Google</span>
               </span>
             )}
           </div>
@@ -976,6 +1004,17 @@ function LeadCard({
           >
             {isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
           </button>
+
+          <a
+            href={instaTargetUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Abrir perfil do Instagram"
+            className="p-2 rounded-xl bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 border border-pink-500/30 transition-all flex items-center gap-1.5 text-xs font-bold"
+          >
+            <Instagram size={14} />
+            <span className="hidden sm:inline">Instagram</span>
+          </a>
 
           <button
             onClick={onOpenDemoModal}

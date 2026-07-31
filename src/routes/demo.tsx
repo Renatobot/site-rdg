@@ -87,6 +87,45 @@ interface NicheConfig {
 }
 
 const NICHE_CONFIGS: Record<string, NicheConfig> = {
+  // RESTAURANTE & GASTRONOMIA (Dark Warm Terracotta, Gold Copper, Utensils)
+  restaurante: {
+    isDark: true,
+    bgColor: "#121212",
+    surfaceColor: "#1A1A1A",
+    cardBg: "#222222",
+    textColor: "#F5F5F5",
+    mutedTextColor: "#A3A3A3",
+    borderColor: "rgba(255, 255, 255, 0.1)",
+    accentColor: "#D97706",
+    accentText: "#FFFFFF",
+    fontSerif: true,
+    heroTagline: "Alta Gastronomia & Experiência Única",
+    titleSpan: "Sabores",
+    titleSuffix: "Inesquecíveis.",
+    desc: "Ingredientes selecionados, pratos autorais e um ambiente acolhedor preparado para proporcionar momentos inesquecíveis.",
+    icon: Utensils,
+    heroFallback: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Menu Degustação Autoral", desc: "Sequência em 5 etapas elaborada pelo nosso Chef executivo com harmonização de vinhos.", price: "R$ 190" },
+      { title: "Pratos Principais & Grelhados", desc: "Cortes de carnes nobres, massas artesanais frescas e frutos do mar com temperos locais.", price: "A partir de R$ 68" },
+      { title: "Carta de Vinhos & Coquetelaria", desc: "Drinkeria autoral, coquetéis clássicos e rótulos de vinhos nacionais e importados.", price: "A partir de R$ 32" },
+      { title: "Sobremesas Artesanais", desc: "Petit gâteau de doce de leite, gelato caseiro e receitas exclusivas da casa.", price: "R$ 28" }
+    ],
+    stats: [
+      { label: "Anos de Tradição", value: "12+" },
+      { label: "Pratos Servidos", value: "45k+" },
+      { label: "Nota Google Maps", value: "4.8" },
+      { label: "Chefs de Cozinha", value: "4" }
+    ]
+  },
+
   // BARBEARIA (Dark, Gold, Classy Serif)
   barbearia: {
     isDark: true,
@@ -355,7 +394,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // FALLBACK GERAL (Clean Executive)
+  // FALLBACK GERAL (Clean Executive Storefront - Sem Laptops/Escritório)
   default: {
     isDark: false,
     bgColor: "#F8FAFC",
@@ -367,16 +406,16 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     accentColor: "#0284C7",
     accentText: "#FFFFFF",
     fontSerif: false,
-    heroTagline: "Atendimento VIP & Infraestrutura Completa",
+    heroTagline: "Atendimento VIP & Estrutura Moderna",
     titleSpan: "Empresa",
     titleSuffix: "Referência.",
-    desc: "Compromisso com a satisfação do cliente, agilidade no atendimento e estrutura moderna preparada para te receber.",
+    desc: "Compromisso com a satisfação do cliente, agilidade no atendimento e infraestrutura completa em localização privilegiada.",
     icon: Sparkles,
-    heroFallback: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
+    heroFallback: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
-      "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1542744801-30d009c534a5?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
       { title: "Atendimento Sob Medida", desc: "Soluções completas desenhadas exatamente para atender sua necessidade.", price: "Sob Consulta" },
@@ -439,6 +478,8 @@ function FullSiteDemoPage() {
     catKey = "advocacia";
   } else if (lowerCat.includes("imobil") || lowerCat.includes("corret") || lowerCat.includes("imovel")) {
     catKey = "imobiliaria";
+  } else if (lowerCat.includes("restauran") || lowerCat.includes("bistr") || lowerCat.includes("pizz") || lowerCat.includes("hamburg") || lowerCat.includes("comida") || lowerCat.includes("gourmet") || lowerCat.includes("bar") || lowerCat.includes("boteco")) {
+    catKey = "restaurante";
   }
 
   const config = NICHE_CONFIGS[catKey] || NICHE_CONFIGS["default"];
@@ -791,7 +832,7 @@ function FullSiteDemoPage() {
             {realGooglePhotos.length > 0 && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-600 border border-emerald-500/30">
                 <Camera size={14} />
-                <span>Exibindo Fotos do Google Maps</span>
+                <span>Exibindo Fotos Reais do Google Maps</span>
               </span>
             )}
           </div>
