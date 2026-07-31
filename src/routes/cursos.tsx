@@ -360,9 +360,17 @@ const COURSES = [
 
                 <div className="bg-white/5 border border-white/10 p-4 rounded-xl mt-4">
                   <strong className="text-white block mb-2">🧩 Ferramentas da Aula:</strong>
-                  <ul className="space-y-1 font-bold">
-                    <li>🔧 Plugin Pixel Your Site</li>
-                    <li>🧪 Extensão Meta Pixel Helper (Google Chrome)</li>
+                  <ul className="space-y-2 font-bold">
+                    <li>
+                      <a href="https://acessopremium.top/pixel-your-site" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
+                        🔧 Plugin Pixel Your Site <ExternalLink size={14} />
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://chromewebstore.google.com/detail/meta-pixel-helper/fdgfkebogiimcoedlicjlajpkdmockpc?hl=pt-PT&utm_source=ext_sidebar" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
+                        🧪 Extensão Meta Pixel Helper (Google Chrome) <ExternalLink size={14} />
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </div>
