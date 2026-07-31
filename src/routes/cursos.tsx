@@ -13,7 +13,9 @@ import {
   Lock,
   ArrowLeft,
   ChevronDown,
-  MonitorPlay
+  MonitorPlay,
+  ExternalLink,
+  Search
 } from "lucide-react";
 import { waLink } from "@/lib/site";
 
@@ -56,12 +58,153 @@ const COURSES = [
       {
         title: "Google Ads (Atualizado)",
         videos: [
-          { id: "aula-1", title: "1 • Google ADS para Vender", duration: "~", url: "https://drive.google.com/file/d/1ecsHD3DUV368u7PFjoYjLs8mnpjwrrzL/preview" },
-          { id: "aula-2", title: "2 • Anunciando para Vender mais no Google ADS", duration: "~", url: "https://drive.google.com/file/d/1z1TsxPdetaxAMG0XKp3QVU8QKqa1jpgn/preview" },
-          { id: "aula-3", title: "3 • Instalação do Pixel Tag Google por Objetivo", duration: "~", url: "https://drive.google.com/file/d/1bfZrrbmFI4Gt4l12PVnlKjx_rQahQ1xK/preview" },
-          { id: "aula-4", title: "4 • Quando Aumentar o Orçamento no Google AD", duration: "~", url: "https://drive.google.com/file/d/1i-0e8bMefxTRftnOAEarinr6r6vz-LQs/preview" },
-          { id: "aula-5", title: "5 • Negative Palavras Chaves e Venda Mais", duration: "~", url: "https://drive.google.com/file/d/1kMHe1K57lvzf-bxqhd1EFwrf5wwUND3c/preview" },
-          { id: "aula-6", title: "6 • Planejador e Dados", duration: "~", url: "https://drive.google.com/file/d/1Ihb6_pF723X2sjuLtmau9-FsBIRtD6No/preview" }
+          { 
+            id: "aula-1", 
+            title: "1 • Google ADS para Vender", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1ecsHD3DUV368u7PFjoYjLs8mnpjwrrzL/preview",
+            description: (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-blue-500/10 text-blue-400 rounded-lg"><Search size={18} /></span>
+                  <h4 className="font-bold text-white text-lg">Aula — Introdução ao Google ADS</h4>
+                </div>
+                <p className="text-white/70 leading-relaxed text-sm">
+                  <span className="text-yellow-400 font-bold">💡 A segunda opção</span> para quem deseja anunciar na internet é o Google ADS, ideal para alcançar pessoas que já estão pesquisando ativamente pelo seu produto.
+                </p>
+                <p className="text-white/70 leading-relaxed text-sm">
+                  <span className="text-red-400 font-bold">🎯 Concorrente direto</span> do Facebook ADS e do Bing ADS (este último pouco utilizado), o Google é poderoso para alcançar leads com <strong className="text-white">intenção real de compra!</strong>
+                </p>
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl mt-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-green-400">🌐</span>
+                    <strong className="text-white">Crie sua Conta no Google ADS:</strong>
+                  </div>
+                  <a href="https://ads.google.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm flex w-fit items-center gap-1 font-bold">
+                    ➡️ Acesse aqui o Google ADS <ExternalLink size={12} />
+                  </a>
+                </div>
+                <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl">
+                  <p className="text-sm text-primary/90">
+                    <strong className="text-primary">🔎 Dica:</strong> Comece com campanhas simples de pesquisa, usando palavras-chave relacionadas ao seu produto. O segredo é entender a intenção do usuário e oferecer a solução certa!
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          { 
+            id: "aula-2", 
+            title: "2 • Anunciando para Vender mais no Google ADS", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1z1TsxPdetaxAMG0XKp3QVU8QKqa1jpgn/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <p>
+                  Nesta aula ensino você a criar sua campanha sem muita firula, até porque <strong className="text-primary">o simples converte!</strong> E no Google ADS se vende muito bem.
+                </p>
+              </div>
+            )
+          },
+          { 
+            id: "aula-3", 
+            title: "3 • Instalação do Pixel Tag Google por Objetivo", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1bfZrrbmFI4Gt4l12PVnlKjx_rQahQ1xK/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl">
+                  <p className="text-red-100">
+                    <strong className="text-red-400 block mb-1">⚠️ Nota importante:</strong> 
+                    Deixo uma nota neste vídeo que no meio dele precisei gravar uma parte e adicionar, pois usei o Pixel que criei para Kiwify dentro do site, por isso siga prestando bastante atenção neste vídeo.
+                  </p>
+                </div>
+                <p>
+                  Essa configuração instalada corretamente é o <strong className="text-white">foco de boas vendas</strong> no Google ADS.
+                </p>
+              </div>
+            )
+          },
+          { 
+            id: "aula-4", 
+            title: "4 • Quando Aumentar o Orçamento no Google AD", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1i-0e8bMefxTRftnOAEarinr6r6vz-LQs/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <p>
+                  A decisão de aumentar o orçamento da sua campanha no Google Ads é uma estratégia crucial para impulsionar o desempenho e maximizar os resultados. Existem alguns indicadores importantes a serem considerados antes de dar esse passo significativo.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div className="bg-white/5 p-4 rounded-xl">
+                    <strong className="text-cyan-400 block mb-1">📈 Desempenho Atual:</strong>
+                    Avalie o desempenho atual da sua campanha. Se estiver alcançando consistentemente os objetivos e proporcionando um retorno positivo sobre o investimento, pode ser um sinal de que aumentar o orçamento é uma decisão acertada.
+                  </div>
+                  <div className="bg-white/5 p-4 rounded-xl">
+                    <strong className="text-green-400 block mb-1">💰 Margem de Lucro:</strong>
+                    Considere a margem de lucro do seu produto ou serviço. Se a campanha está gerando vendas com uma margem de lucro saudável, é mais viável aumentar o orçamento para capturar mais oportunidades de negócios.
+                  </div>
+                  <div className="bg-white/5 p-4 rounded-xl">
+                    <strong className="text-orange-400 block mb-1">📅 Sazonalidade:</strong>
+                    Leve em conta a sazonalidade do seu negócio. Em períodos de alta demanda ou eventos sazonais, aumentar o orçamento pode ser uma estratégia eficaz.
+                  </div>
+                  <div className="bg-white/5 p-4 rounded-xl">
+                    <strong className="text-red-400 block mb-1">⚔️ Concorrência:</strong>
+                    Observe a concorrência. Se os concorrentes estão intensificando suas campanhas, pode ser necessário aumentar o orçamento para manter sua posição e visibilidade.
+                  </div>
+                  <div className="bg-white/5 p-4 rounded-xl border border-primary/20 bg-primary/5">
+                    <strong className="text-primary block mb-1">🎯 Custo por Conversão:</strong>
+                    Analise o custo por conversão. Se o custo por conversão estiver dentro das suas metas e o aumento do orçamento resultar em um custo por conversão ainda mais favorável, pode ser uma indicação para investir mais.
+                  </div>
+                  <div className="bg-white/5 p-4 rounded-xl">
+                    <strong className="text-blue-400 block mb-1">🧪 Testes e Otimizações:</strong>
+                    Antes de aumentar o orçamento de forma significativa, certifique-se de ter realizado testes e otimizações na campanha atual.
+                  </div>
+                </div>
+                <div className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl mt-4">
+                  <p className="text-indigo-100">
+                    <strong className="text-indigo-400">Nota Especial:</strong> Lembre-se de que o aumento do orçamento deve ser uma decisão baseada em dados. Monitorar continuamente o desempenho da campanha e ajustar conforme necessário é essencial para garantir que cada investimento no Google Ads contribua para o crescimento e sucesso das suas vendas.
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          { 
+            id: "aula-5", 
+            title: "5 • Negative Palavras Chaves e Venda Mais", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1kMHe1K57lvzf-bxqhd1EFwrf5wwUND3c/preview",
+            description: (
+              <div className="space-y-4 text-sm text-white/80">
+                <p>
+                  <strong className="text-white">Palavras-chave negativas desempenham um papel crucial</strong> nas campanhas de Google Ads, proporcionando uma maneira eficaz de refinar a segmentação e direcionar o público desejado. Ao adicionar termos específicos que não estão alinhados com o propósito da campanha, é possível evitar que os anúncios sejam exibidos para usuários cujas intenções não correspondem aos produtos ou serviços oferecidos.
+                </p>
+                <div className="bg-green-500/10 border-l-4 border-green-500 p-4 rounded-r-xl">
+                  <p>
+                    Ao incorporar palavras-chave negativas, você vai <strong className="text-green-400">economizar recursos financeiros</strong>, direcionando seus investimentos para públicos mais propensos a converter. Essa prática contribui para a otimização do orçamento, maximizando o retorno sobre o investimento (ROI) e aumentando a eficácia global da estratégia de marketing digital.
+                  </p>
+                </div>
+                <p>
+                  <strong className="text-primary">Em resumo:</strong> O uso estratégico de palavras-chave negativas no Google Ads é benéfico porque permite um direcionamento mais preciso, reduzindo o desperdício de recursos e aumentando a probabilidade de atingir usuários genuinamente interessados nos produtos anunciados.
+                </p>
+              </div>
+            )
+          },
+          { 
+            id: "aula-6", 
+            title: "6 • Planejador e Dados", 
+            duration: "~", 
+            url: "https://drive.google.com/file/d/1Ihb6_pF723X2sjuLtmau9-FsBIRtD6No/preview",
+            description: (
+              <div className="space-y-4 flex items-center gap-4 text-sm text-white/80">
+                <div className="p-4 bg-blue-500/20 text-blue-400 rounded-full shrink-0">
+                  <Search size={24} />
+                </div>
+                <p>
+                  Aula rápida sobre a ferramenta do Google ADS de planejador de palavras chaves, <strong className="text-blue-400 block mt-1 text-base">ótima para buscar palavras chaves precisas para seus anúncios!</strong>
+                </p>
+              </div>
+            )
+          }
         ]
       }
     ]
@@ -439,12 +582,16 @@ function CursosPage() {
               </div>
             </div>
 
-            {/* Course Description */}
+            {/* Description (Video Specific or Course fallback) */}
             <div className="p-6 sm:p-8 bg-[#0E0F17] rounded-2xl border border-white/5 space-y-4">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider border-b border-white/5 pb-4">Sobre o Curso</h3>
-              <p className="text-sm text-white/60 leading-relaxed max-w-3xl">
-                {activeCourse.description}
-              </p>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider border-b border-white/5 pb-4">
+                {activeVideo?.description ? 'Sobre a Aula' : 'Sobre o Curso'}
+              </h3>
+              <div className="text-white/60 leading-relaxed">
+                {activeVideo?.description || (
+                  <p className="text-sm max-w-3xl">{activeCourse.description}</p>
+                )}
+              </div>
             </div>
             
             <div className="h-8"></div> {/* Bottom padding */}
