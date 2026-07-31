@@ -1,32 +1,29 @@
 import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
-import { LeadItem } from "./api.prospeccao";
+import { LeadItem, generateMockLeads } from "./api.prospeccao";
 import {
   Search,
   MapPin,
   Phone,
   Star,
-  ExternalLink,
-  MessageCircle,
-  Bookmark,
-  BookmarkCheck,
   Download,
   Key,
   Info,
-  CheckCircle2,
   Sparkles,
   ArrowLeft,
   Loader2,
   Settings,
   X,
-  Share2,
   Copy,
   Check,
   Globe,
   Instagram,
   Filter,
-  MonitorPlay
+  MonitorPlay,
+  Bookmark,
+  BookmarkCheck,
+  MessageCircle
 } from "lucide-react";
 
 const TITLE = "Ferramenta de Prospecção B2B Google Maps — RDG Digital";
@@ -43,7 +40,7 @@ export const Route = createFileRoute("/prospeccao")({
 
 function ProspeccaoPage() {
   const [activeTab, setActiveTab] = useState<"prospectar" | "salvos">("prospectar");
-  const [nicho, setNicho] = useState<string>("Barbearia");
+  const [nicho, setNicho] = useState<string>("Imobiliária");
   const [cidade, setCidade] = useState<string>("São Paulo - SP");
   const [onlyNoWebsite, setOnlyNoWebsite] = useState<boolean>(true);
   const [minRating, setMinRating] = useState<number>(4.0);
@@ -73,23 +70,27 @@ function ProspeccaoPage() {
       }
     }
 
-    // Fazer uma busca inicial automática de demonstração
-    handleSearch("Barbearia", "São Paulo - SP", savedKey, true);
+    // Busca inicial automática
+    handleSearch("Imobiliária", "São Paulo - SP", savedKey);
   }, []);
 
   const handleSaveApiKey = (key: string) => {
     setApiKey(key);
     localStorage.setItem("google_places_api_key", key);
     setIsConfigOpen(false);
+    handleSearch(nicho, cidade, key);
   };
 
   const handleSearch = async (
     targetNicho = nicho,
     targetCidade = cidade,
-    targetApiKey = apiKey,
-    isInitial = false
+    targetApiKey = apiKey
   ) => {
     setIsLoading(true);
+    let fetchedLeads: LeadItem[] = [];
+    let source = "demo_mock";
+    let message = "Demonstração ativa. Insira sua chave da Google Places API nas configurações para buscar dados ao vivo do Google.";
+
     try {
       const queryParams = new URLSearchParams({
         nicho: targetNicho,
@@ -99,19 +100,27 @@ function ProspeccaoPage() {
       });
 
       const response = await fetch(`/api/prospeccao?${queryParams.toString()}`);
-      const data = await response.json();
-
-      if (data.status === "success" && Array.isArray(data.leads)) {
-        // Filtrar por avaliação se configurado
-        const filtered = data.leads.filter((l: LeadItem) => l.rating >= minRating);
-        setLeads(filtered);
-        setSourceInfo({ source: data.source, message: data.message });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === "success" && Array.isArray(data.leads) && data.leads.length > 0) {
+          fetchedLeads = data.leads;
+          source = data.source;
+          message = data.message;
+        }
       }
     } catch (err) {
-      console.error("Erro na busca de leads:", err);
-    } finally {
-      setIsLoading(false);
+      console.error("Erro na busca de leads via API:", err);
     }
+
+    // Fallback garantido no próprio cliente se a API não retornar
+    if (fetchedLeads.length === 0) {
+      fetchedLeads = generateMockLeads(targetNicho, targetCidade, onlyNoWebsite);
+    }
+
+    const filtered = fetchedLeads.filter((l: LeadItem) => l.rating >= minRating);
+    setLeads(filtered.length > 0 ? filtered : fetchedLeads);
+    setSourceInfo({ source, message });
+    setIsLoading(false);
   };
 
   const toggleSaveLead = (lead: LeadItem) => {
@@ -219,13 +228,13 @@ function ProspeccaoPage() {
                   <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-mono">DEMO</span>
                 </h4>
                 <p className="text-xs text-amber-200/70">
-                  Cadastre sua chave grátis da <strong>Google Places API</strong> para realizar buscas de empresas reais ao vivo no Google Maps.
+                  Insira sua chave grátis da <strong>Google Places API</strong> para realizar buscas de empresas ao vivo no Google Maps.
                 </p>
               </div>
             </div>
             <button
               onClick={() => setIsConfigOpen(true)}
-              className="px-4 py-2 bg-amber-500 text-black font-extrabold text-xs rounded-xl hover:bg-amber-400 transition-all shrink-0 flex items-center gap-1.5"
+              className="px-4 py-2 bg-amber-500 text-black font-extrabold text-xs rounded-xl hover:bg-amber-400 transition-all shrink-0 flex items-center gap-1.5 shadow"
             >
               <Key size={14} />
               <span>Inserir Chave do Google</span>
@@ -253,7 +262,7 @@ function ProspeccaoPage() {
                   type="text"
                   value={nicho}
                   onChange={(e) => setNicho(e.target.value)}
-                  placeholder="Ex: Barbearia, Odontologia, Restaurante..."
+                  placeholder="Ex: Imobiliária, Barbearia, Odontologia..."
                   className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-primary outline-none transition-colors"
                 />
               </div>
@@ -269,7 +278,7 @@ function ProspeccaoPage() {
                   type="text"
                   value={cidade}
                   onChange={(e) => setCidade(e.target.value)}
-                  placeholder="Ex: Vila Madalena, São Paulo - SP"
+                  placeholder="Ex: São Paulo - SP, Vila Madalena..."
                   className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-primary outline-none transition-colors"
                 />
               </div>
@@ -302,12 +311,12 @@ function ProspeccaoPage() {
               Atalhos Rápidos:
             </span>
             {[
+              "Imobiliária",
               "Barbearia",
               "Odontologia",
               "Estética",
               "Advocacia",
               "Restaurante",
-              "Imobiliária",
               "Pet Shop",
             ].map((preset) => (
               <button
@@ -335,7 +344,10 @@ function ProspeccaoPage() {
                 <input
                   type="checkbox"
                   checked={onlyNoWebsite}
-                  onChange={(e) => setOnlyNoWebsite(e.target.checked)}
+                  onChange={(e) => {
+                    setOnlyNoWebsite(e.target.checked);
+                    handleSearch(nicho, cidade);
+                  }}
                   className="rounded accent-primary w-4 h-4"
                 />
                 <span className="font-semibold text-white">Priorizar Empresas Sem Website</span>
@@ -346,7 +358,10 @@ function ProspeccaoPage() {
                 <span className="text-white/50">Avaliação Mínima:</span>
                 <select
                   value={minRating}
-                  onChange={(e) => setMinRating(Number(e.target.value))}
+                  onChange={(e) => {
+                    setMinRating(Number(e.target.value));
+                    handleSearch(nicho, cidade);
+                  }}
                   className="bg-[#0A0A0A] border border-white/15 rounded-lg px-2.5 py-1 text-white font-bold outline-none"
                 >
                   <option value={0}>Todas</option>
@@ -385,7 +400,7 @@ function ProspeccaoPage() {
           </div>
         </div>
 
-        {/* LISTAGEM DE LEADS (Cards com Estilo do Print) */}
+        {/* LISTAGEM DE LEADS */}
         {activeTab === "prospectar" ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -400,12 +415,6 @@ function ProspeccaoPage() {
                 <Loader2 size={36} className="animate-spin text-primary mx-auto" />
                 <p className="text-sm font-bold text-white">Buscando empresas no Google Maps...</p>
                 <p className="text-xs text-white/40">Filtrando telefones e presenças digitais</p>
-              </div>
-            ) : leads.length === 0 ? (
-              <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-white/10 p-6">
-                <Search size={36} className="text-white/20 mx-auto" />
-                <p className="text-base font-bold text-white">Nenhum lead localizado nesta região.</p>
-                <p className="text-xs text-white/40">Tente buscar por um nicho diferente ou digite outra cidade/bairro.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
