@@ -28,7 +28,19 @@
   <!-- HLS.js for Streaming Playback -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-  <link rel="stylesheet" href="/streaming/styles.css?v=32" />
+  <link rel="stylesheet" href="/streaming/styles.css?v=33" />
+  
+  <!-- Fallback CSS for Old TVs -->
+  <style>
+    input {
+      background-color: #0c1222 !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(0, 220, 255, 0.3) !important;
+    }
+    input::placeholder {
+      color: #888888 !important;
+    }
+  </style>
 </head>
 <body class="bg-[#070913] text-slate-100 font-sans min-h-screen flex flex-col overflow-x-hidden selection:bg-cyan-500 selection:text-black" style="background-color: #070913; color: #f1f5f9;">
 
