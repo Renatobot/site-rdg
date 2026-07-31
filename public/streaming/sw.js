@@ -1,10 +1,10 @@
 // RDG IPTV Service Worker
-const CACHE_NAME = "rdg-iptv-v21";
+const CACHE_NAME = "rdg-iptv-v31";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
   "/styles.css",
-  "/app.js",
+  "/app31.js",
   "/logo.png",
   "/manifest.json"
 ];

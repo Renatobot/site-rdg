@@ -95,6 +95,18 @@ video::cue {
   color: #ffffff;
 }
 
+/* Bottom Navigation Specific Styles */
+.bottom-nav .tab-btn {
+  border: none !important;
+}
+.bottom-nav .tab-btn.active {
+  background: linear-gradient(to top, rgba(0, 220, 255, 0.15), transparent);
+  color: #00dcff;
+  border-top: 2px solid #00dcff !important;
+  border-radius: 12px;
+}
+
+
 /* Category Quick Chips */
 .chip-btn {
   padding: 6px 14px;
@@ -244,3 +256,50 @@ video::-webkit-media-controls-fullscreen-button {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* 3D Neon Glassmorphism & Outdoor Digital Ticker */
+.vip-neon-glass {
+  background: rgba(8, 15, 25, 0.82) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(0, 255, 136, 0.5) !important;
+  box-shadow: 0 0 45px rgba(0, 255, 136, 0.35), inset 0 0 20px rgba(0, 255, 136, 0.12) !important;
+}
+
+.vip-glow-3d {
+  position: absolute;
+  inset: -3px;
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.6), rgba(0, 255, 102, 0.4), rgba(0, 230, 118, 0.5));
+  border-radius: inherit;
+  z-index: -1;
+  filter: blur(16px);
+  opacity: 0.75;
+  animation: vipNeonGlow3D 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes vipNeonGlow3D {
+  0% {
+    opacity: 0.55;
+    filter: blur(12px);
+  }
+  100% {
+    opacity: 0.95;
+    filter: blur(22px);
+  }
+}
+
+.typewriter-cursor::after {
+  content: '▋';
+  display: inline-block;
+  color: #00ff88;
+  font-size: 0.9em;
+  margin-left: 2px;
+  animation: tickerBlink 0.7s infinite;
+  text-shadow: 0 0 8px #00ff88;
+}
+
+@keyframes tickerBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+

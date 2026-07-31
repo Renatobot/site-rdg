@@ -117,7 +117,7 @@ function ServicePiece({ label, sub, Icon, tone, o, y, mo, my, delay }: Piece) {
       }
     >
       <div
-        className="exploded-card flex w-[clamp(138px,40vw,220px)] items-center gap-2 rounded-xl border border-white/10 bg-[#0B0B0F]/88 px-2.5 py-2 backdrop-blur-md sm:w-[clamp(150px,38vw,220px)] sm:gap-2.5 sm:px-3 sm:py-2.5"
+        className="exploded-card flex w-[clamp(138px,40vw,220px)] items-center gap-2 rounded-xl border border-white/10 bg-[#0B0B0F]/95 px-2.5 py-2 sm:bg-[#0B0B0F]/88 sm:backdrop-blur-md sm:w-[clamp(150px,38vw,220px)] sm:gap-2.5 sm:px-3 sm:py-2.5"
         style={{
           boxShadow: `0 20px 60px -20px color-mix(in oklab, ${tone} 55%, transparent), 0 0 0 1px color-mix(in oklab, ${tone} 25%, transparent) inset`,
         }}

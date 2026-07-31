@@ -87,8 +87,8 @@ const X_OUTER = "clamp(180px, 24vw, 340px)";
 const NX_OUTER = "clamp(-340px, -24vw, -180px)";
 const X_MID = "clamp(260px, 34vw, 460px)";
 const NX_MID = "clamp(-460px, -34vw, -260px)";
-const Y = "clamp(150px, 22vh, 240px)";
-const NY = "clamp(-240px, -22vh, -150px)";
+const Y = "clamp(135px, 19vh, 205px)";
+const NY = "clamp(-205px, -19vh, -135px)";
 const MOBILE_X = "clamp(83px, 23vw, 92px)";
 const MOBILE_NX = "clamp(-92px, -23vw, -83px)";
 const MOBILE_Y = [
@@ -122,7 +122,7 @@ export function Features() {
       className="features-scene relative border-t border-white/10 bg-[#0A0A0A]"
       style={{ height: "760vh" }}
     >
-      <div className="sticky top-0 flex h-screen items-center justify-center px-4 pt-20">
+      <div className="sticky top-0 flex h-screen items-center justify-center px-4 pt-24 pb-8">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
@@ -164,7 +164,7 @@ function FeatureCard({ index, feature }: { index: number; feature: Feature }) {
   const { Icon, title, description, col, row, mobileCol, mobileRow, delay } = feature;
   return (
     <div
-      className="feature-piece absolute left-1/2 top-1/2"
+      className="feature-piece absolute left-1/2 top-[calc(50%+1.75rem)]"
       style={
         {
           ["--o" as string]: offsetX(col, row),
@@ -176,7 +176,7 @@ function FeatureCard({ index, feature }: { index: number; feature: Feature }) {
         } as React.CSSProperties
       }
     >
-      <div className="feature-card w-[clamp(140px,40vw,250px)] rounded-xl border border-white/10 bg-[#0B0B0F]/92 p-3 backdrop-blur-md shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] sm:w-[clamp(160px,22vw,250px)] sm:p-4">
+      <div className="feature-card w-[clamp(140px,40vw,250px)] rounded-xl border border-white/10 bg-[#0B0B0F]/95 p-3 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] sm:bg-[#0B0B0F]/92 sm:backdrop-blur-md sm:w-[clamp(160px,22vw,250px)] sm:p-4">
         <div className="flex items-center gap-3">
           <span
             className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-primary/30 sm:h-9 sm:w-9"

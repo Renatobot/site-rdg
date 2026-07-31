@@ -251,12 +251,20 @@ html { scroll-padding-top: 88px; }
   position: relative;
   &::after {
     content: "";
-    position: absolute;
+    position: fixed;
     inset: 0;
+    width: 100vw;
+    height: 100vh;
     pointer-events: none;
-    opacity: 0.06;
+    opacity: 0.04;
     mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.85'/></svg>");
+  }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+  .grain::after {
+    display: none !important;
   }
 }
 
@@ -326,19 +334,19 @@ html { scroll-padding-top: 88px; }
 
 /* Hero headline word reveal */
 @keyframes word-in {
-  from { opacity: 0; transform: translateY(28px); filter: blur(10px); }
-  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .word-in {
   display: inline-block;
   opacity: 0;
-  animation: word-in 0.9s cubic-bezier(0.2,0.7,0.2,1) forwards;
+  animation: word-in 0.8s cubic-bezier(0.2,0.7,0.2,1) forwards;
 }
 
 /* Manifesto lines */
 @keyframes manifesto-in {
-  from { opacity: 0; transform: translateX(-24px); filter: blur(6px); }
-  to { opacity: 1; transform: translateX(0); filter: blur(0); }
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 .manifesto-line {
   opacity: 0;
@@ -1057,13 +1065,13 @@ html { scroll-padding-top: 88px; }
   .features-scene .sticky {
     align-items: center;
     justify-content: center;
-    padding-top: 6.25rem;
+    padding-top: 6.5rem;
     padding-bottom: 1.5rem;
     overflow: hidden;
   }
 
   .features-heading {
-    transform: translateY(0.6rem) scale(0.72);
+    transform: translateY(0.8rem) scale(0.72);
     transform-origin: center;
     max-width: 24rem;
   }
@@ -1079,10 +1087,10 @@ html { scroll-padding-top: 88px; }
 
   .feature-piece {
     --feature-x-scale: 1;
-    --feature-y-scale: 1.2;
+    --feature-y-scale: 0.88;
     position: absolute !important;
     left: 50%;
-    top: 50%;
+    top: calc(50% + 1.75rem) !important;
   }
 
   .feature-card {
@@ -1110,7 +1118,7 @@ html { scroll-padding-top: 88px; }
 @media (max-height: 760px) and (min-width: 700px) {
   .feature-piece {
     --feature-x-scale: 0.96;
-    --feature-y-scale: 1.22;
+    --feature-y-scale: 0.9;
   }
 }
 
@@ -1118,7 +1126,7 @@ html { scroll-padding-top: 88px; }
    cards never cover the center copy or clip their text. */
 @media (max-width: 680px) {
   .exploded-scene {
-    height: 260vh !important;
+    height: 250vh !important;
   }
 
   .exploded-scene .sticky {
@@ -1144,7 +1152,6 @@ html { scroll-padding-top: 88px; }
       translate(-50%, -50%)
       translateX(calc(var(--mobile-o) * var(--lp)))
       translateY(calc(var(--mobile-y) * var(--lp)))
-      translateZ(calc(-60px + 60px * var(--lp)))
       scale(calc(0.5 + 0.5 * var(--lp)));
   }
 
@@ -1172,7 +1179,7 @@ html { scroll-padding-top: 88px; }
   }
 
   .features-scene {
-    height: 680vh !important;
+    height: 560vh !important;
   }
 
   .features-scene .sticky {
@@ -1213,7 +1220,6 @@ html { scroll-padding-top: 88px; }
       translate(-50%, -50%)
       translateX(calc(var(--mobile-o) * var(--lp)))
       translateY(calc(var(--mobile-y) * var(--lp)))
-      translateZ(calc(-70px + 70px * var(--lp)))
       scale(calc(0.5 + 0.5 * var(--lp)));
   }
 
@@ -1297,6 +1303,14 @@ html { scroll-padding-top: 88px; }
     margin-top: 0.3rem;
     font-size: 0.6rem;
     line-height: 1.16;
+  }
+}
+
+/* Mobile Performance: skip rendering offscreen sections until scrolled into view */
+@media (max-width: 768px) {
+  section:not(.features-scene):not(.exploded-scene) {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 600px;
   }
 }
 

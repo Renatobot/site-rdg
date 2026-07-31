@@ -28,24 +28,17 @@ export function Hero() {
       id="top"
       className="relative overflow-hidden bg-[#0A0A0A] px-4 pt-28 pb-16 selection:bg-primary selection:text-primary-foreground sm:pt-40 sm:pb-28"
     >
-      {/* Very subtle single cyan ambient light — no aurora, no smoke, no particles */}
+      {/* Very subtle single cyan ambient light — zero blur overhead */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.05] blur-[160px]"
-        style={{ background: "hsl(var(--primary) / 1)" }}
-      />
-      {/* Faint film grain for tactile depth */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.04] mix-blend-overlay"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>\")",
+          background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 12%, transparent) 0%, transparent 70%)",
         }}
       />
 
       <div className="relative mx-auto max-w-5xl">
-        <div className="relative border border-white/5 bg-white/[0.01] p-8 backdrop-blur-3xl sm:p-16 md:p-24">
+        <div className="relative border border-white/5 bg-[#0D0D12]/95 p-8 sm:bg-white/[0.01] sm:backdrop-blur-3xl sm:p-16 md:p-24">
           {/* Fine cyan corner accents */}
           <div className="pointer-events-none absolute left-0 top-0 h-8 w-8 border-l border-t border-primary/40" />
           <div className="pointer-events-none absolute bottom-0 right-0 h-8 w-8 border-b border-r border-primary/40" />

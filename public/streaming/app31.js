@@ -1,3 +1,667 @@
+// ── AUTENTICAÇÃO HÍBRIDA RDG STREAM (VIP / GRÁTIS) ──
+window.switchLoginTab = function(tab) {
+  const formVip = document.getElementById("formVip");
+  const formFree = document.getElementById("formFree");
+  const tabVipBtn = document.getElementById("tabVipBtn");
+  const tabFreeBtn = document.getElementById("tabFreeBtn");
+
+  if (tab === 'vip') {
+    formVip.classList.remove("hidden");
+    formVip.classList.add("block");
+    formFree.classList.remove("block");
+    formFree.classList.add("hidden");
+    
+    tabVipBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 transition-all";
+    tabFreeBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition-all";
+  } else {
+    formFree.classList.remove("hidden");
+    formFree.classList.add("block");
+    formVip.classList.remove("block");
+    formVip.classList.add("hidden");
+
+    tabFreeBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-slate-700 text-white border border-slate-600 transition-all";
+    tabVipBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition-all border border-transparent";
+  }
+};
+
+window.handleVipLogin = async function() {
+  const user = document.getElementById("loginUsername").value.trim();
+  const pass = document.getElementById("loginPassword").value.trim();
+  const btn = document.getElementById("loginVipBtn");
+  
+  if (!user || !pass) {
+    alert("Por favor, preencha Usuário e Senha.");
+    return;
+  }
+  
+  btn.textContent = "VALIDANDO NO SERVIDOR...";
+  btn.disabled = true;
+  
+  const host = "http://cdnroxo.top:80";
+  const apiPath = `/player_api.php?username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}`;
+  // Usa o getProxyUrl do app.js (ou fallback Vercel)
+  const proxyUrl = window.getProxyUrl ? window.getProxyUrl(host + apiPath) : `/api/proxy?url=${encodeURIComponent(host + apiPath)}`;
+  
+  try {
+    const res = await fetch(proxyUrl);
+    if (!res.ok) throw new Error("Network error");
+    const data = await res.json();
+    
+    if (data.user_info && data.user_info.status === "Active") {
+      // Login Válido
+      localStorage.setItem("rdg_xtream", JSON.stringify({ host, user, pass }));
+      localStorage.setItem("rdg_vip_info", JSON.stringify(data.user_info));
+      
+      const overlay = document.getElementById("loginOverlay");
+      if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => window.location.reload(), 500);
+      }
+    } else {
+      alert("Assinatura Vencida ou Credenciais Incorretas!");
+      btn.innerHTML = "ACESSAR PAINEL VIP";
+      btn.disabled = false;
+    }
+  } catch(e) {
+    console.error(e);
+    alert("Erro de conexão com o servidor Xtream Codes.");
+    btn.innerHTML = "ACESSAR PAINEL VIP";
+    btn.disabled = false;
+  }
+};
+
+window.handleFreeLogin = async function() {
+  const input = document.getElementById("loginKeyInput");
+  const key = input ? input.value.trim() : "";
+  const btn = document.getElementById("loginFreeBtn");
+  
+  if (key.length < 3 || !key.toUpperCase().startsWith("IG")) {
+    alert("Chave inválida. A chave de acesso grátis deve começar com 'IG'.");
+    return;
+  }
+  
+  btn.textContent = "VERIFICANDO CHAVE...";
+  btn.disabled = true;
+
+  try {
+    const SUPABASE_URL = 'https://yyoffdpzzoxrgigqupif.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Cv5IVbK2bpo5PwCq-1PK3Q_d-8NPI10';
+    
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/licenses?key=eq.${encodeURIComponent(key)}&select=cliente,expires_at,is_lifetime`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
+
+    if (!res.ok) throw new Error("Erro na API");
+    
+    const data = await res.json();
+    
+    if (data && data.length > 0) {
+      const lic = data[0];
+      localStorage.setItem("rdg_license_key", key);
+      localStorage.setItem("rdg_free_info", JSON.stringify(lic));
+      
+      const overlay = document.getElementById("loginOverlay");
+      if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          window.location.reload();
+        }, 500);
+      }
+    } else {
+      alert("Chave IG não encontrada no banco de dados ou expirada.");
+      btn.textContent = "USAR LISTA GRÁTIS";
+      btn.disabled = false;
+    }
+  } catch(e) {
+    console.error(e);
+    alert("Erro ao validar chave. Tente novamente.");
+    btn.textContent = "USAR LISTA GRÁTIS";
+    btn.disabled = false;
+  }
+};
+
+window.handleLogout = function() {
+  localStorage.removeItem("rdg_xtream");
+  localStorage.removeItem("rdg_vip_info");
+  localStorage.removeItem("rdg_license_key");
+  localStorage.removeItem("rdg_free_info");
+  window.location.reload();
+};
+
+(function checkStandaloneAuth() {
+  const isFree = localStorage.getItem("rdg_license_key");
+  const isVip = localStorage.getItem("rdg_xtream");
+  
+  function initAppAuthAndEvents() {
+    const overlay = document.getElementById("loginOverlay");
+    const headerInfo = document.getElementById("userInfoHeader");
+    const btnInstall = document.getElementById('btnHeaderInstall');
+    
+    if (btnInstall) {
+      btnInstall.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (typeof window.rdgOpenInstallModal === 'function') window.rdgOpenInstallModal();
+      });
+    }
+
+    if (!overlay) return;
+    
+    if (isVip || (isFree && isFree.trim() !== "")) {
+      // LOGADO!
+      overlay.style.display = 'none';
+      
+      // Se VIP, atualiza o cabeçalho
+      if (isVip && headerInfo) {
+        let username = "";
+        let expDateText = "Vencimento: Ilimitado";
+        
+        const vipInfoStr = localStorage.getItem("rdg_vip_info");
+        if (vipInfoStr) {
+          try {
+            const vipInfo = JSON.parse(vipInfoStr);
+            username = vipInfo.username;
+            if (vipInfo.exp_date && vipInfo.exp_date !== "null") {
+              const expDate = new Date(vipInfo.exp_date * 1000);
+              expDateText = `Vencimento: ${expDate.toLocaleDateString("pt-BR", { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+            }
+          } catch(e) {}
+        } else {
+          try {
+            const xtreamInfo = JSON.parse(isVip);
+            username = xtreamInfo.user;
+            
+            if (/^\d+$/.test(username)) {
+              username = "Membro VIP";
+            }
+            
+            // Extrair expiração se disponível
+            if (xtreamInfo.info && xtreamInfo.info.user_info && xtreamInfo.info.user_info.exp_date) {
+              const expValue = xtreamInfo.info.user_info.exp_date;
+              if (expValue && expValue !== "null" && expValue !== "0") {
+                const expDate = new Date(expValue * 1000);
+                expDateText = `Vencimento: ${expDate.toLocaleDateString("pt-BR", { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+              }
+            }
+          } catch(e) {}
+        }
+        
+        if (username) {
+          headerInfo.classList.remove("hidden");
+          headerInfo.classList.add("flex");
+          document.getElementById("userInfoName").textContent = `Usuário: ${username}`;
+          document.getElementById("userInfoExp").textContent = expDateText;
+        }
+      }
+      
+      // Se Grátis, atualiza o cabeçalho
+      if (isFree && !isVip && headerInfo) {
+        headerInfo.classList.remove("hidden");
+        headerInfo.classList.add("flex");
+        
+        const freeInfoStr = localStorage.getItem("rdg_free_info");
+        if (freeInfoStr) {
+          try {
+            const freeInfo = JSON.parse(freeInfoStr);
+            document.getElementById("userInfoName").textContent = `Plano Grátis: ${freeInfo.cliente}`;
+            
+            if (freeInfo.is_lifetime) {
+              document.getElementById("userInfoExp").textContent = "Vencimento: Ilimitado";
+            } else if (freeInfo.expires_at) {
+              const expDate = new Date(freeInfo.expires_at);
+              const formattedExp = expDate.toLocaleDateString("pt-BR", { day: '2-digit', month: '2-digit', year: 'numeric' });
+              document.getElementById("userInfoExp").textContent = `Vencimento: ${formattedExp}`;
+            } else {
+              document.getElementById("userInfoExp").textContent = "Chave: " + isFree;
+            }
+          } catch(e) {
+            document.getElementById("userInfoName").textContent = "Plano Grátis";
+            document.getElementById("userInfoExp").textContent = "Chave: " + isFree;
+          }
+        } else {
+          document.getElementById("userInfoName").textContent = "Plano Grátis";
+          document.getElementById("userInfoExp").textContent = "Chave: " + isFree;
+        }
+      }
+      
+    } else {
+      // NÃO LOGADO
+      overlay.style.display = 'flex';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initAppAuthAndEvents);
+  } else {
+    initAppAuthAndEvents();
+  }
+})();
+
+// ── ENGINE DE MODAIS RDG STREAM ──
+let deferredPwaPrompt = null;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPwaPrompt = e;
+});
+
+// Detecta o sistema operacional/dispositivo do usuário
+function rdgDetectOS() {
+  const ua = navigator.userAgent || "";
+  if (/Xbox/i.test(ua)) return "xbox";
+  if (/iPhone|iPad|iPod/i.test(ua)) return "ios";
+  if (/FireTV|AFTS|AFTB|AFTM|AFTEU|Silk/i.test(ua)) return "firetv";
+  if (/Tizen|webOS|SmartTV|HbbTV|NetCast|POV_TV|Viera|AppleTV|MiTV|Bbox/i.test(ua)) return "tv";
+  if (/Android/i.test(ua)) return "android";
+  if (/Windows/i.test(ua)) return "windows";
+  if (/Mac/i.test(ua)) return "mac";
+  return "other";
+}
+
+// Conteúdo do guia específico por OS/dispositivo
+function rdgInstallGuideContent(os) {
+  const guides = {
+
+    ios: {
+      showDirectBtn: true,
+      html: `
+        <div class="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📱</span>
+            <div>
+              <p class="font-extrabold text-white text-sm">iPhone / iPad (Safari)</p>
+              <p class="text-[11px] text-blue-300">Siga os 4 passos abaixo:</p>
+            </div>
+          </div>
+          <ol class="space-y-2.5">
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-blue-500/30 text-blue-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <p class="text-slate-300">Toque no botão azul <strong class="text-white">"ABRIR PLAYER DIRETO"</strong> abaixo para abrir no Safari</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-blue-500/30 text-blue-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <p class="text-slate-300">No Safari, toque no ícone <strong class="text-white">Compartilhar ( 📤 )</strong> na barra inferior da tela</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-blue-500/30 text-blue-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <p class="text-slate-300">Role o menu para baixo e toque em <strong class="text-white">"Adicionar à Tela de Início ( ➕ )"</strong></p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-blue-500/30 text-blue-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">4</span>
+              <p class="text-slate-300">Toque em <strong class="text-white">"Adicionar"</strong> no canto superior direito — o app vai aparecer na sua tela inicial! ✅</p>
+            </li>
+          </ol>
+          <p class="text-[10px] text-slate-500 pt-1">⚠️ Funciona apenas no Safari. No Chrome do iPhone, use o Safari.</p>
+        </div>
+      `
+    },
+
+    android: {
+      showDirectBtn: false,
+      html: `
+        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🤖</span>
+            <div>
+              <p class="font-extrabold text-white text-sm">Android (Chrome / Samsung)</p>
+              <p class="text-[11px] text-emerald-300">Instalação automática pelo navegador:</p>
+            </div>
+          </div>
+          <ol class="space-y-2.5">
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <p class="text-slate-300">Abra o Chrome no seu Android e acesse <strong class="text-white">rdgdigital.com.br/streaming</strong></p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <p class="text-slate-300">Toque nos <strong class="text-white">3 pontos (⋮)</strong> no canto superior direito do Chrome</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <p class="text-slate-300">Selecione <strong class="text-white">"Instalar aplicativo"</strong> ou <strong class="text-white">"Adicionar à tela inicial"</strong></p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">4</span>
+              <p class="text-slate-300">Confirme e o ícone do RDG Stream aparecerá na sua tela inicial! ✅</p>
+            </li>
+          </ol>
+        </div>
+      `
+    },
+
+    firetv: {
+      showDirectBtn: true,
+      html: `
+        <div class="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📺</span>
+            <div>
+              <p class="font-extrabold text-white text-sm">Amazon Fire Stick / Fire TV</p>
+              <p class="text-[11px] text-orange-300">Acesso via Navegador Silk:</p>
+            </div>
+          </div>
+          <ol class="space-y-2.5">
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-orange-500/30 text-orange-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <p class="text-slate-300">No seu Fire Stick, vá em <strong class="text-white">Aplicativos</strong> e abra o <strong class="text-white">Navegador Silk</strong></p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-orange-500/30 text-orange-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <p class="text-slate-300">Na barra de endereço, digite: <strong class="text-white">rdgdigital.com.br/streaming</strong></p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-orange-500/30 text-orange-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <p class="text-slate-300">Pressione o botão <strong class="text-white">Menu ( ☰ )</strong> e toque em <strong class="text-white">"Adicionar aos Favoritos"</strong> para acesso rápido</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-orange-500/30 text-orange-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">4</span>
+              <p class="text-slate-300">Navegue com o controle remoto. Use a busca por voz para encontrar canais! 🎙️</p>
+            </li>
+          </ol>
+        </div>
+      `
+    },
+
+    xbox: {
+      showDirectBtn: true,
+      html: `
+        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🎮</span>
+            <div>
+              <p class="font-extrabold text-white text-sm">Xbox (Microsoft Edge)</p>
+              <p class="text-[11px] text-emerald-300">Acesso via navegador no Console:</p>
+            </div>
+          </div>
+          <ol class="space-y-2.5">
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <p class="text-slate-300">Consoles Xbox usam o <strong class="text-white">Microsoft Edge</strong>. Consoles não suportam instalação de PWAs/Apps de Desktop.</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <p class="text-slate-300">No Edge do Xbox, pressione o botão <strong class="text-white">Menu ( ☰ )</strong> no seu controle remoto/joystick.</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <p class="text-slate-300">Selecione <strong class="text-white">"Adicionar aos Favoritos"</strong> ou <strong class="text-white">"Fixar na Iniciar"</strong> para abrir com 1 clique!</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">4</span>
+              <p class="text-slate-300">Pronto! Você pode usar o player 100% normalmente pelo controle do Xbox ✅</p>
+            </li>
+          </ol>
+        </div>
+      `
+    },
+
+    tv: {
+      showDirectBtn: true,
+      html: `
+        <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📺</span>
+            <div>
+              <p class="font-extrabold text-white text-sm">Smart TV (Samsung / LG / Sony)</p>
+              <p class="text-[11px] text-amber-300">Acesse pelo navegador da TV:</p>
+            </div>
+          </div>
+          <ol class="space-y-2.5">
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-amber-500/30 text-amber-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <p class="text-slate-300">No menu da sua Smart TV, abra o <strong class="text-white">Navegador da Internet</strong></p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-amber-500/30 text-amber-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <p class="text-slate-300">Digite o endereço: <strong class="text-white">rdgdigital.com.br/streaming</strong></p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-amber-500/30 text-amber-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <p class="text-slate-300">Adicione ao <strong class="text-white">Favoritos / Marcadores</strong> do navegador para entrar com 1 clique</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-amber-500/30 text-amber-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">4</span>
+              <p class="text-slate-300">Use o <strong class="text-white">controle remoto</strong> para navegar entre os canais normalmente</p>
+            </li>
+          </ol>
+        </div>
+      `
+    },
+
+    windows: {
+      showDirectBtn: false,
+      html: `
+        <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🖥️</span>
+            <div>
+              <p class="font-extrabold text-white text-sm">Windows (Chrome / Edge)</p>
+              <p class="text-[11px] text-cyan-300">Instalação em 1 clique:</p>
+            </div>
+          </div>
+          <ol class="space-y-2.5">
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-cyan-500/30 text-cyan-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <p class="text-slate-300">Procure o ícone <strong class="text-white">📥 Instalar App</strong> no canto direito da barra de endereço do Chrome ou Edge</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-cyan-500/30 text-cyan-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <p class="text-slate-300">Clique nele e confirme em <strong class="text-white">"Instalar"</strong> — o app abrirá em janela própria</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-cyan-500/30 text-cyan-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <p class="text-slate-300">O RDG Stream ficará no seu Desktop e no Menu Iniciar como um app nativo ✅</p>
+            </li>
+          </ol>
+          <p class="text-[10px] text-slate-500">💡 Se não aparecer o ícone, clique com o botão direito na aba → "Instalar RDG Stream"</p>
+        </div>
+      `
+    },
+
+    mac: {
+      showDirectBtn: false,
+      html: `
+        <div class="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">💻</span>
+            <div>
+              <p class="font-extrabold text-white text-sm">Mac (Chrome / Edge / Safari)</p>
+              <p class="text-[11px] text-purple-300">Instale como app no seu Mac:</p>
+            </div>
+          </div>
+          <ol class="space-y-2.5">
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-purple-500/30 text-purple-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <p class="text-slate-300">No Chrome ou Edge, procure o ícone <strong class="text-white">📥</strong> na barra de endereço</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-purple-500/30 text-purple-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <p class="text-slate-300">Clique e confirme <strong class="text-white">"Instalar"</strong> — aparecerá no Launchpad e Dock</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-purple-500/30 text-purple-300 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <p class="text-slate-300">No <strong class="text-white">Safari</strong>: Arquivo → <strong class="text-white">"Adicionar à Dock..."</strong> para fixar como app</p>
+            </li>
+          </ol>
+        </div>
+      `
+    },
+
+    other: {
+      showDirectBtn: true,
+      html: `
+        <div class="bg-white/5 border border-white/15 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📱</span>
+            <div>
+              <p class="font-extrabold text-white text-sm">Instalar o RDG Stream App</p>
+              <p class="text-[11px] text-slate-400">Siga o passo a passo:</p>
+            </div>
+          </div>
+          <ol class="space-y-2.5">
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-white/20 text-white text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <p class="text-slate-300">Abra <strong class="text-white">rdgdigital.com.br/streaming</strong> no navegador do seu dispositivo</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-white/20 text-white text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <p class="text-slate-300">Procure a opção <strong class="text-white">"Instalar aplicativo"</strong> ou <strong class="text-white">"Adicionar à tela inicial"</strong> no menu do navegador</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-white/20 text-white text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <p class="text-slate-300">Confirme a instalação — o ícone do app aparecerá na sua tela ✅</p>
+            </li>
+          </ol>
+        </div>
+      `
+    }
+
+  };
+  return guides[os] || guides["other"];
+}
+
+// Abre modal de instalação inteligente
+window.rdgOpenInstallModal = function() {
+  try {
+    const os = rdgDetectOS();
+
+    if (deferredPwaPrompt && (os === "windows" || os === "mac" || os === "android")) {
+      deferredPwaPrompt.prompt();
+      deferredPwaPrompt.userChoice.then(() => { deferredPwaPrompt = null; });
+      return;
+    }
+
+    // Tentar remover modal antigo, se existir
+    const oldModal = document.getElementById("rdgDynamicPwaModal");
+    if (oldModal) {
+      oldModal.remove();
+    }
+
+    const guide = rdgInstallGuideContent(os);
+
+    // Cria o overlay raiz
+    const overlay = document.createElement("div");
+    overlay.id = "rdgDynamicPwaModal";
+    // Estilos inline blindados
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100vw";
+    overlay.style.height = "100vh";
+    overlay.style.backgroundColor = "rgba(0,0,0,0.9)";
+    overlay.style.zIndex = "2147483647"; // Máximo z-index absoluto
+    overlay.style.display = "flex";
+    overlay.style.alignItems = "center";
+    overlay.style.justifyContent = "center";
+    overlay.style.padding = "20px";
+    
+    // Fechar ao clicar fora
+    overlay.onclick = function(e) {
+      if (e.target === overlay) {
+        overlay.remove();
+      }
+    };
+
+    // Cria o card principal
+    const card = document.createElement("div");
+    card.style.backgroundColor = "#0d1124";
+    card.style.border = "2px solid #00dcff";
+    card.style.borderRadius = "20px";
+    card.style.padding = "24px";
+    card.style.width = "100%";
+    card.style.maxWidth = "400px";
+    card.style.maxHeight = "85vh";
+    card.style.overflowY = "auto";
+    card.style.position = "relative";
+    card.style.boxShadow = "0 10px 40px rgba(0, 220, 255, 0.2)";
+    card.style.color = "#ffffff";
+    card.style.fontFamily = "system-ui, -apple-system, sans-serif";
+
+    // Botão de fechar (X)
+    const closeBtn = document.createElement("button");
+    closeBtn.innerHTML = "✕";
+    closeBtn.style.position = "absolute";
+    closeBtn.style.top = "15px";
+    closeBtn.style.right = "15px";
+    closeBtn.style.background = "transparent";
+    closeBtn.style.border = "none";
+    closeBtn.style.color = "#94a3b8";
+    closeBtn.style.fontSize = "20px";
+    closeBtn.style.cursor = "pointer";
+    closeBtn.onclick = function() {
+      overlay.remove();
+    };
+    
+    // Conteúdo HTML
+    const content = document.createElement("div");
+    content.innerHTML = guide.html || "Instruções não disponíveis para este dispositivo.";
+    
+    // Montagem
+    card.appendChild(closeBtn);
+    card.appendChild(content);
+
+    // Botão Fechar de baixo
+    const bottomClose = document.createElement("button");
+    bottomClose.innerHTML = "FECHAR";
+    bottomClose.style.width = "100%";
+    bottomClose.style.marginTop = "20px";
+    bottomClose.style.padding = "12px";
+    bottomClose.style.background = "rgba(255,255,255,0.1)";
+    bottomClose.style.border = "1px solid rgba(255,255,255,0.2)";
+    bottomClose.style.borderRadius = "12px";
+    bottomClose.style.color = "#fff";
+    bottomClose.style.fontWeight = "bold";
+    bottomClose.style.cursor = "pointer";
+    bottomClose.onclick = function() {
+      overlay.remove();
+    };
+
+    if (os !== "ios" && guide.showDirectBtn) {
+       // Se for android e tiver deferredPwaPrompt
+    }
+
+    card.appendChild(bottomClose);
+    overlay.appendChild(card);
+    
+    // Adiciona direto no body!
+    document.body.appendChild(overlay);
+
+  } catch (err) {
+    alert("Erro PWA: " + err.message);
+  }
+};
+
+
+window.rdgOpenModal = function(modalId) {
+  if (modalId === "modalInstallApp" || modalId === "installAppModal") {
+    window.rdgOpenInstallModal();
+    return;
+  }
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+};
+
+window.rdgCloseModal = function(modalId) {
+  const modal = typeof modalId === "string" ? document.getElementById(modalId) : modalId;
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+};
+
+// Aliases legados
+window.openInstallGuideModal = () => window.rdgOpenInstallModal();
+window.closeModal = (id) => window.rdgCloseModal(id);
+
+
+
+
+
 // HELPER: PROXY HTTP STREAMS ON HTTPS VERCEL DEPLOYMENTS
 function getProxyUrl(rawUrl) {
   if (!rawUrl || typeof rawUrl !== "string") return rawUrl;
@@ -15,6 +679,7 @@ function getProxyUrl(rawUrl) {
   }
   return rawUrl;
 }
+
 
 function startApp() {
   // Initialize Lucide Icons
@@ -535,7 +1200,7 @@ function startApp() {
 
       card.innerHTML = `
         <div class="relative ${aspectClass} bg-black/60 rounded-lg overflow-hidden flex items-center justify-center">
-          ${item.logo ? `<img src="${item.logo}" alt="${parsed.title}" class="max-w-full max-h-full object-contain" onerror="this.src='logo.png';" />` : `<i data-lucide="tv" class="w-6 h-6 text-cyan-400"></i>`}
+          ${item.logo ? `<img src="${item.logo}" alt="${parsed.title}" class="max-w-full max-h-full object-contain" onerror="this.src='logo_v2.png';" />` : `<i data-lucide="tv" class="w-6 h-6 text-cyan-400"></i>`}
           <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <div class="w-8 h-8 rounded-full bg-[#00dcff] text-[#060814] flex items-center justify-center shadow-md transform group-hover:scale-110 transition-transform">
               <i data-lucide="play" class="w-3.5 h-3.5 fill-current ml-0.5"></i>
@@ -850,101 +1515,16 @@ function startApp() {
   const loadPresetVODBtn = document.getElementById("loadPresetVODBtn");
 
   // 100% REAL 24/7 LIVE BRAZILIAN & INTERNATIONAL CHANNELS WITH HIGH-AVAILABILITY CORS HLS STREAM MIRRORS
-  const REAL_24H_CHANNELS = [
-    {
-      id: "real-live-1",
-      name: "Pluto TV Cine Sucessos HD 24h",
-      logo: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&h=300&fit=crop",
-      url: "https://service-stitcher.clusters.pluto.tv/v1/stitch/embed/hls/channel/5f1b212f458ff60007873177/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c2a8f80-1a2b-11ed-9f5b-17ef3836d5e1&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown",
-      servers: [
-        "https://service-stitcher.clusters.pluto.tv/v1/stitch/embed/hls/channel/5f1b212f458ff60007873177/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c2a8f80-1a2b-11ed-9f5b-17ef3836d5e1&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown"
-      ],
-      group: "Filmes & Cinema",
-      type: "live",
-      description: "Canal 24 horas de grandes sucessos do cinema nacional e internacional dublados em alta definição.",
-    },
-    {
-      id: "real-live-2",
-      name: "Pluto TV Filmes Ação HD 24h",
-      logo: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&h=300&fit=crop",
-      url: "https://service-stitcher.clusters.pluto.tv/v1/stitch/embed/hls/channel/5fa06f658097b6000742f9b8/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c2a8f80-1a2b-11ed-9f5b-17ef3836d5e1&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown",
-      servers: [
-        "https://service-stitcher.clusters.pluto.tv/v1/stitch/embed/hls/channel/5fa06f658097b6000742f9b8/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c2a8f80-1a2b-11ed-9f5b-17ef3836d5e1&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown"
-      ],
-      group: "Filmes & Cinema",
-      type: "live",
-      description: "Canal 24h dedicado aos maiores filmes de ação, perseguições e suspense do cinema.",
-    },
-    {
-      id: "real-live-3",
-      name: "RedBull TV Esportes 24h",
-      logo: "https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=500&h=300&fit=crop",
-      url: "https://rbmn-live.akamaized.net/hls/live/591070/GEO_GLOBAL_AK_RBMN247_V1/master.m3u8",
-      servers: [
-        "https://rbmn-live.akamaized.net/hls/live/591070/GEO_GLOBAL_AK_RBMN247_V1/master.m3u8"
-      ],
-      group: "Esportes & Futebol",
-      type: "live",
-      description: "Transmissões ao vivo 24h de esportes radicais, automobilismo, mountain bike, surf e documentários esportivos.",
-    },
-    {
-      id: "real-live-4",
-      name: "Pluto TV Anime & Animação 24h",
-      logo: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&h=300&fit=crop",
-      url: "https://service-stitcher.clusters.pluto.tv/v1/stitch/embed/hls/channel/5f187ee0a4cfeb0007dbfc60/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c2a8f80-1a2b-11ed-9f5b-17ef3836d5e1&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown",
-      servers: [
-        "https://service-stitcher.clusters.pluto.tv/v1/stitch/embed/hls/channel/5f187ee0a4cfeb0007dbfc60/master.m3u8?appName=web&appVersion=unknown&clientTime=0&deviceDNT=0&deviceId=6c2a8f80-1a2b-11ed-9f5b-17ef3836d5e1&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown"
-      ],
-      group: "Infantil & Crianças",
-      type: "live",
-      description: "Canal 24h de animações, animes e séries animadas clássicas e modernas com dublagem oficial em português.",
-    },
-    {
-      id: "real-live-5",
-      name: "Bloomberg TV Live 24h",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Bloomberg_Television_logo.svg/500px-Bloomberg_Television_logo.svg.png",
-      url: "https://liveproduseast.akamaized.net/us/hls/live/2018698/blive_us/master.m3u8",
-      servers: [
-        "https://liveproduseast.akamaized.net/us/hls/live/2018698/blive_us/master.m3u8"
-      ],
-      group: "Notícias 24h",
-      type: "live",
-      description: "Notícias globais sobre negócios, mercado financeiro, economia e política ao vivo 24 horas por dia.",
-    },
-    {
-      id: "real-live-6",
-      name: "DW News 24h HD",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Deutsche_Welle_logo.svg/500px-Deutsche_Welle_logo.svg.png",
-      url: "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8",
-      servers: [
-        "https://dwamdstream102.akamaized.net/hls/live/2015525/dwstream102/index.m3u8"
-      ],
-      group: "Notícias 24h",
-      type: "live",
-      description: "Emissora internacional de notícias ao vivo com jornalismo imparcial 24h.",
-    },
-    {
-      id: "real-live-7",
-      name: "NASA TV HD Live 24h",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/500px-NASA_logo.svg.png",
-      url: "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8",
-      servers: [
-        "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8"
-      ],
-      group: "Documentários & Ciência",
-      type: "live",
-      description: "Transmissão oficial da NASA com imagens do espaço, lançamentos de foguetes e a Terra em tempo real.",
-    }
-  ];
+  const REAL_24H_CHANNELS = [];
 
-  // ── XTREAM CODES HELPER (shared) ──
+  // ⚡ XTREAM CODES HELPER (shared) ⚡
   async function connectXtream(host, user, pass, silent = false) {
     const baseHost = host.replace(/\/$/, "");
     const base = `${baseHost}/player_api.php?username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}`;
 
     const doFetch = async (action) => {
-      const u = `${base}&action=${action}`;
-      // Usar exclusivamente nosso proxy — nunca proxies de terceiros
+      const u = action ? `${base}&action=${action}` : base;
+      // Usar exclusivamente nosso proxy - nunca proxies de terceiros
       const proxyU = getProxyUrl(u);
       try { const r = await fetch(proxyU); if (r.ok) return await r.json(); } catch (_) {}
       // Fallback: tenta direto (caso localhost HTTP)
@@ -955,8 +1535,9 @@ function startApp() {
     // ETAPA 1: Conectando (15%)
     updateLoadingStep(15, "Conectando ao servidor IPTV, só um instante...", "Buscando dados no servidor...", 0);
 
-    // Buscar Categorias em paralelo
-    const [liveCats, vodCats, seriesCats] = await Promise.all([
+    // Buscar Informações da Conta e Categorias em paralelo
+    const [accountInfo, liveCats, vodCats, seriesCats] = await Promise.all([
+      doFetch(""), // Sem action = retorna user_info
       doFetch("get_live_categories"),
       doFetch("get_vod_categories"),
       doFetch("get_series_categories"),
@@ -1004,6 +1585,7 @@ function startApp() {
           group: catRaw.trim(),
           url: directUrl,
           servers: [
+            directUrl,
             getProxyUrl(directUrl),
             getProxyUrl(tsUrl),
             getProxyUrl(rawTsUrl),
@@ -1026,6 +1608,7 @@ function startApp() {
           group: catRaw.trim(),
           url: directUrl,
           servers: [
+            directUrl,
             getProxyUrl(directUrl),
           ],
           type: "movies",
@@ -1048,6 +1631,7 @@ function startApp() {
           group: catRaw.trim(),
           url: directUrl,
           servers: [
+            directUrl,
             getProxyUrl(directUrl),
           ],
           type: "series",
@@ -1059,7 +1643,7 @@ function startApp() {
     // Salvar credenciais no localStorage se houve sucesso
     if (allItems.length > 0) {
       try {
-        localStorage.setItem("rdg_xtream", JSON.stringify({ host, user, pass }));
+        localStorage.setItem("rdg_xtream", JSON.stringify({ host, user, pass, info: accountInfo }));
       } catch (err) {
         console.warn("Não foi possível salvar no localStorage:", err);
       }
@@ -1093,7 +1677,73 @@ function startApp() {
         }
       }
 
-      // ── Sem credenciais salvas → carregar canais reais 24h ──
+      // ── Sem credenciais salvas -> Verificar Lista Global do Plano Grátis ──
+      const isFree = localStorage.getItem("rdg_license_key");
+      let globalUrl = null;
+
+      if (isFree) {
+        try {
+          const SUPABASE_URL = 'https://yyoffdpzzoxrgigqupif.supabase.co';
+          const SUPABASE_KEY = 'sb_publishable_Cv5IVbK2bpo5PwCq-1PK3Q_d-8NPI10';
+          const configRes = await fetch(`${SUPABASE_URL}/rest/v1/licenses?key=eq.GLOBAL_M3U_URL&select=cliente`, {
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+          });
+          if (configRes.ok) {
+            const configData = await configRes.json();
+            if (configData && configData.length > 0 && configData[0].cliente) {
+              globalUrl = configData[0].cliente;
+              console.log("📺 Lista Global do Plano Grátis encontrada!");
+            }
+          }
+        } catch(e) {
+          console.warn("Erro ao buscar M3U Global:", e);
+        }
+      }
+
+      if (globalUrl) {
+        if (globalUrl.includes("get.php")) {
+          try {
+            const u = new URL(globalUrl);
+            const host = u.origin;
+            const user = u.searchParams.get("username");
+            const pass = u.searchParams.get("password");
+            if (host && user && pass) {
+              console.log("Detectado link M3U Xtream, tentando converter para API direta...");
+              const { allItems, liveData, vodData, seriesData } = await connectXtream(host, user, pass, true);
+              if (allItems && allItems.length > 0) {
+                state.items = allItems;
+                updateUI();
+                checkAutoPlayUrl();
+                hideLoadingProgress();
+                return;
+              }
+            }
+          } catch (err) {
+            console.warn("Falha ao converter M3U para API Xtream. Tentando parser nativo...", err);
+          }
+        }
+
+        // Tentar parser M3U Normal
+        try {
+          const proxiedUrl = getProxyUrl(globalUrl);
+          const res = await fetch(proxiedUrl);
+          if (res.ok) {
+            const text = await res.text();
+            const items = parseM3U(text);
+            if (items.length > 0) {
+              state.items = items;
+              updateUI();
+              checkAutoPlayUrl();
+              hideLoadingProgress();
+              return;
+            }
+          }
+        } catch (err) {
+          console.warn("M3U API failed for global URL...", err);
+        }
+      }
+
+      // ── Fallback final: Canais Reais 24h ──
       try {
         const targetUrl = getProxyUrl("https://iptv-org.github.io/iptv/countries/br.m3u");
         const res = await fetch(targetUrl);
@@ -1324,9 +1974,9 @@ function startApp() {
 
     if (heroBackdrop) {
       heroBackdrop.style.opacity = "0.2";
-      heroBackdrop.src = item.logo ? getProxyUrl(item.logo) : "logo.png";
+      heroBackdrop.src = item.logo ? getProxyUrl(item.logo) : "logo_v2.png";
       setTimeout(() => {
-        if (heroBackdrop) heroBackdrop.style.opacity = "0.7";
+        if (heroBackdrop) heroBackdrop.style.opacity = "1";
       }, 100);
     }
 
@@ -1484,34 +2134,70 @@ function startApp() {
 
   function updateCategoryChips() {
     const chipsStrip = document.getElementById("categoryChipsStrip");
-    if (!chipsStrip) return;
+    const mobileChipsStrip = document.getElementById("mobileCategoryChips");
+    if (!chipsStrip && !mobileChipsStrip) return;
 
     const currentTabItems = getTabItems();
     const categories = Array.from(new Set(currentTabItems.map((i) => i.group || "Geral")));
 
-    chipsStrip.innerHTML = "";
+    if (chipsStrip) chipsStrip.innerHTML = "";
+    if (mobileChipsStrip) mobileChipsStrip.innerHTML = "";
 
-    const allChip = document.createElement("button");
-    allChip.className = `chip-btn ${state.currentCategory === "ALL" ? "active" : ""}`;
-    allChip.textContent = `Todos (${currentTabItems.length})`;
-    allChip.addEventListener("click", () => {
-      state.currentCategory = "ALL";
-      categorySelect.value = "ALL";
-      updateUI();
-    });
-    chipsStrip.appendChild(allChip);
+    const allChipText = `Todos (${currentTabItems.length})`;
+    const isAllActive = state.currentCategory === "ALL";
+
+    if (chipsStrip) {
+      const allChip = document.createElement("button");
+      allChip.className = `chip-btn ${isAllActive ? "active" : ""}`;
+      allChip.textContent = allChipText;
+      allChip.addEventListener("click", () => {
+        state.currentCategory = "ALL";
+        categorySelect.value = "ALL";
+        updateUI();
+      });
+      chipsStrip.appendChild(allChip);
+    }
+    
+    if (mobileChipsStrip) {
+      const allChip = document.createElement("button");
+      allChip.className = `chip-btn ${isAllActive ? "active" : ""}`;
+      allChip.textContent = allChipText;
+      allChip.addEventListener("click", () => {
+        state.currentCategory = "ALL";
+        categorySelect.value = "ALL";
+        updateUI();
+      });
+      mobileChipsStrip.appendChild(allChip);
+    }
 
     categories.forEach((cat) => {
       const count = currentTabItems.filter((i) => (i.group || "Geral") === cat).length;
-      const chip = document.createElement("button");
-      chip.className = `chip-btn ${state.currentCategory === cat ? "active" : ""}`;
-      chip.textContent = `${cat} (${count})`;
-      chip.addEventListener("click", () => {
-        state.currentCategory = cat;
-        categorySelect.value = cat;
-        updateUI();
-      });
-      chipsStrip.appendChild(chip);
+      const isActive = state.currentCategory === cat;
+      const text = `${cat} (${count})`;
+      
+      if (chipsStrip) {
+        const chip = document.createElement("button");
+        chip.className = `chip-btn ${isActive ? "active" : ""}`;
+        chip.textContent = text;
+        chip.addEventListener("click", () => {
+          state.currentCategory = cat;
+          categorySelect.value = cat;
+          updateUI();
+        });
+        chipsStrip.appendChild(chip);
+      }
+      
+      if (mobileChipsStrip) {
+        const chip = document.createElement("button");
+        chip.className = `chip-btn ${isActive ? "active" : ""}`;
+        chip.textContent = text;
+        chip.addEventListener("click", () => {
+          state.currentCategory = cat;
+          categorySelect.value = cat;
+          updateUI();
+        });
+        mobileChipsStrip.appendChild(chip);
+      }
     });
   }
 
@@ -1709,7 +2395,7 @@ function startApp() {
       <div class="relative w-full ${aspectClass} bg-[#080b18] overflow-hidden flex items-center justify-center p-3 border-b border-white/5">
         ${
           item.logo
-            ? `<img src="${getProxyUrl(item.logo)}" alt="${parsed.title}" class="max-w-full max-h-full object-contain thumb-img transition-transform duration-300" onerror="this.onerror=null; this.src='logo.png';" />`
+            ? `<img src="${getProxyUrl(item.logo)}" alt="${parsed.title}" class="max-w-full max-h-full object-contain thumb-img transition-transform duration-300" onerror="this.onerror=null; this.src='logo_v2.png';" />`
             : `<i data-lucide="tv" class="w-8 h-8 text-cyan-400/40"></i>`
         }
         
@@ -1802,7 +2488,7 @@ function startApp() {
     const parsed = cleanChannelName(item.name);
     channelModalTitle.textContent = parsed.title;
     channelModalCategory.textContent = item.group ? translateCategory(item.group) : "Canais Ao Vivo";
-    channelModalLogo.src = item.logo ? getProxyUrl(item.logo) : "logo.png";
+    channelModalLogo.src = item.logo ? getProxyUrl(item.logo) : "logo_v2.png";
     channelCurrentProgSummary.textContent = "Transmissão ao vivo em Alta Definição (HD/FHD)";
     channelEpgList.innerHTML = "";
     if (epgCountBadge) epgCountBadge.textContent = "Guia de TV";
@@ -2009,8 +2695,8 @@ function startApp() {
     movieModalQuality.textContent = parsed.quality || "FULL HD";
     movieModalGroup.textContent = item.group ? translateCategory(item.group) : "Filmes VOD";
     movieModalPlot.textContent = item.description || "Carregando sinopse e detalhes do filme...";
-    movieModalPoster.src = item.logo ? getProxyUrl(item.logo) : "logo.png";
-    movieModalBackdrop.src = item.logo ? getProxyUrl(item.logo) : "logo.png";
+    movieModalPoster.src = item.logo ? getProxyUrl(item.logo) : "logo_v2.png";
+    movieModalBackdrop.src = item.logo ? getProxyUrl(item.logo) : "logo_v2.png";
     movieModalDirector.textContent = "Informação indisponível";
     movieModalCast.textContent = "Informação indisponível";
 
@@ -2088,7 +2774,7 @@ function startApp() {
           movieModalPlot.textContent = tmdb.overview;
         }
         if (tmdb.backdrop) movieModalBackdrop.src = tmdb.backdrop;
-        if (tmdb.poster && (!item.logo || item.logo === "logo.png")) movieModalPoster.src = tmdb.poster;
+        if (tmdb.poster && (!item.logo || item.logo === "logo_v2.png")) movieModalPoster.src = tmdb.poster;
         if (tmdb.year) movieModalYear.textContent = tmdb.year;
       }
 
@@ -2133,7 +2819,7 @@ function startApp() {
     seriesModalTitle.textContent = parsed.title;
     seriesModalHeaderTitle.textContent = parsed.title;
     seriesModalSubtitle.textContent = "Selecione a Temporada e o Episódio";
-    seriesModalPoster.src = item.logo ? getProxyUrl(item.logo) : "logo.png";
+    seriesModalPoster.src = item.logo ? getProxyUrl(item.logo) : "logo_v2.png";
     seriesModalYear.textContent = item.year || "2024";
     seriesModalGroup.textContent = item.group ? translateCategory(item.group) : "Séries VOD";
     seriesModalPlot.textContent = item.description || "Carregando sinopse e detalhes da série...";
@@ -2158,7 +2844,7 @@ function startApp() {
         if (isMissingOrGeneric && tmdb.overview) {
           seriesModalPlot.textContent = tmdb.overview;
         }
-        if (tmdb.poster && (!item.logo || item.logo === "logo.png")) seriesModalPoster.src = tmdb.poster;
+        if (tmdb.poster && (!item.logo || item.logo === "logo_v2.png")) seriesModalPoster.src = tmdb.poster;
         if (tmdb.year) seriesModalYear.textContent = tmdb.year;
       }
 
@@ -2479,6 +3165,17 @@ function startApp() {
 
     playerModal.classList.remove("hidden");
     videoLoader.classList.remove("hidden");
+    
+    // Atualizar fundo borrado do loading com o logo/poster da mídia
+    const videoLoaderBg = document.getElementById("videoLoaderBg");
+    if (videoLoaderBg) {
+      videoLoaderBg.style.opacity = '0';
+      videoLoaderBg.src = item.logo ? getProxyUrl(item.logo) : 'logo_v2.png';
+      setTimeout(() => {
+        videoLoaderBg.style.opacity = '0.4';
+      }, 50);
+    }
+    
     videoSpinner.classList.remove("hidden");
 
     const serverList = item.servers && item.servers.length > 0 ? item.servers : [item.url];
@@ -2493,6 +3190,9 @@ function startApp() {
       : item.type === "series"
       ? "Carregando episódio..."
       : "Carregando transmissão ao vivo...";
+    
+    // Restaurar classes padrão para o badge de carregamento
+    videoSubStatusText.className = "text-cyan-400 font-bold text-xs mt-2 bg-cyan-950/50 px-3 py-1 rounded-full border border-cyan-500/30";
     videoSubStatusText.textContent = `Conexão segura (Servidor ${serverIdx + 1} de ${serverList.length})`;
 
     // Populate drawer list for quick switching inside player
@@ -2611,12 +3311,18 @@ function startApp() {
                               lowerUrl.endsWith(".webm") || 
                               lowerUrl.endsWith(".avi") ||
                               lowerUrl.endsWith(".mov") ||
-                              (lowerUrl.includes("/movie/") && !lowerUrl.includes(".m3u8")) ||
-                              (lowerUrl.includes("/series/") && !lowerUrl.includes(".m3u8"));
+                              (lowerUrl.includes("/movie/") && !lowerUrl.includes(".m3u8") && !lowerUrl.includes(".ts")) ||
+                              (lowerUrl.includes("/series/") && !lowerUrl.includes(".m3u8") && !lowerUrl.includes(".ts"));
 
     // ── NATIVE HTML5 VIDEO PLAYBACK (VOD Movies / Series MP4 & MKV) ──
-    if (isDirectVideoFile && !lowerUrl.includes(".m3u8")) {
-      const streamUrl = getProxyUrl(rawTargetUrl);
+    if (isDirectVideoFile) {
+      let streamUrl = rawTargetUrl;
+      
+      // Upgrade HTTP to HTTPS if not using proxy to prevent mixed content blocking on VOD
+      if (window.location.protocol === "https:" && streamUrl.startsWith("http:") && !streamUrl.includes("/api/proxy")) {
+        streamUrl = streamUrl.replace("http:", "https:");
+      }
+      
       videoElement.src = streamUrl;
       videoElement.load();
       videoElement.play().then(hideLoader).catch((err) => {
@@ -2700,7 +3406,7 @@ function startApp() {
     if (!nextEpisodeOverlay || !nextEp) return;
 
     state.nextEpisodeItem = nextEp;
-    nextEpPoster.src = nextEp.logo || "logo.png";
+    nextEpPoster.src = nextEp.logo || "logo_v2.png";
     nextEpTitle.textContent = nextEp.name || "Próximo Episódio";
     nextEpSub.textContent = nextEp.description || "Avanço automático ativado";
     nextEpisodeOverlay.classList.remove("hidden");
@@ -2878,7 +3584,7 @@ function startApp() {
         <div class="w-8 h-8 rounded-lg bg-black/50 overflow-hidden flex items-center justify-center shrink-0 border border-white/5">
           ${
             item.logo
-              ? `<img src="${item.logo}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='logo.png';" />`
+              ? `<img src="${item.logo}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='logo_v2.png';" />`
               : `<i data-lucide="tv" class="w-4 h-4 text-cyan-400"></i>`
           }
         </div>
@@ -2939,60 +3645,81 @@ function startApp() {
         const nameLower = (currentItem.name || "").toLowerCase();
         const groupLower = (currentItem.group || "").toLowerCase();
 
-        const isSeriesGroup = groupLower.includes("serie") || 
-                              groupLower.includes("série") || 
-                              groupLower.includes("series") || 
-                              groupLower.includes("séries") || 
-                              groupLower.includes("novela") || 
-                              groupLower.includes("dorama") || 
-                              groupLower.includes("anime") || 
-                              nameLower.includes("s01") || 
-                              nameLower.includes("s02") || 
-                              nameLower.includes("t01") || 
-                              nameLower.includes("t02") || 
-                              nameLower.includes("ep0") || 
-                              nameLower.includes("ep1");
+        // Detectar se é um canal de TV ao vivo (ex: "Adrenalina Pura TV", "AXN", "Canais | Filmes 24h", "Telecine")
+        const isLiveChannel = groupLower.includes("canal") || 
+                              groupLower.includes("canais") || 
+                              groupLower.includes("24h") || 
+                              groupLower.includes("ao vivo") || 
+                              groupLower.includes("live") || 
+                              groupLower.includes("tv") || 
+                              nameLower.includes("24h") || 
+                              nameLower.includes(" tv") || 
+                              nameLower.endsWith("tv");
 
-        const isMovieGroup = groupLower.includes("filme") || 
-                             groupLower.includes("movies") || 
-                             groupLower.includes("movie") || 
-                             groupLower.includes("vod") || 
-                             groupLower.includes("cine") || 
-                             groupLower.includes("cinema") || 
-                             groupLower.includes("4k") || 
-                             groupLower.includes("lançamento") || 
-                             groupLower.includes("dublado") || 
-                             groupLower.includes("legendado");
+        // Detecção de Séries (VOD) — apenas se tiver marcação de temporada/episódio ou não for canal ao vivo
+        const isSeriesItem = (nameLower.match(/\b[st]\d{1,2}\s*e?\d{1,2}\b/i) ||
+                             nameLower.match(/\bep(isodio)?\s*\d+/i) ||
+                             nameLower.match(/\btemporada\s*\d+/i)) ||
+                             (!isLiveChannel && (
+                               groupLower.includes("série") || 
+                               groupLower.includes("series") || 
+                               groupLower.includes("novela") || 
+                               groupLower.includes("dorama") || 
+                               groupLower.includes("anime")
+                             ));
 
-        if (isSeriesGroup) {
+        // Detecção de Filmes (VOD) — apenas se for catálogo de filmes e NÃO for canal ao vivo 24h/TV
+        const isMovieItem = !isLiveChannel && !isSeriesItem && (
+                              groupLower.includes("vod") || 
+                              groupLower.includes("filme") || 
+                              groupLower.includes("movies") || 
+                              groupLower.includes("movie") || 
+                              groupLower.includes("cinema") || 
+                              groupLower.includes("lançamento") || 
+                              groupLower.includes("dublado") || 
+                              groupLower.includes("legendado") || 
+                              groupLower.includes("4k")
+                            );
+
+        if (isSeriesItem) {
           currentItem.type = "series";
-        } else if (isMovieGroup) {
+        } else if (isMovieItem) {
           currentItem.type = "movies";
         } else {
           currentItem.type = "live";
-          if (!currentItem.group || groupLower === "geral" || groupLower.includes("undefined") || groupLower === "variedades & gerais") {
-            if (nameLower.includes("telecine") || nameLower.includes("hbo") || nameLower.includes("warner") || nameLower.includes("megapix")) {
-              currentItem.group = "Canais Telecine & HBO";
-            } else if (nameLower.includes("sport") || nameLower.includes("espn") || nameLower.includes("premiere") || nameLower.includes("futebol")) {
-              currentItem.group = "Esportes & Futebol";
-            }
-          }
         }
 
         currentItem.id = "m3u-" + Math.random().toString(36).substr(2, 9);
       } else if (line.length > 0 && !line.startsWith("#") && currentItem) {
         currentItem.url = line;
 
-        // Verificar URL para ajustar tipo se não detectado pelo grupo
+        // Verificar URL para ajustar tipo de forma precisa (prioridade para a rota da API)
         const lineLower = line.toLowerCase();
-        if (lineLower.includes("/movie/") || lineLower.endsWith(".mp4") || lineLower.endsWith(".mkv") || lineLower.endsWith(".avi") || lineLower.endsWith(".webm") || lineLower.endsWith(".mov") || lineLower.endsWith(".m4v")) {
-          currentItem.type = "movies";
-        } else if (lineLower.includes("/series/")) {
+        
+        if (lineLower.includes("/series/")) {
           currentItem.type = "series";
+        } else if (lineLower.includes("/movie/")) {
+          currentItem.type = "movies";
+        } else if (lineLower.includes("/live/")) {
+          currentItem.type = "live";
+        } else {
+          // Se não houver rota explícita, ajustamos com base na extensão apenas se o tipo anterior falhou (caiu em live genérico)
+          if (currentItem.type === "live") {
+            if (lineLower.endsWith(".mp4") || lineLower.endsWith(".mkv") || lineLower.endsWith(".avi") || lineLower.endsWith(".webm") || lineLower.endsWith(".mov") || lineLower.endsWith(".m4v")) {
+              currentItem.type = "movies";
+            }
+          }
         }
 
+
         const proxiedUrl = getProxyUrl(line);
-        currentItem.servers = [proxiedUrl, line];
+        if (currentItem.type === "movies" || currentItem.type === "series") {
+          // VOD files are huge, proxy on Vercel will time out. Try Direct URL first!
+          currentItem.servers = [line, proxiedUrl];
+        } else {
+          // Live TV playlists need proxy first for CORS
+          currentItem.servers = [proxiedUrl, line];
+        }
         parsedItems.push(currentItem);
         currentItem = null;
       }
@@ -3024,12 +3751,10 @@ function startApp() {
 
           const items = parseM3U(text);
           if (items.length > 0) {
-            const existingUrls = new Set(state.items.map((i) => i.url));
-            const newItems = items.filter((i) => !existingUrls.has(i.url));
-            state.items = [...state.items, ...newItems];
+            state.items = items;
             updateUI();
             loadModal.classList.add("hidden");
-            alert(`✅ Sucesso! ${newItems.length} novos filmes do arquivo M3U foram adicionados sem apagar nenhum canal!\nTotal no player: ${state.items.length} itens.`);
+            alert(`✅ Sucesso! Arquivo M3U processado.\nTotal de ${state.items.length} itens carregados no player.`);
           } else {
             alert("Nenhum item válido encontrado no arquivo M3U selecionado.");
           }
@@ -3061,32 +3786,33 @@ function startApp() {
         if (m3uUrlInput) m3uUrlInput.value = url;
       }
 
-      // ── DETECÇÃO E FALLBACK: Tentar Xtream API primeiro ──
-      if (url.includes("get.php") && url.includes("username=") && url.includes("password=")) {
+      // XTREAM API BYPASS
+      if (url.includes("get.php")) {
         submitM3uBtn.textContent = "CONECTANDO AO SERVIDOR...";
         submitM3uBtn.disabled = true;
         try {
-          const parsed = new URL(url);
-          const host = parsed.origin;
-          const username = parsed.searchParams.get("username");
-          const password = parsed.searchParams.get("password");
-
-          const { allItems, liveData, vodData, seriesData } = await connectXtream(host, username, password);
-
-          if (allItems && allItems.length > 0) {
-            state.items = allItems;
-            updateUI();
-            loadModal.classList.add("hidden");
-            const live = liveData?.length || 0;
-            const vod = vodData?.length || 0;
-            const series = seriesData?.length || 0;
-            alert(`✅ Sucesso! Conectado e Salvo!\n📺 ${live} Canais ao Vivo\n🎬 ${vod} Filmes\n📺 ${series} Séries`);
-            submitM3uBtn.textContent = "CARREGAR LISTA AGORA";
-            submitM3uBtn.disabled = false;
-            return;
+          const u = new URL(url);
+          const host = u.origin;
+          const user = u.searchParams.get("username");
+          const pass = u.searchParams.get("password");
+          if (host && user && pass) {
+            const { allItems, liveData, vodData, seriesData } = await connectXtream(host, user, pass, false);
+            if (allItems && allItems.length > 0) {
+              state.items = allItems;
+              updateUI();
+              loadModal.classList.add("hidden");
+              const live = liveData?.length || 0;
+              const vod = vodData?.length || 0;
+              const series = seriesData?.length || 0;
+              alert(`✅ Sucesso! Conectado e Salvo!\n📺 ${live} Canais ao Vivo\n🎬 ${vod} Filmes\n📺 ${series} Séries`);
+              return;
+            }
           }
         } catch (err) {
-          console.warn("Tentativa Xtream API falhou, continuando para M3U...", err);
+          console.warn("Falha na API Xtream. Tentando M3U nativo...", err);
+        } finally {
+          submitM3uBtn.textContent = "CARREGAR LISTA AGORA";
+          submitM3uBtn.disabled = false;
         }
       }
 
@@ -3119,12 +3845,10 @@ function startApp() {
 
         const items = parseM3U(text);
         if (items.length > 0) {
-          const existingUrls = new Set(state.items.map((i) => i.url));
-          const newItems = items.filter((i) => !existingUrls.has(i.url));
-          state.items = [...state.items, ...newItems];
+          state.items = items;
           updateUI();
           loadModal.classList.add("hidden");
-          alert(`✅ Sucesso! ${newItems.length} novos títulos foram adicionados à sua lista sem apagar nenhum canal existente!\nTotal no player: ${state.items.length} itens.`);
+          alert(`✅ Sucesso! Lista M3U processada.\nTotal de ${state.items.length} itens carregados no player.`);
         } else {
           alert("Nenhum canal válido encontrado na lista M3U.\nVerifique se a URL aponta para uma lista M3U válida.");
         }
@@ -3149,6 +3873,137 @@ function startApp() {
 
 
   // LOAD PRESETS (IPTV-org BR & SPORTS & VOD CATALOG)
+
+  // ── Função: carregar listas pré-definidas do banco (gerenciadas pelo painel) ──
+  async function loadPresetListsFromDB() {
+    const grid = document.getElementById("presetListsGrid");
+    const loading = document.getElementById("presetListsLoading");
+    if (!grid) return;
+
+    try {
+      const SUPABASE_URL = 'https://yyoffdpzzoxrgigqupif.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_Cv5IVbK2bpo5PwCq-1PK3Q_d-8NPI10';
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/licenses?status=eq.config&select=id,key,cliente&order=id.asc`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      });
+
+      if (loading) loading.style.display = 'none';
+
+      if (!res.ok) { grid.classList.add("hidden"); return; }
+
+      const rawData = await res.json();
+      if (!rawData || rawData.length === 0) { grid.classList.add("hidden"); return; }
+
+      // Filtrar apenas GLOBAL_M3U_URL e PRESET_LIST_%
+      const lists = [];
+      const globalItem = rawData.find(i => i.key === 'GLOBAL_M3U_URL');
+      if (globalItem && globalItem.cliente && globalItem.cliente.trim() !== '') {
+        let gName = 'Lista Global RDG (VIP)', gUrl = globalItem.cliente.trim(), gVis = 'public';
+        try {
+          const gParsed = JSON.parse(gUrl);
+          gName = gParsed.name || gName;
+          gUrl = gParsed.url || '';
+          gVis = gParsed.visibility || 'public';
+        } catch(e){}
+        if (gUrl && gVis !== 'private') {
+          lists.push({ name: gName, url: gUrl, isGlobal: true });
+        }
+      }
+
+      rawData.filter(i => i.key && i.key.startsWith('PRESET_LIST_')).forEach(item => {
+        try {
+          const parsed = JSON.parse(item.cliente);
+          // Ocultar se o admin definiu como privado (visível só para ele no painel)
+          if (parsed.visibility === 'private') return;
+          if (parsed.url) lists.push({ name: parsed.name || 'Lista Personalizada', url: parsed.url });
+        } catch(e) {
+          if (item.cliente) lists.push({ name: 'Lista Personalizada', url: item.cliente });
+        }
+      });
+
+      if (lists.length === 0) { grid.classList.add("hidden"); return; }
+
+      grid.innerHTML = '';
+      lists.forEach(item => {
+        const name = item.name;
+        const url = item.url;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = item.isGlobal 
+          ? 'px-3 py-2 text-left bg-cyan-500/15 hover:bg-cyan-500/30 border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl text-xs font-bold text-cyan-300 transition-all flex items-center gap-2'
+          : 'px-3 py-2 text-left bg-emerald-500/10 hover:bg-emerald-500/25 border border-emerald-500/20 hover:border-emerald-500/50 rounded-xl text-xs font-bold text-emerald-300 transition-all flex items-center gap-2';
+        btn.innerHTML = `<span>${item.isGlobal ? '🌐' : '⭐'}</span><span class="truncate">${name}</span>`;
+        btn.addEventListener('click', async () => {
+          const originalHTML = btn.innerHTML;
+          btn.textContent = 'Carregando lista...';
+          btn.disabled = true;
+          try {
+            // Detectar se é link Xtream (get.php)
+            if (url.includes('get.php')) {
+              try {
+                const u = new URL(url);
+                const host = u.origin;
+                const user = u.searchParams.get('username');
+                const pass = u.searchParams.get('password');
+                if (host && user && pass) {
+                  const { allItems } = await connectXtream(host, user, pass, true);
+                  if (allItems && allItems.length > 0) {
+                    state.items = allItems;
+                    updateUI();
+                    loadModal.classList.add('hidden');
+                    alert(`✅ Lista "${name}" carregada com ${allItems.length} canais!`);
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    return;
+                  }
+                }
+              } catch(err) {
+                console.warn('Falha Xtream, tentando M3U direto...', err);
+              }
+            }
+            // Parser M3U normal
+            const proxied = getProxyUrl(url);
+            const r = await fetch(proxied);
+            if (r.ok) {
+              const text = await r.text();
+              const items = parseM3U(text);
+              if (items.length > 0) {
+                state.items = items;
+                updateUI();
+                loadModal.classList.add('hidden');
+                alert(`✅ Lista "${name}" carregada com ${items.length} canais!`);
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+                return;
+              }
+            }
+            alert('⚠️ Não foi possível carregar esta lista. Tente outra.');
+          } catch(err) {
+            alert('❌ Erro ao carregar a lista: ' + err.message);
+          }
+          btn.innerHTML = originalHTML;
+          btn.disabled = false;
+        });
+        grid.appendChild(btn);
+      });
+      grid.classList.remove("hidden");
+    } catch(e) {
+      console.warn("Erro ao buscar listas do painel:", e);
+      if (loading) loading.style.display = 'none';
+      if (grid) grid.classList.add("hidden");
+    }
+  }
+
+  // Carregar listas dinâmicas quando o modal de carregamento abrir
+  const rdgOpenModalOriginal = window.rdgOpenModal;
+  window.rdgOpenModal = function(id) {
+    if (typeof rdgOpenModalOriginal === 'function') rdgOpenModalOriginal(id);
+    else {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove("hidden");
+    }
+    if (id === 'loadModal') loadPresetListsFromDB();
+  };
 
   if (loadPresetBRBtn) {
     loadPresetBRBtn.addEventListener("click", async () => {
@@ -3542,7 +4397,7 @@ window.runSpeedTestDiagnostic = async function() {
 
   const start = performance.now();
   try {
-    const res = await fetch("https://www.rdgdigital.com.br/streaming/logo.png?t=" + Date.now(), { cache: "no-store" });
+    const res = await fetch("https://www.rdgdigital.com.br/streaming/logo_v2.png?t=" + Date.now(), { cache: "no-store" });
     const end = performance.now();
     const ping = Math.round(end - start);
 
@@ -3564,9 +4419,56 @@ window.runSpeedTestDiagnostic = async function() {
   }
 };
 
+// OUTDOOR DIGITAL TICKER ANIMATION (VERDE NEON TICKER TYPEWRITER)
+function initVipTickerBillboard() {
+  const phrases = [
+    "📺 Canais ao vivo em Ultra HD com sinal direto e sem quedas ➔",
+    "🎬 Lançamentos do cinema em 4K no mesmo dia ➔",
+    "🍿 Séries completas atualizadas diariamente ➔",
+    "⚡ Servidor VIP Privado: Estabilidade máxima sem interrupções ➔"
+  ];
+
+  const phraseEl = document.getElementById("vipTickerPhrase");
+  if (!phraseEl) return;
+
+  let phraseIdx = 0;
+  let charIdx = 0;
+  let isDeleting = false;
+
+  function typeStep() {
+    const currentPhrase = phrases[phraseIdx];
+
+    if (isDeleting) {
+      // Clear instantly instead of backspacing character by character
+      phraseEl.textContent = "";
+      charIdx = 0;
+      isDeleting = false;
+      phraseIdx = (phraseIdx + 1) % phrases.length;
+      setTimeout(typeStep, 350);
+    } else {
+      charIdx++;
+      phraseEl.textContent = currentPhrase.substring(0, charIdx);
+      if (charIdx === currentPhrase.length) {
+        isDeleting = true;
+        // Pause at the end before skipping to the next one
+        setTimeout(typeStep, 2800);
+        return;
+      }
+      setTimeout(typeStep, 45);
+    }
+  }
+
+  typeStep();
+}
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", startApp);
+  document.addEventListener("DOMContentLoaded", () => {
+    startApp();
+    initVipTickerBillboard();
+  });
 } else {
   startApp();
+  initVipTickerBillboard();
 }
+
 

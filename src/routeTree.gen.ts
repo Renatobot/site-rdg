@@ -21,7 +21,6 @@ import { Route as PromptsInstagramRouteImport } from './routes/prompts-instagram
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as SistemasRouteImport } from './routes/sistemas'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as StreamingRouteImport } from './routes/streaming'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as ApiProxyRouteImport } from './routes/api.proxy'
@@ -89,11 +88,6 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StreamingRoute = StreamingRouteImport.update({
-  id: '/streaming',
-  path: '/streaming',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const Char91DotmcpChar93ListToolsRoute =
   Char91DotmcpChar93ListToolsRouteImport.update({
     id: '/.mcp/list-tools',
@@ -141,7 +135,6 @@ export interface FileRoutesByFullPath {
   '/servicos': typeof ServicosRoute
   '/sistemas': typeof SistemasRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/streaming': typeof StreamingRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/proxy': typeof ApiProxyRoute
@@ -162,7 +155,6 @@ export interface FileRoutesByTo {
   '/servicos': typeof ServicosRoute
   '/sistemas': typeof SistemasRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/streaming': typeof StreamingRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/proxy': typeof ApiProxyRoute
@@ -184,7 +176,6 @@ export interface FileRoutesById {
   '/servicos': typeof ServicosRoute
   '/sistemas': typeof SistemasRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/streaming': typeof StreamingRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/proxy': typeof ApiProxyRoute
@@ -207,7 +198,6 @@ export interface FileRouteTypes {
     | '/servicos'
     | '/sistemas'
     | '/sitemap.xml'
-    | '/streaming'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/api/proxy'
@@ -228,7 +218,6 @@ export interface FileRouteTypes {
     | '/servicos'
     | '/sistemas'
     | '/sitemap.xml'
-    | '/streaming'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/api/proxy'
@@ -249,7 +238,6 @@ export interface FileRouteTypes {
     | '/servicos'
     | '/sistemas'
     | '/sitemap.xml'
-    | '/streaming'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/api/proxy'
@@ -271,7 +259,6 @@ export interface RootRouteChildren {
   ServicosRoute: typeof ServicosRoute
   SistemasRoute: typeof SistemasRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  StreamingRoute: typeof StreamingRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiProxyRoute: typeof ApiProxyRoute
@@ -366,13 +353,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/streaming': {
-      id: '/streaming'
-      path: '/streaming'
-      fullPath: '/streaming'
-      preLoaderRoute: typeof StreamingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/.mcp/list-tools': {
       id: '/.mcp/list-tools'
       path: '/.mcp/list-tools'
@@ -431,7 +411,6 @@ const rootRouteChildren: RootRouteChildren = {
   ServicosRoute: ServicosRoute,
   SistemasRoute: SistemasRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  StreamingRoute: StreamingRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,

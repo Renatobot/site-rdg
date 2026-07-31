@@ -801,7 +801,7 @@ function BonusSection() {
       badge: "BÔNUS #3 • BIBLIOTECA VIP",
       title: "Pack de Prompts IA para Fotografias & Ensaios",
       val: "R$ 197",
-      desc: "Acesso à nossa biblioteca VIP com mais de 50+ prompts prontos para gerar fotos de alta qualidade e posicionamento de marca.",
+      desc: "Acesso à nossa biblioteca VIP com mais de 700+ prompts prontos para gerar fotos de alta qualidade e posicionamento de marca.",
       Icon: Camera,
       iconColor: "text-indigo-400",
       bgColor: "from-indigo-500/10 via-[#111218] to-[#111218]",

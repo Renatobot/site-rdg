@@ -25,11 +25,18 @@ export function useScrollScene<T extends HTMLElement = HTMLDivElement>() {
       ticking = false;
       const rect = el.getBoundingClientRect();
       const vh = window.innerHeight;
-      // 0 when the section reaches the top of the viewport, 1 at sticky release.
-      // If a sticky scene is close to the end of the page, the browser may not
-      // have enough remaining scroll distance to reach the natural release
-      // point. Use the available scroll distance so the final cards can still
-      // complete instead of staying half-open/cut off on mobile.
+
+      // Abort heavy calculations if section is far outside the viewport
+      if (rect.bottom < -vh * 0.5) {
+        el.style.setProperty("--p", "1");
+        return;
+      }
+      if (rect.top > vh * 1.5) {
+        el.style.setProperty("--p", "0");
+        return;
+      }
+
+      // 0 when section reaches top of viewport, 1 at sticky release.
       const sectionTop = rect.top + window.scrollY;
       const maxScroll = Math.max(
         0,

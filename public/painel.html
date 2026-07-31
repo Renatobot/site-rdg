@@ -3,720 +3,1113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin Licenças - RDG Digital</title>
-    
-    <!-- Fonte Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Supabase JS via CDN -->
+    <title>Painel Admin — RDG Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
         :root {
-            --bg-color: #0d0e12;
-            --surface-color: rgba(30, 32, 40, 0.6);
-            --surface-border: rgba(255, 255, 255, 0.08);
+            --bg: #070913;
+            --surface: rgba(15,18,35,0.9);
+            --surface2: rgba(22,27,54,0.8);
+            --border: rgba(255,255,255,0.07);
+            --border2: rgba(255,255,255,0.12);
             --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --danger: #ef4444;
+            --primary-glow: rgba(99,102,241,0.35);
+            --cyan: #00dcff;
+            --cyan-glow: rgba(0,220,255,0.3);
+            --text: #f1f5f9;
+            --muted: #64748b;
             --success: #10b981;
-            --glow: rgba(99, 102, 241, 0.3);
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
+        body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+        /* ── BACKGROUND MESH ── */
+        body::before{
+            content:'';position:fixed;inset:0;
+            background:radial-gradient(ellipse 80% 60% at 10% 0%,rgba(99,102,241,0.12) 0%,transparent 60%),
+                        radial-gradient(ellipse 60% 40% at 90% 100%,rgba(0,220,255,0.08) 0%,transparent 60%);
+            pointer-events:none;z-index:0;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
+        /* ── LOGIN ── */
+        #loginOverlay{
+            position:fixed;inset:0;background:rgba(7,9,19,0.98);z-index:9999;
+            display:flex;align-items:center;justify-content:center;padding:20px;
+        }
+        .login-card{
+            width:min(420px,100%);
+            background:rgba(15,18,35,0.95);
+            border:1px solid rgba(255,255,255,0.1);
+            border-radius:24px;padding:40px 32px;text-align:center;
+            box-shadow:0 0 80px rgba(99,102,241,0.15),0 30px 60px rgba(0,0,0,0.6);
+            position:relative;overflow:hidden;
+        }
+        .login-card::before{
+            content:'';position:absolute;top:-60px;left:-60px;width:200px;height:200px;
+            background:radial-gradient(circle,rgba(99,102,241,0.25),transparent 70%);pointer-events:none;
+        }
+        .login-logo{width:72px;height:72px;margin:0 auto 20px;
+            background:linear-gradient(135deg,#6366f1,#00dcff);
+            border-radius:20px;display:flex;align-items:center;justify-content:center;
+            font-size:32px;box-shadow:0 8px 32px rgba(99,102,241,0.4);}
+        .login-card h2{font-size:24px;font-weight:800;color:#fff;margin-bottom:6px;}
+        .login-card p{font-size:13px;color:var(--muted);margin-bottom:28px;}
+        .login-input{
+            width:100%;padding:13px 16px;background:rgba(0,0,0,0.35);
+            border:1px solid rgba(255,255,255,0.12);border-radius:12px;
+            color:white;font-size:14px;outline:none;margin-bottom:14px;
+            text-align:center;letter-spacing:0.08em;transition:border-color 0.2s;
+        }
+        .login-input:focus{border-color:var(--primary);}
+        .login-btn{
+            width:100%;padding:13px;font-size:14px;font-weight:700;
+            background:linear-gradient(135deg,#6366f1,#4f46e5);
+            color:white;border:none;border-radius:12px;cursor:pointer;
+            box-shadow:0 4px 20px rgba(99,102,241,0.4);transition:all 0.2s;
+        }
+        .login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(99,102,241,0.5);}
+        #loginError{color:#f87171;font-size:12px;margin-top:12px;font-weight:600;}
+
+        /* ── TOPBAR ── */
+        #topbar{
+            position:sticky;top:0;z-index:100;
+            background:rgba(7,9,19,0.9);backdrop-filter:blur(20px);
+            border-bottom:1px solid var(--border);
+            padding:0 28px;height:68px;
+            display:flex;align-items:center;justify-content:space-between;gap:16px;
+        }
+        .topbar-brand{display:flex;align-items:center;gap:12px;}
+        .topbar-logo{
+            width:40px;height:40px;border-radius:12px;
+            background:linear-gradient(135deg,#6366f1,#00dcff);
+            display:flex;align-items:center;justify-content:center;
+            font-size:18px;box-shadow:0 4px 16px rgba(99,102,241,0.4);flex-shrink:0;
+        }
+        .topbar-title{font-size:15px;font-weight:800;color:#fff;letter-spacing:-0.3px;}
+        .topbar-sub{font-size:11px;color:var(--muted);font-weight:500;}
+
+        .topbar-right{display:flex;align-items:center;gap:10px;}
+        .topbar-btn{
+            display:flex;align-items:center;gap:6px;
+            padding:8px 14px;border-radius:10px;
+            font-size:12px;font-weight:600;cursor:pointer;
+            border:1px solid var(--border2);background:rgba(255,255,255,0.05);
+            color:var(--text);transition:all 0.2s;white-space:nowrap;
+        }
+        .topbar-btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);}
+        .topbar-btn.primary{background:rgba(99,102,241,0.2);border-color:rgba(99,102,241,0.4);color:#a5b4fc;}
+        .topbar-btn.primary:hover{background:rgba(99,102,241,0.35);}
+        .topbar-btn.cyan-btn{background:rgba(0,220,255,0.12);border-color:rgba(0,220,255,0.3);color:#00dcff;}
+        .topbar-btn.cyan-btn:hover{background:rgba(0,220,255,0.22);}
+        .topbar-btn.danger-btn{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:#f87171;}
+        .topbar-btn.danger-btn:hover{background:rgba(239,68,68,0.2);}
+
+        /* User avatar pill */
+        .user-pill{
+            display:flex;align-items:center;gap:10px;
+            padding:6px 14px 6px 6px;
+            background:rgba(255,255,255,0.05);border:1px solid var(--border2);
+            border-radius:50px;cursor:pointer;transition:all 0.2s;
+        }
+        .user-pill:hover{background:rgba(255,255,255,0.1);}
+        .user-avatar{
+            width:34px;height:34px;border-radius:50%;
+            background:linear-gradient(135deg,#6366f1,#00dcff);
+            display:flex;align-items:center;justify-content:center;
+            font-size:14px;font-weight:800;color:#fff;flex-shrink:0;
+            box-shadow:0 2px 10px rgba(99,102,241,0.4);
+        }
+        .user-info{display:flex;flex-direction:column;}
+        .user-name{font-size:12px;font-weight:700;color:#fff;line-height:1.2;}
+        .user-role{font-size:10px;color:var(--cyan);font-weight:600;letter-spacing:0.05em;}
+
+        /* ── CONTENT ── */
+        .content{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:32px 24px;}
+
+        /* Stats cards */
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px;}
+        .stat-card{
+            background:var(--surface);border:1px solid var(--border);border-radius:16px;
+            padding:20px;transition:all 0.2s;position:relative;overflow:hidden;
+        }
+        .stat-card::before{
+            content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.2s;
+            background:linear-gradient(135deg,var(--card-color,rgba(99,102,241,0.05)),transparent);
+        }
+        .stat-card:hover::before{opacity:1;}
+        .stat-icon{font-size:24px;margin-bottom:12px;}
+        .stat-value{font-size:28px;font-weight:800;color:#fff;line-height:1;}
+        .stat-label{font-size:12px;color:var(--muted);margin-top:4px;font-weight:500;}
+
+        /* Section header */
+        .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;}
+        .section-title{font-size:16px;font-weight:700;color:#fff;}
+        .section-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+        /* Table */
+        .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+        .table-scroll{overflow-x:auto;}
+        table{width:100%;border-collapse:collapse;min-width:720px;}
+        thead tr{background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);}
+        th{padding:14px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);text-align:left;white-space:nowrap;}
+        td{padding:14px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+        tbody tr:last-child td{border-bottom:none;}
+        tbody tr{transition:background 0.15s;}
+        tbody tr:hover{background:rgba(255,255,255,0.025);}
+
+        /* Badges */
+        .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+        .badge-active{background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.25);}
+        .badge-expired{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.25);}
+        .badge-plan{background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.25);}
+
+        /* Action buttons */
+        .act-btn{
+            display:inline-flex;align-items:center;gap:4px;
+            padding:5px 10px;border-radius:7px;font-size:11px;font-weight:600;
+            cursor:pointer;border:1px solid;transition:all 0.15s;white-space:nowrap;
+        }
+        .act-btn:hover{transform:translateY(-1px);}
+        .act-edit{background:rgba(99,102,241,0.12);color:#a5b4fc;border-color:rgba(99,102,241,0.3);}
+        .act-edit:hover{background:rgba(99,102,241,0.25);}
+        .act-reset{background:rgba(245,158,11,0.12);color:#fbbf24;border-color:rgba(245,158,11,0.3);}
+        .act-reset:hover{background:rgba(245,158,11,0.25);}
+        .act-delete{background:rgba(239,68,68,0.12);color:#f87171;border-color:rgba(239,68,68,0.3);}
+        .act-delete:hover{background:rgba(239,68,68,0.25);}
+        .act-copy{background:rgba(0,220,255,0.1);color:#22d3ee;border-color:rgba(0,220,255,0.25);}
+        .act-copy:hover{background:rgba(0,220,255,0.2);}
+
+        /* ── MODALS ── */
+        .modal{
+            display:none;position:fixed;inset:0;
+            background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);
+            z-index:500;align-items:center;justify-content:center;padding:20px;
+        }
+        .modal.active{display:flex;}
+        .modal-box{
+            background:rgb(10,14,30);border:1px solid var(--border2);
+            border-radius:20px;padding:28px;width:100%;max-width:520px;
+            max-height:90vh;overflow-y:auto;
+            box-shadow:0 25px 60px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.04);
+        }
+        .modal-box.wide{max-width:660px;}
+        .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+        .modal-head h3{font-size:18px;font-weight:700;color:#fff;}
+        .modal-close{
+            width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.05);
+            border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+            cursor:pointer;font-size:16px;color:var(--muted);transition:all 0.15s;
+        }
+        .modal-close:hover{background:rgba(255,255,255,0.1);color:#fff;}
+
+        .form-group{margin-bottom:16px;}
+        .form-label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;}
+        .form-input{
+            width:100%;padding:11px 14px;background:rgba(0,0,0,0.4);
+            border:1px solid var(--border2);border-radius:10px;
+            color:#fff;font-size:13px;outline:none;transition:border-color 0.2s;
+        }
+        .form-input:focus{border-color:var(--primary);}
+        .form-input::placeholder{color:var(--muted);}
+        select.form-input option{background:#0a0e1e;}
+
+        .modal-footer{
+            display:flex;justify-content:flex-end;gap:10px;margin-top:24px;
+            padding-top:20px;border-top:1px solid var(--border);
+        }
+        .btn-cancel-modal{
+            padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;
+            background:transparent;border:1px solid var(--border2);color:var(--muted);cursor:pointer;transition:all 0.2s;
+        }
+        .btn-cancel-modal:hover{background:rgba(255,255,255,0.05);color:#fff;}
+        .btn-save{
+            padding:10px 24px;border-radius:10px;font-size:13px;font-weight:700;
+            background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;
+            border:none;cursor:pointer;box-shadow:0 4px 14px rgba(99,102,241,0.4);transition:all 0.2s;
+        }
+        .btn-save:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(99,102,241,0.5);}
+
+        /* Section divider */
+        .modal-section{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;}
+        .modal-section-title{font-size:12px;font-weight:700;color:#e2e8f0;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+
+        /* Preset list row */
+        .preset-row{
+            display:flex;align-items:center;gap:10px;
+            background:rgba(99,102,241,0.07);border:1px solid rgba(99,102,241,0.18);
+            border-radius:10px;padding:10px 14px;margin-bottom:8px;
+        }
+        .preset-row-info{flex:1;min-width:0;}
+        .preset-row-name{font-size:12px;font-weight:700;color:#a5b4fc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .preset-row-url{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+        /* Warning box */
+        #setup-warning{
+            display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);
+            color:#fca5a5;padding:14px 18px;border-radius:12px;margin-bottom:20px;font-size:13px;
         }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+        /* Profile modal */
+        .profile-avatar-big{
+            width:80px;height:80px;border-radius:24px;
+            background:linear-gradient(135deg,#6366f1,#00dcff);
+            display:flex;align-items:center;justify-content:center;
+            font-size:36px;font-weight:800;color:#fff;
+            box-shadow:0 8px 32px rgba(99,102,241,0.5);
+            margin:0 auto 16px;
         }
 
-        .glass {
-            background: var(--surface-color);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--surface-border);
-            border-radius: 16px;
+        @media(max-width:768px){
+            #topbar{padding:0 16px;height:60px;}
+            .topbar-title{display:none;}
+            .content{padding:20px 14px;}
+            .topbar-right .topbar-btn span{display:none;}
+            .user-info{display:none;}
         }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            width: 100%;
-        }
-
-        h1 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 30px;
-            background: linear-gradient(to right, #fff, #a5b4fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 14px var(--glow);
-        }
-
-        button:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-1px);
-        }
-
-        .license-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            min-width: 700px;
-        }
-
-        .license-table th, .license-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--surface-border);
-        }
-
-        .license-table th {
-            color: var(--text-muted);
-            font-weight: 500;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-active {
-            background-color: rgba(16, 185, 129, 0.2);
-            color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        
-        .status-expired {
-            background-color: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        /* Login Screen Overlay */
-        #loginOverlay {
-            position: fixed;
-            inset: 0;
-            background: #08090d;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .login-card {
-            width: min(400px, 100%);
-            background: rgba(22, 25, 35, 0.85);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 18px;
-            padding: 32px 24px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-        }
-
-        .login-card h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-top: 12px;
-            color: #fff;
-        }
-
-        .login-card p {
-            font-size: 13px;
-            color: #9ca3af;
-            margin-top: 6px;
-            margin-bottom: 24px;
-        }
-
-        .login-card input {
-            width: 100%;
-            padding: 12px;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px;
-            color: white;
-            font-size: 14px;
-            outline: none;
-            margin-bottom: 16px;
-            text-align: center;
-            letter-spacing: 0.1em;
-        }
-
-        .login-card button {
-            width: 100%;
-            padding: 12px;
-            font-size: 14px;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(6px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--bg-color);
-            padding: 24px;
-            width: 100%;
-            max-width: 480px;
-            max-height: 85vh;
-            overflow-y: auto;
-            border-radius: 14px;
-            border: 1px solid var(--surface-border);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-        }
-
-        .modal h2 {
-            margin-bottom: 16px;
-            font-size: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: var(--text-muted);
-            font-size: 13px;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px 12px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--surface-border);
-            border-radius: 8px;
-            color: white;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--primary);
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 24px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .btn-cancel {
-            background: transparent;
-            border: 1px solid var(--surface-border);
-            box-shadow: none;
-        }
-
-        .btn-cancel:hover {
-            background: rgba(255,255,255,0.05);
-        }
-
-        .action-btn {
-            padding: 6px 12px;
-            font-size: 12px;
-            margin-right: 5px;
-            border-radius: 6px;
-        }
-
-        .btn-edit {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            box-shadow: none;
-        }
-        .btn-edit:hover { background: rgba(255,255,255,0.2); }
-
-        .btn-delete {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            box-shadow: none;
-        }
-        .btn-delete:hover { background: rgba(239, 68, 68, 0.4); }
-
-        .btn-reset {
-            background: rgba(245, 158, 11, 0.2);
-            color: #f59e0b;
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            box-shadow: none;
-        }
-        .btn-reset:hover { background: rgba(245, 158, 11, 0.4); }
-
-        #setup-warning {
-            display: none;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid var(--danger);
-            color: #fca5a5;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        @media (max-width: 640px) {
-            .container { padding: 20px 12px; }
-            h1 { font-size: 22px; }
-            .dashboard-header { flex-direction: column; align-items: flex-start; }
-            .dashboard-header-actions { width: 100%; display: flex; gap: 8px; }
-            .dashboard-header-actions button { flex: 1; }
+        @media(max-width:480px){
+            .stats-grid{grid-template-columns:1fr 1fr;}
+            .section-header{flex-direction:column;align-items:flex-start;}
         }
     </style>
 </head>
 <body>
 
-    <!-- Tela de Autenticação / Login -->
-    <div id="loginOverlay">
-        <div class="login-card glass">
-            <div style="font-size: 36px;">🔐</div>
-            <h2>Painel Admin RDG</h2>
-            <p>Digite sua senha mestre para acessar a gestão de licenças</p>
-            <form onsubmit="handleAuth(event)">
-                <input type="password" id="masterPassInput" placeholder="Sua senha secreta..." required autofocus />
-                <button type="submit">Acessar Painel</button>
-            </form>
-            <div id="loginError" style="display:none; color:#ef4444; font-size:12px; margin-top:12px; font-weight:bold;">
-                Senha incorreta! Tente novamente.
-            </div>
+<!-- ══ LOGIN OVERLAY ══ -->
+<div id="loginOverlay">
+    <div class="login-card">
+        <div class="login-logo">🛡️</div>
+        <h2>Painel Admin</h2>
+        <p>RDG Digital — Gestão de Licenças</p>
+        <form onsubmit="handleAuth(event)">
+            <input class="login-input" type="password" id="masterPassInput" placeholder="Senha mestre..." required autofocus>
+            <button class="login-btn" type="submit">Entrar no Painel</button>
+        </form>
+        <div id="loginError" style="display:none;color:#f87171;font-size:12px;margin-top:12px;font-weight:600;">
+            ❌ Senha incorreta! Tente novamente.
+        </div>
+    </div>
+</div>
+
+<!-- ══ TOPBAR ══ -->
+<header id="topbar" style="display:none;">
+    <div class="topbar-brand">
+        <div class="topbar-logo">⚡</div>
+        <div>
+            <div class="topbar-title">RDG Digital</div>
+            <div class="topbar-sub">Painel Admin</div>
         </div>
     </div>
 
-    <!-- Container Principal do Painel -->
-    <div class="container" id="mainContainer" style="display: none;">
-        <div class="dashboard-header">
-            <div>
-                <h1>Gestão de Licenças — RDG Digital</h1>
-                <p style="color: var(--text-muted); font-size: 14px;">Gerencie seus clientes e chaves de acesso</p>
-            </div>
-            <div class="dashboard-header-actions" style="display: flex; gap: 10px;">
-                <button onclick="openModal()">+ Nova Licença</button>
-                <button onclick="logoutAdmin()" class="btn-cancel" style="background: rgba(239,68,68,0.15); color:#fca5a5; border-color:rgba(239,68,68,0.3);">🔒 Sair</button>
+    <div class="topbar-right">
+        <button class="topbar-btn cyan-btn" onclick="openStreamingModal()">
+            📺 <span>Streaming</span>
+        </button>
+        <button class="topbar-btn primary" onclick="openModal()">
+            ＋ <span>Nova Licença</span>
+        </button>
+        <!-- User pill -->
+        <div class="user-pill" onclick="openProfileModal()" title="Gerenciar perfil">
+            <div class="user-avatar" id="userAvatarInitial">R</div>
+            <div class="user-info">
+                <div class="user-name" id="userDisplayName">Admin</div>
+                <div class="user-role">MASTER ADMIN</div>
             </div>
         </div>
-        
-        <div id="setup-warning">
-            ⚠️ Tabela 'licenses' não encontrada no Supabase.
-        </div>
+        <button class="topbar-btn danger-btn" onclick="logoutAdmin()" title="Sair">
+            🔒
+        </button>
+    </div>
+</header>
 
-        <div class="glass" style="overflow-x: auto;">
-            <table class="license-table">
+<!-- ══ CONTENT ══ -->
+<div class="content" id="mainContainer" style="display:none;">
+
+    <div id="setup-warning">⚠️ Tabela 'licenses' não encontrada no Supabase. Verifique a configuração do banco.</div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card" style="--card-color:rgba(99,102,241,0.08);">
+            <div class="stat-icon">🔑</div>
+            <div class="stat-value" id="statTotal">—</div>
+            <div class="stat-label">Total de Licenças</div>
+        </div>
+        <div class="stat-card" style="--card-color:rgba(16,185,129,0.06);">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value" id="statActive">—</div>
+            <div class="stat-label">Licenças Ativas</div>
+        </div>
+        <div class="stat-card" style="--card-color:rgba(239,68,68,0.06);">
+            <div class="stat-icon">⏰</div>
+            <div class="stat-value" id="statExpired">—</div>
+            <div class="stat-label">Expiradas</div>
+        </div>
+        <div class="stat-card" style="--card-color:rgba(0,220,255,0.06);">
+            <div class="stat-icon">📋</div>
+            <div class="stat-value" id="statLists">—</div>
+            <div class="stat-label">Listas no Player</div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="section-header">
+        <div class="section-title">Licenças de Clientes</div>
+        <div class="section-actions">
+            <button class="topbar-btn" onclick="loadLicenses()" style="font-size:12px;">🔄 Atualizar</button>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <div class="table-scroll">
+            <table>
                 <thead>
                     <tr>
                         <th>Cliente</th>
                         <th>Produto</th>
                         <th>Chave (Key)</th>
                         <th>Plano</th>
-                        <th>Uso (Perfis)</th>
+                        <th>Uso</th>
                         <th>Vencimento</th>
                         <th>Status</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody id="licenses-tbody">
-                    <tr><td colspan="8" style="text-align: center;">Carregando licenças...</td></tr>
+                    <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:40px;">Carregando licenças...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
+</div>
 
-    <!-- Modal Nova Licença -->
-    <div class="modal" id="licenseModal">
-        <div class="glass modal-content">
-            <h2 id="modalTitle">Criar Nova Licença</h2>
-            <input type="hidden" id="editingId" value="">
-            
-            <div class="form-group">
-                <label>Produto</label>
-                <select id="productType" onchange="generateRandomKey()">
-                    <option value="Instagram">Instagram</option>
-                    <option value="Lovable">Lovable</option>
-                </select>
-            </div>
+<!-- ══ MODAL: Nova / Editar Licença ══ -->
+<div class="modal" id="licenseModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3 id="modalTitle">Criar Nova Licença</h3>
+            <div class="modal-close" onclick="closeModal()">✕</div>
+        </div>
+        <input type="hidden" id="editingId" value="">
 
-            <div class="form-group">
-                <label>Plano / Limite de Perfis</label>
-                <select id="maxProfiles">
-                    <option value="1">Individual (1 Perfil) - R$ 97/mês</option>
-                    <option value="5">Multi-Perfis (5 Perfis) - R$ 297/mês</option>
-                    <option value="10">Agência (10 Perfis)</option>
-                    <option value="999">Ilimitado</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Nome do Cliente</label>
-                <input type="text" id="clientName" placeholder="Ex: João da Silva / Empresa X">
-            </div>
-
-            <div class="form-group">
-                <label>Chave da Licença (Key)</label>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="licenseKey" placeholder="IG-XXXX-XXXX-XXXX">
-                    <button type="button" onclick="generateRandomKey()" style="padding: 10px; font-size: 12px; white-space: nowrap;">Gerar Aleatória</button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Tipo de Licença</label>
-                <select id="licenseType" onchange="toggleDateInput()">
-                    <option value="monthly">Mensal (30 Dias)</option>
-                    <option value="yearly">Anual (365 Dias)</option>
-                    <option value="lifetime">Vitalício (Sem Expiração)</option>
-                    <option value="custom">Data Personalizada</option>
-                </select>
-            </div>
-
-            <div class="form-group" id="customDateGroup" style="display: none;">
-                <label>Data de Vencimento</label>
-                <input type="datetime-local" id="customDate">
-            </div>
-
-            <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
-                <button type="button" onclick="saveLicense()">Salvar Licença</button>
+        <div class="form-group">
+            <label class="form-label">Produto</label>
+            <select class="form-input" id="productType" onchange="generateRandomKey()">
+                <option value="Instagram">Instagram</option>
+                <option value="Lovable">Lovable</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Plano / Limite de Perfis</label>
+            <select class="form-input" id="maxProfiles">
+                <option value="1">Individual (1 Perfil)</option>
+                <option value="5">Multi-Perfis (5 Perfis)</option>
+                <option value="10">Agência (10 Perfis)</option>
+                <option value="999">Ilimitado</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Nome do Cliente</label>
+            <input class="form-input" type="text" id="clientName" placeholder="Ex: João da Silva">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Chave da Licença</label>
+            <div style="display:flex;gap:8px;">
+                <input class="form-input" type="text" id="licenseKey" placeholder="IG-XXXX-XXXX-XXXX" style="flex:1;">
+                <button class="topbar-btn primary" type="button" onclick="generateRandomKey()" style="white-space:nowrap;font-size:12px;">🎲 Gerar</button>
             </div>
         </div>
+        <div class="form-group">
+            <label class="form-label">Tipo de Licença</label>
+            <select class="form-input" id="licenseType" onchange="toggleDateInput()">
+                <option value="monthly">Mensal (30 dias)</option>
+                <option value="yearly">Anual (365 dias)</option>
+                <option value="lifetime">Vitalício</option>
+                <option value="custom">Data Personalizada</option>
+            </select>
+        </div>
+        <div class="form-group" id="customDateGroup" style="display:none;">
+            <label class="form-label">Data de Vencimento</label>
+            <input class="form-input" type="datetime-local" id="customDate">
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel-modal" onclick="closeModal()">Cancelar</button>
+            <button class="btn-save" onclick="saveLicense()">Salvar Licença</button>
+        </div>
     </div>
+</div>
 
-    <script>
-        // Senha Mestre de Acesso ao Painel Admin
-        const MASTER_PASS = "RDG2026#Admin";
+<!-- ══ MODAL: Streaming / Listas ══ -->
+<div class="modal" id="streamingModal">
+    <div class="modal-box wide">
+        <div class="modal-head">
+            <h3>📺 Configuração de Streaming</h3>
+            <div class="modal-close" onclick="closeStreamingModal()">✕</div>
+        </div>
 
-        const SUPABASE_URL = 'https://yyoffdpzzoxrgigqupif.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_Cv5IVbK2bpo5PwCq-1PK3Q_d-8NPI10';
+        <!-- URL Global -->
+        <div class="modal-section">
+            <div class="modal-section-title">🔗 Lista Global — Plano Grátis</div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Lista M3U carregada automaticamente para usuários sem Xtream configurado.</p>
+            <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-bottom:10px;">
+                <input class="form-input" type="text" id="globalM3uName" placeholder="Nome da Lista (ex: Lista Global RDG)">
+                <input class="form-input" type="url" id="globalM3uUrl" placeholder="http://exemplo.com/lista.m3u">
+            </div>
+            <button class="btn-save" type="button" onclick="saveGlobalStreamingConfig(this)" style="font-size:12px;padding:9px 18px;">Salvar Lista Global</button>
+        </div>
 
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        <!-- Listas pré-definidas -->
+        <div class="modal-section">
+            <div class="modal-section-title">📋 Listas Disponíveis no Player</div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Aparecem no modal "Carregar Lista" do player para todos os usuários.</p>
+            <div id="presetListsAdmin" style="margin-bottom:14px;"><span style="font-size:12px;color:var(--muted);">⏳ Carregando...</span></div>
+            <div style="border-top:1px solid var(--border);padding-top:14px;">
+                <input type="hidden" id="editingPresetId" value="">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                    <div style="font-size:12px;font-weight:700;color:#a5b4fc;" id="presetFormTitle">➕ Adicionar Nova Lista</div>
+                    <button id="cancelPresetEditBtn" type="button" onclick="cancelPresetEdit()" style="display:none;background:none;border:none;color:#f87171;font-size:11px;font-weight:600;cursor:pointer;">✕ Cancelar Edição</button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:8px;margin-bottom:10px;">
+                    <input class="form-input" type="text" id="newPresetName" placeholder="Nome da Lista">
+                    <input class="form-input" type="url" id="newPresetUrl" placeholder="http://servidor.com/lista.m3u">
+                    <select class="form-input" id="newPresetVisibility">
+                        <option value="public">🌐 Visível para todos</option>
+                        <option value="private">🔒 Visível só para mim</option>
+                    </select>
+                </div>
+                <button id="savePresetBtn" type="button" onclick="addPresetList(this)" style="width:100%;padding:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 14px rgba(99,102,241,0.35);">➕ Adicionar Lista</button>
+            </div>
+        </div>
 
-        document.addEventListener('DOMContentLoaded', () => {
+        <div class="modal-footer" style="margin-top:8px;">
+            <button class="btn-cancel-modal" onclick="closeStreamingModal()">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MODAL: Perfil Admin ══ -->
+<div class="modal" id="profileModal">
+    <div class="modal-box" style="max-width:420px;">
+        <div class="modal-head">
+            <h3>Meu Perfil</h3>
+            <div class="modal-close" onclick="closeProfileModal()">✕</div>
+        </div>
+
+        <div style="text-align:center;margin-bottom:24px;">
+            <div class="profile-avatar-big" id="profileAvatarBig">R</div>
+            <div style="font-size:18px;font-weight:800;color:#fff;" id="profileNameDisplay">Admin</div>
+            <div style="font-size:11px;color:var(--cyan);font-weight:600;margin-top:4px;">MASTER ADMIN · RDG Digital</div>
+        </div>
+
+        <div class="modal-section">
+            <div class="modal-section-title">✏️ Editar Perfil</div>
+            <div class="form-group">
+                <label class="form-label">Nome de Exibição</label>
+                <input class="form-input" type="text" id="profileNameInput" placeholder="Ex: Renato RDG">
+            </div>
+        </div>
+
+        <div class="modal-section">
+            <div class="modal-section-title">🔒 Alterar Senha</div>
+            <div class="form-group">
+                <label class="form-label">Senha Atual</label>
+                <input class="form-input" type="password" id="currentPassInput" placeholder="••••••••">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Nova Senha</label>
+                <input class="form-input" type="password" id="newPassInput" placeholder="Nova senha mestre">
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel-modal" onclick="closeProfileModal()">Cancelar</button>
+            <button class="btn-save" onclick="saveProfile()">Salvar Alterações</button>
+        </div>
+
+        <div style="margin-top:16px;text-align:center;">
+            <button onclick="logoutAdmin()" style="background:none;border:none;color:#f87171;font-size:13px;font-weight:600;cursor:pointer;padding:8px 16px;border-radius:8px;transition:background 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='none'">
+                🔒 Sair do Painel
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const MASTER_PASS_KEY = 'rdg_master_pass';
+    let MASTER_PASS = localStorage.getItem(MASTER_PASS_KEY) || 'RDG2026#Admin';
+    let ADMIN_NAME = localStorage.getItem('rdg_admin_name') || 'Admin';
+
+    const SUPABASE_URL = 'https://yyoffdpzzoxrgigqupif.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Cv5IVbK2bpo5PwCq-1PK3Q_d-8NPI10';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    document.addEventListener('DOMContentLoaded', () => checkAuthSession());
+
+    function checkAuthSession() {
+        const isAuth = localStorage.getItem('rdg_admin_authenticated');
+        if (isAuth === 'true') {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('topbar').style.display = 'flex';
+            document.getElementById('mainContainer').style.display = 'block';
+            updateUserUI();
+            loadLicenses();
+            loadStatLists();
+        } else {
+            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('topbar').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'none';
+        }
+    }
+
+    function updateUserUI() {
+        const name = ADMIN_NAME;
+        const initial = name.charAt(0).toUpperCase();
+        document.getElementById('userDisplayName').textContent = name;
+        document.getElementById('userAvatarInitial').textContent = initial;
+        document.getElementById('profileAvatarBig').textContent = initial;
+        document.getElementById('profileNameDisplay').textContent = name;
+        document.getElementById('profileNameInput').value = name;
+    }
+
+    function handleAuth(e) {
+        e.preventDefault();
+        const pass = document.getElementById('masterPassInput').value;
+        const errDiv = document.getElementById('loginError');
+        if (pass === MASTER_PASS) {
+            localStorage.setItem('rdg_admin_authenticated', 'true');
+            errDiv.style.display = 'none';
             checkAuthSession();
-        });
+        } else {
+            errDiv.style.display = 'block';
+            document.getElementById('masterPassInput').value = '';
+            document.getElementById('masterPassInput').focus();
+        }
+    }
 
-        function checkAuthSession() {
-            const isAuth = localStorage.getItem('rdg_admin_authenticated');
-            if (isAuth === 'true') {
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('mainContainer').style.display = 'block';
-                loadLicenses();
-            } else {
-                document.getElementById('loginOverlay').style.display = 'flex';
-                document.getElementById('mainContainer').style.display = 'none';
-            }
+    function logoutAdmin() {
+        localStorage.removeItem('rdg_admin_authenticated');
+        checkAuthSession();
+    }
+
+    // ── PROFILE ──
+    function openProfileModal() {
+        updateUserUI();
+        document.getElementById('currentPassInput').value = '';
+        document.getElementById('newPassInput').value = '';
+        document.getElementById('profileModal').classList.add('active');
+    }
+    function closeProfileModal() { document.getElementById('profileModal').classList.remove('active'); }
+
+    function saveProfile() {
+        const newName = document.getElementById('profileNameInput').value.trim();
+        const currentPass = document.getElementById('currentPassInput').value;
+        const newPass = document.getElementById('newPassInput').value;
+
+        if (newName) {
+            ADMIN_NAME = newName;
+            localStorage.setItem('rdg_admin_name', newName);
         }
 
-        function handleAuth(e) {
-            e.preventDefault();
-            const pass = document.getElementById('masterPassInput').value;
-            const errDiv = document.getElementById('loginError');
-
-            if (pass === MASTER_PASS) {
-                localStorage.setItem('rdg_admin_authenticated', 'true');
-                errDiv.style.display = 'none';
-                checkAuthSession();
-            } else {
-                errDiv.style.display = 'block';
-                document.getElementById('masterPassInput').value = '';
-                document.getElementById('masterPassInput').focus();
-            }
-        }
-
-        function logoutAdmin() {
-            localStorage.removeItem('rdg_admin_authenticated');
-            checkAuthSession();
-        }
-
-        async function loadLicenses() {
-            const tbody = document.getElementById('licenses-tbody');
-            const warning = document.getElementById('setup-warning');
-            
-            try {
-                const { data: licenses, error } = await supabaseClient
-                    .from('licenses')
-                    .select('*')
-                    .order('id', { ascending: false });
-
-                if (error) {
-                    if(error.code === '42P01') warning.style.display = 'block';
-                    else alert('Erro ao carregar: ' + error.message);
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Erro ao carregar dados.</td></tr>';
-                    return;
-                }
-
-                if (!licenses || licenses.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Nenhuma licença cadastrada ainda.</td></tr>';
-                    return;
-                }
-
-                tbody.innerHTML = '';
-                licenses.forEach(lic => {
-                    const tr = document.createElement('tr');
-                    
-                    const isExpired = lic.expires_at && new Date(lic.expires_at) < new Date();
-                    const statusText = isExpired ? 'Expirado' : (lic.status || 'Ativo');
-                    const statusClass = isExpired ? 'status-expired' : 'status-active';
-
-                    let expDate = 'Vitalício';
-                    if (!lic.is_lifetime && lic.expires_at) {
-                        expDate = new Date(lic.expires_at).toLocaleDateString('pt-BR');
-                    }
-
-                    const produto = lic.produto || (lic.key.startsWith('IG-') ? 'Instagram' : 'Lovable');
-
-                    let maxProfiles = parseInt(lic.max_profiles || (lic.key.startsWith('IG-') ? 1 : 999), 10);
-                    let linkedCount = 0;
-                    if (Array.isArray(lic.linked_profiles)) {
-                        linkedCount = lic.linked_profiles.length;
-                    }
-                    const usageText = maxProfiles >= 999 ? `${linkedCount}/Ilimitado` : `${linkedCount}/${maxProfiles}`;
-
-                    let planName = 'Individual';
-                    if (maxProfiles === 5) planName = 'Multi 5 Perfis';
-                    else if (maxProfiles === 10) planName = 'Agência 10 Perfis';
-                    else if (maxProfiles >= 999) planName = 'Ilimitado';
-
-                    tr.innerHTML = `
-                        <td style="font-weight: 600;">${escapeHtml(lic.cliente)}</td>
-                        <td><span style="font-size:11px; font-weight:700; color:#a5b4fc;">${escapeHtml(produto)}</span></td>
-                        <td style="font-family: monospace; color: #a5b4fc;">
-                            ${escapeHtml(lic.key)}
-                            <button class="action-btn btn-edit" onclick="copyKey('${escapeHtml(lic.key)}', this)" style="padding:3px 8px; font-size:11px; margin-left:6px; background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4);" title="Copiar Chave">📋 Copiar</button>
-                        </td>
-                        <td style="font-size:13px; color:#cbd5e1;">${planName}</td>
-                        <td style="font-size:13px; font-weight:bold; color:${linkedCount >= maxProfiles ? '#ef4444' : '#10b981'};">${usageText}</td>
-                        <td>${expDate}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                        <td>
-                            <button class="action-btn btn-edit" onclick="editLicense('${lic.id}')">Editar</button>
-                            <button class="action-btn btn-reset" onclick="resetProfiles('${lic.id}')" title="Desvincular perfis da licença">Resetar Perfis</button>
-                            <button class="action-btn btn-delete" onclick="deleteLicense('${lic.id}')">Excluir</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-
-            } catch (err) {
-                console.error(err);
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Erro de conexão com o Supabase.</td></tr>';
-            }
-        }
-
-        function copyKey(keyText, btnElement) {
-            navigator.clipboard.writeText(keyText).then(() => {
-                const originalText = btnElement.innerText;
-                btnElement.innerText = "✓ Copiado!";
-                btnElement.style.background = "rgba(16, 185, 129, 0.4)";
-                btnElement.style.borderColor = "rgba(16, 185, 129, 0.6)";
-                setTimeout(() => {
-                    btnElement.innerText = originalText;
-                    btnElement.style.background = "";
-                    btnElement.style.borderColor = "";
-                }, 1800);
-            }).catch(() => {
-                alert("Chave da Licença: " + keyText);
-            });
-        }
-
-        function openModal() {
-            document.getElementById('modalTitle').textContent = 'Criar Nova Licença';
-            document.getElementById('editingId').value = '';
-            document.getElementById('clientName').value = '';
-            document.getElementById('productType').value = 'Instagram';
-            document.getElementById('maxProfiles').value = '1';
-            document.getElementById('licenseType').value = 'monthly';
-            toggleDateInput();
-            generateRandomKey();
-            document.getElementById('licenseModal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('licenseModal').classList.remove('active');
-        }
-
-        function generateRandomKey() {
-            if(document.getElementById('editingId').value) return;
-
-            const product = document.getElementById('productType').value;
-            const prefix = product === 'Instagram' ? 'IG-' : 'LV-';
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let result = prefix;
-            for (let i = 0; i < 12; i++) {
-                if(i > 0 && i % 4 === 0) result += '-';
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            document.getElementById('licenseKey').value = result;
-        }
-
-        function toggleDateInput() {
-            const type = document.getElementById('licenseType').value;
-            const dateGroup = document.getElementById('customDateGroup');
-            if(type === 'custom') {
-                dateGroup.style.display = 'block';
-            } else {
-                dateGroup.style.display = 'none';
-            }
-        }
-
-        async function saveLicense() {
-            const id = document.getElementById('editingId').value;
-            const cliente = document.getElementById('clientName').value;
-            const key = document.getElementById('licenseKey').value;
-            const type = document.getElementById('licenseType').value;
-            const max_profiles = parseInt(document.getElementById('maxProfiles').value, 10);
-            
-            if(!cliente || !key) {
-                alert('Preencha nome do cliente e a chave!');
+        if (currentPass || newPass) {
+            if (currentPass !== MASTER_PASS) {
+                alert('❌ Senha atual incorreta!');
                 return;
             }
-
-            let expires_at = null;
-            let is_lifetime = false;
-
-            if(type === 'monthly') {
-                const d = new Date();
-                d.setDate(d.getDate() + 30);
-                expires_at = d.toISOString();
-            } else if(type === 'yearly') {
-                const d = new Date();
-                d.setDate(d.getDate() + 365);
-                expires_at = d.toISOString();
-            } else if(type === 'lifetime') {
-                is_lifetime = true;
-            } else if(type === 'custom') {
-                const customVal = document.getElementById('customDate').value;
-                if(!customVal) {
-                    alert('Selecione a data de vencimento!');
-                    return;
-                }
-                expires_at = new Date(customVal).toISOString();
+            if (!newPass || newPass.length < 6) {
+                alert('❌ A nova senha deve ter pelo menos 6 caracteres.');
+                return;
             }
+            MASTER_PASS = newPass;
+            localStorage.setItem(MASTER_PASS_KEY, newPass);
+        }
 
-            const payload = {
-                cliente: cliente, 
-                key: key, 
-                expires_at: expires_at, 
-                is_lifetime: is_lifetime,
-                max_profiles: max_profiles,
-                status: 'active'
-            };
+        updateUserUI();
+        closeProfileModal();
+        alert('✅ Perfil atualizado com sucesso!');
+    }
 
-            let reqPromise;
-            if (id) {
-                reqPromise = supabaseClient.from('licenses').update(payload).eq('id', id);
-            } else {
-                reqPromise = supabaseClient.from('licenses').insert([payload]);
-            }
-
-            const { data, error } = await reqPromise;
+    // ── LICENSES ──
+    async function loadLicenses() {
+        const tbody = document.getElementById('licenses-tbody');
+        const warning = document.getElementById('setup-warning');
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:40px;">Carregando...</td></tr>';
+        try {
+            const { data: licenses, error } = await supabaseClient
+                .from('licenses').select('*').order('id', { ascending: false });
 
             if (error) {
-                alert('Erro ao salvar: ' + error.message);
-            } else {
-                closeModal();
-                loadLicenses();
-            }
-        }
-
-        async function resetProfiles(id) {
-            if (confirm('Deseja desvincular todos os perfis do Instagram desta licença?')) {
-                const { error } = await supabaseClient.from('licenses').update({ linked_profiles: [] }).eq('id', id);
-                if (error) alert('Erro ao resetar: ' + error.message);
-                else loadLicenses();
-            }
-        }
-
-        async function editLicense(id) {
-            const { data: lic, error } = await supabaseClient.from('licenses').select('*').eq('id', id).single();
-            if(error || !lic) {
-                alert('Erro ao buscar licença');
+                if (error.code === '42P01') warning.style.display = 'block';
+                else alert('Erro ao carregar: ' + error.message);
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);">Erro ao carregar dados.</td></tr>';
                 return;
             }
 
-            document.getElementById('modalTitle').textContent = 'Editar Licença';
-            document.getElementById('editingId').value = lic.id;
-            document.getElementById('clientName').value = lic.cliente;
-            document.getElementById('licenseKey').value = lic.key;
-            document.getElementById('productType').value = lic.produto || (lic.key.startsWith('IG-') ? 'Instagram' : 'Lovable');
-            document.getElementById('maxProfiles').value = lic.max_profiles || 1;
+            const real = (licenses || []).filter(l => l.key !== 'GLOBAL_M3U_URL' && l.status !== 'config');
+            const expired = real.filter(l => l.expires_at && new Date(l.expires_at) < new Date()).length;
+            document.getElementById('statTotal').textContent = real.length;
+            document.getElementById('statActive').textContent = real.length - expired;
+            document.getElementById('statExpired').textContent = expired;
 
-            if(lic.is_lifetime) {
-                document.getElementById('licenseType').value = 'lifetime';
-            } else if(lic.expires_at) {
-                document.getElementById('licenseType').value = 'custom';
-                const localDate = new Date(lic.expires_at).toISOString().slice(0, 16);
-                document.getElementById('customDate').value = localDate;
+            if (!real.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:40px;">Nenhuma licença cadastrada ainda.</td></tr>';
+                return;
             }
-            toggleDateInput();
-            document.getElementById('licenseModal').classList.add('active');
+
+            tbody.innerHTML = '';
+            real.forEach(lic => {
+                const isExpired = lic.expires_at && new Date(lic.expires_at) < new Date();
+                const statusText = isExpired ? 'Expirado' : (lic.status || 'Ativo');
+                const statusClass = isExpired ? 'badge-expired' : 'badge-active';
+                let expDate = '<span style="color:var(--muted);">Vitalício</span>';
+                if (!lic.is_lifetime && lic.expires_at) {
+                    expDate = new Date(lic.expires_at).toLocaleDateString('pt-BR');
+                }
+                const produto = lic.produto || (lic.key.startsWith('IG-') ? 'Instagram' : 'Lovable');
+                let maxP = parseInt(lic.max_profiles || (lic.key.startsWith('IG-') ? 1 : 999), 10);
+                const linked = Array.isArray(lic.linked_profiles) ? lic.linked_profiles.length : 0;
+                const usageText = maxP >= 999 ? `${linked}/∞` : `${linked}/${maxP}`;
+                let planName = 'Individual';
+                if (maxP === 5) planName = 'Multi 5';
+                else if (maxP === 10) planName = 'Agência';
+                else if (maxP >= 999) planName = 'Ilimitado';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:600;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(lic.cliente)}</td>
+                    <td><span class="badge badge-plan">${escapeHtml(produto)}</span></td>
+                    <td style="font-family:monospace;font-size:12px;color:#a5b4fc;">
+                        ${escapeHtml(lic.key)}
+                        <button class="act-btn act-copy" onclick="copyKey('${escapeHtml(lic.key)}',this)" style="margin-left:6px;">📋</button>
+                    </td>
+                    <td style="font-size:12px;color:#cbd5e1;">${planName}</td>
+                    <td style="font-weight:700;color:${linked>=maxP?'#f87171':'#34d399'};">${usageText}</td>
+                    <td style="font-size:12px;color:var(--muted);">${expDate}</td>
+                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                    <td style="white-space:nowrap;">
+                        <button class="act-btn act-edit" onclick="editLicense('${lic.id}')">✏️ Editar</button>
+                        <button class="act-btn act-reset" onclick="resetProfiles('${lic.id}')" title="Desvincular perfis" style="margin-left:4px;">↺ Reset</button>
+                        <button class="act-btn act-delete" onclick="deleteLicense('${lic.id}')" style="margin-left:4px;">🗑</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch(err) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);">Erro de conexão.</td></tr>';
+        }
+    }
+
+    async function loadStatLists() {
+        try {
+            const { data } = await supabaseClient.from('licenses').select('id').eq('status','config').like('key','PRESET_LIST_%');
+            document.getElementById('statLists').textContent = data ? data.length : 0;
+        } catch(e) { document.getElementById('statLists').textContent = '—'; }
+    }
+
+    function copyKey(keyText, btnEl) {
+        navigator.clipboard.writeText(keyText).then(() => {
+            const orig = btnEl.textContent;
+            btnEl.textContent = '✓';
+            btnEl.style.background = 'rgba(16,185,129,0.3)';
+            setTimeout(() => { btnEl.textContent = orig; btnEl.style.background = ''; }, 1800);
+        }).catch(() => alert('Chave: ' + keyText));
+    }
+
+    function openModal() {
+        document.getElementById('modalTitle').textContent = 'Criar Nova Licença';
+        document.getElementById('editingId').value = '';
+        document.getElementById('clientName').value = '';
+        document.getElementById('productType').value = 'Instagram';
+        document.getElementById('maxProfiles').value = '1';
+        document.getElementById('licenseType').value = 'monthly';
+        toggleDateInput();
+        generateRandomKey();
+        document.getElementById('licenseModal').classList.add('active');
+    }
+    function closeModal() { document.getElementById('licenseModal').classList.remove('active'); }
+
+    function generateRandomKey() {
+        if (document.getElementById('editingId').value) return;
+        const product = document.getElementById('productType').value;
+        const prefix = product === 'Instagram' ? 'IG-' : 'LV-';
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = prefix;
+        for (let i = 0; i < 12; i++) {
+            if (i > 0 && i % 4 === 0) result += '-';
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('licenseKey').value = result;
+    }
+
+    function toggleDateInput() {
+        const type = document.getElementById('licenseType').value;
+        document.getElementById('customDateGroup').style.display = type === 'custom' ? 'block' : 'none';
+    }
+
+    async function saveLicense() {
+        const id = document.getElementById('editingId').value;
+        const cliente = document.getElementById('clientName').value.trim();
+        const key = document.getElementById('licenseKey').value.trim();
+        const type = document.getElementById('licenseType').value;
+        const max_profiles = parseInt(document.getElementById('maxProfiles').value, 10);
+        if (!cliente || !key) { alert('Preencha nome do cliente e a chave!'); return; }
+
+        let expires_at = null, is_lifetime = false;
+        if (type === 'monthly') { const d = new Date(); d.setDate(d.getDate()+30); expires_at = d.toISOString(); }
+        else if (type === 'yearly') { const d = new Date(); d.setDate(d.getDate()+365); expires_at = d.toISOString(); }
+        else if (type === 'lifetime') { is_lifetime = true; }
+        else if (type === 'custom') {
+            const val = document.getElementById('customDate').value;
+            if (!val) { alert('Selecione a data!'); return; }
+            expires_at = new Date(val).toISOString();
         }
 
-        async function deleteLicense(id) {
-            if(confirm('Tem certeza que deseja excluir esta licença?')) {
-                const { error } = await supabaseClient.from('licenses').delete().eq('id', id);
-                if(error) alert('Erro ao deletar: ' + error.message);
-                else loadLicenses();
+        const payload = { cliente, key, expires_at, is_lifetime, max_profiles, status:'active' };
+        const { error } = id
+            ? await supabaseClient.from('licenses').update(payload).eq('id', id)
+            : await supabaseClient.from('licenses').insert([payload]);
+
+        if (error) alert('Erro ao salvar: ' + error.message);
+        else { closeModal(); loadLicenses(); }
+    }
+
+    async function editLicense(id) {
+        const { data: lic, error } = await supabaseClient.from('licenses').select('*').eq('id', id).single();
+        if (error || !lic) { alert('Erro ao buscar licença'); return; }
+        document.getElementById('modalTitle').textContent = 'Editar Licença';
+        document.getElementById('editingId').value = lic.id;
+        document.getElementById('clientName').value = lic.cliente;
+        document.getElementById('licenseKey').value = lic.key;
+        document.getElementById('productType').value = lic.produto || (lic.key.startsWith('IG-') ? 'Instagram' : 'Lovable');
+        document.getElementById('maxProfiles').value = lic.max_profiles || 1;
+        document.getElementById('licenseType').value = lic.is_lifetime ? 'lifetime' : (lic.expires_at ? 'custom' : 'monthly');
+        if (lic.expires_at) document.getElementById('customDate').value = new Date(lic.expires_at).toISOString().slice(0,16);
+        toggleDateInput();
+        document.getElementById('licenseModal').classList.add('active');
+    }
+
+    async function deleteLicense(id) {
+        if (!confirm('Excluir esta licença?')) return;
+        const { error } = await supabaseClient.from('licenses').delete().eq('id', id);
+        if (error) alert('Erro: ' + error.message);
+        else loadLicenses();
+    }
+
+    async function resetProfiles(id) {
+        if (!confirm('Desvincular todos os perfis desta licença?')) return;
+        const { error } = await supabaseClient.from('licenses').update({ linked_profiles: [] }).eq('id', id);
+        if (error) alert('Erro: ' + error.message);
+        else loadLicenses();
+    }
+
+    // ── STREAMING ──
+    let globalConfigId = null;
+
+    async function openStreamingModal() {
+        document.getElementById('streamingModal').classList.add('active');
+        document.getElementById('globalM3uName').value = '';
+        document.getElementById('globalM3uUrl').value = 'Carregando...';
+        document.getElementById('globalM3uUrl').disabled = true;
+
+        const { data, error } = await supabaseClient.from('licenses').select('*').eq('key','GLOBAL_M3U_URL');
+        document.getElementById('globalM3uUrl').disabled = false;
+
+        if (!error && data && data.length > 0) {
+            globalConfigId = data[0].id;
+            try {
+                const parsed = JSON.parse(data[0].cliente);
+                document.getElementById('globalM3uName').value = parsed.name || 'Lista Global (Plano Grátis)';
+                document.getElementById('globalM3uUrl').value = parsed.url || '';
+            } catch(e) {
+                document.getElementById('globalM3uName').value = 'Lista Global (Plano Grátis)';
+                document.getElementById('globalM3uUrl').value = data[0].cliente || '';
+            }
+        } else {
+            globalConfigId = null;
+            document.getElementById('globalM3uName').value = 'Lista Global (Plano Grátis)';
+            document.getElementById('globalM3uUrl').value = '';
+        }
+        loadPresetListsAdmin();
+    }
+
+    function closeStreamingModal() { document.getElementById('streamingModal').classList.remove('active'); }
+
+    async function saveGlobalStreamingConfig(btn) {
+        const name = document.getElementById('globalM3uName').value.trim() || 'Lista Global (Plano Grátis)';
+        const url = document.getElementById('globalM3uUrl').value.trim();
+        const orig = btn.innerText;
+        btn.innerText = 'Salvando...'; btn.disabled = true;
+
+        let visibility = 'public';
+        if (globalConfigId) {
+            const { data } = await supabaseClient.from('licenses').select('cliente').eq('id', globalConfigId).single();
+            if (data && data.cliente) {
+                try { const p = JSON.parse(data.cliente); if (p.visibility) visibility = p.visibility; } catch(e){}
             }
         }
 
-        function escapeHtml(text) {
-            if(!text) return '';
-            return text.toString()
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+        const clienteValue = JSON.stringify({ name: name, url: url, visibility: visibility });
+        const payload = { cliente: clienteValue, key: 'GLOBAL_M3U_URL', status:'config', max_profiles:999, is_lifetime:true };
+
+        const { error } = globalConfigId
+            ? await supabaseClient.from('licenses').update({ cliente: clienteValue }).eq('id', globalConfigId)
+            : await supabaseClient.from('licenses').insert([payload]);
+
+        btn.innerText = orig; btn.disabled = false;
+        if (error) alert('Erro ao salvar: ' + error.message);
+        else {
+            alert('✅ Lista Global atualizada!');
+            loadPresetListsAdmin();
         }
-    </script>
+    }
+
+    async function toggleGlobalVisibility(currentVisibility, btn) {
+        const newVis = (currentVisibility === 'private' ? 'public' : 'private');
+        const name = document.getElementById('globalM3uName').value.trim() || 'Lista Global (Plano Grátis)';
+        const url = document.getElementById('globalM3uUrl').value.trim();
+        const clienteValue = JSON.stringify({ name: name, url: url, visibility: newVis });
+
+        const { error } = globalConfigId
+            ? await supabaseClient.from('licenses').update({ cliente: clienteValue }).eq('id', globalConfigId)
+            : await supabaseClient.from('licenses').insert([{ cliente: clienteValue, key: 'GLOBAL_M3U_URL', status:'config', max_profiles:999, is_lifetime:true }]);
+
+        if (error) alert('Erro: ' + error.message);
+        else loadPresetListsAdmin();
+    }
+
+    function editGlobalUrl(name, url) {
+        const nameInput = document.getElementById('globalM3uName');
+        const urlInput = document.getElementById('globalM3uUrl');
+        if (nameInput && urlInput) {
+            if (name) nameInput.value = name;
+            if (url) urlInput.value = url;
+            nameInput.focus();
+            nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            nameInput.style.borderColor = '#00dcff';
+            urlInput.style.borderColor = '#00dcff';
+            setTimeout(() => { nameInput.style.borderColor = ''; urlInput.style.borderColor = ''; }, 2000);
+        }
+    }
+
+    async function loadPresetListsAdmin() {
+        const container = document.getElementById('presetListsAdmin');
+        if (!container) return;
+        container.innerHTML = '<span style="font-size:12px;color:var(--muted);">⏳ Carregando...</span>';
+
+        // 1. Carregar Global M3U URL
+        let globalName = 'Lista Global (Plano Grátis)';
+        let globalUrl = '';
+        let globalVis = 'public';
+        const { data: globalData } = await supabaseClient.from('licenses').select('id, cliente').eq('key', 'GLOBAL_M3U_URL');
+        if (globalData && globalData.length > 0) {
+            globalConfigId = globalData[0].id;
+            const rawVal = globalData[0].cliente || '';
+            try {
+                const parsedG = JSON.parse(rawVal);
+                globalName = parsedG.name || 'Lista Global (Plano Grátis)';
+                globalUrl = parsedG.url || '';
+                globalVis = parsedG.visibility || 'public';
+            } catch(e) {
+                globalUrl = rawVal;
+            }
+            document.getElementById('globalM3uName').value = globalName;
+            document.getElementById('globalM3uUrl').value = globalUrl;
+        }
+
+        // 2. Carregar Listas Personalizadas
+        let { data, error } = await supabaseClient
+            .from('licenses')
+            .select('id, key, cliente')
+            .eq('status', 'config')
+            .like('key', 'PRESET_LIST_%')
+            .order('id', { ascending: true });
+
+        // Auto-seed listas padrão (Brasil e Esportes) se for a primeira vez e o banco estiver sem nenhuma lista pré-definida
+        const hasSeeded = localStorage.getItem('rdg_presets_seeded');
+        if ((!data || data.length === 0) && !hasSeeded) {
+            localStorage.setItem('rdg_presets_seeded', 'true');
+            await supabaseClient.from('licenses').insert([
+                { key: 'PRESET_LIST_BR', cliente: JSON.stringify({ name: 'Brasil (+400 Canais)', url: 'https://iptv-org.github.io/iptv/countries/br.m3u', visibility: 'public' }), status: 'config', max_profiles: 999, is_lifetime: true },
+                { key: 'PRESET_LIST_SPORTS', cliente: JSON.stringify({ name: 'Esportes & Notícias 24h', url: 'https://iptv-org.github.io/iptv/categories/sports.m3u', visibility: 'public' }), status: 'config', max_profiles: 999, is_lifetime: true }
+            ]);
+            const resReload = await supabaseClient.from('licenses').select('id, key, cliente').eq('status', 'config').like('key', 'PRESET_LIST_%').order('id', { ascending: true });
+            data = resReload.data || [];
+        }
+
+        container.innerHTML = '';
+
+        // Render Lista Global (se configurada)
+        if (globalUrl) {
+            const isGlobalPriv = (globalVis === 'private');
+            const row = document.createElement('div');
+            row.className = 'preset-row';
+            row.style.background = isGlobalPriv ? 'rgba(239,68,68,0.05)' : 'rgba(0,220,255,0.06)';
+            row.style.borderColor = isGlobalPriv ? 'rgba(239,68,68,0.25)' : 'rgba(0,220,255,0.2)';
+            row.innerHTML = `
+                <span style="font-size:18px;">${isGlobalPriv ? '🔒' : '🌐'}</span>
+                <div class="preset-row-info">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <div class="preset-row-name">${escapeHtml(globalName)}</div>
+                        <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;background:${isGlobalPriv ? 'rgba(239,68,68,0.2)' : 'rgba(0,220,255,0.15)'};color:${isGlobalPriv ? '#f87171' : '#00dcff'};">
+                            ${isGlobalPriv ? '🔒 Só Admin' : '🌐 Visível no Player'}
+                        </span>
+                    </div>
+                    <div class="preset-row-url">${escapeHtml(globalUrl)}</div>
+                </div>
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <button onclick="editGlobalUrl('${escapeHtml(globalName).replace(/'/g, "\\'")}', '${escapeHtml(globalUrl).replace(/'/g, "\\'")}')" class="act-btn act-edit" style="font-size:11px;">✏️ Editar</button>
+                    <button onclick="toggleGlobalVisibility('${globalVis}', this)" class="act-btn ${isGlobalPriv ? 'act-edit' : 'act-reset'}" style="font-size:11px;">
+                        ${isGlobalPriv ? '👁️ Tornar Público' : '🔒 Ocultar'}
+                    </button>
+                    <button onclick="clearGlobalUrl(this)" class="act-btn act-delete" style="font-size:11px;">🗑 Limpar URL</button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        // Render Listas Cadastradas (Brasil, Esportes e Personalizadas)
+        if (data && data.length > 0) {
+            data.forEach(item => {
+                let name = item.key, url = '', visibility = 'public';
+                try {
+                    const p = JSON.parse(item.cliente);
+                    name = p.name || name;
+                    url = p.url || '';
+                    visibility = p.visibility || 'public';
+                } catch(e) {
+                    url = item.cliente || '';
+                }
+
+                const isPrivate = (visibility === 'private');
+
+                const row = document.createElement('div');
+                row.className = 'preset-row';
+                row.style.borderColor = isPrivate ? 'rgba(239,68,68,0.25)' : 'rgba(99,102,241,0.2)';
+                row.style.background = isPrivate ? 'rgba(239,68,68,0.05)' : 'rgba(99,102,241,0.07)';
+
+                row.innerHTML = `
+                    <span style="font-size:18px;">${isPrivate ? '🔒' : '⭐'}</span>
+                    <div class="preset-row-info">
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <div class="preset-row-name">${escapeHtml(name)}</div>
+                            <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;background:${isPrivate ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'};color:${isPrivate ? '#f87171' : '#34d399'};">
+                                ${isPrivate ? '🔒 Só Admin' : '🌐 Visível no Player'}
+                            </span>
+                        </div>
+                        <div class="preset-row-url">${escapeHtml(url)}</div>
+                    </div>
+                    <div style="display:flex;gap:6px;align-items:center;">
+                        <button onclick="editPresetList('${item.id}', '${escapeHtml(name).replace(/'/g, "\\'")}', '${escapeHtml(url).replace(/'/g, "\\'")}', '${visibility}')" class="act-btn act-edit" style="font-size:11px;">✏️ Editar</button>
+                        <button onclick="togglePresetVisibility('${item.id}', '${visibility}', this)" class="act-btn ${isPrivate ? 'act-edit' : 'act-reset'}" style="font-size:11px;">
+                            ${isPrivate ? '👁️ Tornar Público' : '🔒 Ocultar'}
+                        </button>
+                        <button onclick="deletePresetList('${item.id}', this)" class="act-btn act-delete" style="font-size:11px;">🗑 Excluir</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        } else if (!globalUrl) {
+            container.innerHTML = '<span style="font-size:12px;color:var(--muted);">Nenhuma lista cadastrada ainda. Adicione uma no formulário abaixo.</span>';
+        }
+        loadStatLists();
+    }
+
+    function editPresetList(id, name, url, visibility) {
+        document.getElementById('editingPresetId').value = id;
+        document.getElementById('newPresetName').value = name;
+        document.getElementById('newPresetUrl').value = url;
+        document.getElementById('newPresetVisibility').value = visibility || 'public';
+
+        document.getElementById('presetFormTitle').textContent = '✏️ Editar Lista';
+        document.getElementById('savePresetBtn').textContent = '💾 Salvar Alterações';
+        document.getElementById('cancelPresetEditBtn').style.display = 'inline-block';
+        document.getElementById('newPresetName').focus();
+    }
+
+    function cancelPresetEdit() {
+        document.getElementById('editingPresetId').value = '';
+        document.getElementById('newPresetName').value = '';
+        document.getElementById('newPresetUrl').value = '';
+        document.getElementById('newPresetVisibility').value = 'public';
+
+        document.getElementById('presetFormTitle').textContent = '➕ Adicionar Nova Lista';
+        document.getElementById('savePresetBtn').textContent = '➕ Adicionar Lista';
+        document.getElementById('cancelPresetEditBtn').style.display = 'none';
+    }
+
+    async function addPresetList(btn) {
+        const editingId = document.getElementById('editingPresetId').value;
+        const name = document.getElementById('newPresetName').value.trim();
+        const url = document.getElementById('newPresetUrl').value.trim();
+        const visibility = document.getElementById('newPresetVisibility').value;
+
+        if (!name || !url) { alert('Preencha nome e URL.'); return; }
+        const orig = btn.innerText; btn.innerText = editingId ? 'Salvando...' : 'Adicionando...'; btn.disabled = true;
+
+        let error;
+        if (editingId) {
+            const res = await supabaseClient.from('licenses').update({
+                cliente: JSON.stringify({ name, url, visibility })
+            }).eq('id', editingId);
+            error = res.error;
+        } else {
+            const res = await supabaseClient.from('licenses').insert([{
+                key: 'PRESET_LIST_' + Date.now(),
+                cliente: JSON.stringify({ name, url, visibility }),
+                status: 'config', max_profiles: 999, is_lifetime: true
+            }]);
+            error = res.error;
+        }
+
+        btn.innerText = orig; btn.disabled = false;
+        if (error) alert('Erro: ' + error.message);
+        else {
+            cancelPresetEdit();
+            alert(editingId ? `✅ Lista "${name}" atualizada!` : `✅ Lista "${name}" adicionada!`);
+            loadPresetListsAdmin();
+        }
+    }
+
+    async function togglePresetVisibility(id, currentVisibility, btn) {
+        const newVis = (currentVisibility === 'private' ? 'public' : 'private');
+        const orig = btn.innerText; btn.innerText = '...'; btn.disabled = true;
+
+        const { data: item } = await supabaseClient.from('licenses').select('cliente').eq('id', id).single();
+        if (item) {
+            let parsed = {};
+            try { parsed = JSON.parse(item.cliente); } catch(e) { parsed = { url: item.cliente }; }
+            parsed.visibility = newVis;
+
+            const { error } = await supabaseClient.from('licenses').update({
+                cliente: JSON.stringify(parsed)
+            }).eq('id', id);
+
+            if (error) alert('Erro ao alterar visibilidade: ' + error.message);
+            else loadPresetListsAdmin();
+        }
+    }
+
+    async function clearGlobalUrl(btn) {
+        if (!confirm('Deseja remover a URL Global?')) return;
+        document.getElementById('globalM3uUrl').value = '';
+        saveGlobalStreamingConfig(btn);
+    }
+
+    async function deletePresetList(id, btn) {
+        if (!confirm('Tem certeza que deseja excluir esta lista? Ela será removida permanentemente.')) return;
+        const orig = btn.innerText; btn.innerText = '...'; btn.disabled = true;
+        const { error } = await supabaseClient.from('licenses').delete().eq('id', id);
+        if (error) { alert('Erro: ' + error.message); btn.innerText = orig; btn.disabled = false; }
+        else loadPresetListsAdmin();
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.toString()
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+</script>
 </body>
 </html>
