@@ -28,12 +28,12 @@ export const Route = createFileRoute("/api/prospeccao")({
     handlers: {
       GET: async ({ request }) => {
         const reqUrl = new URL(request.url);
-        const nicho = reqUrl.searchParams.get("nicho") || "Imobiliária";
+        const nicho = reqUrl.searchParams.get("nicho") || "Barbearia";
         const cidade = reqUrl.searchParams.get("cidade") || "São Paulo - SP";
         const customApiKey = reqUrl.searchParams.get("apiKey") || "";
         const onlyNoWebsite = reqUrl.searchParams.get("onlyNoWebsite") !== "false";
 
-        const apiKey = customApiKey || process.env.GOOGLE_PLACES_API_KEY || "";
+        const apiKey = customApiKey.trim() || process.env.GOOGLE_PLACES_API_KEY || "";
 
         const corsHeaders = {
           "Access-Control-Allow-Origin": "*",
@@ -42,8 +42,8 @@ export const Route = createFileRoute("/api/prospeccao")({
           "Content-Type": "application/json",
         };
 
-        // Se houver Chave de API do Google Places válida, chamar a API oficial
-        if (apiKey && apiKey.length > 10) {
+        // Se houver Chave de API do Google Places informada pelo usuário
+        if (apiKey && apiKey.length > 5) {
           try {
             const query = `${nicho} em ${cidade}`;
             const textSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&language=pt-BR&key=${apiKey}`;
@@ -52,9 +52,10 @@ export const Route = createFileRoute("/api/prospeccao")({
             const searchData = await searchRes.json();
 
             if (searchData.status === "OK" && Array.isArray(searchData.results)) {
-              const leads: LeadItem[] = [];
+              // Buscar detalhes estendidos (Telefone/Website) em paralelo para máxima velocidade
+              const placesSlice = searchData.results.slice(0, 20);
 
-              for (const place of searchData.results.slice(0, 20)) {
+              const leadsPromises = placesSlice.map(async (place: any) => {
                 let phone = "Não informado";
                 let websiteUrl: string | null = place.website || null;
                 let internationalPhone = "";
@@ -72,16 +73,23 @@ export const Route = createFileRoute("/api/prospeccao")({
                       }
                     }
                   } catch (e) {
-                    console.error("Erro detalhes do local:", e);
+                    console.error("Erro nos detalhes do local:", e);
                   }
                 }
 
-                const hasWebsite = Boolean(websiteUrl && !websiteUrl.includes("instagram.com") && !websiteUrl.includes("wa.me"));
-                const hasInstagram = Boolean(websiteUrl?.includes("instagram.com"));
+                const hasWebsite = Boolean(
+                  websiteUrl &&
+                    !websiteUrl.toLowerCase().includes("instagram.com") &&
+                    !websiteUrl.toLowerCase().includes("wa.me") &&
+                    !websiteUrl.toLowerCase().includes("facebook.com")
+                );
+                const hasInstagram = Boolean(websiteUrl?.toLowerCase().includes("instagram.com"));
 
                 const cleanNum = (internationalPhone || phone).replace(/\D/g, "");
-                const waNum = cleanNum.startsWith("55") ? cleanNum : `55${cleanNum}`;
-                const defaultMsg = encodeURIComponent(`Olá! Vi o perfil da *${place.name}* no Google Maps e notei que vocês ainda não possuem um site oficial para captação de clientes. Vocês aceitam propostas por aqui?`);
+                const waNum = cleanNum ? (cleanNum.startsWith("55") ? cleanNum : `55${cleanNum}`) : "5511999999999";
+                const defaultMsg = encodeURIComponent(
+                  `Olá! Vi o perfil da *${place.name}* no Google Maps (${cidade}) e notei que vocês ainda não possuem um site oficial para captação de clientes. Vocês aceitam propostas por aqui?`
+                );
 
                 const lead: LeadItem = {
                   id: place.place_id || `place-${Math.random()}`,
@@ -90,7 +98,7 @@ export const Route = createFileRoute("/api/prospeccao")({
                   rating: place.rating || 4.7,
                   user_ratings_total: place.user_ratings_total || Math.floor(Math.random() * 150 + 20),
                   address: place.formatted_address || cidade,
-                  phone: phone !== "Não informado" ? phone : "+55 11 99999-0000",
+                  phone: phone !== "Não informado" ? phone : "Telefone não cadastrado",
                   raw_phone: waNum,
                   whatsapp_link: `https://wa.me/${waNum}?text=${defaultMsg}`,
                   has_website: hasWebsite,
@@ -102,22 +110,48 @@ export const Route = createFileRoute("/api/prospeccao")({
                   is_mock: false,
                 };
 
-                if (!onlyNoWebsite || !hasWebsite) {
-                  leads.push(lead);
-                }
+                return lead;
+              });
+
+              let leads: LeadItem[] = await Promise.all(leadsPromises);
+
+              if (onlyNoWebsite) {
+                leads = leads.filter((l) => !l.has_website);
               }
 
-              return new Response(JSON.stringify({ status: "success", source: "google_api", total: leads.length, leads }), {
-                status: 200,
-                headers: corsHeaders,
-              });
+              return new Response(
+                JSON.stringify({
+                  status: "success",
+                  source: "google_api",
+                  total: leads.length,
+                  leads,
+                }),
+                {
+                  status: 200,
+                  headers: corsHeaders,
+                }
+              );
+            } else if (searchData.status === "ZERO_RESULTS") {
+              return new Response(
+                JSON.stringify({
+                  status: "success",
+                  source: "google_api",
+                  total: 0,
+                  leads: [],
+                  message: `Nenhuma empresa do nicho '${nicho}' sem site localizada em '${cidade}'.`,
+                }),
+                {
+                  status: 200,
+                  headers: corsHeaders,
+                }
+              );
             } else if (searchData.status) {
-              // Se o Google retornou erro específico (REQUEST_DENIED, OVER_QUERY_LIMIT, etc.)
+              // Retornar o erro do Google Places (REQUEST_DENIED, OVER_QUERY_LIMIT, etc)
               return new Response(
                 JSON.stringify({
                   status: "google_error",
                   google_status: searchData.status,
-                  message: searchData.error_message || `Resposta do Google: ${searchData.status}`,
+                  message: searchData.error_message || `Resposta do Google Cloud: ${searchData.status}`,
                   leads: [],
                 }),
                 {
@@ -126,12 +160,24 @@ export const Route = createFileRoute("/api/prospeccao")({
                 }
               );
             }
-          } catch (err) {
+          } catch (err: any) {
             console.error("Erro ao chamar Google Places API:", err);
+            return new Response(
+              JSON.stringify({
+                status: "google_error",
+                google_status: "FETCH_ERROR",
+                message: err.message || "Erro de conexão ao servidor do Google",
+                leads: [],
+              }),
+              {
+                status: 200,
+                headers: corsHeaders,
+              }
+            );
           }
         }
 
-        // FALLBACK DE DEMONSTRAÇÃO INTELIGENTE (Apenas quando nenhuma chave for informada)
+        // FALLBACK APENAS QUANDO A CHAVE DE API NÃO FOR INFORMADA
         const mockLeads: LeadItem[] = generateMockLeads(nicho, cidade, onlyNoWebsite);
 
         return new Response(

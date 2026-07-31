@@ -54,7 +54,7 @@ function ProspeccaoPage() {
   const [activeTab, setActiveTab] = useState<"prospectar" | "salvos">("prospectar");
   const [savedViewMode, setSavedViewMode] = useState<"kanban" | "grid">("kanban");
 
-  const [nicho, setNicho] = useState<string>("Imobiliária");
+  const [nicho, setNicho] = useState<string>("Barbearia");
   const [cidade, setCidade] = useState<string>("São Paulo - SP");
   const [onlyNoWebsite, setOnlyNoWebsite] = useState<boolean>(true);
   const [minRating, setMinRating] = useState<number>(4.0);
@@ -90,14 +90,15 @@ function ProspeccaoPage() {
       }
     }
 
-    handleSearch("Imobiliária", "São Paulo - SP", savedKey);
+    handleSearch("Barbearia", "São Paulo - SP", savedKey);
   }, []);
 
   const handleSaveApiKey = (key: string) => {
-    setApiKey(key);
-    localStorage.setItem("google_places_api_key", key);
+    const trimmed = key.trim();
+    setApiKey(trimmed);
+    localStorage.setItem("google_places_api_key", trimmed);
     setIsConfigOpen(false);
-    handleSearch(nicho, cidade, key);
+    handleSearch(nicho, cidade, trimmed);
   };
 
   const handleSearch = async (
@@ -109,7 +110,9 @@ function ProspeccaoPage() {
     let fetchedLeads: LeadItem[] = [];
     let source = targetApiKey ? "google_api" : "demo_mock";
     let googleStatus = "";
-    let message = "Demonstração ativa. Insira sua chave da Google Places API nas configurações para buscar dados ao vivo do Google.";
+    let message = targetApiKey
+      ? "Busca ao vivo realizada na Google Places API."
+      : "Demonstração ativa. Insira sua chave da Google Places API nas configurações para buscar dados ao vivo do Google.";
 
     try {
       const queryParams = new URLSearchParams({
@@ -122,10 +125,10 @@ function ProspeccaoPage() {
       const response = await fetch(`/api/prospeccao?${queryParams.toString()}`);
       if (response.ok) {
         const data = await response.json();
-        if (data.status === "success" && Array.isArray(data.leads) && data.leads.length > 0) {
-          fetchedLeads = data.leads;
+        if (data.status === "success") {
+          fetchedLeads = data.leads || [];
           source = data.source;
-          message = data.message;
+          if (data.message) message = data.message;
         } else if (data.status === "google_error") {
           source = "google_error";
           googleStatus = data.google_status;
@@ -136,13 +139,13 @@ function ProspeccaoPage() {
       console.error("Erro na busca de leads via API:", err);
     }
 
-    // Se o Google retornou erro ou nenhuma chave foi informada, gerar os dados de demonstração
-    if (fetchedLeads.length === 0) {
+    // Apenas se NENHUMA chave de API tiver sido informada pelo usuário, usar a demonstração
+    if (!targetApiKey && fetchedLeads.length === 0) {
       fetchedLeads = generateMockLeads(targetNicho, targetCidade, onlyNoWebsite);
     }
 
     const filtered = fetchedLeads.filter((l: LeadItem) => l.rating >= minRating);
-    setLeads(filtered.length > 0 ? filtered : fetchedLeads);
+    setLeads(filtered);
     setSourceInfo({ source, message, googleStatus });
     setIsLoading(false);
   };
@@ -287,7 +290,7 @@ function ProspeccaoPage() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        {/* Banner Informativo sobre Erro no Google Cloud */}
+        {/* Banner de Erro do Google Cloud */}
         {sourceInfo?.source === "google_error" && (
           <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-rose-500/5">
             <div className="flex items-start sm:items-center gap-3">
@@ -296,10 +299,10 @@ function ProspeccaoPage() {
               </div>
               <div className="space-y-0.5">
                 <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <span>Erro de Configuração no Google Cloud ({sourceInfo.googleStatus})</span>
+                  <span>Erro do Google Cloud ({sourceInfo.googleStatus})</span>
                 </h4>
                 <p className="text-xs text-rose-200/80 leading-relaxed">
-                  O Google retornou: <strong>"{sourceInfo.message}"</strong>. Para resolver: acesse o Google Cloud Console e <strong>vincule uma Conta de Faturamento (Billing Account)</strong> ao seu projeto (o Google dará $200 dólares de saldo grátis por mês).
+                  Detalhes: <strong>"{sourceInfo.message}"</strong>. Se a resposta for <code>REQUEST_DENIED</code>: acesse o Google Cloud Console e <strong>vincule uma Conta de Faturamento (Billing Account)</strong> ao projeto.
                 </p>
               </div>
             </div>
@@ -310,6 +313,26 @@ function ProspeccaoPage() {
               <Key size={14} />
               <span>Verificar Chave</span>
             </button>
+          </div>
+        )}
+
+        {/* Banner Informativo de Busca ao Vivo via API */}
+        {sourceInfo?.source === "google_api" && (
+          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                <Check size={18} />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>Busca ao Vivo no Google Maps Concluída</span>
+                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-mono">ONLINE</span>
+                </h4>
+                <p className="text-xs text-emerald-200/70">
+                  {sourceInfo.message || `Retornados ${leads.length} resultados reais de empresas diretamente da Google Places API.`}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -513,6 +536,12 @@ function ProspeccaoPage() {
                 <Loader2 size={36} className="animate-spin text-primary mx-auto" />
                 <p className="text-sm font-bold text-white">Buscando empresas no Google Maps...</p>
                 <p className="text-xs text-white/40">Filtrando telefones e presenças digitais</p>
+              </div>
+            ) : leads.length === 0 ? (
+              <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-white/10 p-6">
+                <Search size={36} className="text-white/20 mx-auto" />
+                <p className="text-base font-bold text-white">Nenhum lead sem site localizado nesta região.</p>
+                <p className="text-xs text-white/40">Tente desmarcar a opção "Priorizar Empresas Sem Website" ou buscar por outra região/nicho.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
