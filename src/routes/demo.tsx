@@ -17,7 +17,11 @@ import {
   Utensils,
   Play,
   Dog,
-  Palette
+  Palette,
+  Dumbbell,
+  Wrench,
+  ShoppingBag,
+  Globe
 } from "lucide-react";
 
 const TITLE = "Demonstração de Website — RDG Digital";
@@ -67,7 +71,7 @@ export const Route = createFileRoute("/demo")({
   component: FullSiteDemoPage,
 });
 
-// Temas e Estilos Customizados por Nicho (Light vs Dark, Paletas Únicas e Tipografia)
+// Temas e Estilos Premium por Nicho (Dark Luxo com Paletas Harmoniosas e Tipografia Adaptativa)
 interface NicheConfig {
   isDark: boolean;
   bgColor: string;
@@ -91,17 +95,17 @@ interface NicheConfig {
 }
 
 const NICHE_CONFIGS: Record<string, NicheConfig> = {
-  // RESTAURANTE & GASTRONOMIA (Dark Warm Terracotta, Gold Copper, Utensils)
+  // RESTAURANTE, BAR, BISTRÔ & GASTRONOMIA (Dark Warm Terracotta / Copper Gold)
   restaurante: {
     isDark: true,
-    bgColor: "#121212",
-    surfaceColor: "#1A1A1A",
-    cardBg: "#222222",
-    textColor: "#F5F5F5",
-    mutedTextColor: "#A3A3A3",
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    accentColor: "#D97706",
-    accentText: "#FFFFFF",
+    bgColor: "#0F0F12",
+    surfaceColor: "#17171C",
+    cardBg: "#1F1F26",
+    textColor: "#FAFAFA",
+    mutedTextColor: "#A1A1AA",
+    borderColor: "rgba(245, 158, 11, 0.2)",
+    accentColor: "#F59E0B",
+    accentText: "#000000",
     fontSerif: true,
     heroTagline: "Alta Gastronomia & Experiência Única",
     titleSpan: "Sabores",
@@ -113,36 +117,35 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
       "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
       { title: "Pratos Especiais da Casa", desc: "Receitas tradicionais elaboradas com ingredientes frescos e seleção especial do Chef.", price: "Consulte o Cardápio" },
-      { title: "Menu Degustação & Entradas", desc: "Porções exclusivas, tábuas de frios e entradas quentes preparadas no dia.", price: "A partir de R$ 38" },
-      { title: "Carta de Vinhos & Bebidas", desc: "Drinkeria autoral, sucos naturais e seleção de vinhos nacionais e importados.", price: "A partir de R$ 24" },
-      { title: "Sobremesas Artesanais", desc: "Doces caseiros, gelatos e receitas exclusivas para finalizar sua refeição.", price: "A partir de R$ 22" }
+      { title: "Menu Degustação & Entradas", desc: "Porções exclusivas, tábuas de frios e entradas quentes preparadas no dia.", price: "Consulte o Cardápio" },
+      { title: "Carta de Vinhos & Bebidas", desc: "Drinkeria autoral, sucos naturais e seleção de vinhos nacionais e importados.", price: "Consulte o Cardápio" },
+      { title: "Sobremesas Artesanais", desc: "Doces caseiros, gelatos e receitas exclusivas para finalizar sua refeição.", price: "Consulte o Cardápio" }
     ],
     stats: [
       { label: "Anos de Tradição", value: "10+" },
       { label: "Pratos Servidos", value: "30k+" },
-      { label: "Avaliação Média", value: "4.8" },
+      { label: "Avaliação Média", value: "4.9" },
       { label: "Chefs de Cozinha", value: "4" }
     ]
   },
 
-  // BARBEARIA (Dark, Gold, Classy Serif)
+  // BARBEARIA (Dark Midnight Onyx & Antique Brass Gold)
   barbearia: {
     isDark: true,
-    bgColor: "#0F0F0F",
-    surfaceColor: "#161616",
+    bgColor: "#0A0A0A",
+    surfaceColor: "#121212",
     cardBg: "#1A1A1A",
     textColor: "#F5F5F5",
     mutedTextColor: "#9CA3AF",
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    accentColor: "#C5A059",
+    borderColor: "rgba(212, 175, 55, 0.2)",
+    accentColor: "#D4AF37",
     accentText: "#0F0F0F",
     fontSerif: true,
-    heroTagline: "Estilo & Tradição · desde 2014",
+    heroTagline: "Estilo & Tradição · Corte & Barba",
     titleSpan: "Barbearia",
     titleSuffix: "Premium.",
     desc: "Redefinindo o cuidado masculino com técnicas clássicas, atmosfera exclusiva e uma equipe apaixonada pelo detalhe.",
@@ -154,30 +157,30 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
       "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
-      { title: "Corte Clássico & Fade", desc: "Corte na tesoura e máquina, finalizado com lavagem especial e styling.", price: "R$ 55" },
-      { title: "Barba com Toalha Quente", desc: "Modelagem com navalha, óleos essenciais e protocolo relaxante com toalha quente.", price: "R$ 45" },
-      { title: "Combo Grooming VIP", desc: "Corte completo + Barba na navalha + Sobrancelha + Bebida cortesia.", price: "R$ 90" },
-      { title: "Pigmentação & Camuflagem", desc: "Disfarce natural de falhas e alinhamento de fios com alta precisão.", price: "R$ 65" }
+      { title: "Corte Clássico & Fade", desc: "Corte na tesoura e máquina, finalizado com lavagem especial e styling.", price: "Agendar Horário" },
+      { title: "Barba com Toalha Quente", desc: "Modelagem com navalha, óleos essenciais e protocolo relaxante com toalha quente.", price: "Agendar Horário" },
+      { title: "Combo Grooming VIP", desc: "Corte completo + Barba na navalha + Sobrancelha + Bebida cortesia.", price: "Agendar Horário" },
+      { title: "Pigmentação & Camuflagem", desc: "Disfarce natural de falhas e alinhamento de fios com alta precisão.", price: "Agendar Horário" }
     ],
     stats: [
-      { label: "Anos de Tradição", value: "10+" },
+      { label: "Anos de Tradição", value: "8+" },
       { label: "Clientes Atendidos", value: "15k+" },
       { label: "Avaliação dos Clientes", value: "5.0" },
-      { label: "Especialistas", value: "6" }
+      { label: "Barbeiros Master", value: "6" }
     ]
   },
 
-  // ODONTOLOGIA & CLÍNICAS (Clean Light, Medical Cyan, Modern Sans)
+  // ODONTOLOGIA & CLÍNICAS (Tech Deep Cyan Dark Mode)
   odontologia: {
-    isDark: false,
-    bgColor: "#F8FAFC",
-    surfaceColor: "#FFFFFF",
-    cardBg: "#FFFFFF",
-    textColor: "#0F172A",
-    mutedTextColor: "#475569",
-    borderColor: "rgba(15, 23, 42, 0.08)",
-    accentColor: "#0284C7",
-    accentText: "#FFFFFF",
+    isDark: true,
+    bgColor: "#0B132B",
+    surfaceColor: "#1C2541",
+    cardBg: "#1C2541",
+    textColor: "#F8FAFC",
+    mutedTextColor: "#94A3B8",
+    borderColor: "rgba(0, 217, 255, 0.2)",
+    accentColor: "#00D9FF",
+    accentText: "#0B132B",
     fontSerif: false,
     heroTagline: "Odontologia Digital & Estética Humanizada",
     titleSpan: "Sorrisos",
@@ -203,17 +206,17 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // ESTÉTICA & SPA
+  // ESTÉTICA, SPA & BELEZA (Velvet Dark & Rose Gold Silk)
   estetica: {
-    isDark: false,
-    bgColor: "#FAF7F2",
-    surfaceColor: "#FFFFFF",
-    cardBg: "#FFFFFF",
-    textColor: "#2B2625",
-    mutedTextColor: "#6E6562",
-    borderColor: "rgba(43, 38, 37, 0.08)",
-    accentColor: "#C58882",
-    accentText: "#FFFFFF",
+    isDark: true,
+    bgColor: "#161217",
+    surfaceColor: "#201A22",
+    cardBg: "#29212C",
+    textColor: "#FAF5F7",
+    mutedTextColor: "#B8A7AF",
+    borderColor: "rgba(244, 114, 182, 0.2)",
+    accentColor: "#F472B6",
+    accentText: "#161217",
     fontSerif: true,
     heroTagline: "Beleza Natural & Rejuvenescimento",
     titleSpan: "Estética",
@@ -238,15 +241,15 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // PET SHOP & VETERINÁRIA
+  // PET SHOP & VETERINÁRIA (Warm Charcoal & Coral Orange)
   petshop: {
-    isDark: false,
-    bgColor: "#FFFBF5",
-    surfaceColor: "#FFFFFF",
-    cardBg: "#FFFFFF",
-    textColor: "#1C1917",
-    mutedTextColor: "#57534E",
-    borderColor: "rgba(28, 25, 23, 0.08)",
+    isDark: true,
+    bgColor: "#141210",
+    surfaceColor: "#1C1A17",
+    cardBg: "#24211D",
+    textColor: "#FAFAF9",
+    mutedTextColor: "#A8A29E",
+    borderColor: "rgba(249, 115, 22, 0.2)",
     accentColor: "#F97316",
     accentText: "#FFFFFF",
     fontSerif: false,
@@ -261,8 +264,8 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
       "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
-      { title: "Banho & Tosa Spa Humanizado", desc: "Shampoo hipoalergênico, secagem silenciosa e hidratação sem estresse pro pet.", price: "Sob Consulta" },
-      { title: "Consulta Veterinária Geral", desc: "Exame clínico preventivo, auscultação e acompanhamento de saúde contínuo.", price: "Sob Consulta" }
+      { title: "Banho & Tosa Spa Humanizado", desc: "Shampoo hipoalergênico, secagem silenciosa e hidratação sem estresse pro pet.", price: "Agendar Banho" },
+      { title: "Consulta Veterinária Geral", desc: "Exame clínico preventivo, auscultação e acompanhamento de saúde contínuo.", price: "Agendar Consulta" }
     ],
     stats: [
       { label: "Pets Atendidos", value: "6.2k+" },
@@ -272,7 +275,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // TATUAGEM & PIERCING
+  // TATUAGEM & PIERCING (Crimson Obsidian & Ruby Red)
   tatuagem: {
     isDark: true,
     bgColor: "#0A0A0A",
@@ -280,8 +283,8 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     cardBg: "#171717",
     textColor: "#FAFAFA",
     mutedTextColor: "#A3A3A3",
-    borderColor: "rgba(255, 255, 255, 0.12)",
-    accentColor: "#E63946",
+    borderColor: "rgba(239, 68, 68, 0.25)",
+    accentColor: "#EF4444",
     accentText: "#FFFFFF",
     fontSerif: true,
     heroTagline: "Arte na Pele & Biossegurança Absoluta",
@@ -305,7 +308,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // ADVOCACIA
+  // ADVOCACIA & JURÍDICO (Imperial Navy & Gold)
   advocacia: {
     isDark: true,
     bgColor: "#0B132B",
@@ -313,7 +316,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     cardBg: "#1C2541",
     textColor: "#F8FAFC",
     mutedTextColor: "#94A3B8",
-    borderColor: "rgba(255, 255, 255, 0.12)",
+    borderColor: "rgba(212, 175, 55, 0.25)",
     accentColor: "#D4AF37",
     accentText: "#0B132B",
     fontSerif: true,
@@ -338,17 +341,17 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // IMOBILIÁRIA
+  // IMOBILIÁRIA & ARQUITETURA (Architecture Charcoal & Amber Gold)
   imobiliaria: {
-    isDark: false,
-    bgColor: "#F8FAFC",
-    surfaceColor: "#FFFFFF",
-    cardBg: "#FFFFFF",
-    textColor: "#0F172A",
-    mutedTextColor: "#475569",
-    borderColor: "rgba(15, 23, 42, 0.08)",
-    accentColor: "#D97706",
-    accentText: "#FFFFFF",
+    isDark: true,
+    bgColor: "#111827",
+    surfaceColor: "#1F2937",
+    cardBg: "#1F2937",
+    textColor: "#F9FAFB",
+    mutedTextColor: "#9CA3AF",
+    borderColor: "rgba(245, 158, 11, 0.2)",
+    accentColor: "#F59E0B",
+    accentText: "#111827",
     fontSerif: false,
     heroTagline: "Imóveis de Alto Padrão & Oportunidades",
     titleSpan: "Soluções",
@@ -371,17 +374,83 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
-  // FALLBACK GERAL (Clean Executive Storefront - Sem Laptops/Escritório)
-  default: {
-    isDark: false,
-    bgColor: "#F8FAFC",
-    surfaceColor: "#FFFFFF",
-    cardBg: "#FFFFFF",
-    textColor: "#0F172A",
-    mutedTextColor: "#475569",
-    borderColor: "rgba(15, 23, 42, 0.08)",
-    accentColor: "#0284C7",
+  // ACADEMIAS & FITNESS (Kinetic Dark & Electric Cyan)
+  academia: {
+    isDark: true,
+    bgColor: "#0A0A0E",
+    surfaceColor: "#13131A",
+    cardBg: "#1A1A24",
+    textColor: "#F4F4F6",
+    mutedTextColor: "#A1A1AA",
+    borderColor: "rgba(16, 185, 129, 0.2)",
+    accentColor: "#10B981",
+    accentText: "#0A0A0E",
+    fontSerif: false,
+    heroTagline: "Treino de Alta Performance & Saúde",
+    titleSpan: "Evolução",
+    titleSuffix: "Física.",
+    desc: "Equipamentos modernos, acompanhamento com personal trainers e ambiente motivador para você superar seus limites.",
+    icon: Dumbbell,
+    heroFallback: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Musculação & Cardio de Elite", desc: "Área de pesos livres completa, esteiras com tela e aparelhos biomecânicos.", price: "Conhecer Planos" },
+      { title: "Aulas em Grupo & Funcional", desc: "Treinos dinâmicos de alta intensidade para queima calórica e condicionamento.", price: "Conhecer Planos" }
+    ],
+    stats: [
+      { label: "Alunos Ativos", value: "2.4k+" },
+      { label: "Resultado", value: "100%" },
+      { label: "Nota Média", value: "4.9" },
+      { label: "Professores", value: "8" }
+    ]
+  },
+
+  // OFICINAS & AUTOMOTIVO (Carbon Steel Dark & Racing Orange)
+  oficina: {
+    isDark: true,
+    bgColor: "#111115",
+    surfaceColor: "#1A1A20",
+    cardBg: "#22222A",
+    textColor: "#FAFAFA",
+    mutedTextColor: "#A1A1AA",
+    borderColor: "rgba(255, 87, 34, 0.25)",
+    accentColor: "#FF5722",
     accentText: "#FFFFFF",
+    fontSerif: false,
+    heroTagline: "Manutenção Preventiva & Diagnóstico Computadorizado",
+    titleSpan: "Centro",
+    titleSuffix: "Automotivo.",
+    desc: "Mecânica de precisão, alinhamento 3D, funilaria e revisão completa com peças de garantia e scanner avançado.",
+    icon: Wrench,
+    heroFallback: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Revisão Geral & Scanner", desc: "Análise computadorizada do motor, injeção eletrônica e sistema de freios.", price: "Solicitar Orçamento" },
+      { title: "Troca de Óleo & Filtros", desc: "Lubrificantes sintéticos de especificação original para preservar o motor.", price: "Solicitar Orçamento" }
+    ],
+    stats: [
+      { label: "Veículos Revisados", value: "12k+" },
+      { label: "Garantia nas Peças", value: "100%" },
+      { label: "Avaliação", value: "4.9" },
+      { label: "Mecânicos Certificados", value: "5" }
+    ]
+  },
+
+  // DEFAULT / FALLBACK GERAL (RDG Dark Mode Elegante com Cyan Neon)
+  default: {
+    isDark: true,
+    bgColor: "#0A0A0A",
+    surfaceColor: "#121212",
+    cardBg: "#181818",
+    textColor: "#FFFFFF",
+    mutedTextColor: "#A1A1AA",
+    borderColor: "rgba(0, 217, 255, 0.2)",
+    accentColor: "#00D9FF",
+    accentText: "#0A0A0A",
     fontSerif: false,
     heroTagline: "Atendimento VIP & Estrutura Moderna",
     titleSpan: "Empresa",
@@ -394,8 +463,8 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
       "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
-      { title: "Atendimento Sob Medida", desc: "Soluções completas desenhadas exatamente para atender sua necessidade.", price: "Sob Consulta" },
-      { title: "Agendamento Prático", desc: "Reserve seu horário de forma rápida pelo WhatsApp com flexibilidade.", price: "Sob Consulta" }
+      { title: "Atendimento Sob Medida", desc: "Soluções completas desenhadas exatamente para atender sua necessidade com excelência.", price: "Solicitar Informações" },
+      { title: "Agendamento Prático no WhatsApp", desc: "Reserve seu horário de forma rápida com agilidade e flexibilidade.", price: "Solicitar Informações" }
     ],
     stats: [
       { label: "Clientes Atendidos", value: "5k+" },
@@ -410,7 +479,6 @@ function FullSiteDemoPage() {
   const search = Route.useSearch();
   const [storedLead, setStoredLead] = useState<any>(null);
 
-  // Tentar restaurar o objeto de lead 100% completo da sessionStorage ao carregar
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
@@ -438,7 +506,6 @@ function FullSiteDemoPage() {
   const reviews = storedLead?.user_ratings_total || search.reviews || "340";
   const googleMapsUrl = storedLead?.google_maps_url || `https://www.google.com/maps/search/${encodeURIComponent(nome + " " + cidade)}`;
 
-  // Parse de fotos reais da empresa
   let realGooglePhotos: string[] = storedLead?.photos || [];
   if (realGooglePhotos.length === 0 && search.photos) {
     try {
@@ -449,22 +516,20 @@ function FullSiteDemoPage() {
     } catch (e) {}
   }
 
-  // Parse de avaliações reais de clientes
   let realReviewsList: { author_name: string; rating: number; text: string; relative_time_description?: string }[] = storedLead?.reviews_list || [];
   if (realReviewsList.length === 0 && search.reviews_json) {
     try {
-      const parsed = JSON.parse(search.reviews_json);
+      const parsed: any = JSON.parse(search.reviews_json);
       if (Array.isArray(parsed) && parsed.length > 0) {
         realReviewsList = parsed;
       }
     } catch (e) {}
   }
 
-  // Parse de horários reais de funcionamento
   let realOpeningHours: string[] = storedLead?.opening_hours || [];
   if (realOpeningHours.length === 0 && search.hours_json) {
     try {
-      const parsed = JSON.parse(search.hours_json);
+      const parsed: any = JSON.parse(search.hours_json);
       if (Array.isArray(parsed) && parsed.length > 0) {
         realOpeningHours = parsed;
       }
@@ -474,26 +539,103 @@ function FullSiteDemoPage() {
   const defaultMsg = encodeURIComponent(`Olá! Vi o site oficial da *${nome}* em ${cidade} e gostaria de agendar um atendimento.`);
   const waUrl = `https://wa.me/${waNum}?text=${defaultMsg}`;
 
-  // Seleção de Nicho com Mapeamento Inteligente
-  const lowerCat = categoria.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  
+  // RECONHECIMENTO ULTRA-AMPLO DE NICHO COMBINANDO NOME E CATEGORIA DO GOOGLE MAPS
+  const fullSearchStr = `${categoria} ${nome} ${search.categoria || ""} ${search.nome || ""}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
   let catKey = "default";
-  if (lowerCat.includes("barbea") || lowerCat.includes("cabel") || lowerCat.includes("barber")) {
-    catKey = "barbearia";
-  } else if (lowerCat.includes("odonto") || lowerCat.includes("denti") || lowerCat.includes("sorriso") || lowerCat.includes("ortodon")) {
-    catKey = "odontologia";
-  } else if (lowerCat.includes("estetic") || lowerCat.includes("spa") || lowerCat.includes("beleza") || lowerCat.includes("harmoniz")) {
-    catKey = "estetica";
-  } else if (lowerCat.includes("pet") || lowerCat.includes("vet") || lowerCat.includes("animal") || lowerCat.includes("canin")) {
-    catKey = "petshop";
-  } else if (lowerCat.includes("tatuag") || lowerCat.includes("tattoo") || lowerCat.includes("piercing")) {
-    catKey = "tatuagem";
-  } else if (lowerCat.includes("advoc") || lowerCat.includes("direit") || lowerCat.includes("jurid")) {
-    catKey = "advocacia";
-  } else if (lowerCat.includes("imobil") || lowerCat.includes("corret") || lowerCat.includes("imovel")) {
-    catKey = "imobiliaria";
-  } else if (lowerCat.includes("restauran") || lowerCat.includes("bistr") || lowerCat.includes("pizz") || lowerCat.includes("hamburg") || lowerCat.includes("comida") || lowerCat.includes("gourmet") || lowerCat.includes("bar") || lowerCat.includes("boteco")) {
+  if (
+    fullSearchStr.includes("restauran") ||
+    fullSearchStr.includes("bistro") ||
+    fullSearchStr.includes("pizz") ||
+    fullSearchStr.includes("hamburg") ||
+    fullSearchStr.includes("comida") ||
+    fullSearchStr.includes("gourmet") ||
+    fullSearchStr.includes("bar") ||
+    fullSearchStr.includes("boteco") ||
+    fullSearchStr.includes("churrasc") ||
+    fullSearchStr.includes("lanchon") ||
+    fullSearchStr.includes("cafe") ||
+    fullSearchStr.includes("padar") ||
+    fullSearchStr.includes("docer") ||
+    fullSearchStr.includes("confeitar") ||
+    fullSearchStr.includes("sushi") ||
+    fullSearchStr.includes("pub") ||
+    fullSearchStr.includes("food") ||
+    fullSearchStr.includes("massa")
+  ) {
     catKey = "restaurante";
+  } else if (
+    fullSearchStr.includes("barbea") ||
+    fullSearchStr.includes("barber") ||
+    fullSearchStr.includes("cabelo masculino") ||
+    fullSearchStr.includes("navalha")
+  ) {
+    catKey = "barbearia";
+  } else if (
+    fullSearchStr.includes("odonto") ||
+    fullSearchStr.includes("denti") ||
+    fullSearchStr.includes("sorriso") ||
+    fullSearchStr.includes("ortodon") ||
+    fullSearchStr.includes("implant")
+  ) {
+    catKey = "odontologia";
+  } else if (
+    fullSearchStr.includes("estetic") ||
+    fullSearchStr.includes("spa") ||
+    fullSearchStr.includes("beleza") ||
+    fullSearchStr.includes("harmoniz") ||
+    fullSearchStr.includes("salao") ||
+    fullSearchStr.includes("cabel") ||
+    fullSearchStr.includes("unha") ||
+    fullSearchStr.includes("sobrancelha") ||
+    fullSearchStr.includes("maquiag")
+  ) {
+    catKey = "estetica";
+  } else if (
+    fullSearchStr.includes("pet") ||
+    fullSearchStr.includes("vet") ||
+    fullSearchStr.includes("animal") ||
+    fullSearchStr.includes("canin") ||
+    fullSearchStr.includes("banho e tosa")
+  ) {
+    catKey = "petshop";
+  } else if (
+    fullSearchStr.includes("tatuag") ||
+    fullSearchStr.includes("tattoo") ||
+    fullSearchStr.includes("piercing")
+  ) {
+    catKey = "tatuagem";
+  } else if (
+    fullSearchStr.includes("advoc") ||
+    fullSearchStr.includes("direit") ||
+    fullSearchStr.includes("jurid") ||
+    fullSearchStr.includes("law")
+  ) {
+    catKey = "advocacia";
+  } else if (
+    fullSearchStr.includes("imobil") ||
+    fullSearchStr.includes("corret") ||
+    fullSearchStr.includes("imovel") ||
+    fullSearchStr.includes("arquitet") ||
+    fullSearchStr.includes("construt")
+  ) {
+    catKey = "imobiliaria";
+  } else if (
+    fullSearchStr.includes("academ") ||
+    fullSearchStr.includes("crossfit") ||
+    fullSearchStr.includes("fitness") ||
+    fullSearchStr.includes("personal") ||
+    fullSearchStr.includes("pilates")
+  ) {
+    catKey = "academia";
+  } else if (
+    fullSearchStr.includes("mecanic") ||
+    fullSearchStr.includes("oficin") ||
+    fullSearchStr.includes("auto") ||
+    fullSearchStr.includes("funilar") ||
+    fullSearchStr.includes("carro")
+  ) {
+    catKey = "oficina";
   }
 
   const config = NICHE_CONFIGS[catKey] || NICHE_CONFIGS["default"];
@@ -504,7 +646,7 @@ function FullSiteDemoPage() {
   const heroImage = realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback;
   const galleryImages = realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback;
 
-  // Geração Dinâmica de Serviços Personalizados com Base no Nome Específico do Lead
+  // Geração Dinâmica de Serviços Personalizados por Nome do Estabelecimento
   const lowerName = nome.toLowerCase();
   let dynamicServices = config.services;
 
@@ -543,8 +685,8 @@ function FullSiteDemoPage() {
       <div
         className="p-3 text-center text-xs font-bold flex items-center justify-center gap-2 shadow-md sticky top-0 z-50 transition-colors"
         style={{
-          backgroundColor: config.isDark ? "#161616" : "#E2E8F0",
-          color: config.textColor,
+          backgroundColor: "#161616",
+          color: "#FAFAFA",
           borderBottom: `1px solid ${config.borderColor}`,
         }}
       >
@@ -554,7 +696,7 @@ function FullSiteDemoPage() {
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="ml-3 px-3 py-1.5 font-extrabold rounded-lg transition-all text-[11px] inline-flex items-center gap-1 shadow"
+          className="ml-3 px-3.5 py-1.5 font-black rounded-lg transition-all text-[11px] inline-flex items-center gap-1 shadow"
           style={{
             backgroundColor: config.accentColor,
             color: config.accentText,
@@ -569,7 +711,7 @@ function FullSiteDemoPage() {
       <header
         className="backdrop-blur-md border-b px-5 sm:px-8 h-20 flex items-center justify-between sticky top-11 z-40 transition-colors"
         style={{
-          backgroundColor: config.isDark ? "rgba(15, 15, 15, 0.9)" : "rgba(255, 255, 255, 0.9)",
+          backgroundColor: "rgba(15, 15, 18, 0.9)",
           borderColor: config.borderColor,
         }}
       >
@@ -614,7 +756,7 @@ function FullSiteDemoPage() {
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] transition-all shadow-xl rounded-xl flex items-center gap-2"
+            className="px-5 py-3 text-xs font-black uppercase tracking-[0.18em] transition-all shadow-xl rounded-xl flex items-center gap-2"
             style={{ background: config.accentColor, color: config.accentText }}
           >
             <MessageCircle size={15} />
@@ -627,7 +769,6 @@ function FullSiteDemoPage() {
       <section className="relative overflow-hidden py-16 sm:py-24 px-5 sm:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
           
-          {/* Lado Esquerdo: Textos & Botões */}
           <div className="lg:col-span-7 space-y-6">
             <div className="flex items-center gap-3">
               <span className="h-px w-10" style={{ background: config.accentColor }} />
@@ -665,7 +806,7 @@ function FullSiteDemoPage() {
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative inline-flex items-center gap-2 px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-[0.18em] transition-transform duration-300 hover:scale-105 shadow-2xl rounded-xl"
+                className="group relative inline-flex items-center gap-2 px-8 py-4 text-xs sm:text-sm font-black uppercase tracking-[0.18em] transition-transform duration-300 hover:scale-105 shadow-2xl rounded-xl"
                 style={{ background: config.accentColor, color: config.accentText }}
               >
                 <MessageCircle size={18} />
@@ -753,7 +894,6 @@ function FullSiteDemoPage() {
             </div>
           </div>
 
-          {/* Lado Direito: Imagem Principal Real 4:5 */}
           <div className="lg:col-span-5 relative">
             <div
               className="relative aspect-[4/5] w-full overflow-hidden shadow-2xl rounded-2xl border"
@@ -771,15 +911,14 @@ function FullSiteDemoPage() {
                 className="w-full h-full object-cover transition duration-700 hover:scale-105 filter brightness-95"
               />
 
-              {/* Card Flutuante de Horário de Funcionamento */}
               {realOpeningHours.length > 0 && (
                 <div
                   className="absolute bottom-5 left-5 right-5 p-4 shadow-2xl backdrop-blur-md rounded-xl border border-l-4"
                   style={{
-                    backgroundColor: config.isDark ? "rgba(22, 22, 22, 0.9)" : "rgba(255, 255, 255, 0.9)",
+                    backgroundColor: "rgba(22, 22, 26, 0.95)",
                     borderColor: config.borderColor,
                     borderLeftColor: config.accentColor,
-                    color: config.textColor,
+                    color: "#FFFFFF",
                   }}
                 >
                   <div className="text-[10px] font-bold uppercase tracking-[0.25em] mb-1 flex items-center gap-1.5" style={{ color: config.accentColor }}>
@@ -792,7 +931,6 @@ function FullSiteDemoPage() {
                 </div>
               )}
 
-              {/* Badge de Nota Média */}
               <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow-lg bg-white text-black border border-black/10">
                 <span className="font-extrabold text-amber-500">⭐ {rating}</span>
                 <div className="flex gap-0.5 text-amber-500">
@@ -851,7 +989,7 @@ function FullSiteDemoPage() {
             {dynamicServices.map((srv, idx) => (
               <div
                 key={idx}
-                className="group p-6 transition backdrop-blur-sm rounded-2xl flex flex-col justify-between border"
+                className="group p-6 transition backdrop-blur-sm rounded-2xl flex flex-col justify-between border shadow-lg"
                 style={{
                   backgroundColor: config.cardBg,
                   borderColor: config.borderColor,
@@ -926,7 +1064,7 @@ function FullSiteDemoPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {galleryImages.map((imgUrl, i) => (
-              <div key={i} className="group overflow-hidden rounded-2xl aspect-square border relative" style={{ borderColor: config.borderColor }}>
+              <div key={i} className="group overflow-hidden rounded-2xl aspect-square border relative shadow-md" style={{ borderColor: config.borderColor }}>
                 <img
                   src={imgUrl}
                   alt={`${nome} foto ${i + 1}`}
@@ -1005,7 +1143,7 @@ function FullSiteDemoPage() {
             ]).map((rev, i) => (
               <figure
                 key={i}
-                className="p-8 flex flex-col rounded-2xl justify-between border relative"
+                className="p-8 flex flex-col rounded-2xl justify-between border relative shadow-md"
                 style={{
                   backgroundColor: config.cardBg,
                   borderColor: config.borderColor,
@@ -1095,7 +1233,7 @@ function FullSiteDemoPage() {
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 font-bold uppercase tracking-[0.18em] transition-all shadow-xl rounded-xl"
+                className="inline-flex items-center gap-2 px-6 py-3 font-black uppercase tracking-[0.18em] transition-all shadow-xl rounded-xl"
                 style={{ background: config.accentColor, color: config.accentText }}
               >
                 <MessageCircle size={16} />
