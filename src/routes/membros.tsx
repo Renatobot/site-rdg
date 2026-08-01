@@ -36,6 +36,9 @@ import {
   Tv,
   Menu,
   X,
+  Search,
+  Globe,
+  MapPin,
 } from "lucide-react";
 
 const TITLE = "Área de Membros & Treinamento VIP — RDG instaPRO";
