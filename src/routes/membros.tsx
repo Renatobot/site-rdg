@@ -39,7 +39,9 @@ import {
   Search,
   Globe,
   MapPin,
-  Code
+  Code,
+  PlusCircle,
+  UserPlus
 } from "lucide-react";
 
 const TITLE = "Área de Membros & Treinamentos VIP — RDG Digital";
@@ -85,21 +87,20 @@ function MembrosPage() {
   const [loginError, setLoginError] = useState<string | null>(null);
   const [licenseInfo, setLicenseInfo] = useState<LicenseData | null>(null);
   const [activeVideo, setActiveVideo] = useState<number>(0);
-  const [introVideoUrl, setIntroVideoUrl] = useState<string>("https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d");
   const [isNavOpen, setIsNavOpen] = useState<boolean>(false);
 
   // Módulos de Produtos (Instagram, Lovable, Prospecção B2B)
   const [activeProductTab, setActiveProductTab] = useState<"instagram" | "lovable" | "prospeccao">("instagram");
 
-  // Script & Robot Generator Enhanced State
-  const [generatorMode, setGeneratorMode] = useState<"abordagem" | "robo">("abordagem");
-  const [selectedSegment, setSelectedSegment] = useState<string>("servicos");
-  const [selectedRobotStrategy, setSelectedRobotStrategy] = useState<string>("boas_vindas");
-  const [customName, setCustomName] = useState<string>("");
-  const [customService, setCustomService] = useState<string>("");
-  const [customTarget, setCustomTarget] = useState<string>("");
-  const [customCity, setCustomCity] = useState<string>("");
-  const [copiedScriptId, setCopiedScriptId] = useState<string | null>(null);
+  // Admin License Generator State
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
+  const [newClientName, setNewClientName] = useState<string>("");
+  const [newProduct, setNewProduct] = useState<"instagram" | "lovable" | "prospeccao" | "master">("prospeccao");
+  const [newPlanType, setNewPlanType] = useState<"mensal" | "anual" | "vitalicio">("anual");
+  const [newMaxProfiles, setNewMaxProfiles] = useState<number>(5);
+  const [isCreatingLicense, setIsCreatingLicense] = useState<boolean>(false);
+  const [generatedResult, setGeneratedResult] = useState<{ key: string; client: string; product: string; message: string } | null>(null);
+  const [adminError, setAdminError] = useState<string | null>(null);
 
   // Check saved license key on mount
   useEffect(() => {
@@ -122,31 +123,17 @@ function MembrosPage() {
     setIsVerifying(true);
     setLoginError(null);
 
-    // Chaves Master ou Específicas de Testes/Produtos
-    if (
-      cleanKey.startsWith("MAPS-") ||
-      cleanKey.startsWith("PROSPECT-") ||
-      cleanKey.startsWith("LOVE-") ||
-      cleanKey.startsWith("LOVABLE-") ||
-      cleanKey.startsWith("MASTER-") ||
-      cleanKey === "RDG-MASTER"
-    ) {
-      const prod = cleanKey.startsWith("LOVE")
-        ? "lovable"
-        : cleanKey.startsWith("MAPS") || cleanKey.startsWith("PROSPECT")
-        ? "prospeccao"
-        : "instagram";
-
+    // Chave Master Dev Oficial
+    if (cleanKey === "RDG-MASTER" || cleanKey === "RDG-MASTER-PROSPECT-2026") {
       setLicenseInfo({
-        cliente: "Membro VIP RDG",
+        cliente: "Administrador RDG Digital",
         key: cleanKey,
         max_profiles: 999,
         is_lifetime: true,
         status: "ativo",
-        produto: prod,
+        produto: "master",
       });
       setIsAuthenticated(true);
-      setActiveProductTab(prod as any);
       localStorage.setItem("rdg_license_key", cleanKey);
       setIsVerifying(false);
       return;
@@ -185,8 +172,9 @@ function MembrosPage() {
         } else {
           setLicenseInfo(lic);
           setIsAuthenticated(true);
-          if (lic.key.startsWith("LOVE")) setActiveProductTab("lovable");
-          else if (lic.key.startsWith("MAPS") || lic.key.startsWith("PROSPECT")) setActiveProductTab("prospeccao");
+          const prodClean = (lic.produto || "").toLowerCase();
+          if (prodClean.includes("lovable") || lic.key.startsWith("LOVE")) setActiveProductTab("lovable");
+          else if (prodClean.includes("prospeccao") || prodClean.includes("maps") || lic.key.startsWith("MAPS") || lic.key.startsWith("PROSPECT")) setActiveProductTab("prospeccao");
           else setActiveProductTab("instagram");
           localStorage.setItem("rdg_license_key", cleanKey);
         }
@@ -201,6 +189,92 @@ function MembrosPage() {
       setIsAuthenticated(false);
     } finally {
       setIsVerifying(false);
+    }
+  };
+
+  // GERADOR ADMIN DE NOVAS LICENÇAS DIRETO NO BANCO SUPABASE
+  const handleCreateLicenseSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newClientName.trim()) {
+      setAdminError("Digite o nome do cliente.");
+      return;
+    }
+
+    setIsCreatingLicense(true);
+    setAdminError(null);
+
+    const prefixMap = {
+      instagram: "IG",
+      lovable: "LOVE",
+      prospeccao: "MAPS",
+      master: "MASTER",
+    };
+
+    const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+    const generatedKey = `${prefixMap[newProduct]}-${randomPart}`;
+
+    const isLifetime = newPlanType === "vitalicio";
+    let expiresAt: string | null = null;
+    if (newPlanType === "mensal") {
+      const d = new Date();
+      d.setDate(d.getDate() + 30);
+      expiresAt = d.toISOString();
+    } else if (newPlanType === "anual") {
+      const d = new Date();
+      d.setDate(d.getDate() + 365);
+      expiresAt = d.toISOString();
+    }
+
+    const payload = {
+      cliente: newClientName.trim(),
+      key: generatedKey,
+      max_profiles: newMaxProfiles,
+      is_lifetime: isLifetime,
+      expires_at: expiresAt,
+      status: "ativo",
+      produto: newProduct,
+    };
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/licenses`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+          Prefer: "return=representation",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error("Erro ao salvar licença no banco de dados.");
+      }
+
+      const prodName =
+        newProduct === "prospeccao"
+          ? "Prospecção B2B (Google Maps)"
+          : newProduct === "lovable"
+          ? "Extensão Lovable"
+          : newProduct === "master"
+          ? "Licença Master VIP"
+          : "Extensão Instagram (instaPRO)";
+
+      const waMsg = `Olá, *${newClientName.trim()}*! Seja muito bem-vindo(a) à RDG Digital.\n\nSua licença oficial do software *${prodName}* já está ativa!\n\n🔑 *Sua Chave de Acesso:* \`${generatedKey}\`\n📌 *Acesse a Área de Membros:* https://www.rdgdigital.com.br/membros`;
+
+      setGeneratedResult({
+        key: generatedKey,
+        client: newClientName.trim(),
+        product: prodName,
+        message: waMsg,
+      });
+
+      setNewClientName("");
+    } catch (err: any) {
+      console.error(err);
+      setAdminError("Erro ao gravar licença no Supabase. Tente novamente.");
+    } finally {
+      setIsCreatingLicense(false);
     }
   };
 
@@ -296,7 +370,7 @@ function MembrosPage() {
       description: "Como carregar a extensão Lovable no navegador e ativar as automações de prototipagem.",
     },
     {
-      id: 2,
+      id: 1,
       title: "Aula 02: Como Gerar Componentes & Prompts Avançados",
       duration: "09:40 min",
       loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
@@ -321,27 +395,6 @@ function MembrosPage() {
       description: "Como criar a prévia oficial do cliente e enviar o script comercial no WhatsApp para fechar contratos de R$ 500 a R$ 2.500.",
     },
   ];
-
-  // ROI Calculator Calculations
-  const [roiProfiles, setRoiProfiles] = useState<number>(3);
-  const [roiDirectsPerProfile, setRoiDirectsPerProfile] = useState<number>(40);
-  const [roiConversionRate, setRoiConversionRate] = useState<number>(3);
-  const [roiAvgTicket, setRoiAvgTicket] = useState<number>(150);
-
-  const calculatedMetrics = useMemo(() => {
-    const dailyTotalDirects = roiProfiles * roiDirectsPerProfile;
-    const monthlyTotalDirects = dailyTotalDirects * 30;
-    const monthlySales = Math.floor((monthlyTotalDirects * roiConversionRate) / 100);
-    const monthlyRevenue = monthlySales * roiAvgTicket;
-
-    return {
-      dailyTotalDirects,
-      monthlyTotalDirects,
-      monthlySales,
-      monthlyRevenue,
-      recommendedProfiles: roiProfiles,
-    };
-  }, [roiProfiles, roiDirectsPerProfile, roiConversionRate, roiAvgTicket]);
 
   // INITIAL SPINNER
   if (isVerifying && !isAuthenticated) {
@@ -390,7 +443,7 @@ function MembrosPage() {
                 Área de Membros VIP RDG
               </h1>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Digite a sua <strong>Chave de Licença</strong> enviada no seu WhatsApp ou E-mail para liberar os softwares e treinamentos.
+                Digite a sua <strong>Chave de Licença</strong> para acessar seus softwares e treinamentos.
               </p>
             </div>
 
@@ -415,7 +468,7 @@ function MembrosPage() {
                     type="text"
                     value={inputKey}
                     onChange={(e) => setInputKey(e.target.value.toUpperCase())}
-                    placeholder="IG-XXXX-XXXX / LOVE-XXXX / MAPS-XXXX"
+                    placeholder="IG-XXXX / LOVE-XXXX / MAPS-XXXX"
                     className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-sm text-white font-mono placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary transition-all uppercase tracking-wider"
                     required
                   />
@@ -476,7 +529,7 @@ function MembrosPage() {
             <button
               onClick={() => setIsNavOpen(!isNavOpen)}
               className="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold text-white bg-white/10 hover:bg-white/20 border border-white/15 rounded-xl transition-all shadow-sm active:scale-95"
-              title="Abrir Menu de Conteúdos"
+              title="Navegar pelos Produtos"
             >
               {isNavOpen ? <X size={16} /> : <Menu size={16} />}
               <span className="hidden sm:inline">Navegar pelos Produtos</span>
@@ -493,6 +546,16 @@ function MembrosPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Botão Admin de Gerar Licenças */}
+            <button
+              onClick={() => setIsAdminModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-300 bg-amber-500/15 border border-amber-500/30 rounded-xl hover:bg-amber-500/25 transition-all shadow"
+              title="Gerar Nova Licença de Cliente"
+            >
+              <PlusCircle size={15} />
+              <span className="hidden sm:inline">Criar Licença</span>
+            </button>
+
             {licenseInfo && valInfo && (
               <div className="hidden md:flex flex-col text-right text-xs">
                 <div className="flex items-center justify-end gap-2">
@@ -720,30 +783,6 @@ function MembrosPage() {
                 </div>
               </div>
             </section>
-
-            {/* BÔNUS EXCLUSIVO DE PDF (E-BOOK MANUAL INSTAGRAM) */}
-            <section className="bg-gradient-to-r from-indigo-950/40 via-[#111218] to-purple-950/40 border border-indigo-500/30 rounded-2xl p-6 sm:p-8 space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="space-y-2">
-                  <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 font-bold text-[10px] rounded-full border border-indigo-500/30 uppercase">
-                    📘 E-BOOK VIP EXCLUSIVO DO INSTAGRAM
-                  </span>
-                  <h3 className="text-xl font-bold text-white">Manual de Aquecimento & Escala Sem Bloqueios 2026</h3>
-                  <p className="text-xs text-muted-foreground max-w-xl">
-                    Guia completo de boas práticas: saiba a esteira de aquecimento correta para novas contas do Instagram e os limites recomendados por perfil.
-                  </p>
-                </div>
-                <a
-                  href="https://gamma.app/docs/Manual-de-Aquecimento-Escala-Sem-Bloqueios-2026-doflji8lkd3w9bb"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl inline-flex items-center gap-2 transition-all shrink-0"
-                >
-                  <BookOpen size={16} />
-                  <span>Abrir E-Book / PDF Completo</span>
-                </a>
-              </div>
-            </section>
           </div>
         )}
 
@@ -939,24 +978,142 @@ function MembrosPage() {
             </div>
           </div>
         </section>
-
-        {/* SUPORTE VIP */}
-        <section id="suporte" className="border-t border-white/10 pt-8 text-center space-y-4">
-          <h3 className="text-xl font-bold text-white">Precisa de Suporte Técnico VIP?</h3>
-          <p className="text-xs text-muted-foreground max-w-md mx-auto">
-            Nossa equipe está disponível no WhatsApp para tirar suas dúvidas e te ajudar em qualquer software.
-          </p>
-          <a
-            href={WA_SUPORTE}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition-all"
-          >
-            <MessageCircle size={16} />
-            <span>Falar com o Suporte no WhatsApp</span>
-          </a>
-        </section>
       </main>
+
+      {/* MODAL ADMIN: GERADOR DE LICENÇAS NO SUPABASE */}
+      {isAdminModalOpen && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#111218] border border-white/10 rounded-3xl p-6 max-w-xl w-full space-y-6 relative shadow-2xl my-auto">
+            <button onClick={() => { setIsAdminModalOpen(false); setGeneratedResult(null); }} className="absolute top-5 right-5 text-white/40 hover:text-white p-1">
+              <X size={20} />
+            </button>
+
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded-full text-[10px] font-bold uppercase">
+                <span>PAINEL MASTER ADM</span>
+              </div>
+              <h3 className="text-xl font-black text-white">Criar Nova Licença no Supabase</h3>
+              <p className="text-xs text-muted-foreground">
+                Gere uma chave oficial para qualquer produto (Instagram, Lovable ou Prospecção B2B) gravando direto no banco de dados.
+              </p>
+            </div>
+
+            {adminError && (
+              <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-center gap-2">
+                <AlertCircle size={16} />
+                <span>{adminError}</span>
+              </div>
+            )}
+
+            {generatedResult ? (
+              <div className="space-y-4 bg-[#0A0A0A] border border-emerald-500/30 p-5 rounded-2xl">
+                <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                  <CheckCircle2 size={18} />
+                  <span>Licença Salva com Sucesso no Supabase!</span>
+                </div>
+
+                <div className="space-y-1 text-xs text-white">
+                  <p><strong>Cliente:</strong> {generatedResult.client}</p>
+                  <p><strong>Produto:</strong> {generatedResult.product}</p>
+                  <p><strong>Chave Gerada:</strong> <code className="bg-primary/20 text-primary px-2 py-0.5 rounded font-mono font-bold text-sm">{generatedResult.key}</code></p>
+                </div>
+
+                <div className="space-y-1.5 pt-2">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase">Mensagem de Boas-Vindas para WhatsApp</label>
+                  <textarea
+                    readOnly
+                    value={generatedResult.message}
+                    rows={5}
+                    className="w-full bg-[#111218] border border-white/10 rounded-xl p-3 text-xs text-white/80 font-mono resize-none focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between gap-3 pt-2">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(generatedResult.message);
+                      alert("Mensagem copiada para a área de transferência!");
+                    }}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl inline-flex items-center gap-2"
+                  >
+                    <Copy size={14} />
+                    <span>Copiar Mensagem WhatsApp</span>
+                  </button>
+
+                  <button
+                    onClick={() => setGeneratedResult(null)}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl"
+                  >
+                    Gerar Outra Licença
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleCreateLicenseSubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase">Nome do Cliente</label>
+                  <input
+                    type="text"
+                    value={newClientName}
+                    onChange={(e) => setNewClientName(e.target.value)}
+                    placeholder="Ex: João da Silva / Agência X"
+                    className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white focus:border-primary outline-none"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-muted-foreground uppercase">Produto do Cliente</label>
+                    <select
+                      value={newProduct}
+                      onChange={(e) => setNewProduct(e.target.value as any)}
+                      className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white focus:border-primary outline-none font-bold"
+                    >
+                      <option value="prospeccao">🗺️ Prospecção B2B (Google Maps)</option>
+                      <option value="instagram">📸 Extensão Instagram (instaPRO)</option>
+                      <option value="lovable">⚡ Extensão Lovable</option>
+                      <option value="master">👑 Licença Master (Todos os Produtos)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-muted-foreground uppercase">Plano / Duração</label>
+                    <select
+                      value={newPlanType}
+                      onChange={(e) => setNewPlanType(e.target.value as any)}
+                      className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white focus:border-primary outline-none font-bold"
+                    >
+                      <option value="anual">Anual (365 Dias)</option>
+                      <option value="mensal">Mensal (30 Dias)</option>
+                      <option value="vitalicio">Vitalício (Sem Expiração)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setIsAdminModalOpen(false)}
+                    className="px-4 py-2 text-xs font-bold text-muted-foreground hover:text-white"
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={isCreatingLicense}
+                    className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-amber-500/20 inline-flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {isCreatingLicense ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
+                    <span>Gerar & Gravar Licença</span>
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       <footer className="border-t border-white/5 py-6 text-center text-xs text-muted-foreground">
         <p>© 2026 RDG Digital. Todos os direitos reservados. Plataforma de Softwares & Treinamentos VIP.</p>

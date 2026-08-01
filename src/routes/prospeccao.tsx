@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
 import { waLink } from "@/lib/site";
-import { LeadItem, LeadStatus, getProspeccaoLeadsServerFn, generateMockLeads } from "./api.prospeccao";
+import { LeadItem, LeadStatus, getProspeccaoLeadsServerFn } from "./api.prospeccao";
 import {
   Search,
   MapPin,
@@ -38,7 +38,9 @@ import {
   ShieldCheck,
   UserCheck,
   ChevronRight,
-  HelpCircle
+  HelpCircle,
+  Eye,
+  Share2
 } from "lucide-react";
 
 const TITLE = "Ferramenta de Prospecção B2B Google Maps — RDG Digital";
@@ -70,7 +72,7 @@ const KANBAN_COLUMNS: { id: LeadStatus; title: string; badgeColor: string; heade
 ];
 
 function ProspeccaoPage() {
-  // Autenticação de Rota / Validação de Licença Exclusiva da Ferramenta
+  // Autenticação de Rota / Validação de Licença Exclusiva
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isVerifying, setIsVerifying] = useState<boolean>(true);
   const [licenseInputKey, setLicenseInputKey] = useState<string>("");
@@ -78,7 +80,6 @@ function ProspeccaoPage() {
   const [userClientName, setUserClientName] = useState<string>("");
 
   const [activeTab, setActiveTab] = useState<"prospectar" | "salvos">("prospectar");
-  const [savedViewMode, setSavedViewMode] = useState<"kanban" | "grid">("kanban");
 
   // Filtros de Busca
   const [nicho, setNicho] = useState<string>("");
@@ -99,21 +100,13 @@ function ProspeccaoPage() {
   const [savedLeads, setSavedLeads] = useState<LeadItem[]>([]);
   const [sourceInfo, setSourceInfo] = useState<{ source: string; message?: string; googleStatus?: string } | null>(null);
 
-  // Drag and Drop Kanban State
-  const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
-  const [dragOverCol, setDragOverCol] = useState<LeadStatus | null>(null);
-
-  // Modal de Prévia Interativa de Site
-  const [selectedDemoLead, setSelectedDemoLead] = useState<LeadItem | null>(null);
-  const [copiedLink, setCopiedLink] = useState<boolean>(false);
-
   // Modal Gerador de Scripts de Abordagem WhatsApp
   const [scriptLead, setScriptLead] = useState<LeadItem | null>(null);
   const [copiedScriptIndex, setCopiedScriptIndex] = useState<number | null>(null);
 
-  // Verificar Chave de Licença de Acesso à Ferramenta de Prospecção (CHAVE ESPECÍFICA)
+  // Verificar Chave de Licença de Acesso à Ferramenta de Prospecção (CHAVE VERIFICADA NO SUPABASE)
   useEffect(() => {
-    const savedLicense = localStorage.getItem("prospeccao_license_key");
+    const savedLicense = localStorage.getItem("prospeccao_license_key") || localStorage.getItem("rdg_license_key");
     if (savedLicense) {
       validateLicenseKey(savedLicense, true);
     } else {
@@ -146,24 +139,16 @@ function ProspeccaoPage() {
     setIsVerifying(true);
     setLicenseError(null);
 
-    // Chaves Master / Dev de acesso imediato a prospeccao
-    if (cleanKey.startsWith("MAPS-") || cleanKey.startsWith("PROSPECT-") || cleanKey.startsWith("MASTER-") || cleanKey === "RDG-MASTER-PROSPECT") {
+    // Chave Master Dev Oficial
+    if (cleanKey === "RDG-MASTER-PROSPECT-2026") {
       setIsAuthenticated(true);
-      setUserClientName("Membro Prospecção B2B");
+      setUserClientName("Dev Master Prospecção B2B");
       localStorage.setItem("prospeccao_license_key", cleanKey);
       setIsVerifying(false);
       return;
     }
 
-    // Rejeitar expressamente chaves padrao de Instagram (IG-) para forcar compra/ativacao da Prospeccao B2B
-    if (cleanKey.startsWith("IG-")) {
-      setLicenseError("Esta chave é do software de Instagram (instaPRO). Adquira a licença exclusiva do Software de Prospecção B2B.");
-      if (isAutoCheck) localStorage.removeItem("prospeccao_license_key");
-      setIsAuthenticated(false);
-      setIsVerifying(false);
-      return;
-    }
-
+    // CONSULTA OBRIGATÓRIA NO BANCO DE DADOS SUPABASE (Evita hack/modificação de prefixos)
     try {
       const response = await fetch(
         `${SUPABASE_URL}/rest/v1/licenses?key=eq.${encodeURIComponent(cleanKey)}&select=*`,
@@ -183,13 +168,12 @@ function ProspeccaoPage() {
           const isExpired = lic.expires_at && new Date(lic.expires_at) < new Date();
           const prodClean = (lic.produto || "").toLowerCase();
 
-          // Verificar estritamente se a chave pertence ao produto de Prospecção B2B ou Master
+          // Verificar estritamente se o registro no Supabase permite acesso ao produto Prospecção
           const hasAccessToProspeccao =
             prodClean.includes("prospeccao") ||
             prodClean.includes("maps") ||
             prodClean.includes("master") ||
-            cleanKey.startsWith("MAPS-") ||
-            cleanKey.startsWith("PROSPECT-");
+            lic.is_lifetime;
 
           if (lic.status && lic.status.toLowerCase() === "inativo") {
             setLicenseError("Esta chave de licença está inativa. Fale com o suporte.");
@@ -200,7 +184,7 @@ function ProspeccaoPage() {
             if (isAutoCheck) localStorage.removeItem("prospeccao_license_key");
             setIsAuthenticated(false);
           } else if (!hasAccessToProspeccao) {
-            setLicenseError("Esta chave não possui permissão para o Software de Prospecção. Adquira a licença dedicada.");
+            setLicenseError("Esta chave é do produto Instagram/Lovable. Adquira a licença dedicada do Software de Prospecção B2B para acessar.");
             if (isAutoCheck) localStorage.removeItem("prospeccao_license_key");
             setIsAuthenticated(false);
           } else {
@@ -209,7 +193,7 @@ function ProspeccaoPage() {
             localStorage.setItem("prospeccao_license_key", cleanKey);
           }
         } else {
-          setLicenseError(`Chave "${cleanKey}" não localizada. Verifique e tente novamente.`);
+          setLicenseError(`Chave "${cleanKey}" não foi localizada no banco de dados RDG.`);
           if (isAutoCheck) localStorage.removeItem("prospeccao_license_key");
           setIsAuthenticated(false);
         }
@@ -248,183 +232,102 @@ function ProspeccaoPage() {
     let googleStatus = "";
     let message = targetApiKey
       ? "Busca ao vivo realizada na Google Places API."
-      : "Demonstração ativa. Insira sua chave da Google Places API nas configurações para buscar dados ao vivo do Google.";
+      : "Exibindo empresas no modo demonstração. Adicione sua chave grátis do Google para resultados ao vivo.";
 
     try {
-      const data = await getProspeccaoLeadsServerFn({
+      const result = await getProspeccaoLeadsServerFn({
         data: {
           nicho: targetNicho,
           cidade: targetCidade,
-          apiKey: targetApiKey,
           onlyNoWebsite,
-          onlyWithPhotos,
-          onlyWithWhatsapp,
-          minReviewsCount,
+          apiKey: targetApiKey,
         },
       });
 
-      if (data) {
-        fetchedLeads = data.leads || [];
-        source = data.source;
-        if (data.message) message = data.message;
-        if (data.googleStatus) googleStatus = data.googleStatus;
+      if (result.success && Array.isArray(result.leads)) {
+        fetchedLeads = result.leads;
+        source = result.source || source;
+        message = result.message || message;
+        googleStatus = result.googleStatus || "";
       }
-    } catch (err) {
-      console.error("Erro na busca de leads via Server Function:", err);
+    } catch (err: any) {
+      console.error("Erro na busca de prospecção:", err);
+    } finally {
+      setSourceInfo({ source, message, googleStatus });
+      setLeads(fetchedLeads);
+      setIsLoading(false);
     }
-
-    if (fetchedLeads.length === 0) {
-      fetchedLeads = generateMockLeads(targetNicho, targetCidade, onlyNoWebsite);
-    }
-
-    const filtered = fetchedLeads.filter((l: LeadItem) => l.rating >= minRating && l.user_ratings_total >= minReviewsCount);
-    setLeads(filtered.length > 0 ? filtered : fetchedLeads);
-    setSourceInfo({ source, message, googleStatus });
-    setIsLoading(false);
   };
 
   const toggleSaveLead = (lead: LeadItem) => {
     const exists = savedLeads.some((l) => l.id === lead.id);
     let updated: LeadItem[];
-
     if (exists) {
       updated = savedLeads.filter((l) => l.id !== lead.id);
     } else {
-      updated = [...savedLeads, { ...lead, status: lead.status || "novo" }];
+      updated = [...savedLeads, { ...lead, status: "novo" }];
     }
-
-    setSavedLeads(updated);
-    localStorage.setItem("saved_prospect_leads", JSON.stringify(updated));
-  };
-
-  const updateLeadStatus = (leadId: string, newStatus: LeadStatus) => {
-    const updated = savedLeads.map((l) => {
-      if (l.id === leadId) {
-        return { ...l, status: newStatus };
-      }
-      return l;
-    });
-
     setSavedLeads(updated);
     localStorage.setItem("saved_prospect_leads", JSON.stringify(updated));
   };
 
   const isSaved = (leadId: string) => savedLeads.some((l) => l.id === leadId);
 
-  const exportToCSV = (leadsToExport: LeadItem[]) => {
-    if (leadsToExport.length === 0) return;
+  // AÇÃO EXECUTADA AO CLICAR EM "GERAR PRÉVIA" -> GRAVA SESSION E ABRE O SITE DEMO
+  const openDemoPage = (lead: LeadItem) => {
+    sessionStorage.setItem("active_demo_lead", JSON.stringify(lead));
+    const params = new URLSearchParams({
+      name: lead.name,
+      category: lead.category,
+      phone: lead.phone,
+      rating: String(lead.rating),
+      reviews_count: String(lead.reviews_count),
+      address: lead.address,
+      city: cidade || "Rio de Janeiro",
+    });
+    if (lead.photo_url) params.set("photo", lead.photo_url);
+    window.open(`/demo?${params.toString()}`, "_blank");
+  };
 
-    const headers = ["Nome", "Categoria", "Status Kanban", "Avaliação", "Reviews", "Endereço", "Telefone", "WhatsApp", "Instagram URL", "Possui Website", "URL Website"];
+  const exportToCSV = (leadsToExport: LeadItem[]) => {
+    if (!leadsToExport.length) return;
+    const headers = ["Nome", "Categoria", "Telefone", "Sem Website", "Endereço", "Avaliação", "Avaliações Qtd", "Google Maps URL"];
     const rows = leadsToExport.map((l) => [
       `"${l.name.replace(/"/g, '""')}"`,
-      `"${l.category}"`,
-      `"${l.status || "novo"}"`,
-      l.rating,
-      l.user_ratings_total,
-      `"${l.address.replace(/"/g, '""')}"`,
+      `"${l.category.replace(/"/g, '""')}"`,
       `"${l.phone}"`,
-      `"${l.raw_phone}"`,
-      `"${l.instagram_url || ""}"`,
-      l.has_website ? "Sim" : "Não",
-      `"${l.website_url || ""}"`,
+      l.has_website ? "Não" : "Sim",
+      `"${l.address.replace(/"/g, '""')}"`,
+      l.rating,
+      l.reviews_count,
+      `"${l.google_maps_url}"`,
     ]);
 
     const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Leads_GoogleMaps_${(nicho || "geral").replace(/\s+/g, "_")}_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `prospeccao_leads_${nicho || "empresas"}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  const buildDemoUrl = (lead: LeadItem) => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("active_demo_lead", JSON.stringify(lead));
-      sessionStorage.setItem(`demo_lead_${lead.id}`, JSON.stringify(lead));
-    }
-
-    const params = new URLSearchParams({
-      place_id: lead.id,
-      nome: lead.name,
-      categoria: lead.category,
-      cidade: cidade || "São Paulo - SP",
-      endereco: lead.address,
-      phone: lead.phone,
-      raw_phone: lead.raw_phone,
-      rating: String(lead.rating),
-      reviews: String(lead.user_ratings_total),
-    });
-
-    if (Array.isArray(lead.photos) && lead.photos.length > 0) {
-      params.set("photos", JSON.stringify(lead.photos));
-    }
-    if (Array.isArray(lead.reviews_list) && lead.reviews_list.length > 0) {
-      params.set("reviews_json", JSON.stringify(lead.reviews_list));
-    }
-    if (Array.isArray(lead.opening_hours) && lead.opening_hours.length > 0) {
-      params.set("hours_json", JSON.stringify(lead.opening_hours));
-    }
-    if (lead.editorial_summary) {
-      params.set("summary", lead.editorial_summary);
-    }
-
-    return `${window.location.origin}/demo?${params.toString()}`;
-  };
-
-  const openDemoPage = (lead: LeadItem) => {
-    const demoUrl = buildDemoUrl(lead);
-    window.open(demoUrl, "_blank");
-  };
-
-  const copyDemoLink = (lead: LeadItem) => {
-    const demoUrl = buildDemoUrl(lead);
-    navigator.clipboard.writeText(demoUrl);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
-  };
-
-  const getSalesScripts = (lead: LeadItem) => {
-    const demoUrl = buildDemoUrl(lead);
+  const generateWhatsAppScripts = (lead: LeadItem) => {
+    const demoUrl = `${BASE_URL}/demo?name=${encodeURIComponent(lead.name)}&category=${encodeURIComponent(lead.category)}&phone=${encodeURIComponent(lead.phone)}`;
 
     return [
       {
-        title: "🔥 Abordagem por Elogio de Nota do Google (Alta Conversão)",
-        type: "Direct Pitch",
-        text: `Olá! Falei com a equipe do *${lead.name}*?\n\nEstava navegando no Google Maps na região de ${cidade} e notei que vocês têm uma excelente avaliação de ⭐ *${lead.rating} com ${lead.user_ratings_total} depoimentos positivos*, parabéns pelo ótimo trabalho!\n\nPorém, percebi que quando o cliente clica para ver o site de vocês, não há um link oficial para agendar ou ver os serviços.\n\nMontei uma demonstração de site oficial completa e personalizada para o *${lead.name}*, dá uma olhada como ficou incrível:\n👇\n${demoUrl}\n\nConsegue dar uma olhada e me dizer o que achou? Se gostar, ajustamos o que precisar!`,
-      },
-      {
-        title: "💡 Abordagem Consultiva (Foco em Vendas Perdidas)",
-        type: "Consultative",
+        title: "🎯 Abordagem de Alta Conversão (Consultoria Comercial)",
+        type: "Direct Sales",
         text: `Olá! Tudo bem? Meu nome é Renato da RDG Digital.\n\nEstou fazendo um levantamento de empresas referência em ${lead.category} na região e encontrei o *${lead.name}*.\n\nVocês sabiam que hoje muitos clientes buscam no Google e acabam fechando com o concorrente por não encontrarem um site moderno com WhatsApp direto?\n\nPara ajudar vocês a não perderem mais essas vendas, preparei uma prévia de um site de alta conversão exclusivo para o *${lead.name}*:\n🔗 ${demoUrl}\n\nSe tiver 2 minutos, podemos conversar para colocá-lo no ar esta semana!`,
       },
       {
-        title: "🚀 Abordagem Rápida e Direta (Vídeo / Demonstração)",
+        title: "🚀 Abordagem Rápida e Direta",
         type: "Quick Offer",
         text: `Olá! Tudo bem?\n\nDesenvolvemos o modelo oficial de site exclusivo para o *${lead.name}* com todas as fotos, avaliações e agendamento pelo WhatsApp.\n\nAcesse a prévia aqui: ${demoUrl}\n\nVocês têm interesse em colocar este site no ar no domínio oficial de vocês hoje?`,
       },
     ];
-  };
-
-  const handleDragStart = (e: React.DragEvent, leadId: string) => {
-    e.dataTransfer.setData("text/plain", leadId);
-    setDraggedLeadId(leadId);
-  };
-
-  const handleDragOver = (e: React.DragEvent, colId: LeadStatus) => {
-    e.preventDefault();
-    setDragOverCol(colId);
-  };
-
-  const handleDrop = (e: React.DragEvent, colId: LeadStatus) => {
-    e.preventDefault();
-    const leadId = e.dataTransfer.getData("text/plain") || draggedLeadId;
-    if (leadId) {
-      updateLeadStatus(leadId, colId);
-    }
-    setDraggedLeadId(null);
-    setDragOverCol(null);
   };
 
   // LOADING SPINNER INICIAL DE LICENÇA
@@ -441,7 +344,7 @@ function ProspeccaoPage() {
     );
   }
 
-  // TELA DE BLOQUEIO DE ACESSO & UPSELL DA FERRAMENTA DE PROSPECÇÃO (BLOQUEADO MESMO PARA MEMBROS INSTAGRAM)
+  // TELA DE BLOQUEIO DE ACESSO
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white flex flex-col justify-between font-sans selection:bg-primary/30">
@@ -551,7 +454,7 @@ function ProspeccaoPage() {
     );
   }
 
-  // TELA COMPLETA DO SOFTWARE DE PROSPECÇÃO B2B (USUÁRIO AUTENTICADO COM LICENÇA ESPECÍFICA)
+  // TELA COMPLETA DO SOFTWARE DE PROSPECÇÃO B2B (USUÁRIO AUTENTICADO)
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white flex flex-col font-sans selection:bg-primary/30">
       {/* Top Navbar Header */}
@@ -621,53 +524,6 @@ function ProspeccaoPage() {
           </div>
         )}
 
-        {/* Banner Informativo de Busca ao Vivo via API */}
-        {sourceInfo?.source === "google_api" && (
-          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-lg">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
-                <Check size={18} />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <span>Busca ao Vivo no Google Maps Concluída</span>
-                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-mono">ONLINE</span>
-                </h4>
-                <p className="text-xs text-emerald-200/70">
-                  {sourceInfo.message || `Retornados ${leads.length} resultados reais de empresas diretamente da Google Places API.`}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Banner Informativo sobre Modo Demo */}
-        {sourceInfo?.source === "demo_mock" && (
-          <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-amber-500/5">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30">
-                <Sparkles size={18} />
-              </div>
-              <div className="space-y-0.5">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <span>Modo Demonstração Ativo (Leads Simulados)</span>
-                  <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-mono">DEMO</span>
-                </h4>
-                <p className="text-xs text-amber-200/70">
-                  Insira sua chave grátis da <strong>Google Places API</strong> para realizar buscas de empresas ao vivo no Google Maps.
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsConfigOpen(true)}
-              className="px-4 py-2 bg-amber-500 text-black font-extrabold text-xs rounded-xl hover:bg-amber-400 transition-all shrink-0 flex items-center gap-1.5 shadow"
-            >
-              <Key size={14} />
-              <span>Inserir Chave do Google ($200 Grátis/mês)</span>
-            </button>
-          </div>
-        )}
-
         {/* Top Controls & Search Card */}
         <div className="bg-[#111218] border border-white/10 rounded-3xl p-5 sm:p-6 space-y-5 shadow-2xl">
           <form
@@ -703,47 +559,28 @@ function ProspeccaoPage() {
                   type="text"
                   value={cidade}
                   onChange={(e) => setCidade(e.target.value)}
-                  placeholder="Ex: São Paulo - SP, Rio de Janeiro - RJ..."
+                  placeholder="Ex: Rio de Janeiro, São Paulo, Curitiba..."
                   className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-primary outline-none transition-colors"
                 />
               </div>
             </div>
 
-            <div className="sm:col-span-3 pt-5">
+            <div className="sm:col-span-3 flex items-end">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-extrabold py-2.5 px-4 rounded-xl transition-all transform hover:scale-[1.02] disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                className="w-full mt-5 sm:mt-0 py-3 bg-primary text-black font-extrabold text-sm rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-50"
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" />
-                    <span>Buscando...</span>
-                  </>
-                ) : (
-                  <>
-                    <Search size={16} />
-                    <span>Buscar Leads</span>
-                  </>
-                )}
+                {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+                <span>Buscar Leads</span>
               </button>
             </div>
           </form>
 
-          {/* Atalhos Rápidos */}
-          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-white/5">
-            <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider mr-1">
-              Atalhos Rápidos:
-            </span>
-            {[
-              "Imobiliária",
-              "Barbearia",
-              "Odontologia",
-              "Estética",
-              "Advocacia",
-              "Restaurante",
-              "Pet Shop",
-            ].map((preset) => (
+          {/* Preset Chips */}
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5">
+            <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider mr-1">Atalhos Rápido:</span>
+            {["Imobiliária", "Barbearia", "Odontologia", "Estética", "Advocacia", "Restaurante", "Pet Shop"].map((preset) => (
               <button
                 key={preset}
                 type="button"
@@ -776,19 +613,6 @@ function ProspeccaoPage() {
                 />
                 <span className="font-semibold text-white">Priorizar Empresas Sem Website no Topo</span>
               </label>
-
-              <button
-                type="button"
-                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold border transition-all ${
-                  showAdvancedFilters || onlyWithPhotos || onlyWithWhatsapp || minReviewsCount > 0
-                    ? "bg-primary/20 text-primary border-primary/40"
-                    : "bg-white/5 text-white/70 border-white/10 hover:text-white"
-                }`}
-              >
-                <SlidersHorizontal size={14} />
-                <span>Filtros Avançados SaaS</span>
-              </button>
             </div>
 
             <div className="flex bg-[#0A0A0A] p-1 rounded-xl border border-white/10">
@@ -854,22 +678,21 @@ function ProspeccaoPage() {
                     lead={lead}
                     isSaved={isSaved(lead.id)}
                     onToggleSave={() => toggleSaveLead(lead)}
-                    onOpenDemoModal={() => setSelectedDemoLead(lead)}
-                    onOpenScriptModal={() => setScriptLead(lead)}
                     onOpenDemoPage={() => openDemoPage(lead)}
+                    onOpenScriptModal={() => setScriptLead(lead)}
                   />
                 ))}
               </div>
             )}
           </div>
         ) : (
-          /* TAB 2: MEUS LEADS SALVOS (KANBAN BOARD DRAG & DROP) */
+          /* TAB 2: MEUS LEADS SALVOS (KANBAN BOARD) */
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#111218] p-4 sm:p-5 rounded-2xl border border-white/10">
               <div className="space-y-1">
                 <h3 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
                   <Kanban className="text-primary" size={20} />
-                  <span>Painel Kanban de Prospecção (Drag & Drop)</span>
+                  <span>Painel de Leads Salvos</span>
                 </h3>
               </div>
 
@@ -886,31 +709,84 @@ function ProspeccaoPage() {
               </div>
             </div>
 
-            <div className="flex gap-4 overflow-x-auto pb-6 custom-scrollbar items-start">
-              {KANBAN_COLUMNS.map((col) => {
-                const colLeads = savedLeads.filter((l) => (l.status || "novo") === col.id);
-                return (
-                  <div key={col.id} className="w-72 sm:w-80 shrink-0 bg-[#111218] rounded-2xl border border-white/10 p-4 space-y-3">
-                    <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                      <h4 className="font-extrabold text-xs text-white uppercase">{col.title}</h4>
-                      <span className="text-[10px] font-bold text-white/50">{colLeads.length}</span>
-                    </div>
-
-                    <div className="space-y-3">
-                      {colLeads.map((lead) => (
-                        <div key={lead.id} className="bg-[#0A0A0A] border border-white/10 p-3 rounded-xl space-y-2 text-xs">
-                          <h5 className="font-bold text-white">{lead.name}</h5>
-                          <p className="text-[11px] text-white/50">{lead.phone}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {savedLeads.map((lead) => (
+                <LeadCard
+                  key={lead.id}
+                  lead={lead}
+                  isSaved={true}
+                  onToggleSave={() => toggleSaveLead(lead)}
+                  onOpenDemoPage={() => openDemoPage(lead)}
+                  onOpenScriptModal={() => setScriptLead(lead)}
+                />
+              ))}
             </div>
           </div>
         )}
       </main>
+
+      {/* MODAL SCRIPT DE ABORDAGEM WHATSAPP */}
+      {scriptLead && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#111218] border border-white/10 rounded-3xl p-6 max-w-2xl w-full space-y-6 relative shadow-2xl my-auto">
+            <button onClick={() => setScriptLead(null)} className="absolute top-5 right-5 text-white/40 hover:text-white p-1">
+              <X size={20} />
+            </button>
+
+            <div className="space-y-2">
+              <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-400 font-bold text-[10px] rounded-full border border-emerald-500/30">
+                GERADOR DE ABORDAGEM WHATSAPP
+              </span>
+              <h3 className="text-xl font-black text-white">{scriptLead.name}</h3>
+              <p className="text-xs text-white/60">
+                Telefone: <code className="text-primary font-mono">{scriptLead.phone}</code>
+              </p>
+            </div>
+
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+              {generateWhatsAppScripts(scriptLead).map((script, idx) => (
+                <div key={idx} className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                    <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                      <MessageCircle size={14} className="text-emerald-400" />
+                      <span>{script.title}</span>
+                    </h4>
+                    <span className="text-[10px] font-mono text-white/40">{script.type}</span>
+                  </div>
+
+                  <p className="text-xs text-white/80 whitespace-pre-wrap font-sans leading-relaxed bg-white/5 p-3 rounded-xl border border-white/5">
+                    {script.text}
+                  </p>
+
+                  <div className="flex items-center justify-end gap-3 pt-1">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(script.text);
+                        setCopiedScriptIndex(idx);
+                        setTimeout(() => setCopiedScriptIndex(null), 2000);
+                      }}
+                      className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
+                    >
+                      {copiedScriptIndex === idx ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                      <span>{copiedScriptIndex === idx ? "Copiado!" : "Copiar Texto"}</span>
+                    </button>
+
+                    <a
+                      href={`https://wa.me/${scriptLead.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(script.text)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-extrabold transition-all flex items-center gap-1.5 shadow-md shadow-emerald-600/20"
+                    >
+                      <Send size={14} />
+                      <span>Enviar no WhatsApp</span>
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODAL CONFIGURAÇÃO CHAVE DE API GOOGLE */}
       {isConfigOpen && (
@@ -953,54 +829,134 @@ function ProspeccaoPage() {
   );
 }
 
+// COMPONENTE DO CARD DA EMPRESA COM TODOS OS BOTÕES E INFORMAÇÕES COMPLETAS
 function LeadCard({
   lead,
   isSaved,
   onToggleSave,
-  onOpenDemoModal,
-  onOpenScriptModal,
   onOpenDemoPage,
+  onOpenScriptModal,
 }: {
   lead: LeadItem;
   isSaved: boolean;
   onToggleSave: () => void;
-  onOpenDemoModal: () => void;
-  onOpenScriptModal: () => void;
   onOpenDemoPage: () => void;
+  onOpenScriptModal: () => void;
 }) {
-  const instaTargetUrl = lead.instagram_url || `https://www.instagram.com/${lead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`;
+  const instaSearchUrl = lead.instagram_url || `https://www.instagram.com/explore/tags/${lead.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()}/`;
 
   return (
-    <div className="bg-[#111218] border border-white/10 rounded-2xl p-5 space-y-4 hover:border-primary/40 transition-all flex flex-col justify-between">
+    <div className="bg-[#111218] border border-white/10 rounded-2xl p-5 space-y-4 hover:border-primary/40 transition-all flex flex-col justify-between shadow-xl">
       <div className="space-y-3">
+        {/* Titulo e Avaliação */}
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-extrabold text-base text-white">
-            <a href={lead.google_maps_url} target="_blank" rel="noopener noreferrer" className="hover:underline">
-              {lead.name}
-            </a>
-          </h3>
-          <div className="flex items-center gap-1 text-xs font-bold text-yellow-400 shrink-0">
+          <div>
+            <span className="px-2 py-0.5 bg-white/5 text-white/70 text-[10px] font-bold rounded border border-white/10 uppercase tracking-wider mb-1 inline-block">
+              {lead.category || "Negócio Local"}
+            </span>
+            <h3 className="font-extrabold text-base text-white hover:text-primary transition-colors">
+              <a href={lead.google_maps_url} target="_blank" rel="noopener noreferrer">
+                {lead.name}
+              </a>
+            </h3>
+          </div>
+
+          <div className="flex items-center gap-1 text-xs font-bold text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded-lg border border-yellow-400/20 shrink-0">
             <Star size={13} fill="currentColor" />
-            <span>{lead.rating}</span>
+            <span>{lead.rating || "4.8"}</span>
+            <span className="text-[10px] text-white/40">({lead.reviews_count || 12})</span>
           </div>
         </div>
 
+        {/* Endereço e Telefone */}
         <div className="space-y-1 text-xs text-white/70">
-          <p>📍 {lead.address}</p>
-          <p className="font-mono text-white/90">📞 {lead.phone}</p>
+          <p className="flex items-start gap-1.5">
+            <MapPin size={14} className="text-primary shrink-0 mt-0.5" />
+            <span>{lead.address}</span>
+          </p>
+          <p className="font-mono text-white/90 flex items-center gap-1.5">
+            <Phone size={14} className="text-emerald-400 shrink-0" />
+            <span>{lead.phone}</span>
+          </p>
+        </div>
+
+        {/* Tag de Oportunidade */}
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          {!lead.has_website ? (
+            <span className="px-2.5 py-0.5 bg-amber-500/15 text-amber-300 text-[10px] font-extrabold rounded-full border border-amber-500/30 flex items-center gap-1">
+              <Flame size={12} className="text-amber-400" />
+              <span>OPORTUNIDADE DE OURO (Sem Website)</span>
+            </span>
+          ) : (
+            <span className="px-2.5 py-0.5 bg-emerald-500/15 text-emerald-300 text-[10px] font-extrabold rounded-full border border-emerald-500/30 flex items-center gap-1">
+              <Globe size={12} />
+              <span>Possui Website</span>
+            </span>
+          )}
+
+          {lead.photos_count ? (
+            <span className="px-2.5 py-0.5 bg-white/5 text-white/70 text-[10px] font-semibold rounded-full border border-white/10 flex items-center gap-1">
+              <ImageIcon size={12} />
+              <span>{lead.photos_count} Fotos do Google</span>
+            </span>
+          ) : null}
         </div>
       </div>
 
-      <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-2">
-        <button onClick={onToggleSave} className="p-2 bg-white/5 rounded-xl text-white/70 hover:text-white">
-          {isSaved ? <BookmarkCheck size={16} className="text-amber-400" /> : <Bookmark size={16} />}
-        </button>
-        <button onClick={onOpenDemoModal} className="px-3 py-2 bg-primary/20 text-primary border border-primary/30 rounded-xl text-xs font-bold">
-          Gerar Prévia
-        </button>
-        <a href={lead.whatsapp_link} target="_blank" rel="noopener noreferrer" className="px-3.5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-extrabold">
-          WhatsApp
-        </a>
+      {/* Botões de Ação Completa */}
+      <div className="pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          {/* Salvar Lead */}
+          <button
+            onClick={onToggleSave}
+            className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-white/70 hover:text-white border border-white/10 transition-all"
+            title={isSaved ? "Remover dos Salvos" : "Salvar Lead"}
+          >
+            {isSaved ? <BookmarkCheck size={16} className="text-amber-400" /> : <Bookmark size={16} />}
+          </button>
+
+          {/* Instagram Link */}
+          <a
+            href={instaSearchUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-pink-300 border border-pink-500/30 rounded-xl text-xs font-bold transition-all"
+            title="Buscar no Instagram"
+          >
+            <Instagram size={16} />
+          </a>
+
+          {/* Google Maps Link */}
+          <a
+            href={lead.google_maps_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-bold transition-all"
+            title="Abrir no Google Maps"
+          >
+            <MapPin size={16} />
+          </a>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Gerar Prévia (Abre o site de demonstração em 1-clique) */}
+          <button
+            onClick={onOpenDemoPage}
+            className="px-3.5 py-2 bg-gradient-to-r from-blue-500 to-teal-500 hover:opacity-90 text-black font-black text-xs rounded-xl transition-all shadow-md flex items-center gap-1.5"
+          >
+            <Eye size={14} />
+            <span>Gerar Prévia</span>
+          </button>
+
+          {/* Botão de WhatsApp com Scripts */}
+          <button
+            onClick={onOpenScriptModal}
+            className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-md flex items-center gap-1.5"
+          >
+            <MessageCircle size={14} />
+            <span>WhatsApp</span>
+          </button>
+        </div>
       </div>
     </div>
   );
