@@ -396,8 +396,10 @@
         <div class="form-group">
             <label class="form-label">Produto</label>
             <select class="form-input" id="productType" onchange="generateRandomKey()">
-                <option value="Instagram">Instagram</option>
-                <option value="Lovable">Lovable</option>
+                <option value="Instagram">Extensão Instagram (instaPRO)</option>
+                <option value="Lovable">Extensão Lovable</option>
+                <option value="Prospecção B2B">Prospecção B2B (Google Maps)</option>
+                <option value="Master">Licença Master (Todos os Produtos)</option>
             </select>
         </div>
         <div class="form-group">
@@ -732,7 +734,10 @@
     function generateRandomKey() {
         if (document.getElementById('editingId').value) return;
         const product = document.getElementById('productType').value;
-        const prefix = product === 'Instagram' ? 'IG-' : 'LV-';
+        let prefix = 'IG-';
+        if (product.includes('Lovable')) prefix = 'LOVE-';
+        else if (product.includes('Prospecção') || product.includes('B2B')) prefix = 'MAPS-';
+        else if (product.includes('Master')) prefix = 'MASTER-';
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let result = prefix;
         for (let i = 0; i < 12; i++) {
@@ -751,6 +756,7 @@
         const id = document.getElementById('editingId').value;
         const cliente = document.getElementById('clientName').value.trim();
         const key = document.getElementById('licenseKey').value.trim();
+        const produto = document.getElementById('productType').value;
         const type = document.getElementById('licenseType').value;
         const max_profiles = parseInt(document.getElementById('maxProfiles').value, 10);
         if (!cliente || !key) { alert('Preencha nome do cliente e a chave!'); return; }
@@ -765,7 +771,7 @@
             expires_at = new Date(val).toISOString();
         }
 
-        const payload = { cliente, key, expires_at, is_lifetime, max_profiles, status:'active' };
+        const payload = { cliente, key, produto, expires_at, is_lifetime, max_profiles, status:'active' };
         const { error } = id
             ? await supabaseClient.from('licenses').update(payload).eq('id', id)
             : await supabaseClient.from('licenses').insert([payload]);
