@@ -321,10 +321,10 @@ function MembrosPage() {
   const lovableVideos = [
     {
       id: 0,
-      title: "Aula 01: Como Instalar a Extensão no Chrome e Ativar",
-      duration: "Em gravação",
-      loomUrl: "",
-      description: "Passo a passo de como carregar a extensão no Google Chrome e conectar com o chat do Lovable.",
+      title: "Aula 01: Como Instalar e Conectar a Licença da Extensão Lovable",
+      duration: "02:15 min",
+      loomUrl: "https://www.loom.com/embed/52687223091e48848cb75a0fa272a0c4",
+      description: "Passo a passo de como baixar o pacote ZIP no módulo Lovable, descompactar a pasta, ativar no Google Chrome (chrome://extensions) e verificar a chave de licença e validade no painel lateral.",
     },
     {
       id: 1,
