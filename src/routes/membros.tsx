@@ -41,7 +41,11 @@ import {
   BarChart3,
   Terminal,
   ShieldCheck,
-  ArrowRight
+  ArrowRight,
+  Calculator,
+  FileCode,
+  FolderArchive,
+  Monitor
 } from "lucide-react";
 
 const TITLE = "Área de Membros & Treinamentos VIP — RDG Digital";
@@ -92,6 +96,19 @@ function MembrosPage() {
 
   // Estado das Aulas do Instagram
   const [activeInstagramVideo, setActiveInstagramVideo] = useState<number>(0);
+
+  // Estado das Abas de Instalação no Módulo Instagram (windows ou chrome)
+  const [installTab, setInstallTab] = useState<"windows" | "chrome">("windows");
+
+  // State da Calculadora de ROI
+  const [roiProfiles, setRoiProfiles] = useState<number>(3);
+  const [roiDirectsPerProfile, setRoiDirectsPerProfile] = useState<number>(40);
+  const [roiConversionRate, setRoiConversionRate] = useState<number>(3);
+  const [roiAvgTicket, setRoiAvgTicket] = useState<number>(150);
+
+  // State do Gerador de Prompts / Spintax
+  const [promptNiche, setPromptNiche] = useState<"servicos" | "ecommerce" | "infoprodutos">("servicos");
+  const [copiedPromptIndex, setCopiedPromptIndex] = useState<number | null>(null);
 
   // Check saved license key on mount
   useEffect(() => {
@@ -216,6 +233,21 @@ function MembrosPage() {
     return { text: "Permanente", badge: "✨ ATIVA", isWarning: false };
   };
 
+  // Metrics para a Calculadora
+  const calculatedMetrics = useMemo(() => {
+    const dailyTotalDirects = roiProfiles * roiDirectsPerProfile;
+    const monthlyTotalDirects = dailyTotalDirects * 30;
+    const monthlySales = Math.floor((monthlyTotalDirects * roiConversionRate) / 100);
+    const monthlyRevenue = monthlySales * roiAvgTicket;
+
+    return {
+      dailyTotalDirects,
+      monthlyTotalDirects,
+      monthlySales,
+      monthlyRevenue,
+    };
+  }, [roiProfiles, roiDirectsPerProfile, roiConversionRate, roiAvgTicket]);
+
   // Vídeo Aulas Exclusivas do Instagram (RDG instaPRO)
   const instagramVideos = [
     {
@@ -261,6 +293,22 @@ function MembrosPage() {
       description: "Configurando o disparo automático de mensagens personalizadas com variações de texto em tempo real.",
     },
   ];
+
+  // Prompts Comerciais / Spintax de Direct
+  const spintaxPrompts = {
+    servicos: [
+      "{Olá|Oi|Tudo bem}? Vi que você atua com prestação de serviços na região. {Gostaria de apresentar|Queria te mostrar|Posso te enviar} uma solução que automatiza a captação de clientes no WhatsApp?",
+      "{Opa|Olá|Tudo joia}? Vi seu perfil e notei que vocês oferecem um excelente trabalho. {Você tem disponibilidade|Consegue atender} mais 5 a 10 novos clientes esta semana?",
+    ],
+    ecommerce: [
+      "{Olá|Oi|Tudo bem}? Acompanho a sua loja aqui no Instagram! {Gostaria de saber|Você teria interesse em} automatizar o envio de novidades e cupons diretamente no Direct?",
+      "{Opa|Oi|Como vai}? Produtos incríveis! {Temos uma ferramenta|Desenvolvemos um robô} que converte seguidores em vendas no WhatsApp de forma 100% automática.",
+    ],
+    infoprodutos: [
+      "{Olá|Oi|Fala mestre}! Vi seu conteúdo sobre o mercado digital. {Já utiliza|Você conhece} automação de Directs com Spintax antibloqueio para lotar seus grupos VIP?",
+      "{Opa|Oi|Tudo bem}? Parabéns pelo projeto! {Gostaria de testar|Quer experimentar} nossa extensão que extrai seguidores de grandes players do seu nicho?",
+    ],
+  };
 
   // INITIAL SPINNER
   if (isVerifying && !isAuthenticated) {
@@ -502,7 +550,7 @@ function MembrosPage() {
                     <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
                       <li className="flex items-center gap-2">
                         <Check size={12} className="text-[#E1306C]" />
-                        <span>Instalador ZIP do Robô Instagram</span>
+                        <span>Instalador Windows + Pasta Chrome</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Check size={12} className="text-[#E1306C]" />
@@ -510,7 +558,7 @@ function MembrosPage() {
                       </li>
                       <li className="flex items-center gap-2">
                         <Check size={12} className="text-[#E1306C]" />
-                        <span>E-Book Manual de Aquecimento PDF</span>
+                        <span>Calculadora de ROI &amp; Gerador de Prompts</span>
                       </li>
                     </ul>
                   </div>
@@ -736,36 +784,111 @@ function MembrosPage() {
       )}
 
       {/* ==================================================================================== */}
-      {/* VISTA 2: PÁGINA DEDICADA DA EXTENSÃO INSTAGRAM */}
+      {/* VISTA 2: PÁGINA DEDICADA DA EXTENSÃO INSTAGRAM (COM OS 2 MÉTODOS + CALCULADORA + PROMPTS) */}
       {/* ==================================================================================== */}
       {viewMode === "instagram" && (
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
-          <div className="border border-[#E1306C]/40 bg-[#0A0A0A] p-6 sm:p-8 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+          
+          {/* Header Módulo Instagram */}
+          <div className="border border-[#E1306C]/40 bg-[#0A0A0A] p-6 sm:p-8 space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
               <div className="space-y-2">
                 <span className="inline-flex items-center gap-2 border border-[#E1306C]/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-[#E1306C]">
-                  📸 MÓDULO EXCLUSIVO INSTAGRAM
+                  📸 MÓDULO EXCLUSIVO INSTAGRAM (RDG instaPRO)
                 </span>
-                <h1 className="text-3xl font-light text-white">
-                  Extensão Instagram (RDG instaPRO)
+                <h1 className="text-3xl sm:text-4xl font-light text-white">
+                  Extensão &amp; Automação de Directs
                 </h1>
                 <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl">
-                  Baixe o instalador oficial, assista ao treinamento das 8 aulas em vídeo e acesse o guia de aquecimento.
+                  Escolha o método de instalação ideal abaixo, assista às vídeo aulas, utilize a calculadora de ROI e copie os prompts comerciais com Spintax.
                 </p>
               </div>
 
-              <a
-                href={DOWNLOAD_ZIP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 border border-[#E1306C] bg-[#E1306C] px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold hover:brightness-110 transition-all"
-              >
-                <Download size={15} />
-                <span>BAIXAR INSTALADOR (.ZIP)</span>
-              </a>
+              {/* Botões dos 2 Métodos de Download */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <a
+                  href={DOWNLOAD_ZIP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 border border-[#E1306C] bg-[#E1306C] px-5 py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-white font-bold hover:brightness-110 transition-all text-center"
+                >
+                  <Monitor size={15} />
+                  <span>1. INSTALADOR WINDOWS (.ZIP)</span>
+                </a>
+
+                <a
+                  href={DOWNLOAD_ZIP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 border border-white/20 bg-[#111218] px-5 py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-white font-bold hover:border-pink-500 hover:text-pink-300 transition-all text-center"
+                >
+                  <FolderArchive size={15} />
+                  <span>2. PASTA EXTENSÃO CHROME (.ZIP)</span>
+                </a>
+              </div>
+            </div>
+
+            {/* SEÇÃO: PASSO A PASSO DE INSTALAÇÃO (DOS 2 MÉTODOS) */}
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setInstallTab("windows")}
+                  className={`px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] border transition-all ${
+                    installTab === "windows"
+                      ? "border-[#E1306C] bg-[#E1306C]/10 text-pink-300 font-bold"
+                      : "border-white/10 bg-[#0A0A0A] text-muted-foreground hover:text-white"
+                  }`}
+                >
+                  💻 MÉTODO 1: INSTALADOR WINDOWS (MÚLTIPLAS CONTAS)
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setInstallTab("chrome")}
+                  className={`px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] border transition-all ${
+                    installTab === "chrome"
+                      ? "border-[#E1306C] bg-[#E1306C]/10 text-pink-300 font-bold"
+                      : "border-white/10 bg-[#0A0A0A] text-muted-foreground hover:text-white"
+                  }`}
+                >
+                  🌐 MÉTODO 2: PASTA DIRETA NO CHROME (1 CONTA)
+                </button>
+              </div>
+
+              {/* CONTEÚDO PASSO A PASSO: WINDOWS */}
+              {installTab === "windows" && (
+                <div className="border border-white/10 bg-[#111218] p-5 space-y-3 font-mono text-[11px] text-foreground/80">
+                  <h4 className="font-bold text-[#E1306C] uppercase tracking-wider">
+                    Passo a Passo de Instalação (Instalador Automático Windows):
+                  </h4>
+                  <ol className="space-y-2 list-decimal list-inside text-xs font-light leading-relaxed">
+                    <li>Clique no botão acima <strong>"1. INSTALADOR WINDOWS (.ZIP)"</strong> e faça o download do arquivo.</li>
+                    <li>Clique com o botão direito no arquivo baixado e selecione <strong>"Extrair Tudo"</strong> para uma pasta no seu computador.</li>
+                    <li>Abra a pasta extraída e dê dois cliques no executável <strong>"Instalador_RDG_instaPRO.exe"</strong>.</li>
+                    <li>O instalador irá configurar o navegador e carregar a sua licença automaticamente com segurança.</li>
+                  </ol>
+                </div>
+              )}
+
+              {/* CONTEÚDO PASSO A PASSO: CHROME */}
+              {installTab === "chrome" && (
+                <div className="border border-white/10 bg-[#111218] p-5 space-y-3 font-mono text-[11px] text-foreground/80">
+                  <h4 className="font-bold text-[#E1306C] uppercase tracking-wider">
+                    Passo a Passo de Instalação (Direta no Navegador Chrome):
+                  </h4>
+                  <ol className="space-y-2 list-decimal list-inside text-xs font-light leading-relaxed">
+                    <li>Clique no botão acima <strong>"2. PASTA EXTENSÃO CHROME (.ZIP)"</strong> e descompacte a pasta.</li>
+                    <li>No Google Chrome, digite no endereço: <code className="bg-white/10 px-2 py-0.5 text-pink-300">chrome://extensions</code></li>
+                    <li>No canto superior direito da tela de extensões, ative a opção <strong>"Modo do Desenvolvedor"</strong>.</li>
+                    <li>No canto superior esquerdo, clique no botão <strong>"Carregar sem compactação"</strong> e selecione a pasta da extensão descompactada.</li>
+                  </ol>
+                </div>
+              )}
             </div>
           </div>
 
+          {/* Treinamento em Vídeo Instagram */}
           <section className="space-y-6">
             <div className="border-b border-white/10 pb-3">
               <h2 className="text-xl font-light text-white">Treinamento em Vídeo — Aulas Oficiais</h2>
@@ -815,6 +938,179 @@ function MembrosPage() {
             </div>
           </section>
 
+          {/* SEÇÃO: CALCULADORA DE ROI & PROJEÇÃO DE VENDAS */}
+          <section className="border border-white/10 bg-[#0A0A0A] p-6 sm:p-8 space-y-6">
+            <div className="border-b border-white/10 pb-4">
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#E1306C]">
+                🧮 SIMULADOR DE METAS &amp; ROI
+              </span>
+              <h2 className="text-2xl font-light text-white pt-1">
+                Calculadora de Faturamento Estimado
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-6 space-y-4">
+                <div className="space-y-1.5">
+                  <div className="flex justify-between font-mono text-[11px]">
+                    <span className="text-muted-foreground">QUANTIDADE DE PERFIS ATIVOS:</span>
+                    <span className="text-white font-bold">{roiProfiles} PERFIL(IS)</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    value={roiProfiles}
+                    onChange={(e) => setRoiProfiles(Number(e.target.value))}
+                    className="w-full accent-[#E1306C]"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex justify-between font-mono text-[11px]">
+                    <span className="text-muted-foreground">DIRECTS ENVIADOS / DIA POR PERFIL:</span>
+                    <span className="text-white font-bold">{roiDirectsPerProfile} DIRECTS</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="100"
+                    step="5"
+                    value={roiDirectsPerProfile}
+                    onChange={(e) => setRoiDirectsPerProfile(Number(e.target.value))}
+                    className="w-full accent-[#E1306C]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="space-y-1">
+                    <label className="font-mono text-[10px] text-muted-foreground uppercase">Taxa Conversão %</label>
+                    <input
+                      type="number"
+                      value={roiConversionRate}
+                      onChange={(e) => setRoiConversionRate(Number(e.target.value))}
+                      className="w-full bg-[#111218] border border-white/15 px-3 py-2 text-xs text-white font-mono"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-mono text-[10px] text-muted-foreground uppercase">Ticket Médio (R$)</label>
+                    <input
+                      type="number"
+                      value={roiAvgTicket}
+                      onChange={(e) => setRoiAvgTicket(Number(e.target.value))}
+                      className="w-full bg-[#111218] border border-white/15 px-3 py-2 text-xs text-white font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-6 border border-[#E1306C]/40 bg-[#111218] p-6 space-y-4 text-center">
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#E1306C] font-bold">
+                  PROJEÇÃO MENSAL ESTIMADA
+                </span>
+                
+                <div className="space-y-1">
+                  <div className="text-3xl sm:text-4xl font-light text-white">
+                    R$ {calculatedMetrics.monthlyRevenue.toLocaleString("pt-BR")}
+                  </div>
+                  <p className="font-mono text-[10px] text-emerald-400">
+                    ~ {calculatedMetrics.monthlySales} VENDAS ESTIMADAS POR MÊS
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 font-mono text-[10px] text-muted-foreground pt-2 border-t border-white/10">
+                  <div>
+                    <span>DISPAROS / DIA:</span>
+                    <p className="text-white font-bold">{calculatedMetrics.dailyTotalDirects}</p>
+                  </div>
+                  <div>
+                    <span>DISPAROS / MÊS:</span>
+                    <p className="text-white font-bold">{calculatedMetrics.monthlyTotalDirects}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SEÇÃO: GERADOR DE PROMPTS & SPINTAX DE DIRECT */}
+          <section className="border border-white/10 bg-[#0A0A0A] p-6 sm:p-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div>
+                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#E1306C]">
+                  📝 GERADOR DE PROMPTS &amp; SPINTAX
+                </span>
+                <h2 className="text-2xl font-light text-white pt-1">
+                  Scripts Comerciais com Variações Antibloqueio
+                </h2>
+              </div>
+
+              {/* Nichos Selector */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPromptNiche("servicos")}
+                  className={`px-3 py-1.5 font-mono text-[10px] uppercase border transition-all ${
+                    promptNiche === "servicos"
+                      ? "border-[#E1306C] bg-[#E1306C] text-white font-bold"
+                      : "border-white/10 text-muted-foreground hover:text-white"
+                  }`}
+                >
+                  Serviços
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPromptNiche("ecommerce")}
+                  className={`px-3 py-1.5 font-mono text-[10px] uppercase border transition-all ${
+                    promptNiche === "ecommerce"
+                      ? "border-[#E1306C] bg-[#E1306C] text-white font-bold"
+                      : "border-white/10 text-muted-foreground hover:text-white"
+                  }`}
+                >
+                  E-commerce
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPromptNiche("infoprodutos")}
+                  className={`px-3 py-1.5 font-mono text-[10px] uppercase border transition-all ${
+                    promptNiche === "infoprodutos"
+                      ? "border-[#E1306C] bg-[#E1306C] text-white font-bold"
+                      : "border-white/10 text-muted-foreground hover:text-white"
+                  }`}
+                >
+                  Infoprodutos
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {spintaxPrompts[promptNiche].map((scriptText, idx) => (
+                <div key={idx} className="border border-white/10 bg-[#111218] p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] uppercase text-[#E1306C] font-bold">
+                      PROMPT SPINTAX #{idx + 1} ({promptNiche.toUpperCase()})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(scriptText);
+                        setCopiedPromptIndex(idx);
+                        setTimeout(() => setCopiedPromptIndex(null), 2000);
+                      }}
+                      className="inline-flex items-center gap-1.5 border border-[#E1306C]/40 bg-[#E1306C]/10 px-3 py-1 font-mono text-[10px] uppercase text-pink-300 hover:bg-[#E1306C]/20 transition-all"
+                    >
+                      {copiedPromptIndex === idx ? <Check size={12} /> : <Copy size={12} />}
+                      <span>{copiedPromptIndex === idx ? "COPIADO!" : "COPIAR SPINTAX"}</span>
+                    </button>
+                  </div>
+                  <pre className="font-mono text-xs text-white/90 whitespace-pre-wrap bg-[#0A0A0A] p-3 border border-white/5 leading-relaxed">
+                    {scriptText}
+                  </pre>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* E-book PDF Bônus */}
           <section className="border border-indigo-500/40 bg-[#0A0A0A] p-6 sm:p-8 space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="space-y-2">
