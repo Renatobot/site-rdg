@@ -72,6 +72,9 @@ const WA_SUPORTE = waLink(
 // Link de Download do Instalador ZIP Instagram (Dropbox Direct 1-Click Download)
 const DOWNLOAD_ZIP_URL = "https://www.dropbox.com/scl/fo/dt1wornxoi3o7r8mbvxqa/AHgL-XE1noUweqCiPes0UXc?rlkey=ixkg579ok6lzecx5x1pwndb6w&st=5ebzm8eh&dl=1";
 
+// Link de Download Direto 1-Click da Extensão Lovable (Dropbox Direct 1-Click Download)
+const DOWNLOAD_LOVABLE_ZIP_URL = "https://www.dropbox.com/scl/fo/e71wms6kcsre6igkjaz4y/ACt1_0xTijL9wIujqccUhXM?rlkey=koog865sgc18l38g8sf3cwl4t&st=l5tvgzk9&dl=1";
+
 // Loom Embed oficial de Visão Geral & Boas-Vindas da Área de Membros
 const HOME_WELCOME_VIDEO_URL = "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d";
 
@@ -400,7 +403,7 @@ function MembrosPage() {
                     value={inputKey}
                     onChange={(e) => setInputKey(e.target.value.toUpperCase())}
                     placeholder="IG-XXXX / LOVE-XXXX / MAPS-XXXX / AI-XXXX"
-                    className="w-full bg-[#111218] border border-white/15 pl-10 pr-4 py-3 text-xs text-white font-mono placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary transition-all uppercase tracking-[0.15em]"
+                    className="w-full bg-[#111218] border border-white/15 pl-10 pr-4 py-3 text-xs text-[#FFFFFF] font-mono placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary transition-all uppercase tracking-[0.15em]"
                     required
                   />
                 </div>
@@ -661,8 +664,8 @@ function MembrosPage() {
                     <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#7C4DFF] flex items-center gap-1.5 font-bold">
                       ⚡ EXTENSÃO LOVABLE
                     </span>
-                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#7C4DFF]/40 bg-[#7C4DFF]/10 text-purple-300">
-                      EM BREVE
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">
+                      DISPONÍVEL
                     </span>
                   </div>
 
@@ -670,13 +673,13 @@ function MembrosPage() {
                   <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
                     <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#7C4DFF]">
                       <span>RDG Lovable Extension</span>
-                      <span className="text-amber-400">EM BREVE</span>
+                      <span className="text-emerald-400">● ATIVO</span>
                     </div>
                     <p className="text-[10px] text-muted-foreground">
-                      &gt; Envie Prompts no Chat sem Consumir Créditos
+                      &gt; Prompts &amp; Voz Sem Gastar Créditos
                     </p>
                     <div className="flex justify-between text-[9px] text-purple-300 pt-1 font-bold">
-                      <span>STATUS: EM DESENVOLVIMENTO</span>
+                      <span>STATUS: DOWNLOAD LIBERADO</span>
                     </div>
                   </div>
 
@@ -701,14 +704,23 @@ function MembrosPage() {
                   </div>
                 </div>
 
-                <div className="p-6 pt-0">
+                <div className="p-6 pt-0 flex flex-col sm:flex-row gap-2">
+                  <a
+                    href={DOWNLOAD_LOVABLE_ZIP_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 inline-flex items-center justify-center gap-2 border border-[#7C4DFF] bg-[#7C4DFF] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110 text-center"
+                  >
+                    <Download size={13} />
+                    <span>BAIXAR (.ZIP)</span>
+                  </a>
                   <button
                     type="button"
-                    onClick={() => openDevNotice("Extensão Lovable", "Ainda em desenvolvimento. Permite enviar mensagens no chat do Lovable sem gastar créditos, com envio por voz, gravação e integração de skills para acelerar seus projetos.", "purple")}
-                    className="w-full inline-flex items-center justify-center gap-2 border border-[#7C4DFF]/50 bg-[#7C4DFF]/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-purple-300 font-bold hover:bg-[#7C4DFF]/20 transition-all"
+                    onClick={() => setViewMode("lovable")}
+                    className="inline-flex items-center justify-center gap-1.5 border border-white/20 bg-[#111218] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white hover:border-[#7C4DFF] transition-all"
                   >
-                    <span>EM DESENVOLVIMENTO</span>
-                    <Clock size={13} />
+                    <span>TUTORIAL</span>
+                    <ArrowRight size={13} />
                   </button>
                 </div>
               </div>
@@ -1360,50 +1372,86 @@ function MembrosPage() {
       )}
 
       {/* ==================================================================================== */}
-      {/* VISTA 3: PÁGINA DEDICADA DA EXTENSÃO LOVABLE (EM DESENVOLVIMENTO) */}
+      {/* VISTA 3: PÁGINA DEDICADA DA EXTENSÃO LOVABLE (DISPONÍVEL COM DOWNLOAD 1-CLICK) */}
       {/* ==================================================================================== */}
       {viewMode === "lovable" && (
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
-          <div className="border border-[#7C4DFF]/40 bg-[#0A0A0A] p-6 sm:p-8 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="border border-[#7C4DFF]/40 bg-[#0A0A0A] p-6 sm:p-8 space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
               <div className="space-y-2">
                 <span className="inline-flex items-center gap-2 border border-[#7C4DFF]/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-[#7C4DFF]">
                   ⚡ MÓDULO EXCLUSIVO LOVABLE
                 </span>
-                <h1 className="text-3xl font-light text-white">
-                  Extensão Lovable
+                <h1 className="text-3xl sm:text-4xl font-light text-white">
+                  Extensão Lovable (RDG Lovable Extension)
                 </h1>
                 <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl">
-                  Envie mensagens e crie projetos no chat do Lovable sem consumir seus créditos de assinatura.
+                  Envie mensagens e crie projetos no chat do Lovable sem consumir seus créditos de assinatura. Suporta envio por voz, gravação de áudio e integração de skills.
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => openDevNotice("Extensão Lovable", "Ainda em desenvolvimento. Permite enviar mensagens no chat do Lovable sem gastar créditos, com envio por voz, gravação e integração de skills para acelerar seus projetos.", "purple")}
-                className="inline-flex items-center gap-2 border border-[#7C4DFF]/50 bg-[#7C4DFF]/10 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-purple-300 font-bold hover:bg-[#7C4DFF]/20 transition-all"
+              <a
+                href={DOWNLOAD_LOVABLE_ZIP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 border border-[#7C4DFF] bg-[#7C4DFF] px-6 py-3.5 font-mono text-[11px] uppercase tracking-[0.2em] text-white font-bold hover:brightness-110 transition-all text-center shrink-0 shadow-lg shadow-[#7C4DFF]/20"
               >
-                <Clock size={15} />
-                <span>EM DESENVOLVIMENTO</span>
-              </button>
+                <Download size={16} />
+                <span>BAIXAR EXTENSÃO LOVABLE (.ZIP)</span>
+              </a>
+            </div>
+
+            {/* Passo a Passo de Instalação no Chrome */}
+            <div className="border border-white/10 bg-[#111218] p-6 space-y-4 font-mono text-[11px] text-foreground/80">
+              <div className="flex items-center gap-2 text-[#7C4DFF] border-b border-white/10 pb-3">
+                <FolderArchive size={16} />
+                <h4 className="font-bold uppercase tracking-wider text-xs">
+                  Passo a Passo de Instalação no Google Chrome:
+                </h4>
+              </div>
+              <ol className="space-y-2.5 list-decimal list-inside text-xs font-light leading-relaxed">
+                <li>Clique no botão roxo <strong>"BAIXAR EXTENSÃO LOVABLE (.ZIP)"</strong> acima e salve o arquivo.</li>
+                <li>Clique com o botão direito no arquivo baixado e escolha <strong>"Extrair Tudo"</strong> para descompactar a pasta no seu computador.</li>
+                <li>No seu navegador Google Chrome, digite na barra de endereço: <code className="bg-white/10 px-2 py-0.5 text-purple-300 font-mono">chrome://extensions</code></li>
+                <li>No canto superior direito da página do Chrome, ative a chave <strong>"Modo do Desenvolvedor"</strong>.</li>
+                <li>No canto superior esquerdo, clique em <strong>"Carregar sem compactação"</strong> e selecione a pasta da extensão descompactada.</li>
+                <li>Pronto! A extensão RDG Lovable estará pronta para ser usada no site do Lovable para enviar mensagens por voz e criar projetos ilimitados sem gastar seus créditos.</li>
+              </ol>
+            </div>
+
+            {/* Recurso Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+              <div className="border border-white/10 bg-[#111218] p-4 space-y-2">
+                <div className="flex items-center gap-2 text-purple-400 font-mono text-[11px] font-bold">
+                  <Zap size={14} />
+                  <span>CRÉDITOS PRESERVADOS</span>
+                </div>
+                <p className="text-xs text-muted-foreground font-light leading-relaxed">
+                  Envie prompts no chat e crie quantos projetos precisar sem consumir seu saldo mensal de créditos do Lovable.
+                </p>
+              </div>
+
+              <div className="border border-white/10 bg-[#111218] p-4 space-y-2">
+                <div className="flex items-center gap-2 text-purple-400 font-mono text-[11px] font-bold">
+                  <Mic size={14} />
+                  <span>COMANDOS POR VOZ / ÁUDIO</span>
+                </div>
+                <p className="text-xs text-muted-foreground font-light leading-relaxed">
+                  Grave áudios diretamente na extensão para ditar seus projetos com facilidade e agilidade.
+                </p>
+              </div>
+
+              <div className="border border-white/10 bg-[#111218] p-4 space-y-2">
+                <div className="flex items-center gap-2 text-purple-400 font-mono text-[11px] font-bold">
+                  <Sparkles size={14} />
+                  <span>INTEGRAÇÃO DE SKILLS</span>
+                </div>
+                <p className="text-xs text-muted-foreground font-light leading-relaxed">
+                  Adicione e gerencie skills personalizadas de IA para instruir a criação de projetos avançados.
+                </p>
+              </div>
             </div>
           </div>
-
-          <section className="border border-[#7C4DFF]/30 bg-[#0A0A0A] p-8 sm:p-12 text-center space-y-5 max-w-3xl mx-auto">
-            <div className="w-14 h-14 border border-[#7C4DFF]/40 bg-[#7C4DFF]/10 text-[#7C4DFF] flex items-center justify-center mx-auto">
-              <Clock size={28} />
-            </div>
-
-            <div className="space-y-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#7C4DFF] border border-[#7C4DFF]/30 px-3 py-1 inline-block">
-                EM DESENVOLVIMENTO
-              </span>
-              <h2 className="text-2xl font-light text-white">Ainda em desenvolvimento</h2>
-              <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed font-light">
-                Em breve estará disponível este poderoso utilitário para criar projetos e enviar comandos de voz no chat do Lovable sem gastar seus créditos.
-              </p>
-            </div>
-          </section>
         </main>
       )}
 
