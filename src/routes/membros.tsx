@@ -53,7 +53,8 @@ import {
   Mic,
   Image as ImageIcon,
   Layers,
-  Puzzle
+  Puzzle,
+  Infinity as InfinityIcon
 } from "lucide-react";
 
 const TITLE = "Área de Membros & Treinamentos VIP — RDG Digital";
@@ -668,11 +669,11 @@ function MembrosPage() {
                   {/* Mockup Retangular Estilo Terminal RDG */}
                   <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
                     <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#7C4DFF]">
-                      <span>Lovable Prototyper</span>
+                      <span>RDG Lovable Extension</span>
                       <span className="text-amber-400">EM BREVE</span>
                     </div>
                     <p className="text-[10px] text-muted-foreground">
-                      &gt; Automação de prototipagem acelerada
+                      &gt; Envio de Prompts no Chat sem Consumir Créditos
                     </p>
                     <div className="flex justify-between text-[9px] text-purple-300 pt-1 font-bold">
                       <span>STATUS: EM DESENVOLVIMENTO</span>
@@ -684,13 +685,17 @@ function MembrosPage() {
                       Extensão Lovable
                     </h2>
                     <p className="text-xs text-foreground/75 leading-relaxed font-light">
-                      Ferramenta de aceleração de desenvolvimento e criação de protótipos web no Lovable.
+                      Envie mensagens e crie projetos no chat do Lovable sem consumir seus créditos de assinatura.
                     </p>
 
                     <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
                       <li className="flex items-center gap-2">
-                        <Clock size={12} className="text-[#7C4DFF]" />
-                        <span>Em breve disponível para membros</span>
+                        <Zap size={12} className="text-[#7C4DFF]" />
+                        <span>Projetos &amp; Prompts Sem Consumir Créditos</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Mic size={12} className="text-[#7C4DFF]" />
+                        <span>Envio por Voz, Áudio &amp; Integração de Skills</span>
                       </li>
                     </ul>
                   </div>
@@ -699,7 +704,7 @@ function MembrosPage() {
                 <div className="p-6 pt-0">
                   <button
                     type="button"
-                    onClick={() => openDevNotice("Extensão Lovable", "Ainda em desenvolvimento. Em breve estará disponível mais este produto.", "purple")}
+                    onClick={() => openDevNotice("Extensão Lovable", "Ainda em desenvolvimento. Permite enviar mensagens no chat do Lovable sem gastar créditos, com envio por voz, gravação e integração de skills para acelerar seus projetos.", "purple")}
                     className="w-full inline-flex items-center justify-center gap-2 border border-[#7C4DFF]/50 bg-[#7C4DFF]/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-purple-300 font-bold hover:bg-[#7C4DFF]/20 transition-all"
                   >
                     <span>EM DESENVOLVIMENTO</span>
@@ -1369,13 +1374,13 @@ function MembrosPage() {
                   Extensão Lovable
                 </h1>
                 <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl">
-                  Ferramenta de aceleração de desenvolvimento e criação de protótipos web no Lovable.
+                  Envie mensagens e crie projetos no chat do Lovable sem consumir seus créditos de assinatura.
                 </p>
               </div>
 
               <button
                 type="button"
-                onClick={() => openDevNotice("Extensão Lovable", "Ainda em desenvolvimento. Em breve estará disponível mais este produto.", "purple")}
+                onClick={() => openDevNotice("Extensão Lovable", "Ainda em desenvolvimento. Permite enviar mensagens no chat do Lovable sem gastar créditos, com envio por voz, gravação e integração de skills para acelerar seus projetos.", "purple")}
                 className="inline-flex items-center gap-2 border border-[#7C4DFF]/50 bg-[#7C4DFF]/10 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-purple-300 font-bold hover:bg-[#7C4DFF]/20 transition-all"
               >
                 <Clock size={15} />
@@ -1395,7 +1400,7 @@ function MembrosPage() {
               </span>
               <h2 className="text-2xl font-light text-white">Ainda em desenvolvimento</h2>
               <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed font-light">
-                Em breve estará disponível mais este produto exclusivo para todos os alunos VIP da RDG Digital.
+                Em breve estará disponível este poderoso utilitário para criar projetos e enviar comandos de voz no chat do Lovable sem gastar seus créditos.
               </p>
             </div>
           </section>
