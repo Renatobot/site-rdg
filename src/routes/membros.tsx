@@ -269,10 +269,10 @@ function MembrosPage() {
   const instagramVideos = [
     {
       id: 0,
-      title: "Aula 01: Visão Geral & Setup do Robô RDG instaPRO",
-      duration: "04:12 min",
-      loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Apresentação da estrutura do robô Instagram e como configurar o ambiente inicial.",
+      title: "Aula 01: Overview da Ferramenta, Instalação & Setup Inicial",
+      duration: "14:15 min",
+      loomUrl: "https://www.loom.com/embed/7cf42e6c624e42548361daf77af317fc",
+      description: "Visão geral da ferramenta: como extrair o instalador, executar como administrador, gerenciar atalhos/atualizador, criar perfis e usar a função Radar.",
     },
     {
       id: 1,
@@ -290,10 +290,10 @@ function MembrosPage() {
     },
     {
       id: 3,
-      title: "Aula 04: Configurando Perfis e Intervalos Antibloqueio",
-      duration: "Em regravação",
-      loomUrl: "",
-      description: "Estratégias antibloqueio: intervalos de segurança, aquecimento de contas e Spintax.",
+      title: "Aula 04: Configuração Completa do Piloto Automático & Antibloqueio",
+      duration: "18:00 min",
+      loomUrl: "https://www.loom.com/embed/245f4329e59e411fab185ca8771a96ec",
+      description: "Definição de perfis-alvo, rotação de mensagens no Direct, limites de segurança, extração de leads e exportação de relatórios.",
     },
     {
       id: 4,
