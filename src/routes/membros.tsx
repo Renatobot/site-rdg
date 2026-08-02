@@ -112,6 +112,9 @@ function MembrosPage() {
   // Estado das Aulas do Instagram
   const [activeInstagramVideo, setActiveInstagramVideo] = useState<number>(0);
 
+  // Estado das Aulas do Lovable
+  const [activeLovableVideo, setActiveLovableVideo] = useState<number>(0);
+
   // Estado das Abas de Instalação no Módulo Instagram (windows ou chrome)
   const [installTab, setInstallTab] = useState<"windows" | "chrome">("windows");
 
@@ -314,6 +317,31 @@ function MembrosPage() {
     },
   ];
 
+  // Vídeo Aulas do Lovable Extension
+  const lovableVideos = [
+    {
+      id: 0,
+      title: "Aula 01: Como Instalar a Extensão no Chrome e Ativar",
+      duration: "Em gravação",
+      loomUrl: "",
+      description: "Passo a passo de como carregar a extensão no Google Chrome e conectar com o chat do Lovable.",
+    },
+    {
+      id: 1,
+      title: "Aula 02: Como Enviar Prompts & Criar Projetos Sem Gastar Créditos",
+      duration: "Em gravação",
+      loomUrl: "",
+      description: "Como usar o chat e comandos sem consumir os créditos da sua assinatura mensal do Lovable.",
+    },
+    {
+      id: 2,
+      title: "Aula 03: Envio por Voz, Áudio & Integração de Skills",
+      duration: "Em gravação",
+      loomUrl: "",
+      description: "Como utilizar gravação de áudio e injetar instruções e skills personalizadas de IA.",
+    },
+  ];
+
   // Prompts Comerciais / Spintax de Direct
   const spintaxPrompts = {
     servicos: [
@@ -403,7 +431,7 @@ function MembrosPage() {
                     value={inputKey}
                     onChange={(e) => setInputKey(e.target.value.toUpperCase())}
                     placeholder="IG-XXXX / LOVE-XXXX / MAPS-XXXX / AI-XXXX"
-                    className="w-full bg-[#111218] border border-white/15 pl-10 pr-4 py-3 text-xs text-[#FFFFFF] font-mono placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary transition-all uppercase tracking-[0.15em]"
+                    className="w-full bg-[#111218] border border-white/15 pl-10 pr-4 py-3 text-xs text-white font-mono placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary transition-all uppercase tracking-[0.15em]"
                     required
                   />
                 </div>
@@ -704,22 +732,13 @@ function MembrosPage() {
                   </div>
                 </div>
 
-                <div className="p-6 pt-0 flex flex-col sm:flex-row gap-2">
-                  <a
-                    href={DOWNLOAD_LOVABLE_ZIP_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 inline-flex items-center justify-center gap-2 border border-[#7C4DFF] bg-[#7C4DFF] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110 text-center"
-                  >
-                    <Download size={13} />
-                    <span>BAIXAR (.ZIP)</span>
-                  </a>
+                <div className="p-6 pt-0">
                   <button
                     type="button"
                     onClick={() => setViewMode("lovable")}
-                    className="inline-flex items-center justify-center gap-1.5 border border-white/20 bg-[#111218] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white hover:border-[#7C4DFF] transition-all"
+                    className="w-full inline-flex items-center justify-center gap-2 border border-[#7C4DFF] bg-[#7C4DFF] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
                   >
-                    <span>TUTORIAL</span>
+                    <span>ACESSAR MÓDULO</span>
                     <ArrowRight size={13} />
                   </button>
                 </div>
@@ -788,11 +807,11 @@ function MembrosPage() {
                 <div className="p-6 pt-0">
                   <button
                     type="button"
-                    onClick={() => openDevNotice("WhatsApp Multi Agente", "Ainda em desenvolvimento. Em breve mais um produto disponível para membros.", "emerald")}
+                    onClick={() => setViewMode("whatsapp")}
                     className="w-full inline-flex items-center justify-center gap-2 border border-emerald-500/50 bg-emerald-500/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-emerald-300 font-bold hover:bg-emerald-500/20 transition-all"
                   >
-                    <span>EM DESENVOLVIMENTO</span>
-                    <Clock size={13} />
+                    <span>ACESSAR MÓDULO</span>
+                    <ArrowRight size={13} />
                   </button>
                 </div>
               </div>
@@ -850,11 +869,11 @@ function MembrosPage() {
                 <div className="p-6 pt-0">
                   <button
                     type="button"
-                    onClick={() => openDevNotice("RDG AI — Assistente de Projetos", "Em desenvolvimento como bônus exclusivo! Em breve estará disponível para acelerar a criação dos seus projetos com IA.", "cyan")}
+                    onClick={() => setViewMode("rdg-ai")}
                     className="w-full inline-flex items-center justify-center gap-2 border border-cyan-500/50 bg-cyan-500/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300 font-bold hover:bg-cyan-500/20 transition-all"
                   >
-                    <span>EM DESENVOLVIMENTO</span>
-                    <Clock size={13} />
+                    <span>ACESSAR MÓDULO</span>
+                    <ArrowRight size={13} />
                   </button>
                 </div>
               </div>
@@ -905,11 +924,11 @@ function MembrosPage() {
                 <div className="p-6 pt-0">
                   <button
                     type="button"
-                    onClick={() => openDevNotice("Prospecção B2B (Google Maps)", "Ainda em desenvolvimento. Em breve mais uma solução disponível.", "blue")}
+                    onClick={() => setViewMode("prospeccao")}
                     className="w-full inline-flex items-center justify-center gap-2 border border-[#4285F4]/50 bg-[#4285F4]/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-blue-300 font-bold hover:bg-[#4285F4]/20 transition-all"
                   >
-                    <span>EM DESENVOLVIMENTO</span>
-                    <Clock size={13} />
+                    <span>ACESSAR MÓDULO</span>
+                    <ArrowRight size={13} />
                   </button>
                 </div>
               </div>
@@ -1372,7 +1391,7 @@ function MembrosPage() {
       )}
 
       {/* ==================================================================================== */}
-      {/* VISTA 3: PÁGINA DEDICADA DA EXTENSÃO LOVABLE (DISPONÍVEL COM DOWNLOAD 1-CLICK) */}
+      {/* VISTA 3: PÁGINA DEDICADA DA EXTENSÃO LOVABLE (DISPONÍVEL COM DOWNLOAD + VÍDEO AULAS) */}
       {/* ==================================================================================== */}
       {viewMode === "lovable" && (
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
@@ -1418,40 +1437,72 @@ function MembrosPage() {
                 <li>Pronto! A extensão RDG Lovable estará pronta para ser usada no site do Lovable para enviar mensagens por voz e criar projetos ilimitados sem gastar seus créditos.</li>
               </ol>
             </div>
+          </div>
 
-            {/* Recurso Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-              <div className="border border-white/10 bg-[#111218] p-4 space-y-2">
-                <div className="flex items-center gap-2 text-purple-400 font-mono text-[11px] font-bold">
-                  <Zap size={14} />
-                  <span>CRÉDITOS PRESERVADOS</span>
+          {/* PLAYER DAS VÍDEO AULAS DO LOVABLE */}
+          <section className="space-y-6">
+            <div className="border-b border-white/10 pb-3 flex items-center justify-between">
+              <h2 className="text-xl font-light text-white">Treinamento em Vídeo — Aulas da Extensão Lovable</h2>
+              <span className="font-mono text-[10px] uppercase text-[#7C4DFF] font-bold">MÓDULO LOVABLE</span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              <div className="lg:col-span-7 border border-white/10 bg-[#0A0A0A] p-4 space-y-3 shadow-2xl">
+                {lovableVideos[activeLovableVideo].loomUrl ? (
+                  <div className="relative aspect-video bg-black border border-white/10">
+                    <iframe
+                      src={lovableVideos[activeLovableVideo].loomUrl}
+                      title={lovableVideos[activeLovableVideo].title}
+                      className="w-full h-full border-0"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <div className="relative aspect-video bg-[#111218] border border-white/10 flex flex-col items-center justify-center text-center p-6 space-y-3">
+                    <Clock size={32} className="text-[#7C4DFF] animate-pulse" />
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#7C4DFF] border border-[#7C4DFF]/40 px-3 py-1">
+                      AULA EM GRAVAÇÃO
+                    </span>
+                    <h4 className="text-lg font-light text-white">{lovableVideos[activeLovableVideo].title}</h4>
+                    <p className="text-xs text-muted-foreground max-w-sm font-light">
+                      A vídeo aula estará disponível nesta seção em breve assim que as gravações forem finalizadas.
+                    </p>
+                  </div>
+                )}
+
+                <div className="space-y-1 p-2">
+                  <h3 className="text-lg font-light text-white">{lovableVideos[activeLovableVideo].title}</h3>
+                  <p className="text-xs text-muted-foreground">{lovableVideos[activeLovableVideo].description}</p>
                 </div>
-                <p className="text-xs text-muted-foreground font-light leading-relaxed">
-                  Envie prompts no chat e crie quantos projetos precisar sem consumir seu saldo mensal de créditos do Lovable.
-                </p>
               </div>
 
-              <div className="border border-white/10 bg-[#111218] p-4 space-y-2">
-                <div className="flex items-center gap-2 text-purple-400 font-mono text-[11px] font-bold">
-                  <Mic size={14} />
-                  <span>COMANDOS POR VOZ / ÁUDIO</span>
-                </div>
-                <p className="text-xs text-muted-foreground font-light leading-relaxed">
-                  Grave áudios diretamente na extensão para ditar seus projetos com facilidade e agilidade.
-                </p>
-              </div>
-
-              <div className="border border-white/10 bg-[#111218] p-4 space-y-2">
-                <div className="flex items-center gap-2 text-purple-400 font-mono text-[11px] font-bold">
-                  <Sparkles size={14} />
-                  <span>INTEGRAÇÃO DE SKILLS</span>
-                </div>
-                <p className="text-xs text-muted-foreground font-light leading-relaxed">
-                  Adicione e gerencie skills personalizadas de IA para instruir a criação de projetos avançados.
-                </p>
+              <div className="lg:col-span-5 space-y-3">
+                {lovableVideos.map((v, i) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() => setActiveLovableVideo(i)}
+                    className={`w-full p-4 border text-left transition-all flex items-center justify-between gap-4 ${
+                      activeLovableVideo === i
+                        ? "border-[#7C4DFF] bg-[#7C4DFF]/10 text-white"
+                        : "border-white/10 bg-[#0A0A0A] text-muted-foreground hover:border-white/30"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-7 h-7 flex items-center justify-center font-mono font-bold text-xs ${activeLovableVideo === i ? "bg-[#7C4DFF] text-white" : "bg-white/10 text-white"}`}>
+                        0{i + 1}
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-semibold text-white">{v.title}</h4>
+                        <span className="font-mono text-[10px] text-muted-foreground">{v.duration}</span>
+                      </div>
+                    </div>
+                    <Play size={13} className={activeLovableVideo === i ? "text-[#7C4DFF]" : "text-muted-foreground"} />
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
+          </section>
         </main>
       )}
 
@@ -1582,7 +1633,7 @@ function MembrosPage() {
             </div>
           </div>
 
-          <section className="border border-cyan-500/30 bg-[#0A0A0A] p-8 sm:p-12 text-center space-y-5 max-w-3xl mx-auto">
+          <section className="border border-[#10B981]/30 bg-[#0A0A0A] p-8 sm:p-12 text-center space-y-5 max-w-3xl mx-auto">
             <div className="w-16 h-16 border border-cyan-500/40 bg-cyan-500/10 text-cyan-400 flex items-center justify-center mx-auto rounded-xl">
               <img src="/rdg-ai.jpg" alt="RDG AI" className="w-10 h-10 object-contain rounded" />
             </div>
