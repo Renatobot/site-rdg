@@ -4,6 +4,14 @@
     {
       "source": "/streaming",
       "destination": "/streaming/index.html"
+    },
+    {
+      "source": "/rdg_ai",
+      "destination": "/rdg_ai/index.html"
+    },
+    {
+      "source": "/rdg_ai/:path*",
+      "destination": "/rdg_ai/index.html"
     }
   ]
 }

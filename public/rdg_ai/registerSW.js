@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/rdg_ai/sw.js', { scope: '/rdg_ai/' })})}

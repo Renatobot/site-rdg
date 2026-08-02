@@ -276,10 +276,10 @@ function MembrosPage() {
     },
     {
       id: 1,
-      title: "Aula 02: Como Baixar e Instalar o Robô no Windows",
-      duration: "Em regravação",
-      loomUrl: "",
-      description: "Passo a passo detalhado para baixar o instalador Windows e executar em sua máquina.",
+      title: "Aula 02: Como Desinstalar e Reinstalar o Instalador",
+      duration: "02:15 min",
+      loomUrl: "https://www.loom.com/embed/2887a552a72c47bdb7b79608db5fc196",
+      description: "Como excluir a pasta antiga em C:\\, executar a nova instalação como Administrador e abrir a conta no Instagram.",
     },
     {
       id: 2,
@@ -673,7 +673,7 @@ function MembrosPage() {
                       <span className="text-amber-400">EM BREVE</span>
                     </div>
                     <p className="text-[10px] text-muted-foreground">
-                      &gt; Envio de Prompts no Chat sem Consumir Créditos
+                      &gt; Envie Prompts no Chat sem Consumir Créditos
                     </p>
                     <div className="flex justify-between text-[9px] text-purple-300 pt-1 font-bold">
                       <span>STATUS: EM DESENVOLVIMENTO</span>
