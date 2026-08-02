@@ -49,7 +49,9 @@ import {
   Clock,
   Wrench,
   Bot,
-  Cpu
+  Cpu,
+  Mic,
+  Image as ImageIcon
 } from "lucide-react";
 
 const TITLE = "Área de Membros & Treinamentos VIP — RDG Digital";
@@ -643,7 +645,7 @@ function MembrosPage() {
                 </div>
               </div>
 
-              {/* CARD 2: RDG AI (AZUL CYAN / CYAN ACCENT COM LOGO OFICIAL) */}
+              {/* CARD 2: RDG AI (BÔNUS EXCLUSIVO DE PROJETOS) */}
               <div className="border border-cyan-500/40 bg-[#0A0A0A] hover:border-cyan-400 transition-all flex flex-col justify-between group">
                 <div className="p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -654,40 +656,40 @@ function MembrosPage() {
                       </span>
                     </div>
                     <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-cyan-500/40 bg-cyan-500/10 text-cyan-300">
-                      EM BREVE
+                      BÔNUS EXCLUSIVO
                     </span>
                   </div>
 
                   {/* Mockup Retangular Estilo Terminal RDG */}
                   <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
                     <div className="flex items-center justify-between border-b border-white/10 pb-2 text-cyan-400">
-                      <span>RDG AI Engine v4.0</span>
+                      <span>RDG AI Assistant</span>
                       <span className="text-amber-400">EM BREVE</span>
                     </div>
                     <p className="text-[10px] text-muted-foreground">
-                      &gt; Inteligência Artificial Ilimitada
+                      &gt; Textos, Copy, Imagens, Áudios &amp; Vídeos
                     </p>
                     <div className="flex justify-between text-[9px] text-cyan-400 pt-1 font-bold">
-                      <span>STATUS: EM DESENVOLVIMENTO</span>
+                      <span>STATUS: BÔNUS DE PROJETOS</span>
                     </div>
                   </div>
 
                   <div className="space-y-3">
                     <h2 className="text-lg font-light text-white group-hover:text-cyan-400 transition-colors">
-                      RDG AI
+                      RDG AI — Assistente de Projetos
                     </h2>
                     <p className="text-xs text-foreground/75 leading-relaxed font-light">
-                      Plataforma de Inteligência Artificial sem limites para textos, imagens, copy e análise de dados.
+                      Assistente inteligente exclusivo para acelerar a criação dos seus projetos com textos, copy, imagens e áudios.
                     </p>
 
                     <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
                       <li className="flex items-center gap-2">
-                        <Clock size={12} className="text-cyan-400" />
-                        <span>IA Ilimitada sem Bloqueio de Tokens</span>
+                        <Sparkles size={12} className="text-cyan-400" />
+                        <span>Criação de Copy &amp; Scripts de Vendas</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <Clock size={12} className="text-cyan-400" />
-                        <span>Modelos de Alta Performance</span>
+                        <ImageIcon size={12} className="text-cyan-400" />
+                        <span>Geração de Imagens &amp; Áudios</span>
                       </li>
                     </ul>
                   </div>
@@ -696,7 +698,7 @@ function MembrosPage() {
                 <div className="p-6 pt-0">
                   <button
                     type="button"
-                    onClick={() => openDevNotice("RDG AI", "Ainda em desenvolvimento. Em breve mais um produto disponível para membros.", "cyan")}
+                    onClick={() => openDevNotice("RDG AI — Assistente de Projetos", "Em desenvolvimento como bônus exclusivo! Em breve estará disponível para acelerar a criação dos seus projetos com IA.", "cyan")}
                     className="w-full inline-flex items-center justify-center gap-2 border border-cyan-500/50 bg-cyan-500/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300 font-bold hover:bg-cyan-500/20 transition-all"
                   >
                     <span>EM DESENVOLVIMENTO</span>
@@ -1476,7 +1478,7 @@ function MembrosPage() {
       )}
 
       {/* ==================================================================================== */}
-      {/* VISTA 6: PÁGINA DEDICADA DO RDG AI (EM DESENVOLVIMENTO) */}
+      {/* VISTA 6: PÁGINA DEDICADA DO RDG AI (BÔNUS EXCLUSIVO DE PROJETOS) */}
       {/* ==================================================================================== */}
       {viewMode === "rdg-ai" && (
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
@@ -1484,20 +1486,20 @@ function MembrosPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="space-y-2">
                 <span className="inline-flex items-center gap-2 border border-cyan-500/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-cyan-400">
-                  🤖 MÓDULO EXCLUSIVO RDG AI
+                  🤖 BÔNUS EXCLUSIVO RDG AI
                 </span>
                 <h1 className="text-3xl font-light text-white flex items-center gap-3">
                   <img src="/rdg-ai.jpg" alt="RDG AI Logo" className="w-8 h-8 object-contain rounded" />
-                  RDG AI
+                  RDG AI — Assistente de Projetos
                 </h1>
                 <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl">
-                  Plataforma de Inteligência Artificial sem limites para geração de textos, scripts, criativos e análise de dados sem travamento de tokens.
+                  Assistente de IA próprio para acelerar e ajudar na criação dos seus projetos com textos, copy, imagens e áudios.
                 </p>
               </div>
 
               <button
                 type="button"
-                onClick={() => openDevNotice("RDG AI", "Ainda em desenvolvimento. Em breve mais um produto disponível para membros.", "cyan")}
+                onClick={() => openDevNotice("RDG AI — Assistente de Projetos", "Em desenvolvimento como bônus exclusivo! Em breve estará disponível para acelerar a criação dos seus projetos com IA.", "cyan")}
                 className="inline-flex items-center gap-2 border border-cyan-500/50 bg-cyan-500/10 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300 font-bold hover:bg-cyan-500/20 transition-all"
               >
                 <Clock size={15} />
@@ -1513,11 +1515,11 @@ function MembrosPage() {
 
             <div className="space-y-2">
               <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyan-400 border border-cyan-500/30 px-3 py-1 inline-block">
-                EM DESENVOLVIMENTO
+                BÔNUS EXCLUSIVO DE PROJETOS
               </span>
               <h2 className="text-2xl font-light text-white">Ainda em desenvolvimento</h2>
               <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed font-light">
-                Em breve a plataforma RDG AI estará disponível para uso ilimitado de todos os alunos VIP.
+                Em breve o assistente RDG AI estará liberado para ajudar na criação de textos, copy, imagens e áudios em seus projetos.
               </p>
             </div>
           </section>
