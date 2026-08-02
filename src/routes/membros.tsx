@@ -76,7 +76,7 @@ const DOWNLOAD_ZIP_URL = "https://www.dropbox.com/scl/fo/dt1wornxoi3o7r8mbvxqa/A
 const DOWNLOAD_LOVABLE_ZIP_URL = "https://www.dropbox.com/scl/fo/e71wms6kcsre6igkjaz4y/ACt1_0xTijL9wIujqccUhXM?rlkey=koog865sgc18l38g8sf3cwl4t&st=l5tvgzk9&dl=1";
 
 // Loom Embed oficial de Visão Geral & Boas-Vindas da Área de Membros
-const HOME_WELCOME_VIDEO_URL = "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d";
+const HOME_WELCOME_VIDEO_URL = "https://www.loom.com/embed/eac334f209654087868a30e852e8315b";
 
 interface LicenseData {
   cliente: string;
@@ -598,7 +598,7 @@ function MembrosPage() {
                 <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary font-bold flex items-center gap-2">
                   <Play size={13} /> ASSISTA PRIMEIRO: VISÃO GERAL DA ÁREA DE MEMBROS
                 </span>
-                <span className="font-mono text-[9px] text-muted-foreground uppercase">DURAÇÃO: 04:12 MIN</span>
+                <span className="font-mono text-[9px] text-muted-foreground uppercase">DURAÇÃO: 03:45 MIN</span>
               </div>
 
               <div className="relative aspect-video bg-black border border-white/10">
