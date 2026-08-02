@@ -45,7 +45,9 @@ import {
   Calculator,
   FileCode,
   FolderArchive,
-  Monitor
+  Monitor,
+  Clock,
+  Wrench
 } from "lucide-react";
 
 const TITLE = "Área de Membros & Treinamentos VIP — RDG Digital";
@@ -62,9 +64,6 @@ const WA_SUPORTE = waLink(
 
 // Link de Download do Instalador ZIP Instagram (Dropbox Direct 1-Click Download)
 const DOWNLOAD_ZIP_URL = "https://www.dropbox.com/scl/fo/dt1wornxoi3o7r8mbvxqa/AHgL-XE1noUweqCiPes0UXc?rlkey=ixkg579ok6lzecx5x1pwndb6w&st=5ebzm8eh&dl=1";
-
-// Link da Pasta da Extensão Lovable no Dropbox
-const DOWNLOAD_LOVABLE_ZIP_URL = "https://www.dropbox.com/scl/fo/yr1sv7ggqe1b1en7mhtjx/ANCfO7LWYw_hFaLosB6GrJA?rlkey=pasvz7ehttiusa5g6so28r2d9&st=3q7emobf&dl=1";
 
 // Loom Embed oficial de Visão Geral & Boas-Vindas da Área de Membros
 const HOME_WELCOME_VIDEO_URL = "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d";
@@ -96,6 +95,9 @@ function MembrosPage() {
 
   // Controle de Navegação de Páginas (home, instagram, lovable, prospeccao)
   const [viewMode, setViewMode] = useState<"home" | "instagram" | "lovable" | "prospeccao">("home");
+
+  // Modal / Alert de Produto em Desenvolvimento
+  const [devNotice, setDevNotice] = useState<{ title: string; message: string; color: string } | null>(null);
 
   // Estado das Aulas do Instagram
   const [activeInstagramVideo, setActiveInstagramVideo] = useState<number>(0);
@@ -236,6 +238,11 @@ function MembrosPage() {
     return { text: "Permanente", badge: "✨ ATIVA", isWarning: false };
   };
 
+  // Trigger Dev Notice Modal
+  const openDevNotice = (productName: string, message: string, colorClass: string) => {
+    setDevNotice({ title: productName, message, color: colorClass });
+  };
+
   // Metrics para a Calculadora
   const calculatedMetrics = useMemo(() => {
     const dailyTotalDirects = roiProfiles * roiDirectsPerProfile;
@@ -251,49 +258,49 @@ function MembrosPage() {
     };
   }, [roiProfiles, roiDirectsPerProfile, roiConversionRate, roiAvgTicket]);
 
-  // Vídeo Aulas Exclusivas do Instagram (RDG instaPRO)
+  // Vídeo Aulas do Instagram (RDG instaPRO)
   const instagramVideos = [
     {
       id: 0,
       title: "Aula 01: Visão Geral & Setup do Robô RDG instaPRO",
       duration: "04:12 min",
       loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Apresentação completa do RDG instaPRO, estrutura da ferramenta e navegação do módulo.",
+      description: "Apresentação da estrutura do robô Instagram e como configurar o ambiente inicial.",
     },
     {
       id: 1,
       title: "Aula 02: Como Baixar e Instalar o Robô no Windows",
-      duration: "08:45 min",
-      loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Passo a passo para baixar o arquivo .ZIP, descompactar na pasta recomendada e rodar o instalador.",
+      duration: "Em regravação",
+      loomUrl: "",
+      description: "Passo a passo detalhado para baixar o instalador Windows e executar em sua máquina.",
     },
     {
       id: 2,
       title: "Aula 03: Carregando a Extensão no Google Chrome",
-      duration: "06:30 min",
-      loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Como ativar o Modo do Desenvolvedor no navegador Chrome e carregar a pasta da extensão.",
+      duration: "Em regravação",
+      loomUrl: "",
+      description: "Como ativar o Modo do Desenvolvedor e carregar a pasta da extensão descompactada.",
     },
     {
       id: 3,
       title: "Aula 04: Configurando Perfis e Intervalos Antibloqueio",
-      duration: "11:20 min",
-      loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Boas práticas antibloqueio: tempo de pausa entre mensagens, limites diários por conta e spintax.",
+      duration: "Em regravação",
+      loomUrl: "",
+      description: "Estratégias antibloqueio: intervalos de segurança, aquecimento de contas e Spintax.",
     },
     {
       id: 4,
       title: "Aula 05: Extração de Leads Segmentados de Concorrentes",
-      duration: "09:15 min",
-      loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Como capturar seguidores de concorrentes, hashtags de nicho e publicar listas de contatos alvos.",
+      duration: "Em regravação",
+      loomUrl: "",
+      description: "Como extrair seguidores e listas de contatos qualificados para abordagem direta.",
     },
     {
-      id: 5,
+      id: 6,
       title: "Aula 06: Automação de Directs e Respostas Frequentes",
-      duration: "13:00 min",
-      loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Configurando o disparo automático de mensagens personalizadas com variações de texto em tempo real.",
+      duration: "Em regravação",
+      loomUrl: "",
+      description: "Configuração do robô para disparo automatizado com respostas personalizadas em tempo real.",
     },
   ];
 
@@ -440,6 +447,41 @@ function MembrosPage() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-foreground font-sans selection:bg-primary selection:text-[#0A0A0A] scroll-smooth">
       
+      {/* MODAL / NOTICE POPUP DE DESENVOLVIMENTO */}
+      {devNotice && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease]">
+          <div className="bg-[#0A0A0A] border border-white/20 p-6 sm:p-8 max-w-md w-full space-y-5 text-center relative shadow-2xl">
+            <button
+              onClick={() => setDevNotice(null)}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-white"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="w-12 h-12 border border-white/20 bg-white/5 flex items-center justify-center mx-auto text-amber-400">
+              <Clock size={24} />
+            </div>
+
+            <div className="space-y-2">
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-amber-400 border border-amber-500/30 px-3 py-1 inline-block">
+                EM DESENVOLVIMENTO
+              </span>
+              <h3 className="text-xl font-light text-white">{devNotice.title}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed font-light">
+                {devNotice.message}
+              </p>
+            </div>
+
+            <button
+              onClick={() => setDevNotice(null)}
+              className="w-full border border-white/20 bg-white/10 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white hover:bg-white/20 transition-all"
+            >
+              ENTENDIDO
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ══ HEADER BAR GEOMÉTRICO RDG ══ */}
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/95 backdrop-blur-md px-4 py-3.5">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
@@ -582,7 +624,7 @@ function MembrosPage() {
                       </li>
                       <li className="flex items-center gap-2">
                         <Check size={12} className="text-[#E1306C]" />
-                        <span>6 Aulas em Vídeo do Robô Instagram</span>
+                        <span>Aulas em Vídeo do Robô Instagram</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Check size={12} className="text-[#E1306C]" />
@@ -612,7 +654,7 @@ function MembrosPage() {
                       ⚡ EXTENSÃO LOVABLE
                     </span>
                     <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#7C4DFF]/40 bg-[#7C4DFF]/10 text-purple-300">
-                      EM BREVE
+                      EM DESENVOLVIMENTO
                     </span>
                   </div>
 
@@ -620,13 +662,13 @@ function MembrosPage() {
                   <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
                     <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#7C4DFF]">
                       <span>Lovable Prototyper</span>
-                      <span className="text-purple-300">v2.0</span>
+                      <span className="text-amber-400">EM BREVE</span>
                     </div>
                     <p className="text-[10px] text-muted-foreground">
                       &gt; Automação de prototipagem acelerada
                     </p>
                     <div className="flex justify-between text-[9px] text-purple-300 pt-1 font-bold">
-                      <span>STATUS: EM GRAVAÇÃO</span>
+                      <span>STATUS: EM DESENVOLVIMENTO</span>
                     </div>
                   </div>
 
@@ -640,12 +682,8 @@ function MembrosPage() {
 
                     <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
                       <li className="flex items-center gap-2">
-                        <Check size={12} className="text-[#7C4DFF]" />
-                        <span>Download da Extensão Lovable</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Check size={12} className="text-[#7C4DFF]" />
-                        <span>Aulas em Gravação (Liberadas em Breve)</span>
+                        <Clock size={12} className="text-[#7C4DFF]" />
+                        <span>Em breve disponível para membros</span>
                       </li>
                     </ul>
                   </div>
@@ -654,11 +692,11 @@ function MembrosPage() {
                 <div className="p-6 pt-0">
                   <button
                     type="button"
-                    onClick={() => setViewMode("lovable")}
-                    className="w-full inline-flex items-center justify-center gap-2 border border-[#7C4DFF] bg-[#7C4DFF] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
+                    onClick={() => openDevNotice("Extensão Lovable", "Ainda em desenvolvimento. Em breve estará disponível mais este produto.", "purple")}
+                    className="w-full inline-flex items-center justify-center gap-2 border border-[#7C4DFF]/50 bg-[#7C4DFF]/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-purple-300 font-bold hover:bg-[#7C4DFF]/20 transition-all"
                   >
-                    <span>ACESSAR MÓDULO LOVABLE</span>
-                    <ArrowRight size={13} />
+                    <span>EM DESENVOLVIMENTO</span>
+                    <Clock size={13} />
                   </button>
                 </div>
               </div>
@@ -671,7 +709,7 @@ function MembrosPage() {
                       🗺️ PROSPECÇÃO B2B
                     </span>
                     <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#4285F4]/40 bg-[#4285F4]/10 text-blue-300">
-                      EM BREVE
+                      EM DESENVOLVIMENTO
                     </span>
                   </div>
 
@@ -679,13 +717,13 @@ function MembrosPage() {
                   <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
                     <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#4285F4]">
                       <span>Google Maps Scraper</span>
-                      <span className="text-emerald-400">API OK</span>
+                      <span className="text-amber-400">EM BREVE</span>
                     </div>
                     <p className="text-[10px] text-muted-foreground">
                       &gt; Filtro de empresas SEM site ativo
                     </p>
                     <div className="flex justify-between text-[9px] text-[#4285F4] pt-1 font-bold">
-                      <span>PRÉVIA 1-CLIQUE: ATIVA</span>
+                      <span>STATUS: EM DESENVOLVIMENTO</span>
                     </div>
                   </div>
 
@@ -699,12 +737,8 @@ function MembrosPage() {
 
                     <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
                       <li className="flex items-center gap-2">
-                        <Check size={12} className="text-[#4285F4]" />
-                        <span>Acesso ao Software de Prospecção</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Check size={12} className="text-[#4285F4]" />
-                        <span>Aulas em Gravação (Liberadas em Breve)</span>
+                        <Clock size={12} className="text-[#4285F4]" />
+                        <span>Em breve mais uma solução disponível</span>
                       </li>
                     </ul>
                   </div>
@@ -713,11 +747,11 @@ function MembrosPage() {
                 <div className="p-6 pt-0">
                   <button
                     type="button"
-                    onClick={() => setViewMode("prospeccao")}
-                    className="w-full inline-flex items-center justify-center gap-2 border border-[#4285F4] bg-[#4285F4] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A] font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
+                    onClick={() => openDevNotice("Prospecção B2B (Google Maps)", "Ainda em desenvolvimento. Em breve mais uma solução disponível.", "blue")}
+                    className="w-full inline-flex items-center justify-center gap-2 border border-[#4285F4]/50 bg-[#4285F4]/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-blue-300 font-bold hover:bg-[#4285F4]/20 transition-all"
                   >
-                    <span>ACESSAR MÓDULO PROSPECÇÃO</span>
-                    <ArrowRight size={13} />
+                    <span>EM DESENVOLVIMENTO</span>
+                    <Clock size={13} />
                   </button>
                 </div>
               </div>
@@ -812,7 +846,7 @@ function MembrosPage() {
       )}
 
       {/* ==================================================================================== */}
-      {/* VISTA 2: PÁGINA DEDICADA DA EXTENSÃO INSTAGRAM (COM TODAS AS 6 AULAS RESTAURADAS) */}
+      {/* VISTA 2: PÁGINA DEDICADA DA EXTENSÃO INSTAGRAM */}
       {/* ==================================================================================== */}
       {viewMode === "instagram" && (
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
@@ -916,23 +950,37 @@ function MembrosPage() {
             </div>
           </div>
 
-          {/* PLAYER DAS 6 VÍDEO AULAS DO ROBÔ INSTAGRAM */}
+          {/* PLAYER DAS VÍDEO AULAS DO ROBÔ INSTAGRAM */}
           <section className="space-y-6">
             <div className="border-b border-white/10 pb-3 flex items-center justify-between">
               <h2 className="text-xl font-light text-white">Treinamento em Vídeo — Aulas do Robô Instagram</h2>
-              <span className="font-mono text-[10px] uppercase text-[#E1306C] font-bold">6 AULAS DISPONÍVEIS</span>
+              <span className="font-mono text-[10px] uppercase text-[#E1306C] font-bold">MÓDULO EXCLUSIVO</span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               <div className="lg:col-span-7 border border-white/10 bg-[#0A0A0A] p-4 space-y-3 shadow-2xl">
-                <div className="relative aspect-video bg-black border border-white/10">
-                  <iframe
-                    src={instagramVideos[activeInstagramVideo].loomUrl}
-                    title={instagramVideos[activeInstagramVideo].title}
-                    className="w-full h-full border-0"
-                    allowFullScreen
-                  />
-                </div>
+                {instagramVideos[activeInstagramVideo].loomUrl ? (
+                  <div className="relative aspect-video bg-black border border-white/10">
+                    <iframe
+                      src={instagramVideos[activeInstagramVideo].loomUrl}
+                      title={instagramVideos[activeInstagramVideo].title}
+                      className="w-full h-full border-0"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <div className="relative aspect-video bg-[#111218] border border-white/10 flex flex-col items-center justify-center text-center p-6 space-y-3">
+                    <Clock size={32} className="text-[#E1306C] animate-pulse" />
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#E1306C] border border-[#E1306C]/40 px-3 py-1">
+                      AULA EM REGRAVAÇÃO
+                    </span>
+                    <h4 className="text-lg font-light text-white">{instagramVideos[activeInstagramVideo].title}</h4>
+                    <p className="text-xs text-muted-foreground max-w-sm font-light">
+                      Esta vídeo aula oficial está sendo regravada com as novas funções da extensão e estará disponível nesta seção em breve.
+                    </p>
+                  </div>
+                )}
+
                 <div className="space-y-1 p-2">
                   <h3 className="text-lg font-light text-white">{instagramVideos[activeInstagramVideo].title}</h3>
                   <p className="text-xs text-muted-foreground">{instagramVideos[activeInstagramVideo].description}</p>
@@ -1166,7 +1214,7 @@ function MembrosPage() {
       )}
 
       {/* ==================================================================================== */}
-      {/* VISTA 3: PÁGINA DEDICADA DA EXTENSÃO LOVABLE */}
+      {/* VISTA 3: PÁGINA DEDICADA DA EXTENSÃO LOVABLE (EM DESENVOLVIMENTO) */}
       {/* ==================================================================================== */}
       {viewMode === "lovable" && (
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
@@ -1180,54 +1228,41 @@ function MembrosPage() {
                   Extensão Lovable
                 </h1>
                 <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl">
-                  Página oficial dedicada à Extensão Lovable. Baixe o arquivo da extensão abaixo enquanto o treinamento em vídeo está em gravação.
+                  Ferramenta de aceleração de desenvolvimento e criação de protótipos web no Lovable.
                 </p>
               </div>
 
-              <a
-                href={DOWNLOAD_LOVABLE_ZIP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 border border-[#7C4DFF] bg-[#7C4DFF] px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold hover:brightness-110 transition-all"
+              <button
+                type="button"
+                onClick={() => openDevNotice("Extensão Lovable", "Ainda em desenvolvimento. Em breve estará disponível mais este produto.", "purple")}
+                className="inline-flex items-center gap-2 border border-[#7C4DFF]/50 bg-[#7C4DFF]/10 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-purple-300 font-bold hover:bg-[#7C4DFF]/20 transition-all"
               >
-                <Download size={15} />
-                <span>BAIXAR EXTENSÃO (.ZIP)</span>
-              </a>
+                <Clock size={15} />
+                <span>EM DESENVOLVIMENTO</span>
+              </button>
             </div>
           </div>
 
           <section className="border border-[#7C4DFF]/30 bg-[#0A0A0A] p-8 sm:p-12 text-center space-y-5 max-w-3xl mx-auto">
             <div className="w-14 h-14 border border-[#7C4DFF]/40 bg-[#7C4DFF]/10 text-[#7C4DFF] flex items-center justify-center mx-auto">
-              <Video size={28} />
+              <Clock size={28} />
             </div>
 
             <div className="space-y-2">
               <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#7C4DFF] border border-[#7C4DFF]/30 px-3 py-1 inline-block">
-                AULAS EM GRAVAÇÃO
+                EM DESENVOLVIMENTO
               </span>
-              <h2 className="text-2xl font-light text-white">Treinamento do Lovable Liberado em Breve!</h2>
+              <h2 className="text-2xl font-light text-white">Ainda em desenvolvimento</h2>
               <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed font-light">
-                As vídeo aulas oficiais de instalação e uso avançado da Extensão Lovable estão sendo produzidas e serão disponibilizadas nesta página.
+                Em breve estará disponível mais este produto exclusivo para todos os alunos VIP da RDG Digital.
               </p>
-            </div>
-
-            <div className="pt-2">
-              <a
-                href={DOWNLOAD_LOVABLE_ZIP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 border border-[#7C4DFF] bg-[#7C4DFF] px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold hover:brightness-110 transition-all"
-              >
-                <Download size={15} />
-                <span>BAIXAR ARQUIVO DA EXTENSÃO (.ZIP)</span>
-              </a>
             </div>
           </section>
         </main>
       )}
 
       {/* ==================================================================================== */}
-      {/* VISTA 4: PÁGINA DEDICADA DA PROSPECÇÃO B2B GOOGLE MAPS */}
+      {/* VISTA 4: PÁGINA DEDICADA DA PROSPECÇÃO B2B GOOGLE MAPS (EM DESENVOLVIMENTO) */}
       {/* ==================================================================================== */}
       {viewMode === "prospeccao" && (
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
@@ -1241,43 +1276,34 @@ function MembrosPage() {
                   Prospecção B2B (Google Maps)
                 </h1>
                 <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl">
-                  Página oficial dedicada ao Software de Prospecção B2B. Acesse a ferramenta abaixo enquanto as aulas oficiais de vendas estão sendo gravadas.
+                  Software de busca de negócios locais sem site e gerador de demonstração em 1-clique.
                 </p>
               </div>
 
-              <a
-                href="/prospeccao"
-                className="inline-flex items-center gap-2 border border-[#4285F4] bg-[#4285F4] px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A] font-bold hover:brightness-110 transition-all"
+              <button
+                type="button"
+                onClick={() => openDevNotice("Prospecção B2B (Google Maps)", "Ainda em desenvolvimento. Em breve mais uma solução disponível.", "blue")}
+                className="inline-flex items-center gap-2 border border-[#4285F4]/50 bg-[#4285F4]/10 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-blue-300 font-bold hover:bg-[#4285F4]/20 transition-all"
               >
-                <Search size={15} />
-                <span>ABRIR SOFTWARE DE PROSPECÇÃO</span>
-              </a>
+                <Clock size={15} />
+                <span>EM DESENVOLVIMENTO</span>
+              </button>
             </div>
           </div>
 
           <section className="border border-[#4285F4]/30 bg-[#0A0A0A] p-8 sm:p-12 text-center space-y-5 max-w-3xl mx-auto">
             <div className="w-14 h-14 border border-[#4285F4]/40 bg-[#4285F4]/10 text-[#4285F4] flex items-center justify-center mx-auto">
-              <Video size={28} />
+              <Clock size={28} />
             </div>
 
             <div className="space-y-2">
               <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#4285F4] border border-[#4285F4]/30 px-3 py-1 inline-block">
-                AULAS EM GRAVAÇÃO
+                EM DESENVOLVIMENTO
               </span>
-              <h2 className="text-2xl font-light text-white">Treinamento de Prospecção B2B Liberado em Breve!</h2>
+              <h2 className="text-2xl font-light text-white">Ainda em desenvolvimento</h2>
               <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed font-light">
-                As vídeo aulas oficiais de técnicas de prospecção no Google Maps, geração de sites em 1-clique e scripts de abordagem comercial estão em gravação.
+                Em breve mais uma solução disponível para você impulsionar suas prospecções no Google Maps.
               </p>
-            </div>
-
-            <div className="pt-2">
-              <a
-                href="/prospeccao"
-                className="inline-flex items-center gap-2 border border-[#4285F4] bg-[#4285F4] px-8 py-3.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A] font-bold hover:brightness-110 transition-all"
-              >
-                <Search size={15} />
-                <span>ACESSAR SOFTWARE DE PROSPECÇÃO AGORA</span>
-              </a>
             </div>
           </section>
         </main>
