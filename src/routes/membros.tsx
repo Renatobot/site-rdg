@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { waLink } from "@/lib/site";
+import { waLink, LOGO_URL } from "@/lib/site";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
 import {
   Download,
@@ -40,7 +40,8 @@ import {
   Phone,
   BarChart3,
   Terminal,
-  ShieldCheck
+  ShieldCheck,
+  ArrowRight
 } from "lucide-react";
 
 const TITLE = "Área de Membros & Treinamentos VIP — RDG Digital";
@@ -194,7 +195,7 @@ function MembrosPage() {
 
   const getValidityDetails = (lic: LicenseData) => {
     if (lic.is_lifetime) {
-      return { text: "Licença Ativa", badge: "✨ Ativa", isWarning: false };
+      return { text: "Licença Ativa", badge: "✨ ATIVA", isWarning: false };
     }
     if (lic.expires_at) {
       const exp = new Date(lic.expires_at);
@@ -204,15 +205,15 @@ function MembrosPage() {
       
       const dateStr = exp.toLocaleDateString("pt-BR");
       if (diffDays <= 0) {
-        return { text: "Expirado", badge: "❌ Expirado", isWarning: true };
+        return { text: "Expirado", badge: "❌ EXPIRADO", isWarning: true };
       }
       return {
         text: `Vence em ${dateStr} (${diffDays} dias)`,
-        badge: `⏳ ${diffDays} dias restantes`,
+        badge: `⏳ ${diffDays} DIAS RESTANTES`,
         isWarning: diffDays <= 5,
       };
     }
-    return { text: "Permanente", badge: "✨ Ativa", isWarning: false };
+    return { text: "Permanente", badge: "✨ ATIVA", isWarning: false };
   };
 
   // Vídeo Aulas Exclusivas do Instagram (RDG instaPRO)
@@ -264,75 +265,77 @@ function MembrosPage() {
   // INITIAL SPINNER
   if (isVerifying && !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#070913] flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center p-4 font-mono">
         <div className="text-center space-y-4">
-          <Loader2 className="w-9 h-9 text-indigo-500 animate-spin mx-auto" />
-          <p className="text-xs font-semibold text-[#94A3B8]">
-            Validando credenciais de acesso...
+          <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            VALIDANDO ACESSO RDG DIGITAL...
           </p>
         </div>
       </div>
     );
   }
 
-  // LOGIN GATE MODAL
+  // LOGIN GATE MODAL (ESTILO GEOMÉTRICO RETANGULAR RDG)
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#070913] text-[#F8FAFC] font-sans flex flex-col justify-between selection:bg-indigo-500/30">
-        <header className="px-6 py-5 border-b border-white/10 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold tracking-tight text-white">
-              <span className="text-indigo-400">RDG</span> Digital
+      <div className="min-h-screen bg-[#0A0A0A] text-foreground font-sans flex flex-col justify-between selection:bg-primary selection:text-[#0A0A0A]">
+        <header className="border-b border-white/10 bg-[#0A0A0A] px-6 py-4 flex items-center justify-between">
+          <a href="/" className="flex items-center gap-3">
+            <img src={LOGO_URL} alt="RDG Digital" className="h-7 w-auto object-contain" />
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground border-l border-white/10 pl-3">
+              ÁREA VIP <span className="text-primary font-bold">MEMBROS</span>
             </span>
           </a>
+
           <a
             href={WA_SUPORTE}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-all"
+            className="inline-flex items-center gap-2 border border-white/20 px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-foreground/80 transition-colors hover:border-primary/40 hover:text-foreground"
           >
-            <MessageCircle size={14} />
-            <span>Suporte VIP</span>
+            <MessageCircle size={13} />
+            <span>SUPORTE VIP</span>
           </a>
         </header>
 
         <main className="flex-1 flex items-center justify-center p-4 py-12">
-          <div className="w-full max-w-md bg-[#0F1223] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+          <div className="w-full max-w-md bg-[#0A0A0A] border border-white/15 p-6 sm:p-8 space-y-6">
             <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center mx-auto mb-3">
-                <Lock size={22} />
-              </div>
-              <h1 className="text-2xl font-bold text-white">
-                Área de Membros VIP RDG
+              <span className="inline-flex items-center gap-2 border border-primary/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
+                <Lock size={12} /> AUTENTICAÇÃO VIP
+              </span>
+              <h1 className="text-2xl font-light text-white tracking-tight pt-2">
+                Acesse sua Área de Membros
               </h1>
-              <p className="text-xs text-[#94A3B8] leading-relaxed">
-                Digite a sua <strong>Chave de Licença</strong> para acessar seus softwares e treinamentos.
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Insira sua chave de licença oficial para desbloquear seus softwares e treinamentos.
               </p>
             </div>
 
             {loginError && (
-              <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-start gap-3 text-xs text-rose-300">
-                <AlertCircle size={16} className="shrink-0 mt-0.5" />
+              <div className="p-3 bg-rose-500/10 border border-rose-500/40 font-mono text-[11px] text-rose-300 flex items-start gap-2.5">
+                <AlertCircle size={15} className="shrink-0 mt-0.5" />
                 <span>{loginError}</span>
               </div>
             )}
 
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider">
-                  Sua Chave de Licença (Key)
+                <label className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  Chave de Licença (Key)
                 </label>
                 <div className="relative">
                   <Key
-                    size={18}
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B]"
+                    size={16}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
                   />
                   <input
                     type="text"
                     value={inputKey}
                     onChange={(e) => setInputKey(e.target.value.toUpperCase())}
                     placeholder="IG-XXXX / LOVE-XXXX / MAPS-XXXX"
-                    className="w-full bg-[#070913] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-sm text-white font-mono placeholder:text-[#64748B] focus:outline-none focus:border-indigo-500 transition-all uppercase tracking-wider"
+                    className="w-full bg-[#111218] border border-white/15 pl-10 pr-4 py-3 text-xs text-white font-mono placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary transition-all uppercase tracking-[0.15em]"
                     required
                   />
                 </div>
@@ -341,41 +344,41 @@ function MembrosPage() {
               <button
                 type="submit"
                 disabled={isVerifying}
-                className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 bg-primary px-5 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[#0A0A0A] font-bold transition-transform hover:scale-[1.01] hover:brightness-110 disabled:opacity-50"
               >
                 {isVerifying ? (
                   <>
-                    <Loader2 size={16} className="animate-spin" />
-                    <span>Verificando Chave...</span>
+                    <Loader2 size={15} className="animate-spin" />
+                    <span>VERIFICANDO CHAVE...</span>
                   </>
                 ) : (
                   <>
-                    <UserCheck size={18} />
-                    <span>Entrar na Área de Membros</span>
+                    <UserCheck size={16} />
+                    <span>ENTRAR NA ÁREA VIP</span>
                   </>
                 )}
               </button>
             </form>
 
             <div className="pt-4 border-t border-white/10 text-center space-y-2">
-              <p className="text-xs text-[#94A3B8]">
-                Ainda não comprou ou perdeu sua chave?
+              <p className="text-xs text-muted-foreground">
+                Perdeu ou deseja renovar sua licença?
               </p>
               <a
                 href={WA_SUPORTE}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-400 hover:underline"
+                className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.15em] text-primary hover:underline"
               >
-                <span>Falar com o suporte no WhatsApp</span>
-                <ChevronRight size={14} />
+                <span>FALAR COM SUPORTE NO WHATSAPP</span>
+                <ArrowRight size={12} />
               </a>
             </div>
           </div>
         </main>
 
-        <footer className="py-4 text-center text-xs text-[#64748B] border-t border-white/5">
-          © 2026 RDG Digital. Todos os direitos reservados.
+        <footer className="py-4 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground border-t border-white/5">
+          © 2026 RDG DIGITAL. TODOS OS DIREITOS RESERVADOS.
         </footer>
       </div>
     );
@@ -384,140 +387,129 @@ function MembrosPage() {
   const valInfo = licenseInfo ? getValidityDetails(licenseInfo) : null;
 
   return (
-    <div className="min-h-screen bg-[#070913] text-[#F8FAFC] font-sans selection:bg-indigo-500/30 scroll-smooth">
-      {/* Header Bar Limpa RDG */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-[#070913]/90 border-b border-white/10 px-4 py-4">
+    <div className="min-h-screen bg-[#0A0A0A] text-foreground font-sans selection:bg-primary selection:text-[#0A0A0A] scroll-smooth">
+      
+      {/* ══ HEADER BAR GEOMÉTRICO RDG ══ */}
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/95 backdrop-blur-md px-4 py-3.5">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {viewMode !== "home" && (
               <button
                 onClick={() => setViewMode("home")}
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-white bg-white/10 hover:bg-white/20 border border-white/15 rounded-xl transition-all shadow-sm active:scale-95"
+                className="inline-flex items-center gap-2 border border-white/20 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-foreground/90 transition-colors hover:border-primary hover:text-white"
               >
-                <ArrowLeft size={16} />
-                <span>Voltar para Área de Membros</span>
+                <ArrowLeft size={14} />
+                <span>VOLTAR</span>
               </button>
             )}
 
             <a href="/membros" onClick={(e) => { e.preventDefault(); setViewMode("home"); }} className="flex items-center gap-3">
-              <span className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                <span className="text-indigo-400">RDG</span> Digital
-              </span>
-              <span className="hidden sm:inline-block px-2.5 py-0.5 text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 rounded-full">
-                ÁREA VIP
+              <img src={LOGO_URL} alt="RDG Digital" className="h-7 w-auto object-contain" />
+              <span className="hidden sm:inline-block font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground border-l border-white/10 pl-3">
+                PAINEL VIP <span className="text-primary font-bold">MEMBROS</span>
               </span>
             </a>
           </div>
 
           <div className="flex items-center gap-3">
             {licenseInfo && valInfo && (
-              <div className="hidden md:flex flex-col text-right text-xs">
-                <div className="flex items-center justify-end gap-2">
-                  <span className="font-bold text-white">
-                    👤 {licenseInfo.cliente}
-                  </span>
-                  <span className="px-2 py-0.5 text-[10px] font-bold rounded-full border bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
-                    {valInfo.badge}
-                  </span>
-                </div>
-                <span className="text-[#94A3B8] mt-0.5">
-                  Licença: <code className="text-indigo-400 font-mono">{licenseInfo.key}</code>
+              <div className="hidden md:flex items-center gap-3 border border-white/10 bg-[#111218] px-3.5 py-1.5 font-mono text-[10px]">
+                <span className="text-white font-bold uppercase tracking-wider">
+                  👤 {licenseInfo.cliente}
+                </span>
+                <span className="text-primary font-bold tracking-widest border-l border-white/10 pl-3">
+                  {licenseInfo.key}
+                </span>
+                <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 uppercase tracking-widest text-[9px]">
+                  {valInfo.badge}
                 </span>
               </div>
             )}
 
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg hover:bg-rose-500/20 transition-all"
+              className="inline-flex items-center gap-1.5 border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.15em] text-rose-400 hover:bg-rose-500/20 transition-all"
               title="Sair / Trocar Chave"
             >
-              <LogOut size={14} />
-              <span className="hidden sm:inline">Sair</span>
+              <LogOut size={13} />
+              <span className="hidden sm:inline">SAIR</span>
             </button>
           </div>
         </div>
       </header>
 
       {/* ==================================================================================== */}
-      {/* VISTA 1: HOME PRINCIPAL DA ÁREA DE MEMBROS (CARDS COM MOCKUPS GRÁFICOS ILUSTRADOS) */}
+      {/* VISTA 1: HOME PRINCIPAL DA ÁREA DE MEMBROS (DESIGN RETANGULAR GEOMÉTRICO RDG) */}
       {/* ==================================================================================== */}
       {viewMode === "home" && (
         <div className="space-y-12 pb-16 animate-[fadeIn_0.3s_ease]">
-          {/* Hero Section Limpa */}
-          <section className="relative pt-10 pb-8 px-4 border-b border-white/5 bg-gradient-to-b from-indigo-500/10 via-transparent to-transparent">
-            <div className="max-w-4xl mx-auto text-center space-y-3">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 rounded-full">
-                <CheckCircle2 size={14} />
-                <span>BEM-VINDO À SUA ÁREA DE MEMBROS RDG</span>
-              </div>
+          
+          {/* Hero Section GEOMÉTRICO */}
+          <section className="relative border-b border-white/10 pt-10 pb-10 px-4 bg-[#0A0A0A]">
+            <div className="max-w-6xl mx-auto text-center space-y-4">
+              <span className="inline-flex items-center gap-2 border border-primary/40 px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
+                <Sparkles size={12} /> BEM-VINDO À SUA ÁREA VIP RDG DIGITAL
+              </span>
 
-              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-                Seus Softwares & Treinamentos
+              <h1 className="text-3xl sm:text-5xl font-light tracking-tight text-white max-w-4xl mx-auto">
+                Seus Softwares &amp; <em className="text-primary not-italic">Treinamentos VIP</em>
               </h1>
-              <p className="text-xs sm:text-sm text-[#94A3B8] max-w-xl mx-auto leading-relaxed">
-                Clique no produto abaixo para acessar sua área de download, tutoriais e recursos. Os seus bônus exclusivos continuam fixos logo abaixo!
+              <p className="text-xs sm:text-sm font-light text-foreground/80 max-w-2xl mx-auto leading-relaxed">
+                Selecione o seu produto abaixo para abrir os downloads e tutoriais dedicados. Seus bônus exclusivos continuam acessíveis logo abaixo.
               </p>
             </div>
           </section>
 
-          {/* SEÇÃO DOS 3 CARDS DE PRODUTOS COM MOCKUPS ILUSTRATIVOS E CORES EXATAS DO NICHO */}
+          {/* SEÇÃO DOS CARDS RETANGULARES GEOMÉTRICOS RDG */}
           <section className="max-w-6xl mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
-              {/* CARD 1: INSTAGRAM (ROSA / MAGENTA INSTAGRAM) */}
-              <div className="bg-[#0F1223] border border-[#E1306C]/40 hover:border-[#E1306C]/80 rounded-2xl overflow-hidden transition-all shadow-xl hover:shadow-[#E1306C]/10 flex flex-col justify-between group">
-                <div className="p-6 space-y-4">
-                  {/* Mockup Gráfico do Instagram */}
-                  <div className="w-full bg-[#181C30] border border-[#E1306C]/20 rounded-xl p-3 space-y-2 text-[11px]">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-bold">
-                          📸
-                        </div>
-                        <span className="font-bold text-white">@sua_marca</span>
-                      </div>
-                      <span className="text-[9px] px-2 py-0.5 rounded bg-[#E1306C]/20 text-pink-300 font-semibold">ONLINE</span>
-                    </div>
+              {/* CARD 1: INSTAGRAM (ROSA / MAGENTA ACCENT) */}
+              <div className="border border-[#E1306C]/40 bg-[#0A0A0A] hover:border-[#E1306C] transition-all flex flex-col justify-between group">
+                <div className="p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#E1306C] flex items-center gap-1.5 font-bold">
+                      📸 EXTENSÃO INSTAGRAM
+                    </span>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#E1306C]/40 bg-[#E1306C]/10 text-pink-300">
+                      DISPONÍVEL
+                    </span>
+                  </div>
 
-                    <div className="bg-[#0D0F1D] p-2.5 rounded-lg border border-white/5 space-y-1.5">
-                      <div className="flex items-center justify-between text-[10px] text-pink-300 font-bold">
-                        <span>⚡ Robô Direct RDG instaPRO</span>
-                        <span>100% Ativo</span>
-                      </div>
-                      <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-gradient-to-r from-pink-500 to-purple-600 h-full w-[85%]" />
-                      </div>
-                      <div className="flex justify-between text-[9px] text-[#94A3B8]">
-                        <span>420 Directs Enviados</span>
-                        <span>18 Conversões</span>
-                      </div>
+                  {/* Mockup Retangular Estilo Terminal RDG */}
+                  <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#E1306C]">
+                      <span>RDG instaPRO v2.4</span>
+                      <span className="text-emerald-400">● ATIVO</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      &gt; Automação de Directs &amp; Extração de Leads
+                    </p>
+                    <div className="flex justify-between text-[9px] text-[#E1306C] pt-1 font-bold">
+                      <span>DISPAROS: 420/DIA</span>
+                      <span>STATUS: SEGURO</span>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-xl font-bold text-white group-hover:text-pink-400 transition-colors">
-                        Extensão Instagram
-                      </h2>
-                      <span className="px-2.5 py-0.5 text-[9px] font-extrabold rounded-full bg-pink-500/15 text-pink-300 border border-pink-500/25">
-                        LIBERADO
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#94A3B8] leading-relaxed">
-                      RDG instaPRO: Automação de Directs, extração de seguidores de concorrentes e robô de vendas ativado.
+                  <div className="space-y-3">
+                    <h2 className="text-xl font-light text-white group-hover:text-[#E1306C] transition-colors">
+                      Extensão Instagram (instaPRO)
+                    </h2>
+                    <p className="text-xs text-foreground/75 leading-relaxed font-light">
+                      Robô de automação de Directs, extração de seguidores de concorrentes e funil comercial.
                     </p>
 
-                    <ul className="space-y-1.5 pt-2 text-[11px] text-white/90">
+                    <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 size={13} className="text-pink-400 shrink-0" />
+                        <Check size={12} className="text-[#E1306C]" />
                         <span>Instalador ZIP do Robô Instagram</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 size={13} className="text-pink-400 shrink-0" />
+                        <Check size={12} className="text-[#E1306C]" />
                         <span>8 Vídeo Aulas de Treinamento</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 size={13} className="text-pink-400 shrink-0" />
+                        <Check size={12} className="text-[#E1306C]" />
                         <span>E-Book Manual de Aquecimento PDF</span>
                       </li>
                     </ul>
@@ -528,60 +520,55 @@ function MembrosPage() {
                   <button
                     type="button"
                     onClick={() => setViewMode("instagram")}
-                    className="w-full py-3 px-4 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:opacity-95 text-white font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-pink-500/20 flex items-center justify-center gap-2"
+                    className="w-full inline-flex items-center justify-center gap-2 border border-[#E1306C] bg-[#E1306C] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
                   >
-                    <span>Acessar Módulo Instagram</span>
-                    <ChevronRight size={16} />
+                    <span>ACESSAR MÓDULO INSTAGRAM</span>
+                    <ArrowRight size={13} />
                   </button>
                 </div>
               </div>
 
-              {/* CARD 2: LOVABLE (ROXO / MAGENTA LOVABLE) */}
-              <div className="bg-[#0F1223] border border-[#7C4DFF]/40 hover:border-[#7C4DFF]/80 rounded-2xl overflow-hidden transition-all shadow-xl hover:shadow-[#7C4DFF]/10 flex flex-col justify-between group">
-                <div className="p-6 space-y-4">
-                  {/* Mockup Gráfico do Lovable */}
-                  <div className="w-full bg-[#181C30] border border-[#7C4DFF]/20 rounded-xl p-3 space-y-2 text-[11px]">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-[10px] font-bold">
-                          ⚡
-                        </div>
-                        <span className="font-bold text-white">Lovable extension.js</span>
-                      </div>
-                      <span className="text-[9px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold">v2.0</span>
-                    </div>
+              {/* CARD 2: LOVABLE (ROXO / VIOLET ACCENT) */}
+              <div className="border border-[#7C4DFF]/40 bg-[#0A0A0A] hover:border-[#7C4DFF] transition-all flex flex-col justify-between group">
+                <div className="p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#7C4DFF] flex items-center gap-1.5 font-bold">
+                      ⚡ EXTENSÃO LOVABLE
+                    </span>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#7C4DFF]/40 bg-[#7C4DFF]/10 text-purple-300">
+                      EM BREVE
+                    </span>
+                  </div>
 
-                    <div className="bg-[#0D0F1D] p-2.5 rounded-lg border border-white/5 space-y-1.5 font-mono text-[10px] text-purple-300">
-                      <div className="flex items-center gap-1.5">
-                        <Terminal size={12} className="text-purple-400" />
-                        <span>// Lovable Auto Prototyper</span>
-                      </div>
-                      <p className="text-[9px] text-[#94A3B8]">
-                        &gt; Prototipagem rápida de interfaces React &amp; Tailwind ativada.
-                      </p>
+                  {/* Mockup Retangular Estilo Terminal RDG */}
+                  <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#7C4DFF]">
+                      <span>Lovable Prototyper</span>
+                      <span className="text-purple-300">v2.0</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      &gt; Automação de prototipagem acelerada
+                    </p>
+                    <div className="flex justify-between text-[9px] text-purple-300 pt-1 font-bold">
+                      <span>STATUS: EM GRAVAÇÃO</span>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">
-                        Extensão Lovable
-                      </h2>
-                      <span className="px-2.5 py-0.5 text-[9px] font-extrabold rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/25">
-                        EM BREVE
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#94A3B8] leading-relaxed">
-                      Automação de prototipagem e desenvolvimento web acelerado para a plataforma Lovable.
+                  <div className="space-y-3">
+                    <h2 className="text-xl font-light text-white group-hover:text-[#7C4DFF] transition-colors">
+                      Extensão Lovable
+                    </h2>
+                    <p className="text-xs text-foreground/75 leading-relaxed font-light">
+                      Ferramenta de aceleração de desenvolvimento e criação de protótipos web no Lovable.
                     </p>
 
-                    <ul className="space-y-1.5 pt-2 text-[11px] text-white/90">
+                    <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 size={13} className="text-purple-400 shrink-0" />
+                        <Check size={12} className="text-[#7C4DFF]" />
                         <span>Download da Extensão Lovable</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 size={13} className="text-purple-400 shrink-0" />
+                        <Check size={12} className="text-[#7C4DFF]" />
                         <span>Aulas em Gravação (Liberadas em Breve)</span>
                       </li>
                     </ul>
@@ -592,61 +579,55 @@ function MembrosPage() {
                   <button
                     type="button"
                     onClick={() => setViewMode("lovable")}
-                    className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2"
+                    className="w-full inline-flex items-center justify-center gap-2 border border-[#7C4DFF] bg-[#7C4DFF] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
                   >
-                    <span>Acessar Módulo Lovable</span>
-                    <ChevronRight size={16} />
+                    <span>ACESSAR MÓDULO LOVABLE</span>
+                    <ArrowRight size={13} />
                   </button>
                 </div>
               </div>
 
-              {/* CARD 3: PROSPECÇÃO B2B (AZUL / VERDE GOOGLE MAPS) */}
-              <div className="bg-[#0F1223] border border-[#4285F4]/40 hover:border-[#4285F4]/80 rounded-2xl overflow-hidden transition-all shadow-xl hover:shadow-[#4285F4]/10 flex flex-col justify-between group">
-                <div className="p-6 space-y-4">
-                  {/* Mockup Gráfico do Google Maps */}
-                  <div className="w-full bg-[#181C30] border border-[#4285F4]/20 rounded-xl p-3 space-y-2 text-[11px]">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-[10px] font-bold">
-                          🗺️
-                        </div>
-                        <span className="font-bold text-white">Google Maps B2B</span>
-                      </div>
-                      <span className="text-[9px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold">API OK</span>
-                    </div>
+              {/* CARD 3: PROSPECÇÃO B2B (AZUL / GOOGLE ACCENT) */}
+              <div className="border border-[#4285F4]/40 bg-[#0A0A0A] hover:border-[#4285F4] transition-all flex flex-col justify-between group">
+                <div className="p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#4285F4] flex items-center gap-1.5 font-bold">
+                      🗺️ PROSPECÇÃO B2B
+                    </span>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#4285F4]/40 bg-[#4285F4]/10 text-blue-300">
+                      EM BREVE
+                    </span>
+                  </div>
 
-                    <div className="bg-[#0D0F1D] p-2.5 rounded-lg border border-white/5 space-y-1.5">
-                      <div className="flex items-center justify-between text-[10px]">
-                        <span className="font-bold text-white">Empresa X (Sem Site)</span>
-                        <span className="text-amber-400 font-bold">⭐ 4.8</span>
-                      </div>
-                      <div className="flex items-center justify-between text-[9px] text-[#94A3B8]">
-                        <span>📍 São Paulo, SP</span>
-                        <span className="text-emerald-400 font-bold">[Gerar Prévia 1-Clique]</span>
-                      </div>
+                  {/* Mockup Retangular Estilo Terminal RDG */}
+                  <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#4285F4]">
+                      <span>Google Maps Scraper</span>
+                      <span className="text-emerald-400">API OK</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      &gt; Filtro de empresas SEM site ativo
+                    </p>
+                    <div className="flex justify-between text-[9px] text-[#4285F4] pt-1 font-bold">
+                      <span>PRÉVIA 1-CLIQUE: ATIVA</span>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
-                        Prospecção Google Maps
-                      </h2>
-                      <span className="px-2.5 py-0.5 text-[9px] font-extrabold rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/25">
-                        EM BREVE
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#94A3B8] leading-relaxed">
-                      Rastreie empresas sem site no Google Maps e crie a prévia oficial do site em 1-clique.
+                  <div className="space-y-3">
+                    <h2 className="text-xl font-light text-white group-hover:text-[#4285F4] transition-colors">
+                      Prospecção B2B (Google Maps)
+                    </h2>
+                    <p className="text-xs text-foreground/75 leading-relaxed font-light">
+                      Software de busca de negócios locais sem site e gerador de demonstração em 1-clique.
                     </p>
 
-                    <ul className="space-y-1.5 pt-2 text-[11px] text-white/90">
+                    <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 size={13} className="text-blue-400 shrink-0" />
+                        <Check size={12} className="text-[#4285F4]" />
                         <span>Acesso ao Software de Prospecção</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 size={13} className="text-blue-400 shrink-0" />
+                        <Check size={12} className="text-[#4285F4]" />
                         <span>Aulas em Gravação (Liberadas em Breve)</span>
                       </li>
                     </ul>
@@ -657,10 +638,10 @@ function MembrosPage() {
                   <button
                     type="button"
                     onClick={() => setViewMode("prospeccao")}
-                    className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-teal-500 hover:opacity-95 text-black font-extrabold text-xs rounded-xl transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+                    className="w-full inline-flex items-center justify-center gap-2 border border-[#4285F4] bg-[#4285F4] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A] font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
                   >
-                    <span>Acessar Módulo Prospecção</span>
-                    <ChevronRight size={16} />
+                    <span>ACESSAR MÓDULO PROSPECÇÃO</span>
+                    <ArrowRight size={13} />
                   </button>
                 </div>
               </div>
@@ -668,90 +649,89 @@ function MembrosPage() {
             </div>
           </section>
 
-          {/* SEÇÃO FIXA DE BÔNUS GLOBAIS NA HOME DA ÁREA DE MEMBROS */}
-          <section className="max-w-6xl mx-auto px-4 pt-6 space-y-6 border-t border-white/10">
-            <div className="flex items-center gap-2">
-              <Crown size={20} className="text-amber-400" />
-              <div>
-                <h2 className="text-2xl font-bold text-white">Bônus Exclusivos para Todos os Membros</h2>
-                <p className="text-xs text-[#94A3B8]">Recursos gratuitos já liberados na sua conta.</p>
-              </div>
+          {/* SEÇÃO DE BÔNUS FIXOS GEOMÉTRICOS RDG */}
+          <section className="max-w-6xl mx-auto px-4 pt-8 border-t border-white/10 space-y-6">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-2 border border-amber-500/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-amber-400">
+                <Crown size={12} /> BÔNUS EXCLUSIVOS PARA MEMBROS
+              </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Bônus 1: Plataforma de Cursos */}
-              <div className="bg-[#0F1223] border border-white/10 rounded-2xl p-6 flex flex-col justify-between space-y-4">
+              {/* Bônus 1 */}
+              <div className="border border-white/10 bg-[#0A0A0A] p-6 space-y-4 flex flex-col justify-between">
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-400 border border-indigo-500/25 flex items-center justify-center">
-                    <Tv size={20} />
+                  <div className="w-9 h-9 border border-primary/30 bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    <Tv size={18} />
                   </div>
-                  <span className="px-2.5 py-0.5 text-[10px] font-bold text-indigo-400 bg-indigo-500/10 rounded-full border border-indigo-500/20">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-primary border-b border-primary/20 pb-1 inline-block">
                     LIBERADO
                   </span>
-                  <h3 className="text-lg font-bold text-white">Plataforma de Cursos RDG</h3>
-                  <p className="text-xs text-[#94A3B8] leading-relaxed">
+                  <h3 className="text-lg font-light text-white">Plataforma de Cursos RDG</h3>
+                  <p className="text-xs font-light text-muted-foreground leading-relaxed">
                     Treinamentos completos de tráfego pago, edições no CapCut, copy e vendas.
                   </p>
                 </div>
                 <a
                   href="/cursos"
-                  className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl text-center transition-all"
+                  className="w-full inline-flex items-center justify-center gap-2 border border-white/20 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white hover:border-primary hover:text-primary transition-all text-center"
                 >
-                  Acessar Cursos RDG
+                  <span>ACESSAR CURSOS RDG</span>
                 </a>
               </div>
 
-              {/* Bônus 2: +700 Prompts */}
-              <div className="bg-[#0F1223] border border-white/10 rounded-2xl p-6 flex flex-col justify-between space-y-4">
+              {/* Bônus 2 */}
+              <div className="border border-white/10 bg-[#0A0A0A] p-6 space-y-4 flex flex-col justify-between">
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center justify-center">
-                    <Camera size={20} />
+                  <div className="w-9 h-9 border border-amber-500/30 bg-amber-500/10 flex items-center justify-center text-amber-400 font-bold">
+                    <Camera size={18} />
                   </div>
-                  <span className="px-2.5 py-0.5 text-[10px] font-bold text-amber-400 bg-amber-500/10 rounded-full border border-amber-500/20">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-amber-400 border-b border-amber-500/20 pb-1 inline-block">
                     +700 PROMPTS DE IA
                   </span>
-                  <h3 className="text-lg font-bold text-white">Prompts de IA para Fotografia</h3>
-                  <p className="text-xs text-[#94A3B8] leading-relaxed">
-                    Comandos prontos para gerar ensaios fotográficos e criativos realistas no Gemini.
+                  <h3 className="text-lg font-light text-white">Prompts de IA para Fotografia</h3>
+                  <p className="text-xs font-light text-muted-foreground leading-relaxed">
+                    Comandos prontos para gerar ensaios fotográficos e criativos no Gemini.
                   </p>
                 </div>
                 <a
                   href="https://sites.rdgdigital.com.br/prompts"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold text-xs rounded-xl text-center hover:bg-amber-500/25 transition-all inline-flex items-center justify-center gap-1.5"
+                  className="w-full inline-flex items-center justify-center gap-2 border border-amber-500/30 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-400 hover:bg-amber-500/10 transition-all text-center"
                 >
-                  <span>Biblioteca de Prompts</span>
-                  <ExternalLink size={14} />
+                  <span>ABRIR BIBLIOTECA</span>
+                  <ExternalLink size={12} />
                 </a>
               </div>
 
-              {/* Bônus 3: Suporte VIP */}
-              <div className="bg-[#0F1223] border border-white/10 rounded-2xl p-6 flex flex-col justify-between space-y-4">
+              {/* Bônus 3 */}
+              <div className="border border-white/10 bg-[#0A0A0A] p-6 space-y-4 flex flex-col justify-between">
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center justify-center">
-                    <MessageCircle size={20} />
+                  <div className="w-9 h-9 border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold">
+                    <MessageCircle size={18} />
                   </div>
-                  <span className="px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-emerald-400 border-b border-emerald-500/20 pb-1 inline-block">
                     SUPORTE VIP
                   </span>
-                  <h3 className="text-lg font-bold text-white">Atendimento Direto no WhatsApp</h3>
-                  <p className="text-xs text-[#94A3B8] leading-relaxed">
-                    Tire dúvidas técnicas da sua licença e receba auxílio da nossa equipe.
+                  <h3 className="text-lg font-light text-white">Atendimento no WhatsApp</h3>
+                  <p className="text-xs font-light text-muted-foreground leading-relaxed">
+                    Tire dúvidas técnicas da sua licença e receba auxílio direto da equipe.
                   </p>
                 </div>
                 <a
                   href={WA_SUPORTE}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 bg-emerald-600 text-white font-bold text-xs rounded-xl text-center hover:bg-emerald-500 transition-all inline-flex items-center justify-center gap-1.5"
+                  className="w-full inline-flex items-center justify-center gap-2 border border-emerald-500 bg-emerald-500 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-black font-bold hover:brightness-110 transition-all text-center"
                 >
-                  <span>Chamar no WhatsApp</span>
-                  <MessageCircle size={14} />
+                  <span>CHAMAR NO WHATSAPP</span>
+                  <MessageCircle size={13} />
                 </a>
               </div>
             </div>
           </section>
+
         </div>
       )}
 
@@ -760,18 +740,17 @@ function MembrosPage() {
       {/* ==================================================================================== */}
       {viewMode === "instagram" && (
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
-          <div className="bg-[#0F1223] border border-pink-500/30 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl">
+          <div className="border border-[#E1306C]/40 bg-[#0A0A0A] p-6 sm:p-8 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="space-y-2">
-                <span className="px-3 py-1 bg-pink-500/20 text-pink-300 font-bold text-[10px] rounded-full border border-pink-500/30 uppercase tracking-wider">
-                  MÓDULO DEDICADO INSTAGRAM
+                <span className="inline-flex items-center gap-2 border border-[#E1306C]/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-[#E1306C]">
+                  📸 MÓDULO EXCLUSIVO INSTAGRAM
                 </span>
-                <h1 className="text-3xl font-extrabold text-white flex items-center gap-3">
-                  <span>Extensão Instagram (RDG instaPRO)</span>
-                  <span className="text-2xl">📸</span>
+                <h1 className="text-3xl font-light text-white">
+                  Extensão Instagram (RDG instaPRO)
                 </h1>
-                <p className="text-xs sm:text-sm text-[#94A3B8] max-w-2xl">
-                  Baixe o instalador oficial, assista ao treinamento em vídeo das 8 aulas, utilize o gerador de scripts e calcule suas metas de vendas.
+                <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl">
+                  Baixe o instalador oficial, assista ao treinamento das 8 aulas em vídeo e acesse o guia de aquecimento.
                 </p>
               </div>
 
@@ -779,22 +758,22 @@ function MembrosPage() {
                 href={DOWNLOAD_ZIP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 py-4 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 text-white font-extrabold text-xs rounded-xl hover:opacity-95 transition-all shadow-xl shadow-pink-500/20 inline-flex items-center gap-2"
+                className="inline-flex items-center gap-2 border border-[#E1306C] bg-[#E1306C] px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold hover:brightness-110 transition-all"
               >
-                <Download size={18} />
-                <span>Baixar Instalador (.ZIP)</span>
+                <Download size={15} />
+                <span>BAIXAR INSTALADOR (.ZIP)</span>
               </a>
             </div>
           </div>
 
           <section className="space-y-6">
             <div className="border-b border-white/10 pb-3">
-              <h2 className="text-2xl font-bold text-white">Treinamento em Vídeo — Aulas Oficiais</h2>
+              <h2 className="text-xl font-light text-white">Treinamento em Vídeo — Aulas Oficiais</h2>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-7 bg-[#0F1223] border border-white/10 rounded-2xl p-4 space-y-3 shadow-2xl">
-                <div className="relative aspect-video rounded-xl overflow-hidden bg-black border border-white/10">
+              <div className="lg:col-span-7 border border-white/10 bg-[#0A0A0A] p-4 space-y-3">
+                <div className="relative aspect-video bg-black border border-white/10">
                   <iframe
                     src={instagramVideos[activeInstagramVideo].loomUrl}
                     title={instagramVideos[activeInstagramVideo].title}
@@ -803,8 +782,8 @@ function MembrosPage() {
                   />
                 </div>
                 <div className="space-y-1 p-2">
-                  <h3 className="text-lg font-bold text-white">{instagramVideos[activeInstagramVideo].title}</h3>
-                  <p className="text-xs text-[#94A3B8]">{instagramVideos[activeInstagramVideo].description}</p>
+                  <h3 className="text-lg font-light text-white">{instagramVideos[activeInstagramVideo].title}</h3>
+                  <p className="text-xs text-muted-foreground">{instagramVideos[activeInstagramVideo].description}</p>
                 </div>
               </div>
 
@@ -814,36 +793,36 @@ function MembrosPage() {
                     key={v.id}
                     type="button"
                     onClick={() => setActiveInstagramVideo(i)}
-                    className={`w-full p-4 rounded-xl border text-left transition-all flex items-center justify-between gap-4 ${
+                    className={`w-full p-4 border text-left transition-all flex items-center justify-between gap-4 ${
                       activeInstagramVideo === i
-                        ? "bg-pink-500/15 border-pink-500/50 text-white"
-                        : "bg-[#0F1223] border-white/10 text-[#94A3B8] hover:bg-white/5"
+                        ? "border-[#E1306C] bg-[#E1306C]/10 text-white"
+                        : "border-white/10 bg-[#0A0A0A] text-muted-foreground hover:border-white/30"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs ${activeInstagramVideo === i ? "bg-pink-500 text-white" : "bg-white/10 text-white"}`}>
+                      <div className={`w-7 h-7 flex items-center justify-center font-mono font-bold text-xs ${activeInstagramVideo === i ? "bg-[#E1306C] text-white" : "bg-white/10 text-white"}`}>
                         0{i + 1}
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-white">{v.title}</h4>
-                        <span className="text-[10px] text-[#94A3B8]">{v.duration}</span>
+                        <h4 className="text-xs font-semibold text-white">{v.title}</h4>
+                        <span className="font-mono text-[10px] text-muted-foreground">{v.duration}</span>
                       </div>
                     </div>
-                    <Play size={14} className={activeInstagramVideo === i ? "text-pink-400" : "text-[#94A3B8]"} />
+                    <Play size={13} className={activeInstagramVideo === i ? "text-[#E1306C]" : "text-muted-foreground"} />
                   </button>
                 ))}
               </div>
             </div>
           </section>
 
-          <section className="bg-[#0F1223] border border-indigo-500/30 rounded-2xl p-6 sm:p-8 space-y-4">
+          <section className="border border-indigo-500/40 bg-[#0A0A0A] p-6 sm:p-8 space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="space-y-2">
-                <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 font-bold text-[10px] rounded-full border border-indigo-500/30 uppercase">
+                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-indigo-400 border border-indigo-500/30 px-3 py-1 inline-block">
                   📘 E-BOOK VIP EXCLUSIVO DO INSTAGRAM
                 </span>
-                <h3 className="text-xl font-bold text-white">Manual de Aquecimento &amp; Escala Sem Bloqueios 2026</h3>
-                <p className="text-xs text-[#94A3B8] max-w-xl">
+                <h3 className="text-xl font-light text-white">Manual de Aquecimento &amp; Escala Sem Bloqueios 2026</h3>
+                <p className="text-xs font-light text-muted-foreground max-w-xl">
                   Guia completo de boas práticas: saiba a esteira de aquecimento correta para novas contas do Instagram e os limites recomendados por perfil.
                 </p>
               </div>
@@ -851,10 +830,10 @@ function MembrosPage() {
                 href="https://gamma.app/docs/Manual-de-Aquecimento-Escala-Sem-Bloqueios-2026-doflji8lkd3w9bb"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl inline-flex items-center gap-2 transition-all shrink-0"
+                className="inline-flex items-center gap-2 border border-indigo-500 bg-indigo-600 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold hover:bg-indigo-500 transition-all shrink-0"
               >
-                <BookOpen size={16} />
-                <span>Abrir E-Book / PDF Completo</span>
+                <BookOpen size={15} />
+                <span>ABRIR E-BOOK COMPLETO</span>
               </a>
             </div>
           </section>
@@ -866,19 +845,17 @@ function MembrosPage() {
       {/* ==================================================================================== */}
       {viewMode === "lovable" && (
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
-          <div className="bg-[#0F1223] border border-purple-500/30 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl">
+          <div className="border border-[#7C4DFF]/40 bg-[#0A0A0A] p-6 sm:p-8 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-300 font-bold text-[10px] rounded-full border border-purple-500/30 uppercase tracking-wider">
-                  <Zap size={14} />
-                  <span>EM BREVE — MÓDULO EM DESENVOLVIMENTO</span>
-                </div>
-                <h1 className="text-3xl font-extrabold text-white flex items-center gap-3">
-                  <span>Extensão Lovable</span>
-                  <span className="text-2xl">⚡</span>
+                <span className="inline-flex items-center gap-2 border border-[#7C4DFF]/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-[#7C4DFF]">
+                  ⚡ MÓDULO EXCLUSIVO LOVABLE
+                </span>
+                <h1 className="text-3xl font-light text-white">
+                  Extensão Lovable
                 </h1>
-                <p className="text-xs sm:text-sm text-[#94A3B8] max-w-2xl">
-                  Página oficial dedicada à Extensão Lovable. Baixe a extensão abaixo enquanto as vídeo aulas oficiais estão sendo gravadas pela nossa equipe!
+                <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl">
+                  Página oficial dedicada à Extensão Lovable. Baixe o arquivo da extensão abaixo enquanto o treinamento em vídeo está em gravação.
                 </p>
               </div>
 
@@ -886,25 +863,25 @@ function MembrosPage() {
                 href={DOWNLOAD_LOVABLE_ZIP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 py-4 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-xl shadow-purple-600/20 inline-flex items-center gap-2"
+                className="inline-flex items-center gap-2 border border-[#7C4DFF] bg-[#7C4DFF] px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold hover:brightness-110 transition-all"
               >
-                <Download size={18} />
-                <span>Baixar Extensão Lovable (.ZIP)</span>
+                <Download size={15} />
+                <span>BAIXAR EXTENSÃO (.ZIP)</span>
               </a>
             </div>
           </div>
 
-          <section className="bg-[#0F1223] border border-purple-500/30 rounded-3xl p-8 sm:p-12 text-center space-y-5 shadow-2xl max-w-3xl mx-auto">
-            <div className="w-16 h-16 rounded-2xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center mx-auto">
-              <Video size={32} />
+          <section className="border border-[#7C4DFF]/30 bg-[#0A0A0A] p-8 sm:p-12 text-center space-y-5 max-w-3xl mx-auto">
+            <div className="w-14 h-14 border border-[#7C4DFF]/40 bg-[#7C4DFF]/10 text-[#7C4DFF] flex items-center justify-center mx-auto">
+              <Video size={28} />
             </div>
 
             <div className="space-y-2">
-              <span className="px-3 py-1 bg-purple-500/10 text-purple-300 font-bold text-xs rounded-full border border-purple-500/20">
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#7C4DFF] border border-[#7C4DFF]/30 px-3 py-1 inline-block">
                 AULAS EM GRAVAÇÃO
               </span>
-              <h2 className="text-2xl font-bold text-white">Treinamento do Lovable Liberado em Breve!</h2>
-              <p className="text-xs sm:text-sm text-[#94A3B8] max-w-md mx-auto leading-relaxed">
+              <h2 className="text-2xl font-light text-white">Treinamento do Lovable Liberado em Breve!</h2>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed font-light">
                 As vídeo aulas oficiais de instalação e uso avançado da Extensão Lovable estão sendo produzidas e serão disponibilizadas nesta página.
               </p>
             </div>
@@ -914,10 +891,10 @@ function MembrosPage() {
                 href={DOWNLOAD_LOVABLE_ZIP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white font-bold text-xs rounded-xl hover:bg-purple-500 transition-all"
+                className="inline-flex items-center gap-2 border border-[#7C4DFF] bg-[#7C4DFF] px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold hover:brightness-110 transition-all"
               >
-                <Download size={16} />
-                <span>Baixar Arquivo da Extensão Lovable (.ZIP)</span>
+                <Download size={15} />
+                <span>BAIXAR ARQUIVO DA EXTENSÃO (.ZIP)</span>
               </a>
             </div>
           </section>
@@ -929,43 +906,41 @@ function MembrosPage() {
       {/* ==================================================================================== */}
       {viewMode === "prospeccao" && (
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
-          <div className="bg-[#0F1223] border border-blue-500/30 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl">
+          <div className="border border-[#4285F4]/40 bg-[#0A0A0A] p-6 sm:p-8 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/20 text-blue-300 font-bold text-[10px] rounded-full border border-blue-500/30 uppercase tracking-wider">
-                  <Search size={14} />
-                  <span>MÓDULO DEDICADO GOOGLE MAPS</span>
-                </div>
-                <h1 className="text-3xl font-extrabold text-white flex items-center gap-3">
-                  <span>Prospecção B2B (Google Maps)</span>
-                  <span className="text-2xl">🗺️</span>
+                <span className="inline-flex items-center gap-2 border border-[#4285F4]/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-[#4285F4]">
+                  🗺️ MÓDULO PROSPECÇÃO B2B
+                </span>
+                <h1 className="text-3xl font-light text-white">
+                  Prospecção B2B (Google Maps)
                 </h1>
-                <p className="text-xs sm:text-sm text-[#94A3B8] max-w-2xl">
-                  Página oficial dedicada ao Software de Prospecção B2B. Acesse a ferramenta abaixo enquanto as aulas oficiais de prospecção e vendas estão sendo gravadas!
+                <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl">
+                  Página oficial dedicada ao Software de Prospecção B2B. Acesse a ferramenta abaixo enquanto as aulas oficiais de vendas estão sendo gravadas.
                 </p>
               </div>
 
               <a
                 href="/prospeccao"
-                className="px-8 py-4 bg-gradient-to-r from-blue-500 via-teal-500 to-emerald-500 text-black font-extrabold text-xs rounded-xl hover:opacity-95 transition-all shadow-xl shadow-blue-500/20 inline-flex items-center gap-2"
+                className="inline-flex items-center gap-2 border border-[#4285F4] bg-[#4285F4] px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A] font-bold hover:brightness-110 transition-all"
               >
-                <Search size={18} />
-                <span>Abrir Software de Prospecção</span>
+                <Search size={15} />
+                <span>ABRIR SOFTWARE DE PROSPECÇÃO</span>
               </a>
             </div>
           </div>
 
-          <section className="bg-[#0F1223] border border-blue-500/30 rounded-3xl p-8 sm:p-12 text-center space-y-5 shadow-2xl max-w-3xl mx-auto">
-            <div className="w-16 h-16 rounded-2xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center mx-auto">
-              <Video size={32} />
+          <section className="border border-[#4285F4]/30 bg-[#0A0A0A] p-8 sm:p-12 text-center space-y-5 max-w-3xl mx-auto">
+            <div className="w-14 h-14 border border-[#4285F4]/40 bg-[#4285F4]/10 text-[#4285F4] flex items-center justify-center mx-auto">
+              <Video size={28} />
             </div>
 
             <div className="space-y-2">
-              <span className="px-3 py-1 bg-blue-500/10 text-blue-300 font-bold text-xs rounded-full border border-blue-500/20">
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#4285F4] border border-[#4285F4]/30 px-3 py-1 inline-block">
                 AULAS EM GRAVAÇÃO
               </span>
-              <h2 className="text-2xl font-bold text-white">Treinamento de Prospecção B2B Liberado em Breve!</h2>
-              <p className="text-xs sm:text-sm text-[#94A3B8] max-w-md mx-auto leading-relaxed">
+              <h2 className="text-2xl font-light text-white">Treinamento de Prospecção B2B Liberado em Breve!</h2>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed font-light">
                 As vídeo aulas oficiais de técnicas de prospecção no Google Maps, geração de sites em 1-clique e scripts de abordagem comercial estão em gravação.
               </p>
             </div>
@@ -973,18 +948,18 @@ function MembrosPage() {
             <div className="pt-2">
               <a
                 href="/prospeccao"
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-blue-500 to-emerald-500 text-black font-extrabold text-xs rounded-xl hover:opacity-95 transition-all"
+                className="inline-flex items-center gap-2 border border-[#4285F4] bg-[#4285F4] px-8 py-3.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A] font-bold hover:brightness-110 transition-all"
               >
-                <Search size={16} />
-                <span>Acessar Software de Prospecção B2B Agora</span>
+                <Search size={15} />
+                <span>ACESSAR SOFTWARE DE PROSPECÇÃO AGORA</span>
               </a>
             </div>
           </section>
         </main>
       )}
 
-      <footer className="border-t border-white/5 py-6 text-center text-xs text-[#64748B]">
-        <p>© 2026 RDG Digital. Todos os direitos reservados. Plataforma de Softwares &amp; Treinamentos VIP.</p>
+      <footer className="border-t border-white/5 py-6 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        <p>© 2026 RDG DIGITAL. TODOS OS DIREITOS RESERVADOS. PLATAFORMA VIP DE MEMBROS.</p>
       </footer>
     </div>
   );
