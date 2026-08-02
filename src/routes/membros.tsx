@@ -48,7 +48,8 @@ import {
   Monitor,
   Clock,
   Wrench,
-  Bot
+  Bot,
+  Cpu
 } from "lucide-react";
 
 const TITLE = "Área de Membros & Treinamentos VIP — RDG Digital";
@@ -94,8 +95,8 @@ function MembrosPage() {
   const [loginError, setLoginError] = useState<string | null>(null);
   const [licenseInfo, setLicenseInfo] = useState<LicenseData | null>(null);
 
-  // Controle de Navegação de Páginas (home, instagram, lovable, prospeccao, whatsapp)
-  const [viewMode, setViewMode] = useState<"home" | "instagram" | "lovable" | "prospeccao" | "whatsapp">("home");
+  // Controle de Navegação de Páginas (home, instagram, lovable, prospeccao, whatsapp, rdg-ai)
+  const [viewMode, setViewMode] = useState<"home" | "instagram" | "lovable" | "prospeccao" | "whatsapp" | "rdg-ai">("home");
 
   // Modal / Alert de Produto em Desenvolvimento
   const [devNotice, setDevNotice] = useState<{ title: string; message: string; color: string } | null>(null);
@@ -393,7 +394,7 @@ function MembrosPage() {
                     type="text"
                     value={inputKey}
                     onChange={(e) => setInputKey(e.target.value.toUpperCase())}
-                    placeholder="IG-XXXX / LOVE-XXXX / MAPS-XXXX / WA-XXXX"
+                    placeholder="IG-XXXX / LOVE-XXXX / MAPS-XXXX / AI-XXXX"
                     className="w-full bg-[#111218] border border-white/15 pl-10 pr-4 py-3 text-xs text-white font-mono placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary transition-all uppercase tracking-[0.15em]"
                     required
                   />
@@ -579,9 +580,9 @@ function MembrosPage() {
             </div>
           </section>
 
-          {/* SEÇÃO DOS CARDS RETANGULARES GEOMÉTRICOS RDG (4 PRODUTOS) */}
+          {/* SEÇÃO DOS CARDS RETANGULARES GEOMÉTRICOS RDG (5 PRODUTOS) */}
           <section className="max-w-6xl mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               
               {/* CARD 1: INSTAGRAM (ROSA / MAGENTA ACCENT) */}
               <div className="border border-[#E1306C]/40 bg-[#0A0A0A] hover:border-[#E1306C] transition-all flex flex-col justify-between group">
@@ -642,7 +643,69 @@ function MembrosPage() {
                 </div>
               </div>
 
-              {/* CARD 2: WHATSAPP MULTI AGENTE (VERDE / EMERALD ACCENT) */}
+              {/* CARD 2: RDG AI - CHATGPT ILIMITADO (AZUL CYAN / CYAN ACCENT COM LOGO OFICIAL) */}
+              <div className="border border-cyan-500/40 bg-[#0A0A0A] hover:border-cyan-400 transition-all flex flex-col justify-between group">
+                <div className="p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-2">
+                      <img src="/rdg-ai.jpg" alt="RDG AI Logo" className="w-5 h-5 object-contain rounded" />
+                      <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyan-400 font-bold">
+                        RDG AI
+                      </span>
+                    </div>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-cyan-500/40 bg-cyan-500/10 text-cyan-300">
+                      EM BREVE
+                    </span>
+                  </div>
+
+                  {/* Mockup Retangular Estilo Terminal RDG */}
+                  <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2 text-cyan-400">
+                      <span>RDG AI Engine v4.0</span>
+                      <span className="text-amber-400">EM BREVE</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      &gt; ChatGPT Ilimitado sem Bloqueio
+                    </p>
+                    <div className="flex justify-between text-[9px] text-cyan-400 pt-1 font-bold">
+                      <span>STATUS: EM DESENVOLVIMENTO</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h2 className="text-lg font-light text-white group-hover:text-cyan-400 transition-colors">
+                      RDG AI (ChatGPT Ilimitado)
+                    </h2>
+                    <p className="text-xs text-foreground/75 leading-relaxed font-light">
+                      Plataforma de Inteligência Artificial sem limites para textos, imagens, copy e análise de dados.
+                    </p>
+
+                    <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
+                      <li className="flex items-center gap-2">
+                        <Clock size={12} className="text-cyan-400" />
+                        <span>IA Ilimitada sem Bloqueio de Tokens</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Clock size={12} className="text-cyan-400" />
+                        <span>Modelos de Alta Performance</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="p-6 pt-0">
+                  <button
+                    type="button"
+                    onClick={() => openDevNotice("RDG AI (ChatGPT Ilimitado)", "Ainda em desenvolvimento. Em breve mais um produto disponível para membros.", "cyan")}
+                    className="w-full inline-flex items-center justify-center gap-2 border border-cyan-500/50 bg-cyan-500/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300 font-bold hover:bg-cyan-500/20 transition-all"
+                  >
+                    <span>EM DESENVOLVIMENTO</span>
+                    <Clock size={13} />
+                  </button>
+                </div>
+              </div>
+
+              {/* CARD 3: WHATSAPP MULTI AGENTE (VERDE / EMERALD ACCENT) */}
               <div className="border border-emerald-500/40 bg-[#0A0A0A] hover:border-emerald-500 transition-all flex flex-col justify-between group">
                 <div className="p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -701,7 +764,7 @@ function MembrosPage() {
                 </div>
               </div>
 
-              {/* CARD 3: LOVABLE (ROXO / VIOLET ACCENT) */}
+              {/* CARD 4: LOVABLE (ROXO / VIOLET ACCENT) */}
               <div className="border border-[#7C4DFF]/40 bg-[#0A0A0A] hover:border-[#7C4DFF] transition-all flex flex-col justify-between group">
                 <div className="p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -756,7 +819,7 @@ function MembrosPage() {
                 </div>
               </div>
 
-              {/* CARD 4: PROSPECÇÃO B2B (AZUL / GOOGLE ACCENT) */}
+              {/* CARD 5: PROSPECÇÃO B2B (AZUL / GOOGLE ACCENT) */}
               <div className="border border-[#4285F4]/40 bg-[#0A0A0A] hover:border-[#4285F4] transition-all flex flex-col justify-between group">
                 <div className="p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -1406,6 +1469,55 @@ function MembrosPage() {
               <h2 className="text-2xl font-light text-white">Ainda em desenvolvimento</h2>
               <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed font-light">
                 Em breve mais um produto disponível para todos os alunos VIP da RDG Digital escalarem o atendimento no WhatsApp.
+              </p>
+            </div>
+          </section>
+        </main>
+      )}
+
+      {/* ==================================================================================== */}
+      {/* VISTA 6: PÁGINA DEDICADA DO RDG AI - CHATGPT ILIMITADO (EM DESENVOLVIMENTO) */}
+      {/* ==================================================================================== */}
+      {viewMode === "rdg-ai" && (
+        <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
+          <div className="border border-cyan-500/40 bg-[#0A0A0A] p-6 sm:p-8 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="space-y-2">
+                <span className="inline-flex items-center gap-2 border border-cyan-500/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-cyan-400">
+                  🤖 MÓDULO EXCLUSIVO RDG AI
+                </span>
+                <h1 className="text-3xl font-light text-white flex items-center gap-3">
+                  <img src="/rdg-ai.jpg" alt="RDG AI Logo" className="w-8 h-8 object-contain rounded" />
+                  RDG AI (ChatGPT Ilimitado)
+                </h1>
+                <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl">
+                  Plataforma de Inteligência Artificial sem limites para geração de textos, scripts, criativos e análise de dados sem travamento de tokens.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => openDevNotice("RDG AI (ChatGPT Ilimitado)", "Ainda em desenvolvimento. Em breve mais um produto disponível para membros.", "cyan")}
+                className="inline-flex items-center gap-2 border border-cyan-500/50 bg-cyan-500/10 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300 font-bold hover:bg-cyan-500/20 transition-all"
+              >
+                <Clock size={15} />
+                <span>EM DESENVOLVIMENTO</span>
+              </button>
+            </div>
+          </div>
+
+          <section className="border border-cyan-500/30 bg-[#0A0A0A] p-8 sm:p-12 text-center space-y-5 max-w-3xl mx-auto">
+            <div className="w-16 h-16 border border-cyan-500/40 bg-cyan-500/10 text-cyan-400 flex items-center justify-center mx-auto rounded-xl">
+              <img src="/rdg-ai.jpg" alt="RDG AI" className="w-10 h-10 object-contain rounded" />
+            </div>
+
+            <div className="space-y-2">
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyan-400 border border-cyan-500/30 px-3 py-1 inline-block">
+                EM DESENVOLVIMENTO
+              </span>
+              <h2 className="text-2xl font-light text-white">Ainda em desenvolvimento</h2>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed font-light">
+                Em breve a plataforma RDG AI estará disponível para uso ilimitado de todos os alunos VIP.
               </p>
             </div>
           </section>
