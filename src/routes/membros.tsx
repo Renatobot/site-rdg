@@ -643,7 +643,7 @@ function MembrosPage() {
                 </div>
               </div>
 
-              {/* CARD 2: RDG AI - CHATGPT ILIMITADO (AZUL CYAN / CYAN ACCENT COM LOGO OFICIAL) */}
+              {/* CARD 2: RDG AI (AZUL CYAN / CYAN ACCENT COM LOGO OFICIAL) */}
               <div className="border border-cyan-500/40 bg-[#0A0A0A] hover:border-cyan-400 transition-all flex flex-col justify-between group">
                 <div className="p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -665,7 +665,7 @@ function MembrosPage() {
                       <span className="text-amber-400">EM BREVE</span>
                     </div>
                     <p className="text-[10px] text-muted-foreground">
-                      &gt; ChatGPT Ilimitado sem Bloqueio
+                      &gt; Inteligência Artificial Ilimitada
                     </p>
                     <div className="flex justify-between text-[9px] text-cyan-400 pt-1 font-bold">
                       <span>STATUS: EM DESENVOLVIMENTO</span>
@@ -674,7 +674,7 @@ function MembrosPage() {
 
                   <div className="space-y-3">
                     <h2 className="text-lg font-light text-white group-hover:text-cyan-400 transition-colors">
-                      RDG AI (ChatGPT Ilimitado)
+                      RDG AI
                     </h2>
                     <p className="text-xs text-foreground/75 leading-relaxed font-light">
                       Plataforma de Inteligência Artificial sem limites para textos, imagens, copy e análise de dados.
@@ -696,7 +696,7 @@ function MembrosPage() {
                 <div className="p-6 pt-0">
                   <button
                     type="button"
-                    onClick={() => openDevNotice("RDG AI (ChatGPT Ilimitado)", "Ainda em desenvolvimento. Em breve mais um produto disponível para membros.", "cyan")}
+                    onClick={() => openDevNotice("RDG AI", "Ainda em desenvolvimento. Em breve mais um produto disponível para membros.", "cyan")}
                     className="w-full inline-flex items-center justify-center gap-2 border border-cyan-500/50 bg-cyan-500/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300 font-bold hover:bg-cyan-500/20 transition-all"
                   >
                     <span>EM DESENVOLVIMENTO</span>
@@ -1476,7 +1476,7 @@ function MembrosPage() {
       )}
 
       {/* ==================================================================================== */}
-      {/* VISTA 6: PÁGINA DEDICADA DO RDG AI - CHATGPT ILIMITADO (EM DESENVOLVIMENTO) */}
+      {/* VISTA 6: PÁGINA DEDICADA DO RDG AI (EM DESENVOLVIMENTO) */}
       {/* ==================================================================================== */}
       {viewMode === "rdg-ai" && (
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
@@ -1488,7 +1488,7 @@ function MembrosPage() {
                 </span>
                 <h1 className="text-3xl font-light text-white flex items-center gap-3">
                   <img src="/rdg-ai.jpg" alt="RDG AI Logo" className="w-8 h-8 object-contain rounded" />
-                  RDG AI (ChatGPT Ilimitado)
+                  RDG AI
                 </h1>
                 <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl">
                   Plataforma de Inteligência Artificial sem limites para geração de textos, scripts, criativos e análise de dados sem travamento de tokens.
@@ -1497,7 +1497,7 @@ function MembrosPage() {
 
               <button
                 type="button"
-                onClick={() => openDevNotice("RDG AI (ChatGPT Ilimitado)", "Ainda em desenvolvimento. Em breve mais um produto disponível para membros.", "cyan")}
+                onClick={() => openDevNotice("RDG AI", "Ainda em desenvolvimento. Em breve mais um produto disponível para membros.", "cyan")}
                 className="inline-flex items-center gap-2 border border-cyan-500/50 bg-cyan-500/10 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300 font-bold hover:bg-cyan-500/20 transition-all"
               >
                 <Clock size={15} />
