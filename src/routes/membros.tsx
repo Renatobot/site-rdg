@@ -1104,7 +1104,7 @@ function MembrosPage() {
                   <ol className="space-y-2 list-decimal list-inside text-xs font-light leading-relaxed">
                     <li>Clique no botão acima <strong>"1. INSTALADOR WINDOWS (.ZIP)"</strong> e faça o download do arquivo.</li>
                     <li>Clique com o botão direito no arquivo baixado e selecione <strong>"Extrair Tudo"</strong> para descompactar no seu computador.</li>
-                    <li>Abra a pasta extraída (se houver outra pasta interna, abra-a) até encontrar o executável <strong>"Instalador_RDG_instaPRO.exe"</strong>.</li>
+                    <li>Abra a pasta extraída até encontrar o executável <strong>"Instalador_RDG_instaPRO.exe"</strong>.</li>
                     <li>Execute o arquivo como Administrador. O instalador irá configurar o navegador e carregar sua licença automaticamente.</li>
                   </ol>
                 </div>
@@ -1118,10 +1118,10 @@ function MembrosPage() {
                   </h4>
                   <ol className="space-y-2 list-decimal list-inside text-xs font-light leading-relaxed">
                     <li>Clique no botão acima <strong>"2. PASTA EXTENSÃO CHROME (.ZIP)"</strong> e faça o download.</li>
-                    <li>Extraia o arquivo baixado. Se houver uma pasta interna ou subpasta compactada, extraia-a até ter a pasta final da extensão (onde fica o arquivo <code className="bg-white/10 px-1.5 py-0.5 text-pink-300">manifest.json</code>).</li>
+                    <li>Extraia o arquivo ZIP baixado para obter a pasta da extensão descompactada.</li>
                     <li>No Google Chrome, digite no endereço: <code className="bg-white/10 px-2 py-0.5 text-pink-300">chrome://extensions</code></li>
                     <li>No canto superior direito da tela de extensões, ative a opção <strong>"Modo do Desenvolvedor"</strong>.</li>
-                    <li>No canto superior esquerdo, clique no botão <strong>"Carregar sem compactação"</strong> e selecione a pasta final descompactada da extensão.</li>
+                    <li>No canto superior esquerdo, clique no botão <strong>"Carregar sem compactação"</strong> e selecione a pasta descompactada da extensão.</li>
                   </ol>
                 </div>
               )}
@@ -1431,12 +1431,11 @@ function MembrosPage() {
               </div>
               <ol className="space-y-2.5 list-decimal list-inside text-xs font-light leading-relaxed">
                 <li>Clique no botão roxo <strong>"BAIXAR EXTENSÃO LOVABLE (.ZIP)"</strong> acima para baixar o pacote da extensão.</li>
-                <li>Clique com o botão direito no arquivo baixado e escolha <strong>"Extrair Tudo"</strong> para descompactar a pasta.</li>
-                <li><strong>Atenção:</strong> Se dentro da pasta descompactada houver outro arquivo <code className="bg-white/10 px-1.5 py-0.5 text-purple-300">.zip</code> ou subpasta, extraia-o também para ter a pasta final com o arquivo <code className="bg-white/10 px-1.5 py-0.5 text-purple-300">manifest.json</code>.</li>
-                <li>No Google Chrome, acesse o endereço: <code className="bg-white/10 px-2 py-0.5 text-purple-300 font-mono">chrome://extensions</code></li>
+                <li>Clique com o botão direito no arquivo baixado e escolha <strong>"Extrair Tudo"</strong> para descompactar a pasta organizada no seu computador.</li>
+                <li>No seu navegador Google Chrome, acesse o endereço: <code className="bg-white/10 px-2 py-0.5 text-purple-300 font-mono">chrome://extensions</code></li>
                 <li>No canto superior direito da página do Chrome, ative a opção <strong>"Modo do Desenvolvedor"</strong>.</li>
-                <li>No canto superior esquerdo, clique em <strong>"Carregar sem compactação"</strong> e selecione a pasta final descompactada da extensão.</li>
-                <li>Pronto! A extensão RDG Lovable estará ativa para você enviar prompts, gravar áudio e criar projetos sem gastar seus créditos.</li>
+                <li>No canto superior esquerdo, clique em <strong>"Carregar sem compactação"</strong> e selecione a pasta descompactada da extensão.</li>
+                <li>Pronto! A extensão RDG Lovable estará ativa para você enviar prompts, ditar mensagens de voz e criar projetos sem gastar seus créditos.</li>
               </ol>
             </div>
           </div>
