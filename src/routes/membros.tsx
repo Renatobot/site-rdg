@@ -283,10 +283,10 @@ function MembrosPage() {
     },
     {
       id: 2,
-      title: "Aula 03: Carregando a Extensão no Google Chrome",
-      duration: "Em regravação",
-      loomUrl: "",
-      description: "Como ativar o Modo do Desenvolvedor e carregar a pasta da extensão descompactada.",
+      title: "Aula 03: Como Carregar a Extensão no Google Chrome",
+      duration: "02:40 min",
+      loomUrl: "https://www.loom.com/embed/2235b1c6f775474ba9740f6ac8a6bca4",
+      description: "Como extrair a pasta da extensão, ativar o Modo do Desenvolvedor em chrome://extensions e vincular a chave de licença.",
     },
     {
       id: 3,
