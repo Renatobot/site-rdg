@@ -66,6 +66,9 @@ const DOWNLOAD_ZIP_URL = "https://www.dropbox.com/scl/fo/dt1wornxoi3o7r8mbvxqa/A
 // Link da Pasta da Extensão Lovable no Dropbox
 const DOWNLOAD_LOVABLE_ZIP_URL = "https://www.dropbox.com/scl/fo/yr1sv7ggqe1b1en7mhtjx/ANCfO7LWYw_hFaLosB6GrJA?rlkey=pasvz7ehttiusa5g6so28r2d9&st=3q7emobf&dl=1";
 
+// Loom Embed oficial de Visão Geral & Boas-Vindas da Área de Membros
+const HOME_WELCOME_VIDEO_URL = "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d";
+
 interface LicenseData {
   cliente: string;
   key: string;
@@ -93,9 +96,6 @@ function MembrosPage() {
 
   // Controle de Navegação de Páginas (home, instagram, lovable, prospeccao)
   const [viewMode, setViewMode] = useState<"home" | "instagram" | "lovable" | "prospeccao">("home");
-
-  // Estado das Aulas do Instagram
-  const [activeInstagramVideo, setActiveInstagramVideo] = useState<number>(0);
 
   // Estado das Abas de Instalação no Módulo Instagram (windows ou chrome)
   const [installTab, setInstallTab] = useState<"windows" | "chrome">("windows");
@@ -247,52 +247,6 @@ function MembrosPage() {
       monthlyRevenue,
     };
   }, [roiProfiles, roiDirectsPerProfile, roiConversionRate, roiAvgTicket]);
-
-  // Vídeo Aulas Exclusivas do Instagram (RDG instaPRO)
-  const instagramVideos = [
-    {
-      id: 0,
-      title: "Aula 01: Visão Geral & Boas-Vindas",
-      duration: "04:12 min",
-      loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Apresentação completa do RDG instaPRO, estrutura da ferramenta e como navegar na área de membros.",
-    },
-    {
-      id: 1,
-      title: "Aula 02: Como Baixar e Instalar o Robô",
-      duration: "08:45 min",
-      loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Passo a passo para baixar o arquivo .ZIP, descompactar na pasta recomendada e rodar o instalador.",
-    },
-    {
-      id: 2,
-      title: "Aula 03: Carregando a Extensão no Chrome",
-      duration: "06:30 min",
-      loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Como ativar o Modo do Desenvolvedor no navegador Chrome e carregar a pasta da extensão.",
-    },
-    {
-      id: 3,
-      title: "Aula 04: Configurando Perfis e Intervalos Seguros",
-      duration: "11:20 min",
-      loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Boas práticas antibloqueio: tempo de pausa entre mensagens, limites diários por conta e spintax.",
-    },
-    {
-      id: 4,
-      title: "Aula 05: Extração de Leads Segmentados",
-      duration: "09:15 min",
-      loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Como capturar seguidores de concorrentes, hashtags de nicho e publicar listas de contatos alvos.",
-    },
-    {
-      id: 5,
-      title: "Aula 06: Automação de Directs e Respostas Freq.",
-      duration: "13:00 min",
-      loomUrl: "https://www.loom.com/embed/c380d7a292c5427ca529f41a83f59d0d",
-      description: "Configurando o disparo automático de mensagens personalizadas com variações de texto em tempo real.",
-    },
-  ];
 
   // Prompts Comerciais / Spintax de Direct
   const spintaxPrompts = {
@@ -487,7 +441,7 @@ function MembrosPage() {
       </header>
 
       {/* ==================================================================================== */}
-      {/* VISTA 1: HOME PRINCIPAL DA ÁREA DE MEMBROS (DESIGN RETANGULAR GEOMÉTRICO RDG) */}
+      {/* VISTA 1: HOME PRINCIPAL DA ÁREA DE MEMBROS (COM VÍDEO DE BOAS-VINDAS) */}
       {/* ==================================================================================== */}
       {viewMode === "home" && (
         <div className="space-y-12 pb-16 animate-[fadeIn_0.3s_ease]">
@@ -503,7 +457,32 @@ function MembrosPage() {
                 Seus Softwares &amp; <em className="text-primary not-italic">Treinamentos VIP</em>
               </h1>
               <p className="text-xs sm:text-sm font-light text-foreground/80 max-w-2xl mx-auto leading-relaxed">
-                Selecione o seu produto abaixo para abrir os downloads e tutoriais dedicados. Seus bônus exclusivos continuam acessíveis logo abaixo.
+                Assista ao vídeo de visão geral abaixo para aprender a navegar na sua plataforma, e em seguida selecione o seu produto.
+              </p>
+            </div>
+          </section>
+
+          {/* VÍDEO OFICIAL DE BOAS-VINDAS DA ÁREA DE MEMBROS (LOOM EMBED NO PAINEL INICIAL) */}
+          <section className="max-w-4xl mx-auto px-4">
+            <div className="border border-primary/40 bg-[#111218] p-4 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary font-bold flex items-center gap-2">
+                  <Play size={13} /> ASSISTA PRIMEIRO: VISÃO GERAL DA ÁREA DE MEMBROS
+                </span>
+                <span className="font-mono text-[9px] text-muted-foreground uppercase">DURAÇÃO: 04:12 MIN</span>
+              </div>
+
+              <div className="relative aspect-video bg-black border border-white/10">
+                <iframe
+                  src={HOME_WELCOME_VIDEO_URL}
+                  title="Visão Geral & Boas-Vindas à Área de Membros"
+                  className="w-full h-full border-0"
+                  allowFullScreen
+                />
+              </div>
+
+              <p className="text-xs text-muted-foreground font-light leading-relaxed">
+                Neste tutorial inicial, você aprenderá como acessar as suas licenças, navegar entre os módulos de softwares e utilizar todos os seus bônus exclusivos.
               </p>
             </div>
           </section>
@@ -554,7 +533,7 @@ function MembrosPage() {
                       </li>
                       <li className="flex items-center gap-2">
                         <Check size={12} className="text-[#E1306C]" />
-                        <span>8 Vídeo Aulas de Treinamento</span>
+                        <span>Aulas do Robô &amp; Guia de Aquecimento</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Check size={12} className="text-[#E1306C]" />
@@ -784,7 +763,7 @@ function MembrosPage() {
       )}
 
       {/* ==================================================================================== */}
-      {/* VISTA 2: PÁGINA DEDICADA DA EXTENSÃO INSTAGRAM (COM OS 2 MÉTODOS + CALCULADORA + PROMPTS) */}
+      {/* VISTA 2: PÁGINA DEDICADA DA EXTENSÃO INSTAGRAM */}
       {/* ==================================================================================== */}
       {viewMode === "instagram" && (
         <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
@@ -888,53 +867,32 @@ function MembrosPage() {
             </div>
           </div>
 
-          {/* Treinamento em Vídeo Instagram */}
-          <section className="space-y-6">
-            <div className="border-b border-white/10 pb-3">
-              <h2 className="text-xl font-light text-white">Treinamento em Vídeo — Aulas Oficiais</h2>
+          {/* CARD AULAS DO ROBÔ INSTAGRAM EM GRAVAÇÃO */}
+          <section className="border border-[#E1306C]/30 bg-[#0A0A0A] p-8 sm:p-12 text-center space-y-5 max-w-3xl mx-auto">
+            <div className="w-14 h-14 border border-[#E1306C]/40 bg-[#E1306C]/10 text-[#E1306C] flex items-center justify-center mx-auto">
+              <Video size={28} />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-7 border border-white/10 bg-[#0A0A0A] p-4 space-y-3">
-                <div className="relative aspect-video bg-black border border-white/10">
-                  <iframe
-                    src={instagramVideos[activeInstagramVideo].loomUrl}
-                    title={instagramVideos[activeInstagramVideo].title}
-                    className="w-full h-full border-0"
-                    allowFullScreen
-                  />
-                </div>
-                <div className="space-y-1 p-2">
-                  <h3 className="text-lg font-light text-white">{instagramVideos[activeInstagramVideo].title}</h3>
-                  <p className="text-xs text-muted-foreground">{instagramVideos[activeInstagramVideo].description}</p>
-                </div>
-              </div>
+            <div className="space-y-2">
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#E1306C] border border-[#E1306C]/30 px-3 py-1 inline-block">
+                AULAS DO ROBÔ EM GRAVAÇÃO
+              </span>
+              <h2 className="text-2xl font-light text-white">Vídeo Aulas Oficiais do Robô Instagram Liberadas em Breve!</h2>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed font-light">
+                As vídeo aulas específicas de operação e estratégias avançadas da Extensão RDG instaPRO estão sendo regravadas e serão postadas nesta seção.
+              </p>
+            </div>
 
-              <div className="lg:col-span-5 space-y-3">
-                {instagramVideos.map((v, i) => (
-                  <button
-                    key={v.id}
-                    type="button"
-                    onClick={() => setActiveInstagramVideo(i)}
-                    className={`w-full p-4 border text-left transition-all flex items-center justify-between gap-4 ${
-                      activeInstagramVideo === i
-                        ? "border-[#E1306C] bg-[#E1306C]/10 text-white"
-                        : "border-white/10 bg-[#0A0A0A] text-muted-foreground hover:border-white/30"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-7 h-7 flex items-center justify-center font-mono font-bold text-xs ${activeInstagramVideo === i ? "bg-[#E1306C] text-white" : "bg-white/10 text-white"}`}>
-                        0{i + 1}
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-semibold text-white">{v.title}</h4>
-                        <span className="font-mono text-[10px] text-muted-foreground">{v.duration}</span>
-                      </div>
-                    </div>
-                    <Play size={13} className={activeInstagramVideo === i ? "text-[#E1306C]" : "text-muted-foreground"} />
-                  </button>
-                ))}
-              </div>
+            <div className="pt-2">
+              <a
+                href={DOWNLOAD_ZIP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 border border-[#E1306C] bg-[#E1306C] px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold hover:brightness-110 transition-all"
+              >
+                <Download size={15} />
+                <span>BAIXAR ARQUIVO DO ROBÔ INSTAGRAM (.ZIP)</span>
+              </a>
             </div>
           </section>
 
