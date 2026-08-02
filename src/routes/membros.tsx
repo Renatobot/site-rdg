@@ -51,7 +51,9 @@ import {
   Bot,
   Cpu,
   Mic,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Layers,
+  Puzzle
 } from "lucide-react";
 
 const TITLE = "Área de Membros & Treinamentos VIP — RDG Digital";
@@ -536,7 +538,7 @@ function MembrosPage() {
       </header>
 
       {/* ==================================================================================== */}
-      {/* VISTA 1: HOME PRINCIPAL DA ÁREA DE MEMBROS (COM VÍDEO DE BOAS-VINDAS) */}
+      {/* VISTA 1: HOME PRINCIPAL DA ÁREA DE MEMBROS (COM CATEGORIZAÇÃO: EXTENSÕES X SOFTWARES) */}
       {/* ==================================================================================== */}
       {viewMode === "home" && (
         <div className="space-y-12 pb-16 animate-[fadeIn_0.3s_ease]">
@@ -549,10 +551,10 @@ function MembrosPage() {
               </span>
 
               <h1 className="text-3xl sm:text-5xl font-light tracking-tight text-white max-w-4xl mx-auto">
-                Seus Softwares &amp; <em className="text-primary not-italic">Treinamentos VIP</em>
+                Seus Softwares, Extensões &amp; <em className="text-primary not-italic">Treinamentos VIP</em>
               </h1>
               <p className="text-xs sm:text-sm font-light text-foreground/80 max-w-2xl mx-auto leading-relaxed">
-                Assista ao vídeo de visão geral abaixo para aprender a navegar na sua plataforma, e em seguida selecione o seu produto.
+                Assista ao vídeo de visão geral abaixo para aprender a navegar na sua plataforma, e em seguida acesse suas ferramentas por categoria.
               </p>
             </div>
           </section>
@@ -582,16 +584,22 @@ function MembrosPage() {
             </div>
           </section>
 
-          {/* SEÇÃO DOS CARDS RETANGULARES GEOMÉTRICOS RDG (5 PRODUTOS) */}
-          <section className="max-w-6xl mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* SEÇÃO 1: EXTENSÕES CHROME RDG */}
+          <section className="max-w-6xl mx-auto px-4 space-y-6">
+            <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+              <span className="inline-flex items-center gap-2 border border-pink-500/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-pink-400 font-bold">
+                <Puzzle size={13} /> CATEGORIA 01: EXTENSÕES CHROME RDG
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
               {/* CARD 1: INSTAGRAM (ROSA / MAGENTA ACCENT) */}
               <div className="border border-[#E1306C]/40 bg-[#0A0A0A] hover:border-[#E1306C] transition-all flex flex-col justify-between group">
                 <div className="p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#E1306C] flex items-center gap-1.5 font-bold">
-                      📸 INSTAGRAM
+                      📸 EXTENSÃO INSTAGRAM
                     </span>
                     <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#E1306C]/40 bg-[#E1306C]/10 text-pink-300">
                       DISPONÍVEL
@@ -641,6 +649,133 @@ function MembrosPage() {
                   >
                     <span>ACESSAR MÓDULO</span>
                     <ArrowRight size={13} />
+                  </button>
+                </div>
+              </div>
+
+              {/* CARD 2: LOVABLE (ROXO / VIOLET ACCENT) */}
+              <div className="border border-[#7C4DFF]/40 bg-[#0A0A0A] hover:border-[#7C4DFF] transition-all flex flex-col justify-between group">
+                <div className="p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#7C4DFF] flex items-center gap-1.5 font-bold">
+                      ⚡ EXTENSÃO LOVABLE
+                    </span>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#7C4DFF]/40 bg-[#7C4DFF]/10 text-purple-300">
+                      EM BREVE
+                    </span>
+                  </div>
+
+                  {/* Mockup Retangular Estilo Terminal RDG */}
+                  <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#7C4DFF]">
+                      <span>Lovable Prototyper</span>
+                      <span className="text-amber-400">EM BREVE</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      &gt; Automação de prototipagem acelerada
+                    </p>
+                    <div className="flex justify-between text-[9px] text-purple-300 pt-1 font-bold">
+                      <span>STATUS: EM DESENVOLVIMENTO</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h2 className="text-lg font-light text-white group-hover:text-[#7C4DFF] transition-colors">
+                      Extensão Lovable
+                    </h2>
+                    <p className="text-xs text-foreground/75 leading-relaxed font-light">
+                      Ferramenta de aceleração de desenvolvimento e criação de protótipos web no Lovable.
+                    </p>
+
+                    <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
+                      <li className="flex items-center gap-2">
+                        <Clock size={12} className="text-[#7C4DFF]" />
+                        <span>Em breve disponível para membros</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="p-6 pt-0">
+                  <button
+                    type="button"
+                    onClick={() => openDevNotice("Extensão Lovable", "Ainda em desenvolvimento. Em breve estará disponível mais este produto.", "purple")}
+                    className="w-full inline-flex items-center justify-center gap-2 border border-[#7C4DFF]/50 bg-[#7C4DFF]/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-purple-300 font-bold hover:bg-[#7C4DFF]/20 transition-all"
+                  >
+                    <span>EM DESENVOLVIMENTO</span>
+                    <Clock size={13} />
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          {/* SEÇÃO 2: SOFTWARES & SISTEMAS RDG */}
+          <section className="max-w-6xl mx-auto px-4 space-y-6 pt-6">
+            <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+              <span className="inline-flex items-center gap-2 border border-cyan-500/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-cyan-400 font-bold">
+                <Layers size={13} /> CATEGORIA 02: SOFTWARES &amp; SISTEMAS RDG
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+              {/* CARD 1: WHATSAPP MULTI AGENTE (VERDE / EMERALD ACCENT) */}
+              <div className="border border-emerald-500/40 bg-[#0A0A0A] hover:border-emerald-500 transition-all flex flex-col justify-between group">
+                <div className="p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-emerald-400 flex items-center gap-1.5 font-bold">
+                      💬 WHATSAPP MULTI AGENTE
+                    </span>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">
+                      EM BREVE
+                    </span>
+                  </div>
+
+                  {/* Mockup Retangular Estilo Terminal RDG */}
+                  <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2 text-emerald-400">
+                      <span>WhatsApp Multi-Agent CRM</span>
+                      <span className="text-amber-400">EM BREVE</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      &gt; 1 Número x Múltiplos Atendentes &amp; IA
+                    </p>
+                    <div className="flex justify-between text-[9px] text-emerald-400 pt-1 font-bold">
+                      <span>STATUS: EM DESENVOLVIMENTO</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h2 className="text-lg font-light text-white group-hover:text-emerald-400 transition-colors">
+                      WhatsApp Multi Agente
+                    </h2>
+                    <p className="text-xs text-foreground/75 leading-relaxed font-light">
+                      Central de atendimento multi-atendentes com chatbot de IA conectado no mesmo número.
+                    </p>
+
+                    <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
+                      <li className="flex items-center gap-2">
+                        <Clock size={12} className="text-emerald-400" />
+                        <span>Central Multi-Atendentes</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Clock size={12} className="text-emerald-400" />
+                        <span>Integração de Agentes de IA</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="p-6 pt-0">
+                  <button
+                    type="button"
+                    onClick={() => openDevNotice("WhatsApp Multi Agente", "Ainda em desenvolvimento. Em breve mais um produto disponível para membros.", "emerald")}
+                    className="w-full inline-flex items-center justify-center gap-2 border border-emerald-500/50 bg-emerald-500/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-emerald-300 font-bold hover:bg-emerald-500/20 transition-all"
+                  >
+                    <span>EM DESENVOLVIMENTO</span>
+                    <Clock size={13} />
                   </button>
                 </div>
               </div>
@@ -707,121 +842,7 @@ function MembrosPage() {
                 </div>
               </div>
 
-              {/* CARD 3: WHATSAPP MULTI AGENTE (VERDE / EMERALD ACCENT) */}
-              <div className="border border-emerald-500/40 bg-[#0A0A0A] hover:border-emerald-500 transition-all flex flex-col justify-between group">
-                <div className="p-6 space-y-5">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-emerald-400 flex items-center gap-1.5 font-bold">
-                      💬 WHATSAPP MULTI AGENTE
-                    </span>
-                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">
-                      EM BREVE
-                    </span>
-                  </div>
-
-                  {/* Mockup Retangular Estilo Terminal RDG */}
-                  <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-2 text-emerald-400">
-                      <span>WhatsApp Multi-Agent CRM</span>
-                      <span className="text-amber-400">EM BREVE</span>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground">
-                      &gt; 1 Número x Múltiplos Atendentes &amp; IA
-                    </p>
-                    <div className="flex justify-between text-[9px] text-emerald-400 pt-1 font-bold">
-                      <span>STATUS: EM DESENVOLVIMENTO</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <h2 className="text-lg font-light text-white group-hover:text-emerald-400 transition-colors">
-                      WhatsApp Multi Agente
-                    </h2>
-                    <p className="text-xs text-foreground/75 leading-relaxed font-light">
-                      Central de atendimento multi-atendentes com chatbot de IA conectado no mesmo número.
-                    </p>
-
-                    <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
-                      <li className="flex items-center gap-2">
-                        <Clock size={12} className="text-emerald-400" />
-                        <span>Central Multi-Atendentes</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <Clock size={12} className="text-emerald-400" />
-                        <span>Integração de Agentes de IA</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="p-6 pt-0">
-                  <button
-                    type="button"
-                    onClick={() => openDevNotice("WhatsApp Multi Agente", "Ainda em desenvolvimento. Em breve mais um produto disponível para membros.", "emerald")}
-                    className="w-full inline-flex items-center justify-center gap-2 border border-emerald-500/50 bg-emerald-500/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-emerald-300 font-bold hover:bg-emerald-500/20 transition-all"
-                  >
-                    <span>EM DESENVOLVIMENTO</span>
-                    <Clock size={13} />
-                  </button>
-                </div>
-              </div>
-
-              {/* CARD 4: LOVABLE (ROXO / VIOLET ACCENT) */}
-              <div className="border border-[#7C4DFF]/40 bg-[#0A0A0A] hover:border-[#7C4DFF] transition-all flex flex-col justify-between group">
-                <div className="p-6 space-y-5">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#7C4DFF] flex items-center gap-1.5 font-bold">
-                      ⚡ LOVABLE
-                    </span>
-                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#7C4DFF]/40 bg-[#7C4DFF]/10 text-purple-300">
-                      EM BREVE
-                    </span>
-                  </div>
-
-                  {/* Mockup Retangular Estilo Terminal RDG */}
-                  <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#7C4DFF]">
-                      <span>Lovable Prototyper</span>
-                      <span className="text-amber-400">EM BREVE</span>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground">
-                      &gt; Automação de prototipagem acelerada
-                    </p>
-                    <div className="flex justify-between text-[9px] text-purple-300 pt-1 font-bold">
-                      <span>STATUS: EM DESENVOLVIMENTO</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <h2 className="text-lg font-light text-white group-hover:text-[#7C4DFF] transition-colors">
-                      Extensão Lovable
-                    </h2>
-                    <p className="text-xs text-foreground/75 leading-relaxed font-light">
-                      Ferramenta de aceleração de desenvolvimento e criação de protótipos web no Lovable.
-                    </p>
-
-                    <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
-                      <li className="flex items-center gap-2">
-                        <Clock size={12} className="text-[#7C4DFF]" />
-                        <span>Em breve disponível para membros</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="p-6 pt-0">
-                  <button
-                    type="button"
-                    onClick={() => openDevNotice("Extensão Lovable", "Ainda em desenvolvimento. Em breve estará disponível mais este produto.", "purple")}
-                    className="w-full inline-flex items-center justify-center gap-2 border border-[#7C4DFF]/50 bg-[#7C4DFF]/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-purple-300 font-bold hover:bg-[#7C4DFF]/20 transition-all"
-                  >
-                    <span>EM DESENVOLVIMENTO</span>
-                    <Clock size={13} />
-                  </button>
-                </div>
-              </div>
-
-              {/* CARD 5: PROSPECÇÃO B2B (AZUL / GOOGLE ACCENT) */}
+              {/* CARD 3: PROSPECÇÃO B2B (AZUL / GOOGLE ACCENT) */}
               <div className="border border-[#4285F4]/40 bg-[#0A0A0A] hover:border-[#4285F4] transition-all flex flex-col justify-between group">
                 <div className="p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
