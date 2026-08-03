@@ -772,9 +772,21 @@
         }
 
         const payload = { cliente, key, produto, expires_at, is_lifetime, max_profiles, status:'active' };
-        const { error } = id
+        let { error } = id
             ? await supabaseClient.from('licenses').update(payload).eq('id', id)
             : await supabaseClient.from('licenses').insert([payload]);
+
+        // Se a coluna 'produto' ou outra nao existir na tabela licenses do Supabase, faz fallback automatico
+        if (error && error.message && error.message.toLowerCase().includes("column")) {
+            if (error.message.includes("produto")) delete payload.produto;
+            if (error.message.includes("max_profiles")) delete payload.max_profiles;
+            if (error.message.includes("status")) delete payload.status;
+
+            const retryRes = id
+                ? await supabaseClient.from('licenses').update(payload).eq('id', id)
+                : await supabaseClient.from('licenses').insert([payload]);
+            error = retryRes.error;
+        }
 
         if (error) alert('Erro ao salvar: ' + error.message);
         else { closeModal(); loadLicenses(); }
