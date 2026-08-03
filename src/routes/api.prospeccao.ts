@@ -42,6 +42,7 @@ export interface ProspeccaoSearchInput {
 }
 
 export interface ProspeccaoSearchResponse {
+  success: boolean;
   leads: LeadItem[];
   source: "google_api" | "demo_mock" | "google_error";
   message?: string;
@@ -57,6 +58,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
 
     if (!apiKey) {
       return {
+        success: true,
         leads: generateMockLeads(nicho, cidade, data.onlyNoWebsite),
         source: "demo_mock",
         message: "Demonstração com dados simulados. Insira sua chave da Google Places API nas configurações para buscar ao vivo.",
@@ -73,6 +75,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
       if (json.status !== "OK" && json.status !== "ZERO_RESULTS") {
         console.error("Google Places API error status:", json.status, json.error_message);
         return {
+          success: false,
           leads: generateMockLeads(nicho, cidade, data.onlyNoWebsite),
           source: "google_error",
           googleStatus: json.status,
@@ -83,6 +86,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
       const results = json.results || [];
       if (results.length === 0) {
         return {
+          success: true,
           leads: [],
           source: "google_api",
           message: `Nenhuma empresa encontrada no Google Maps para "${query}".`,
@@ -196,6 +200,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
       }
 
       return {
+        success: true,
         leads,
         source: "google_api",
         message: `Busca ao vivo realizada! Retornados ${leads.length} resultados reais do Google Maps.`,
@@ -203,6 +208,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
     } catch (err: any) {
       console.error("Erro no processamento da busca:", err);
       return {
+        success: false,
         leads: generateMockLeads(nicho, cidade, data.onlyNoWebsite),
         source: "google_error",
         message: err?.message || "Erro desconhecido ao conectar com os servidores do Google.",

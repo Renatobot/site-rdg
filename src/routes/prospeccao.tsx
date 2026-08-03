@@ -244,7 +244,7 @@ function ProspeccaoPage() {
         },
       });
 
-      if (result.success && Array.isArray(result.leads)) {
+      if (result && Array.isArray(result.leads)) {
         fetchedLeads = result.leads;
         source = result.source || source;
         message = result.message || message;
