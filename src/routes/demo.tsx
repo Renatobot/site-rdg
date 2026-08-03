@@ -49,13 +49,18 @@ export interface DemoSearchParams {
 
 export const Route = createFileRoute("/demo")({
   validateSearch: (search: Record<string, unknown>): DemoSearchParams => {
+    const rawNome = typeof search.nome === "string" && search.nome ? search.nome : typeof search.name === "string" && search.name ? search.name : typeof search.cliente === "string" && search.cliente ? search.cliente : "";
+    const rawCategoria = typeof search.categoria === "string" && search.categoria ? search.categoria : typeof search.category === "string" && search.category ? search.category : "";
+    const rawEndereco = typeof search.endereco === "string" && search.endereco ? search.endereco : typeof search.address === "string" && search.address ? search.address : "";
+    const rawPhone = typeof search.phone === "string" && search.phone ? search.phone : typeof search.telefone === "string" && search.telefone ? search.telefone : "";
+
     return {
       place_id: typeof search.place_id === "string" ? search.place_id : "",
-      nome: typeof search.nome === "string" ? search.nome : typeof search.cliente === "string" ? search.cliente : "Navalha & Co.",
-      categoria: typeof search.categoria === "string" ? search.categoria : "Barbearia",
-      cidade: typeof search.cidade === "string" ? search.cidade : "São Paulo - SP",
-      endereco: typeof search.endereco === "string" ? search.endereco : "Rua Augusta, 1500 - Consolação, São Paulo - SP",
-      phone: typeof search.phone === "string" ? search.phone : typeof search.telefone === "string" ? search.telefone : "+55 11 98888-7777",
+      nome: rawNome || "Empresa de Destaque",
+      categoria: rawCategoria || "Serviços",
+      cidade: typeof search.cidade === "string" && search.cidade ? search.cidade : "São Paulo - SP",
+      endereco: rawEndereco || "Endereço Principal",
+      phone: rawPhone || "+55 11 98888-7777",
       raw_phone: typeof search.raw_phone === "string" ? search.raw_phone : "",
       rating: typeof search.rating === "string" ? search.rating : "5.0",
       reviews: typeof search.reviews === "string" ? search.reviews : "340",
@@ -533,7 +538,7 @@ function FullSiteDemoPage() {
         const stored = sessionStorage.getItem("active_demo_lead");
         if (stored) {
           const parsed = JSON.parse(stored);
-          if (parsed && (parsed.name === search.nome || parsed.id === search.place_id)) {
+          if (parsed) {
             setStoredLead(parsed);
           }
         }
@@ -541,9 +546,9 @@ function FullSiteDemoPage() {
         console.error("Erro ao carregar lead do sessionStorage:", e);
       }
     }
-  }, [search.nome, search.place_id]);
+  }, []);
 
-  const nome = storedLead?.name || search.nome || search.cliente || "Navalha & Co.";
+  const nome = storedLead?.name || search.nome || search.cliente || "Empresa de Destaque";
   const rawCategoria = storedLead?.category || search.categoria || "Empresa";
   const cidade = search.cidade || "São Paulo - SP";
   const endereco = storedLead?.address || search.endereco || `Rua Principal, 1500 - ${cidade}`;
@@ -637,6 +642,10 @@ function FullSiteDemoPage() {
     catKey = "odontologia";
   } else if (
     fullSearchStr.includes("estetic") ||
+    fullSearchStr.includes("beauty") ||
+    fullSearchStr.includes("salon") ||
+    fullSearchStr.includes("micro") ||
+    fullSearchStr.includes("pigmentac") ||
     fullSearchStr.includes("spa") ||
     fullSearchStr.includes("beleza") ||
     fullSearchStr.includes("harmoniz") ||

@@ -273,19 +273,47 @@ function ProspeccaoPage() {
 
   const isSaved = (leadId: string) => savedLeads.some((l) => l.id === leadId);
 
+function formatCategoryLabel(rawCat: string, currentNicho?: string): string {
+  if (!rawCat) return currentNicho ? currentNicho.toUpperCase() : "NEGÓCIO LOCAL";
+  const cat = rawCat.toLowerCase().replace(/_/g, " ");
+
+  if (cat.includes("beauty") || cat.includes("spa") || cat.includes("estet") || cat.includes("micro") || cat.includes("hair")) return "ESTÉTICA & BELEZA";
+  if (cat.includes("barber") || cat.includes("barbea")) return "BARBEARIA";
+  if (cat.includes("dentist") || cat.includes("dental") || cat.includes("odonto")) return "ODONTOLOGIA";
+  if (cat.includes("real estate") || cat.includes("imob")) return "IMOBILIÁRIA";
+  if (cat.includes("restaurant") || cat.includes("food") || cat.includes("bistro") || cat.includes("bar")) return "RESTAURANTE & GASTRONOMIA";
+  if (cat.includes("pet") || cat.includes("vet")) return "PET SHOP & VET";
+  if (cat.includes("law") || cat.includes("advoc")) return "ADVOCACIA";
+  if (cat.includes("health") || cat.includes("medic") || cat.includes("saude") || cat.includes("doctor")) return "SAÚDE & CLÍNICA";
+  if (cat.includes("gym") || cat.includes("fitness") || cat.includes("academ")) return "ACADEMIA & FITNESS";
+  if (cat.includes("establishment") || cat.includes("point of interest")) {
+    return currentNicho ? currentNicho.toUpperCase() : "NEGÓCIO LOCAL";
+  }
+
+  return rawCat.toUpperCase().replace(/_/g, " ");
+}
+
   // AÇÃO EXECUTADA AO CLICAR EM "GERAR PRÉVIA" -> GRAVA SESSION E ABRE O SITE DEMO
   const openDemoPage = (lead: LeadItem) => {
     sessionStorage.setItem("active_demo_lead", JSON.stringify(lead));
+    const effectiveCategory = lead.category || nicho || "Estética";
     const params = new URLSearchParams({
+      nome: lead.name,
       name: lead.name,
-      category: lead.category,
+      cliente: lead.name,
+      categoria: effectiveCategory,
+      category: effectiveCategory,
       phone: lead.phone,
-      rating: String(lead.rating),
-      reviews_count: String(lead.reviews_count),
+      telefone: lead.phone,
+      rating: String(lead.rating || 5.0),
+      reviews: String((lead as any).reviews_count || lead.user_ratings_total || 12),
       address: lead.address,
-      city: cidade || "Rio de Janeiro",
+      endereco: lead.address,
+      cidade: cidade || "São Paulo - SP",
     });
-    if (lead.photo_url) params.set("photo", lead.photo_url);
+    if (lead.photos && lead.photos.length > 0) {
+      params.set("photos", JSON.stringify(lead.photos));
+    }
     window.open(`/demo?${params.toString()}`, "_blank");
   };
 
@@ -852,7 +880,7 @@ function LeadCard({
         <div className="flex items-start justify-between gap-3">
           <div>
             <span className="px-2 py-0.5 bg-white/5 text-white/70 text-[10px] font-bold rounded border border-white/10 uppercase tracking-wider mb-1 inline-block">
-              {lead.category || "Negócio Local"}
+              {formatCategoryLabel(lead.category)}
             </span>
             <h3 className="font-extrabold text-base text-white hover:text-primary transition-colors">
               <a href={lead.google_maps_url} target="_blank" rel="noopener noreferrer">
