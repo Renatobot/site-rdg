@@ -502,6 +502,279 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
+  // AÇAITERIA & GELATERIA (Deep Purple & Vibrant Violet)
+  acai: {
+    isDark: true,
+    bgColor: "#0F0A1A",
+    surfaceColor: "#181028",
+    cardBg: "#221738",
+    textColor: "#FAFAFA",
+    mutedTextColor: "#C4B5FD",
+    borderColor: "rgba(168, 85, 247, 0.3)",
+    accentColor: "#A855F7",
+    accentText: "#FFFFFF",
+    fontSerif: false,
+    heroTagline: "Açaí Puríssimo & Taças Especiais Gourmet",
+    titleSpan: "Açaí &",
+    titleSuffix: "Sabor Gelado.",
+    desc: "Açaí batido na hora, cremoso e sem gelo, com combinações ilimitadas de acompanhamentos, frutas frescas e cremes artesanais.",
+    icon: Utensils,
+    prettyCategoryName: "Açaíeria & Gelateria Gourmet",
+    heroFallback: "https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Copo de Açaí Tradicional (Monte o Seu)", desc: "Açaí puro batido na hora com acompanhamentos ilimitados (Ninho, Granola, Paçoca e Frutas).", price: "A partir de R$ 14,90" },
+      { title: "Taça Gourmet Ninho & Nutella", desc: "Taça vulcão decorada com Nutella pura, morangos frescos, Leite Ninho e sorvete artesanal.", price: "A partir de R$ 24,90" },
+      { title: "Barca de Açaí Especial da Casa", desc: "Barca familiar de 1 Litro recheada com frutas, chocoball, Bis, KitKat e cobertura à escolha.", price: "A partir de R$ 49,90" },
+      { title: "Sorvetes & Gelatos Artesanais", desc: "Casquinhas e potes com sabores variados de gelato italiano e picolés recheados.", price: "A partir de R$ 8,00" }
+    ],
+    stats: [
+      { label: "Copos Servidos", value: "50k+" },
+      { label: "Frutas Frescas", value: "100%" },
+      { label: "Nota Média", value: "4.9" },
+      { label: "Opções de Toppings", value: "30+" }
+    ]
+  },
+
+  // HAMBURGUERIA & BURGER (Charcoal Dark & Flame Orange)
+  hamburgueria: {
+    isDark: true,
+    bgColor: "#0D0B0A",
+    surfaceColor: "#1A1513",
+    cardBg: "#241D1A",
+    textColor: "#FAFAFA",
+    mutedTextColor: "#A8A29E",
+    borderColor: "rgba(234, 88, 12, 0.3)",
+    accentColor: "#EA580C",
+    accentText: "#FFFFFF",
+    fontSerif: false,
+    heroTagline: "Smash Burgers & Blend 100% Nelore",
+    titleSpan: "Hamburgueria",
+    titleSuffix: "Artesanal.",
+    desc: "Hambúrgueres suculentos grelhados na chama, pão brioche selado na manteiga e molhos autorais preparados todos os dias.",
+    icon: Utensils,
+    prettyCategoryName: "Hamburgueria Artesanal & Burger",
+    heroFallback: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Burgers Gourmet Especiais", desc: "Blend de 180g no pão brioche com queijo cheddar fatiado, bacon crocante e maionese verde.", price: "Consulte o Cardápio" },
+      { title: "Smash Burgers Duplo", desc: "Dois discos de 90g prensados na chapa bem quente com borda crocante e queijo derretido.", price: "Consulte o Cardápio" },
+      { title: "Porções de Batata & Rings", desc: "Batata rústica com cheddar e bacon, anéis de cebola empanados e nuggets artesanais.", price: "Consulte o Cardápio" },
+      { title: "Milkshakes Kremosos", desc: "Milkshakes de Nutella, Ovomaltine e Morango com chantilly e calda artesanal.", price: "Consulte o Cardápio" }
+    ],
+    stats: [
+      { label: "Burgers Vendidos", value: "40k+" },
+      { label: "Carne 100% Fresca", value: "100%" },
+      { label: "Avaliação Média", value: "4.9" },
+      { label: "Molhos Próprios", value: "8" }
+    ]
+  },
+
+  // PIZZARIA (Woodfired Dark & Brick Red)
+  pizzaria: {
+    isDark: true,
+    bgColor: "#0F0B09",
+    surfaceColor: "#1C1410",
+    cardBg: "#281D17",
+    textColor: "#FAFAFA",
+    mutedTextColor: "#A8A29E",
+    borderColor: "rgba(220, 38, 38, 0.3)",
+    accentColor: "#DC2626",
+    accentText: "#FFFFFF",
+    fontSerif: true,
+    heroTagline: "Massa Fermentada & Forno a Lenha",
+    titleSpan: "Pizzas",
+    titleSuffix: "Artesanais.",
+    desc: "Massa de longa fermentação natural, molho artesanal de tomates italianos pelados e ingredientes de primeira qualidade assados na pedra.",
+    icon: Utensils,
+    prettyCategoryName: "Pizzaria & Forno a Lenha",
+    heroFallback: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Pizzas Tradicionais & Nobres", desc: "Calabresa, Muçarela, Portuguesa e Frango com Catupiry Original assadas no forno a lenha.", price: "Consulte o Cardápio" },
+      { title: "Pizzas Especiais da Casa", desc: "Sabores autorais com bordas recheadas de Catupiry, Cheddar ou Cream Cheese artesanal.", price: "Consulte o Cardápio" },
+      { title: "Calzones & Entradas Quentes", desc: "Crostinis de alho e ervas, calzones gigantes recheados e focaccias italianas.", price: "Consulte o Cardápio" },
+      { title: "Pizzas Doces & Sobremesas", desc: "Pizza de Brigadeiro com Morango, Romeu & Julieta e Nutella com Banana polvilhada de canela.", price: "Consulte o Cardápio" }
+    ],
+    stats: [
+      { label: "Pizzas Assadas", value: "60k+" },
+      { label: "Massa Fermentada", value: "24h" },
+      { label: "Nota dos Clientes", value: "4.9" },
+      { label: "Sabores Únicos", value: "45+" }
+    ]
+  },
+
+  // SUSHI & JAPONÊS (Midnight Onyx & Cherry Crimson)
+  sushi: {
+    isDark: true,
+    bgColor: "#090B0E",
+    surfaceColor: "#11161D",
+    cardBg: "#19212B",
+    textColor: "#F8FAFC",
+    mutedTextColor: "#94A3B8",
+    borderColor: "rgba(225, 29, 72, 0.3)",
+    accentColor: "#E11D48",
+    accentText: "#FFFFFF",
+    fontSerif: false,
+    heroTagline: "Culinária Oriental Fresca & Rodízio VIP",
+    titleSpan: "Sushi &",
+    titleSuffix: "Culinária Japonesa.",
+    desc: "Cortes de salmão fresco do dia, niguiris artesanais, temakis crocantes e entradas quentes servidas no melhor padrão de qualidade.",
+    icon: Utensils,
+    prettyCategoryName: "Restaurante Japonês & Sushi Bar",
+    heroFallback: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Combos & Barcas de Salmão", desc: "Seleção com Sashimis, Niguiris, Uramakis e Djois com salmão maçaricado e tarê.", price: "Consulte o Cardápio" },
+      { title: "Temakis Especiais Crocantes", desc: "Temakis montados na hora com alga nori crocante, cream cheese e peixe fresco em cubos.", price: "Consulte o Cardápio" },
+      { title: "Hot Rolls & Entradas Quentes", desc: "Shimeji na manteiga, Harumaki de queijo, Gyoza e Hot Rolls crocantes com cream cheese.", price: "Consulte o Cardápio" },
+      { title: "Poke Bowls Personalizados", desc: "Tigelas havaianas refrescantes com base de arroz japonês, salmão, abacate e sunomono.", price: "Consulte o Cardápio" }
+    ],
+    stats: [
+      { label: "Combos Entregues", value: "25k+" },
+      { label: "Peixes Frescos", value: "100%" },
+      { label: "Avaliação Média", value: "4.9" },
+      { label: "Sushimen Experts", value: "5" }
+    ]
+  },
+
+  // CHAVEIRO & SERVIÇOS TÉCNICOS (Steel Navy & Amber Gold)
+  chaveiro: {
+    isDark: true,
+    bgColor: "#0B0E14",
+    surfaceColor: "#141A24",
+    cardBg: "#1C2432",
+    textColor: "#F8FAFC",
+    mutedTextColor: "#94A3B8",
+    borderColor: "rgba(245, 158, 11, 0.3)",
+    accentColor: "#F59E0B",
+    accentText: "#000000",
+    fontSerif: false,
+    heroTagline: "Chaveiro 24 Horas & Segurança Residencial",
+    titleSpan: "Chaveiro",
+    titleSuffix: "Especializado 24h.",
+    desc: "Atendimento emergencial com rapidez para abertura de portas, cópia de chaves codificadas de veículos e instalação de fechaduras digitais.",
+    icon: Wrench,
+    prettyCategoryName: "Serviços de Chaveiro 24 Horas",
+    heroFallback: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Abertura Emergencial 24h", desc: "Socorro rápido para residências, comércios e veículos sem danificar a fechadura.", price: "Chamar no WhatsApp" },
+      { title: "Chaves Codificadas de Veículos", desc: "Cópia e programação de chaves com alarme, transponder e canivete para todos os carros.", price: "Solicitar Orçamento" },
+      { title: "Instalação de Fechaduras Digitais", desc: "Modernização de portas com fechaduras biométricas, com senha e cartão de aproximação.", price: "Solicitar Orçamento" },
+      { title: "Cópia de Chaves Simples & Tetra", desc: "Duplicação imediata de chaves residenciais, de cadeados, cofres e portas de aço.", price: "Consulte Valores" }
+    ],
+    stats: [
+      { label: "Atendimentos 24h", value: "10k+" },
+      { label: "Chegada Rápida", value: "20 min" },
+      { label: "Nota no Google", value: "5.0" },
+      { label: "Técnicos de Plantão", value: "4" }
+    ]
+  },
+
+  // CONFEITARIA & PADARIA (Plum Velvet & Violet Silk)
+  confeitaria: {
+    isDark: true,
+    bgColor: "#140D12",
+    surfaceColor: "#20141D",
+    cardBg: "#2B1A27",
+    textColor: "#FAFAFA",
+    mutedTextColor: "#D8B4FE",
+    borderColor: "rgba(217, 70, 239, 0.3)",
+    accentColor: "#D946EF",
+    accentText: "#FFFFFF",
+    fontSerif: true,
+    heroTagline: "Bolos Artesanais & Doces Finos sob Encomenda",
+    titleSpan: "Confeitaria",
+    titleSuffix: "Artesanal.",
+    desc: "Bolos decorados para festas, tortas geladas, docinhos gourmet e receitas de família preparadas com ingredientes nobres.",
+    icon: Sparkle,
+    prettyCategoryName: "Confeitaria & Doceria Gourmet",
+    heroFallback: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1559620192-032c4bc46ee8?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Bolos de Festa Personalizados", desc: "Bolos de aniversário e casamento com recheios cremosos de Leite Ninho, Brigadeiro e Frutas.", price: "Fazer Encomenda" },
+      { title: "Doces Finos & Brigadeiros Gourmet", desc: "Cento de brigadeiros de pistache, churros, belga e caixinhas presenteáveis decoradas.", price: "Fazer Encomenda" },
+      { title: "Tortas Geladas & Pavês", desc: "Torta holandesa, torta de limão siciliano, banoffee e pavês caseiros em fatias.", price: "Consulte a Vitrine" },
+      { title: "Cafés Especiais & Salgados", desc: "Cappuccinos artesanais, quiches folhadas e empadões assados frescos no dia.", price: "Consulte a Vitrine" }
+    ],
+    stats: [
+      { label: "Bolos Entregues", value: "8k+" },
+      { label: "Ingredientes Nobres", value: "100%" },
+      { label: "Nota dos Clientes", value: "5.0" },
+      { label: "Confeiteiras", value: "4" }
+    ]
+  },
+
+  // CHURRASCARIA & ESPETARIA (Ember Charcoal & Flame Orange)
+  churrascaria: {
+    isDark: true,
+    bgColor: "#0E0B09",
+    surfaceColor: "#1B1410",
+    cardBg: "#271C17",
+    textColor: "#FAFAFA",
+    mutedTextColor: "#A8A29E",
+    borderColor: "rgba(234, 88, 12, 0.3)",
+    accentColor: "#EA580C",
+    accentText: "#FFFFFF",
+    fontSerif: true,
+    heroTagline: "Cortes Nobres & Parrilla na Brasa",
+    titleSpan: "Churrasco",
+    titleSuffix: "Premium.",
+    desc: "Picanha sul-americana, costela assada no fogo de chão por 12 horas, fraldinha e espetinhos gourmet temperados com sal de parrilla.",
+    icon: Utensils,
+    prettyCategoryName: "Churrascaria & Espetaria",
+    heroFallback: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Rodízio de Carnes Nobres", desc: "Picanha no espeto, Ancho, Prime Rib, Costela de Chão, Cupim e Linguiças artesanais.", price: "Consulte o Cardápio" },
+      { title: "Espetinhos Gourmet Individual", desc: "Espetos de carne de sol, frango com bacon, queijo coalho com melaço e medalhão.", price: "Consulte o Cardápio" },
+      { title: "Buffet Completo de Saladas & Acompanhamentos", desc: "Arroz carreteiro, feijão tropeiro, farofa crocante da casa e maionese tradicional.", price: "Consulte o Cardápio" },
+      { title: "Marmitex & Chapa Executiva", desc: "Almoço reforçado na marmita com carnes assadas na brasa e entrega rápida.", price: "Consulte o Cardápio" }
+    ],
+    stats: [
+      { label: "Clientes Atendidos", value: "35k+" },
+      { label: "Carnes Selecionadas", value: "100%" },
+      { label: "Nota dos Clientes", value: "4.9" },
+      { label: "Churrasqueiros", value: "5" }
+    ]
+  },
+
   // DEFAULT / FALLBACK GERAL (RDG Dark Mode Elegante com Cyan Neon)
   default: {
     isDark: true,
@@ -626,6 +899,59 @@ function FullSiteDemoPage() {
 
   let catKey = "default";
   if (
+    fullSearchStr.includes("acai") ||
+    fullSearchStr.includes("açai") ||
+    fullSearchStr.includes("sorvet") ||
+    fullSearchStr.includes("gelato") ||
+    fullSearchStr.includes("paleta") ||
+    fullSearchStr.includes("frozen")
+  ) {
+    catKey = "acai";
+  } else if (
+    fullSearchStr.includes("chaveir") ||
+    fullSearchStr.includes("chave") ||
+    fullSearchStr.includes("fechadur")
+  ) {
+    catKey = "chaveiro";
+  } else if (
+    fullSearchStr.includes("hamburg") ||
+    fullSearchStr.includes("burguer") ||
+    fullSearchStr.includes("burger") ||
+    fullSearchStr.includes("smash")
+  ) {
+    catKey = "hamburgueria";
+  } else if (
+    fullSearchStr.includes("pizz") ||
+    fullSearchStr.includes("pizzaria") ||
+    fullSearchStr.includes("calzone")
+  ) {
+    catKey = "pizzaria";
+  } else if (
+    fullSearchStr.includes("sushi") ||
+    fullSearchStr.includes("japa") ||
+    fullSearchStr.includes("temaki") ||
+    fullSearchStr.includes("sashimi") ||
+    fullSearchStr.includes("oriental") ||
+    fullSearchStr.includes("poke")
+  ) {
+    catKey = "sushi";
+  } else if (
+    fullSearchStr.includes("confeitar") ||
+    fullSearchStr.includes("docer") ||
+    fullSearchStr.includes("bolo") ||
+    fullSearchStr.includes("torta") ||
+    fullSearchStr.includes("panificad")
+  ) {
+    catKey = "confeitaria";
+  } else if (
+    fullSearchStr.includes("churrasc") ||
+    fullSearchStr.includes("espet") ||
+    fullSearchStr.includes("steakhous") ||
+    fullSearchStr.includes("parrilla") ||
+    fullSearchStr.includes("assados")
+  ) {
+    catKey = "churrascaria";
+  } else if (
     fullSearchStr.includes("advogad") ||
     fullSearchStr.includes("advocac") ||
     fullSearchStr.includes("direit") ||
@@ -634,26 +960,6 @@ function FullSiteDemoPage() {
     fullSearchStr.includes("oab")
   ) {
     catKey = "advocacia";
-  } else if (
-    fullSearchStr.includes("restauran") ||
-    fullSearchStr.includes("bistro") ||
-    fullSearchStr.includes("pizz") ||
-    fullSearchStr.includes("hamburg") ||
-    fullSearchStr.includes("comida") ||
-    fullSearchStr.includes("gourmet") ||
-    fullSearchStr.includes("bar") ||
-    fullSearchStr.includes("boteco") ||
-    fullSearchStr.includes("churrasc") ||
-    fullSearchStr.includes("lanchon") ||
-    fullSearchStr.includes("cafe") ||
-    fullSearchStr.includes("padar") ||
-    fullSearchStr.includes("docer") ||
-    fullSearchStr.includes("confeitar") ||
-    fullSearchStr.includes("sushi") ||
-    fullSearchStr.includes("pub") ||
-    fullSearchStr.includes("food")
-  ) {
-    catKey = "restaurante";
   } else if (
     fullSearchStr.includes("barbea") ||
     fullSearchStr.includes("barber") ||
@@ -741,6 +1047,20 @@ function FullSiteDemoPage() {
     fullSearchStr.includes("carro")
   ) {
     catKey = "oficina";
+  } else if (
+    fullSearchStr.includes("restauran") ||
+    fullSearchStr.includes("bistro") ||
+    fullSearchStr.includes("comida") ||
+    fullSearchStr.includes("gourmet") ||
+    fullSearchStr.includes("bar") ||
+    fullSearchStr.includes("boteco") ||
+    fullSearchStr.includes("lanchon") ||
+    fullSearchStr.includes("cafe") ||
+    fullSearchStr.includes("padar") ||
+    fullSearchStr.includes("pub") ||
+    fullSearchStr.includes("food")
+  ) {
+    catKey = "restaurante";
   }
 
   const baseConfig = NICHE_CONFIGS[catKey] || NICHE_CONFIGS["default"];
