@@ -1006,77 +1006,79 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
     >
       {/* TOP CONTROL BAR DE DEMONSTRAÇÃO E FERRAMENTAS DO PROSPECTOR */}
       <div
-        className="p-2.5 px-4 text-xs font-bold flex flex-wrap items-center justify-between gap-3 shadow-xl sticky top-0 z-50 transition-colors border-b"
+        className="p-2 sm:p-2.5 px-3 sm:px-4 text-xs font-bold flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shadow-xl sticky top-0 z-50 transition-colors border-b"
         style={{
           backgroundColor: "#0B0E17",
           color: "#FAFAFA",
           borderColor: currentPalette.border,
         }}
       >
-        {/* Identificação do Cliente */}
-        <div className="flex items-center gap-2">
-          <Sparkles size={14} className="animate-pulse" style={{ color: currentPalette.accent }} />
-          <span className="truncate max-w-[220px] sm:max-w-none">
-            PRÉVIA: <strong style={{ color: currentPalette.accent }}>{nome.toUpperCase()}</strong>
-          </span>
+        {/* Linha 1 no mobile: Nome + Cores */}
+        <div className="flex items-center justify-between gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-1.5 truncate">
+            <Sparkles size={13} className="animate-pulse shrink-0" style={{ color: currentPalette.accent }} />
+            <span className="truncate text-[11px] sm:text-xs">
+              PRÉVIA: <strong style={{ color: currentPalette.accent }}>{nome.toUpperCase()}</strong>
+            </span>
+          </div>
+
+          {/* Seletor de Cores */}
+          <div className="flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10 shrink-0">
+            <span className="text-[9px] text-white/50 px-1 font-mono uppercase hidden sm:inline">Cor:</span>
+            {Object.entries(colorPalettes).map(([key, val]) => (
+              <button
+                key={key}
+                onClick={() => setSelectedColor(key)}
+                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full transition-transform ${selectedColor === key ? "scale-125 ring-2 ring-white" : "hover:scale-110 opacity-70"}`}
+                style={{ backgroundColor: val.accent }}
+                title={`Trocar cor para ${key}`}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* Seletor de Cores do Site */}
-        <div className="flex items-center gap-1.5 bg-white/5 p-1 rounded-full border border-white/10">
-          <span className="text-[10px] text-white/50 px-2 font-mono uppercase">Cor:</span>
-          {Object.entries(colorPalettes).map(([key, val]) => (
-            <button
-              key={key}
-              onClick={() => setSelectedColor(key)}
-              className={`w-4 h-4 rounded-full transition-transform ${selectedColor === key ? "scale-125 ring-2 ring-white" : "hover:scale-110 opacity-70"}`}
-              style={{ backgroundColor: val.accent }}
-              title={`Trocar cor para ${key}`}
-            />
-          ))}
-        </div>
-
-        {/* Ferramentas de Download, Prompt e Salvamento */}
-        <div className="flex items-center gap-2">
+        {/* Linha 2 no mobile: Botões de Ação Scrolláveis Horizontalmente sem Quebra */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 sm:pb-0 scrollbar-none w-full sm:w-auto justify-start sm:justify-end">
           {/* Botão de Edição e Personalização Completa */}
           <button
             onClick={() => setIsEditorOpen(true)}
-            className="px-3.5 py-1.5 rounded-lg text-[11px] font-extrabold transition-all flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black shadow-lg shadow-amber-500/20 active:scale-95 animate-pulse"
+            className="px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-extrabold transition-all flex items-center gap-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black shadow-lg shadow-amber-500/20 active:scale-95 shrink-0"
             title="Abrir painel para editar textos, fotos, serviços e dados do site"
           >
-            <Edit3 size={13} />
-            <span>✏️ Editar Site / Fotos</span>
+            <Edit3 size={12} />
+            <span>✏️ Editar <span className="hidden sm:inline">Site / Fotos</span></span>
           </button>
 
           {/* Salvar nas Minhas Prévias */}
           <button
             onClick={handleSavePreviewLocally}
-            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5 border ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all flex items-center gap-1 border shrink-0 ${
               isSavedLocally
                 ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
                 : "bg-white/10 hover:bg-white/20 text-white border-white/15"
             }`}
           >
-            <span>{isSavedLocally ? "✓ Salvo no Histórico" : "💾 Salvar Prévia"}</span>
+            <span>{isSavedLocally ? "✓ Salvo" : "💾 Salvar"}</span>
           </button>
 
           {/* Copiar Prompt para RDG AI */}
           <button
             onClick={handleCopyRdgAiPrompt}
-            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5 border ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all flex items-center gap-1 border shrink-0 ${
               copiedPrompt
                 ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
                 : "bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border-purple-500/40"
             }`}
           >
-            <span>{copiedPrompt ? "✓ Prompt Copiado!" : "📋 Prompt RDG AI"}</span>
+            <span>{copiedPrompt ? "✓ Copiado!" : "📋 Prompt AI"}</span>
           </button>
 
           {/* Baixar Site HTML5 */}
           <button
             onClick={handleDownloadHtml5}
-            className="px-3.5 py-1.5 font-extrabold rounded-lg transition-all text-[11px] flex items-center gap-1 shadow-lg shadow-emerald-600/20 bg-emerald-600 hover:bg-emerald-500 text-white"
+            className="px-2.5 sm:px-3.5 py-1.5 font-extrabold rounded-lg transition-all text-[10px] sm:text-[11px] flex items-center gap-1 shadow-lg shadow-emerald-600/20 bg-emerald-600 hover:bg-emerald-500 text-white shrink-0"
           >
-            <span>📥 Baixar HTML5</span>
+            <span>📥 HTML5</span>
           </button>
         </div>
       </div>
