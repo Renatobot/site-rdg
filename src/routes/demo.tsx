@@ -850,6 +850,8 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
     link.click();
     document.body.removeChild(link);
   };
+  
+  let realReviewsList: any[] = storedLead?.reviews_list || [];
   if (realReviewsList.length === 0 && search.reviews_json) {
     try {
       const parsed: any = JSON.parse(search.reviews_json);
