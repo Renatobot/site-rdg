@@ -69,6 +69,8 @@ const KANBAN_COLUMNS: { id: LeadStatus; title: string; badgeColor: string; heade
   { id: "proposta", title: "🎯 Proposta Enviada", badgeColor: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20", headerBorder: "border-cyan-500/40" },
   { id: "fechado", title: "✅ Cliente Fechado", badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", headerBorder: "border-emerald-500/40" },
   { id: "inativo", title: "❌ Sem Interesse", badgeColor: "bg-rose-500/10 text-rose-400 border-rose-500/20", headerBorder: "border-rose-500/40" },
+];
+
 function formatCategoryLabel(rawCat?: string, currentNicho?: string): string {
   if (!rawCat || typeof rawCat !== "string") return currentNicho ? currentNicho.toUpperCase() : "NEGÓCIO LOCAL";
   const cat = rawCat.toLowerCase().replace(/_/g, " ");
