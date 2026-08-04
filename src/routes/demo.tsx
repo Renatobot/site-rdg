@@ -1040,6 +1040,7 @@ function FullSiteDemoPage() {
   let realGooglePhotos: string[] = [];
   if (rawPhotoRefs.length > 0) {
     realGooglePhotos = rawPhotoRefs.map((p) => {
+      if (!p || p.includes("1590301157890-4810ed352733")) return "";
       if (p.startsWith("http://") || p.startsWith("https://")) return p;
       if (activeApiKey) {
         return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${p}&key=${activeApiKey}`;
@@ -1262,13 +1263,19 @@ function FullSiteDemoPage() {
   const defaultBusinessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${displayCategory} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
   const businessSummary = editSummary || defaultBusinessSummary;
 
-  const defaultHeroImage = storedLead?.customHeroPhoto || (search as any).hero_photo || (catKey !== "default" ? config.heroFallback : (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback));
-  const heroImage = editHeroImage || defaultHeroImage;
+  const sanitizePhotoUrl = (url: string) => (!url || url.includes("1590301157890-4810ed352733") ? "" : url);
 
-  const defaultGalleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
-    ? storedLead.customGalleryPhotos
+  const rawHero = storedLead?.customHeroPhoto || (search as any).hero_photo;
+  const defaultHeroImage = sanitizePhotoUrl(rawHero) || (catKey !== "default" ? config.heroFallback : (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback));
+  const heroImage = sanitizePhotoUrl(editHeroImage) || defaultHeroImage;
+
+  const rawGallery = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
+    ? storedLead.customGalleryPhotos.map(sanitizePhotoUrl).filter(Boolean)
+    : [];
+  const defaultGalleryImages = rawGallery.length > 0
+    ? rawGallery
     : (catKey !== "default" ? config.galleryFallback : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback));
-  const galleryImages = editGalleryImages.length > 0 ? editGalleryImages : defaultGalleryImages;
+  const galleryImages = (editGalleryImages.length > 0 ? editGalleryImages.map(sanitizePhotoUrl).filter(Boolean) : defaultGalleryImages);
 
   const heroTagline = editTagline || config.heroTagline;
 
