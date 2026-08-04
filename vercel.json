@@ -12,6 +12,18 @@
     {
       "source": "/rdg_ai/:path*",
       "destination": "/rdg_ai/index.html"
+    },
+    {
+      "source": "/api/pollinations",
+      "destination": "https://text.pollinations.ai/"
+    },
+    {
+      "source": "/api/pollinations/(.*)",
+      "destination": "https://text.pollinations.ai/$1"
+    },
+    {
+      "source": "/api/pollinations-img/(.*)",
+      "destination": "https://image.pollinations.ai/$1"
     }
   ]
 }

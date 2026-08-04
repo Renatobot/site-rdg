@@ -22,7 +22,17 @@ import {
   Wrench,
   ShoppingBag,
   HeartPulse,
-  Briefcase
+  Briefcase,
+  Edit3,
+  Sliders,
+  X,
+  Image,
+  FileText,
+  Check,
+  RotateCcw,
+  Upload,
+  Plus,
+  Trash2
 } from "lucide-react";
 
 const TITLE = "Demonstração de Website — RDG Digital";
@@ -535,6 +545,24 @@ function FullSiteDemoPage() {
   const [isSavedLocally, setIsSavedLocally] = useState<boolean>(false);
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
 
+  // Painel de Edição ao Vivo (Customizer Drawer)
+  const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
+  const [activeEditorTab, setActiveEditorTab] = useState<"textos" | "imagens" | "servicos" | "cores">("textos");
+
+  // Custom Editable Override States
+  const [editNome, setEditNome] = useState<string>("");
+  const [editCategoria, setEditCategoria] = useState<string>("");
+  const [editCidade, setEditCidade] = useState<string>("");
+  const [editEndereco, setEditEndereco] = useState<string>("");
+  const [editPhone, setEditPhone] = useState<string>("");
+  const [editRating, setEditRating] = useState<string>("");
+  const [editReviews, setEditReviews] = useState<string>("");
+  const [editSummary, setEditSummary] = useState<string>("");
+  const [editTagline, setEditTagline] = useState<string>("");
+  const [editHeroImage, setEditHeroImage] = useState<string>("");
+  const [editGalleryImages, setEditGalleryImages] = useState<string[]>([]);
+  const [editServices, setEditServices] = useState<{ title: string; desc: string; price: string }[] | null>(null);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
@@ -551,15 +579,23 @@ function FullSiteDemoPage() {
     }
   }, []);
 
-  const nome = storedLead?.name || search.nome || search.cliente || "Empresa de Destaque";
-  const rawCategoria = storedLead?.category || search.categoria || "Empresa";
-  const cidade = search.cidade || "São Paulo - SP";
-  const endereco = storedLead?.address || search.endereco || `Rua Principal, 1500 - ${cidade}`;
-  const phone = storedLead?.phone || search.phone || search.telefone || "+55 11 98888-7777";
-  const rawPhone = (storedLead?.raw_phone || search.raw_phone || phone).replace(/\D/g, "");
+  const defaultNome = storedLead?.name || search.nome || search.cliente || "Empresa de Destaque";
+  const defaultRawCategoria = storedLead?.category || search.categoria || "Empresa";
+  const defaultCidade = search.cidade || "São Paulo - SP";
+  const defaultEndereco = storedLead?.address || search.endereco || `Rua Principal, 1500 - ${defaultCidade}`;
+  const defaultPhone = storedLead?.phone || search.phone || search.telefone || "+55 11 98888-7777";
+  const defaultRating = storedLead?.rating || search.rating || "5.0";
+  const defaultReviews = storedLead?.user_ratings_total || search.reviews || "340";
+
+  const nome = editNome || defaultNome;
+  const rawCategoria = editCategoria || defaultRawCategoria;
+  const cidade = editCidade || defaultCidade;
+  const endereco = editEndereco || defaultEndereco;
+  const phone = editPhone || defaultPhone;
+  const rawPhone = phone.replace(/\D/g, "");
   const waNum = rawPhone.length > 5 ? (rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`) : "5511988887777";
-  const rating = storedLead?.rating || search.rating || "5.0";
-  const reviews = storedLead?.user_ratings_total || search.reviews || "340";
+  const rating = editRating || defaultRating;
+  const reviews = editReviews || defaultReviews;
   const googleMapsUrl = storedLead?.google_maps_url || `https://www.google.com/maps/search/${encodeURIComponent(nome + " " + cidade)}`;
   const activeApiKey = (search as any).api_key || (typeof window !== "undefined" ? localStorage.getItem("google_places_api_key") : "") || "";
 
@@ -733,12 +769,61 @@ function FullSiteDemoPage() {
   const isGenericCategory = !rawCategoria || ["establishment", "point_of_interest", "local_business", "store", "food", "health", "finance", "service", "gmn"].includes(rawCategoria.toLowerCase().trim());
   const displayCategory = isGenericCategory ? config.prettyCategoryName : rawCategoria;
 
-  const businessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${displayCategory} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
+  const defaultBusinessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${displayCategory} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
+  const businessSummary = editSummary || defaultBusinessSummary;
 
-  const heroImage = storedLead?.customHeroPhoto || (search as any).hero_photo || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback);
-  const galleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
+  const defaultHeroImage = storedLead?.customHeroPhoto || (search as any).hero_photo || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback);
+  const heroImage = editHeroImage || defaultHeroImage;
+
+  const defaultGalleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
     ? storedLead.customGalleryPhotos
     : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback);
+  const galleryImages = editGalleryImages.length > 0 ? editGalleryImages : defaultGalleryImages;
+
+  const heroTagline = editTagline || config.heroTagline;
+
+  const handleHeroFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setEditHeroImage(event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleGalleryFileUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          const currentList = [...(editGalleryImages.length > 0 ? editGalleryImages : defaultGalleryImages)];
+          currentList[index] = event.target.result as string;
+          setEditGalleryImages(currentList);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleResetCustomizations = () => {
+    setEditNome("");
+    setEditCategoria("");
+    setEditCidade("");
+    setEditEndereco("");
+    setEditPhone("");
+    setEditRating("");
+    setEditReviews("");
+    setEditSummary("");
+    setEditTagline("");
+    setEditHeroImage("");
+    setEditGalleryImages([]);
+    setEditServices(null);
+  };
 
   // Função para salvar a prévia localmente
   const handleSavePreviewLocally = () => {
@@ -909,6 +994,8 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
     ];
   }
 
+  const activeDynamicServices = editServices || dynamicServices;
+
   return (
     <div
       className="min-h-screen flex flex-col font-sans transition-colors duration-300"
@@ -950,6 +1037,16 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
         {/* Ferramentas de Download, Prompt e Salvamento */}
         <div className="flex items-center gap-2">
+          {/* Botão de Edição e Personalização Completa */}
+          <button
+            onClick={() => setIsEditorOpen(true)}
+            className="px-3.5 py-1.5 rounded-lg text-[11px] font-extrabold transition-all flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black shadow-lg shadow-amber-500/20 active:scale-95 animate-pulse"
+            title="Abrir painel para editar textos, fotos, serviços e dados do site"
+          >
+            <Edit3 size={13} />
+            <span>✏️ Editar Site / Fotos</span>
+          </button>
+
           {/* Salvar nas Minhas Prévias */}
           <button
             onClick={handleSavePreviewLocally}
@@ -1588,6 +1685,378 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
           </div>
         </div>
       </footer>
+
+      {/* PAINEL LATERAL DE PERSONALIZAÇÃO AO VIVO DO SITE (LIVE CUSTOMIZER DRAWER) */}
+      {isEditorOpen && (
+        <div className="fixed inset-0 z-[100] flex justify-end bg-black/70 backdrop-blur-sm transition-all animate-in fade-in duration-200">
+          <div className="w-full max-w-lg bg-[#0F121C] text-white h-full flex flex-col border-l border-white/15 shadow-2xl overflow-hidden">
+            {/* Drawer Header */}
+            <div className="p-4 px-5 border-b border-white/10 flex items-center justify-between bg-[#151926]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                  <Edit3 size={16} />
+                </div>
+                <div>
+                  <h3 className="font-black text-sm text-white">Editar & Personalizar Prévia</h3>
+                  <p className="text-[10px] text-white/50">Edite textos, fotos e serviços em tempo real</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsEditorOpen(false)}
+                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                title="Fechar painel"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Drawer Tabs Header */}
+            <div className="flex border-b border-white/10 bg-[#0B0D14] p-1.5 gap-1">
+              <button
+                onClick={() => setActiveEditorTab("textos")}
+                className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                  activeEditorTab === "textos"
+                    ? "bg-amber-500 text-black shadow-md font-extrabold"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <FileText size={13} />
+                <span>Textos</span>
+              </button>
+              <button
+                onClick={() => setActiveEditorTab("imagens")}
+                className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                  activeEditorTab === "imagens"
+                    ? "bg-amber-500 text-black shadow-md font-extrabold"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Image size={13} />
+                <span>Fotos</span>
+              </button>
+              <button
+                onClick={() => setActiveEditorTab("servicos")}
+                className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                  activeEditorTab === "servicos"
+                    ? "bg-amber-500 text-black shadow-md font-extrabold"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Sliders size={13} />
+                <span>Serviços</span>
+              </button>
+              <button
+                onClick={() => setActiveEditorTab("cores")}
+                className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                  activeEditorTab === "cores"
+                    ? "bg-amber-500 text-black shadow-md font-extrabold"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Palette size={13} />
+                <span>Cores</span>
+              </button>
+            </div>
+
+            {/* Drawer Body - Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs">
+              {activeEditorTab === "textos" && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-white/70 mb-1">Nome da Empresa</label>
+                    <input
+                      type="text"
+                      value={nome}
+                      onChange={(e) => setEditNome(e.target.value)}
+                      className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                      placeholder="Ex: Clinica Sorriso Perfeito"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-white/70 mb-1">Categoria / Nicho</label>
+                    <input
+                      type="text"
+                      value={rawCategoria}
+                      onChange={(e) => setEditCategoria(e.target.value)}
+                      className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                      placeholder="Ex: Odontologia Estética"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase text-white/70 mb-1">Cidade</label>
+                      <input
+                        type="text"
+                        value={cidade}
+                        onChange={(e) => setEditCidade(e.target.value)}
+                        className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                        placeholder="Ex: São Paulo - SP"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase text-white/70 mb-1">Telefone / WhatsApp</label>
+                      <input
+                        type="text"
+                        value={phone}
+                        onChange={(e) => setEditPhone(e.target.value)}
+                        className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                        placeholder="Ex: +55 11 99999-8888"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-white/70 mb-1">Endereço Completo</label>
+                    <input
+                      type="text"
+                      value={endereco}
+                      onChange={(e) => setEditEndereco(e.target.value)}
+                      className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                      placeholder="Ex: Av. Paulista, 1000 - Bela Vista"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-white/70 mb-1">Frase de Destaque (Tagline)</label>
+                    <input
+                      type="text"
+                      value={heroTagline}
+                      onChange={(e) => setEditTagline(e.target.value)}
+                      className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                      placeholder="Ex: Atendimento VIP & Estrutura Moderna"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-white/70 mb-1">Resumo Comercial do Site</label>
+                    <textarea
+                      rows={4}
+                      value={businessSummary}
+                      onChange={(e) => setEditSummary(e.target.value)}
+                      className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none resize-none"
+                      placeholder="Escreva a apresentação da empresa..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase text-white/70 mb-1">Nota no Google</label>
+                      <input
+                        type="text"
+                        value={rating}
+                        onChange={(e) => setEditRating(e.target.value)}
+                        className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                        placeholder="5.0"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase text-white/70 mb-1">Nº de Avaliações</label>
+                      <input
+                        type="text"
+                        value={reviews}
+                        onChange={(e) => setEditReviews(e.target.value)}
+                        className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                        placeholder="340"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeEditorTab === "imagens" && (
+                <div className="space-y-5">
+                  {/* Foto Hero */}
+                  <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3">
+                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
+                      🖼️ Foto Principal de Capa (Hero Image)
+                    </label>
+                    
+                    {heroImage && (
+                      <div className="relative h-36 rounded-xl overflow-hidden border border-white/10 bg-black/40">
+                        <img src={heroImage} alt="Hero Preview" className="w-full h-full object-contain" />
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        value={editHeroImage}
+                        onChange={(e) => setEditHeroImage(e.target.value)}
+                        className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white text-xs font-mono focus:border-amber-400 outline-none"
+                        placeholder="Cole a URL da foto (https://...)"
+                      />
+
+                      <label className="flex items-center justify-center gap-2 p-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 rounded-xl text-xs font-bold cursor-pointer transition-colors border border-dashed border-amber-500/30">
+                        <Upload size={14} />
+                        <span>📁 Enviar Foto do Computador (Upload Local)</span>
+                        <input type="file" accept="image/*" onChange={handleHeroFileUpload} className="hidden" />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Fotos da Galeria */}
+                  <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-4">
+                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
+                      📸 Fotos da Galeria do Espaço (Até 4 fotos)
+                    </label>
+
+                    {[0, 1, 2, 3].map((idx) => {
+                      const currentImg = galleryImages[idx] || "";
+                      return (
+                        <div key={idx} className="p-3 bg-[#1A1F2E] rounded-xl border border-white/10 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase text-white/60">Foto da Galeria #{idx + 1}</span>
+                            {currentImg && (
+                              <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">
+                                Carregada
+                              </span>
+                            )}
+                          </div>
+
+                          {currentImg && (
+                            <div className="h-24 rounded-lg overflow-hidden border border-white/10 bg-black/40">
+                              <img src={currentImg} alt={`Galeria ${idx + 1}`} className="w-full h-full object-cover" />
+                            </div>
+                          )}
+
+                          <input
+                            type="text"
+                            value={editGalleryImages[idx] || ""}
+                            onChange={(e) => {
+                              const newGallery = [...(editGalleryImages.length > 0 ? editGalleryImages : defaultGalleryImages)];
+                              newGallery[idx] = e.target.value;
+                              setEditGalleryImages(newGallery);
+                            }}
+                            className="w-full bg-[#111420] border border-white/10 rounded-lg p-2 text-white text-[11px] font-mono focus:border-amber-400 outline-none"
+                            placeholder={`Cole a URL da foto ${idx + 1}`}
+                          />
+
+                          <label className="flex items-center justify-center gap-1.5 p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] font-bold cursor-pointer transition-colors border border-dashed border-white/15">
+                            <Upload size={12} />
+                            <span>Enviar Arquivo Local</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleGalleryFileUpload(idx, e)}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {activeEditorTab === "servicos" && (
+                <div className="space-y-4">
+                  <div className="text-[11px] text-white/60 font-medium">
+                    Personalize o título, a descrição e o valor/ação dos 4 serviços exibidos no site.
+                  </div>
+
+                  {activeDynamicServices.map((srv: any, idx: number) => (
+                    <div key={idx} className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3">
+                      <div className="text-[11px] font-extrabold uppercase text-amber-400">
+                        Serviço / Especialidade #{idx + 1}
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Título do Serviço</label>
+                        <input
+                          type="text"
+                          value={srv.title}
+                          onChange={(e) => {
+                            const updated = [...activeDynamicServices];
+                            updated[idx] = { ...updated[idx], title: e.target.value };
+                            setEditServices(updated);
+                          }}
+                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs font-bold focus:border-amber-400 outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Descrição</label>
+                        <textarea
+                          rows={2}
+                          value={srv.desc}
+                          onChange={(e) => {
+                            const updated = [...activeDynamicServices];
+                            updated[idx] = { ...updated[idx], desc: e.target.value };
+                            setEditServices(updated);
+                          }}
+                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs focus:border-amber-400 outline-none resize-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Preço / Texto do Botão</label>
+                        <input
+                          type="text"
+                          value={srv.price}
+                          onChange={(e) => {
+                            const updated = [...activeDynamicServices];
+                            updated[idx] = { ...updated[idx], price: e.target.value };
+                            setEditServices(updated);
+                          }}
+                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs focus:border-amber-400 outline-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {activeEditorTab === "cores" && (
+                <div className="space-y-4">
+                  <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3">
+                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
+                      🎨 Paleta de Cores de Destaque
+                    </label>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {Object.entries(colorPalettes).map(([key, val]) => (
+                        <button
+                          key={key}
+                          onClick={() => setSelectedColor(key)}
+                          className={`p-3 rounded-xl border transition-all flex items-center gap-3 ${
+                            selectedColor === key
+                              ? "border-white bg-white/10 ring-2 ring-amber-400"
+                              : "border-white/10 bg-[#1A1F2E] hover:border-white/30"
+                          }`}
+                        >
+                          <div className="w-6 h-6 rounded-full shadow-md" style={{ backgroundColor: val.accent }} />
+                          <span className="capitalize font-bold text-xs text-white">{key}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Drawer Footer */}
+            <div className="p-4 px-5 border-t border-white/10 bg-[#151926] flex items-center justify-between gap-3">
+              <button
+                onClick={handleResetCustomizations}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5"
+              >
+                <RotateCcw size={14} />
+                <span>Resetar Edições</span>
+              </button>
+
+              <button
+                onClick={() => setIsEditorOpen(false)}
+                className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs rounded-xl shadow-lg transition-transform active:scale-95 flex items-center gap-1.5"
+              >
+                <Check size={15} />
+                <span>Salvar & Ver Prévia</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

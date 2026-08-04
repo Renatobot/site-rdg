@@ -40,7 +40,8 @@ import {
   ChevronRight,
   HelpCircle,
   Eye,
-  Share2
+  Share2,
+  Trash2
 } from "lucide-react";
 
 const TITLE = "Ferramenta de Prospecção B2B Google Maps — RDG Digital";
@@ -119,7 +120,7 @@ function ProspeccaoPage() {
   const handleDeleteSavedPreview = (previewId: string) => {
     try {
       const existing = JSON.parse(localStorage.getItem("rdg_saved_previews") || "[]");
-      const updated = existing.filter((item: any) => item.id !== previewId && item.name !== previewId);
+      const updated = existing.filter((item: any) => item && item.id !== previewId && item.name !== previewId);
       localStorage.setItem("rdg_saved_previews", JSON.stringify(updated));
       setSavedPreviewsList(updated);
     } catch (e) {
@@ -392,7 +393,7 @@ function ProspeccaoPage() {
       l.has_website ? "Não" : "Sim",
       `"${l.address.replace(/"/g, '""')}"`,
       l.rating,
-      l.reviews_count,
+      l.user_ratings_total,
       `"${l.google_maps_url}"`,
     ]);
 
@@ -853,29 +854,43 @@ function ProspeccaoPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {savedPreviewsList.map((prev: any, idx: number) => {
-                  const params = new URLSearchParams(prev.urlParams || {
+                  if (!prev) return null;
+                  
+                  const rawParams: any = prev.urlParams || {
                     nome: prev.name,
                     categoria: prev.category,
                     phone: prev.phone,
                     address: prev.address,
                     cidade: prev.city || "São Paulo - SP",
+                  };
+                  
+                  const cleanParams: Record<string, string> = {};
+                  Object.entries(rawParams).forEach(([k, v]) => {
+                    if (v !== undefined && v !== null) {
+                      cleanParams[k] = String(v);
+                    }
                   });
+                  
+                  const params = new URLSearchParams(cleanParams);
                   if (apiKey) params.set("api_key", apiKey);
+
+                  const isDateValid = prev.savedAt && !isNaN(new Date(prev.savedAt).getTime());
+                  const dateStr = isDateValid ? new Date(prev.savedAt).toLocaleDateString("pt-BR") : "Recente";
 
                   return (
                     <div key={prev.id || idx} className="bg-[#111218] border border-white/10 rounded-2xl p-5 space-y-4 hover:border-primary/40 transition-all flex flex-col justify-between shadow-xl">
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="px-2.5 py-0.5 bg-primary/20 text-primary font-bold text-[10px] rounded-full border border-primary/30 uppercase tracking-wider">
-                            {prev.category}
+                            {prev.category || "Empresa"}
                           </span>
                           <span className="text-[10px] font-mono text-white/40">
-                            {prev.savedAt ? new Date(prev.savedAt).toLocaleDateString("pt-BR") : "Recente"}
+                            {dateStr}
                           </span>
                         </div>
-                        <h4 className="text-base font-black text-white truncate">{prev.name}</h4>
-                        <p className="text-xs text-white/60 truncate">📍 {prev.address || prev.city}</p>
-                        <p className="text-xs text-white/60">📞 {prev.phone}</p>
+                        <h4 className="text-base font-black text-white truncate">{prev.name || "Sem Nome"}</h4>
+                        <p className="text-xs text-white/60 truncate">📍 {prev.address || prev.city || "Não informado"}</p>
+                        <p className="text-xs text-white/60">📞 {prev.phone || "Não informado"}</p>
                       </div>
 
                       <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/10">
@@ -1204,7 +1219,7 @@ function LeadCard({
           <div className="flex items-center gap-1 text-xs font-bold text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded-lg border border-yellow-400/20 shrink-0">
             <Star size={13} fill="currentColor" />
             <span>{lead.rating || "4.8"}</span>
-            <span className="text-[10px] text-white/40">({lead.reviews_count || 12})</span>
+            <span className="text-[10px] text-white/40">({lead.user_ratings_total || 12})</span>
           </div>
         </div>
 
@@ -1234,10 +1249,10 @@ function LeadCard({
             </span>
           )}
 
-          {lead.photos_count ? (
+          {lead.google_photos_count ? (
             <span className="px-2.5 py-0.5 bg-white/5 text-white/70 text-[10px] font-semibold rounded-full border border-white/10 flex items-center gap-1">
               <ImageIcon size={12} />
-              <span>{lead.photos_count} Fotos do Google</span>
+              <span>{lead.google_photos_count} Fotos do Google</span>
             </span>
           ) : null}
         </div>
