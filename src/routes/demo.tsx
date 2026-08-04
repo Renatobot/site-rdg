@@ -581,7 +581,141 @@ function FullSiteDemoPage() {
     }).filter(Boolean);
   }
 
-  let realReviewsList: { author_name: string; rating: number; text: string; relative_time_description?: string }[] = storedLead?.reviews_list || [];
+  const [selectedColor, setSelectedColor] = useState<string>("gold");
+  const [isSavedLocally, setIsSavedLocally] = useState<boolean>(false);
+  const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
+
+  // Paletas de Cores Rápidas
+  const colorPalettes: Record<string, { accent: string; badgeBg: string; border: string }> = {
+    gold: { accent: "#D97706", badgeBg: "rgba(217, 119, 6, 0.15)", border: "rgba(217, 119, 6, 0.3)" },
+    blue: { accent: "#2563EB", badgeBg: "rgba(37, 99, 235, 0.15)", border: "rgba(37, 99, 235, 0.3)" },
+    emerald: { accent: "#059669", badgeBg: "rgba(5, 150, 105, 0.15)", border: "rgba(5, 150, 105, 0.3)" },
+    purple: { accent: "#7C3AED", badgeBg: "rgba(124, 58, 237, 0.15)", border: "rgba(124, 58, 237, 0.3)" },
+    pink: { accent: "#DB2777", badgeBg: "rgba(219, 39, 119, 0.15)", border: "rgba(219, 39, 119, 0.3)" },
+    red: { accent: "#DC2626", badgeBg: "rgba(220, 38, 38, 0.15)", border: "rgba(220, 38, 38, 0.3)" },
+  };
+
+  const currentPalette = colorPalettes[selectedColor] || colorPalettes.gold;
+
+  // Função para salvar a prévia localmente
+  const handleSavePreviewLocally = () => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("rdg_saved_previews") || "[]");
+      const newEntry = {
+        id: storedLead?.id || `preview_${Date.now()}`,
+        name: nome,
+        category: displayCategory,
+        phone,
+        address: endereco,
+        city: cidade,
+        rating,
+        reviews,
+        savedAt: new Date().toISOString(),
+        urlParams: search,
+      };
+      const updated = [newEntry, ...existing.filter((item: any) => item.name !== nome)];
+      localStorage.setItem("rdg_saved_previews", JSON.stringify(updated));
+      setIsSavedLocally(true);
+      setTimeout(() => setIsSavedLocally(false), 3000);
+    } catch (e) {
+      console.error("Erro ao salvar prévia:", e);
+    }
+  };
+
+  // Função para copiar Prompt estruturado para a RDG AI
+  const handleCopyRdgAiPrompt = () => {
+    const promptText = `Crie um site profissional e responsivo para a empresa "${nome}" do segmento de ${displayCategory} localizada em ${cidade}.
+Informações Oficiais:
+- Nome: ${nome}
+- Categoria: ${displayCategory}
+- Telefone / WhatsApp: ${phone}
+- Endereço: ${endereco}
+- Avaliação: Nota ${rating} estrelas com ${reviews} avaliações no Google.
+
+Estrutura do Site:
+1. Seção Hero (Topo) com chamada persuasiva e botão direto para WhatsApp.
+2. Galeria de fotos profissionais do espaço e trabalhos.
+3. Seção de Serviços e diferenciais com botão de agendamento.
+4. Depoimentos de clientes e Mapa de localização interativo.
+5. Rodapé com direitos autorais e links de contato.
+
+Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent}.`;
+
+    navigator.clipboard.writeText(promptText);
+    setCopiedPrompt(true);
+    setTimeout(() => setCopiedPrompt(false), 3000);
+  };
+
+  // Função para fazer Download do Site HTML5 Completo em 1 clique
+  const handleDownloadHtml5 = () => {
+    const htmlContent = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${nome} — Site Oficial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0B0B0F; color: #FFFFFF; }
+  </style>
+</head>
+<body class="bg-[#0B0B0F] text-white min-h-screen">
+  <!-- TOPO HERO -->
+  <header class="border-b border-white/10 py-4 px-6 flex justify-between items-center bg-[#111218]">
+    <h1 class="text-xl font-black tracking-tight" style="color: ${currentPalette.accent}">${nome}</h1>
+    <a href="https://wa.me/${waNum}" target="_blank" class="px-5 py-2.5 rounded-full font-bold text-xs bg-emerald-600 text-white hover:bg-emerald-500 transition-all">
+      Falar no WhatsApp
+    </a>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-12 space-y-12">
+    <!-- HERO SECTION -->
+    <section class="text-center space-y-6">
+      <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" style="background: ${currentPalette.badgeBg}; color: ${currentPalette.accent}">
+        ${displayCategory} em ${cidade}
+      </span>
+      <h2 class="text-4xl sm:text-5xl font-black leading-tight">${nome}</h2>
+      <p class="text-sm text-white/70 max-w-2xl mx-auto">${businessSummary}</p>
+      <div class="pt-4">
+        <a href="https://wa.me/${waNum}" target="_blank" class="px-8 py-4 rounded-2xl font-extrabold text-sm text-black shadow-lg" style="background-color: ${currentPalette.accent}">
+          Agendar Atendimento Agora
+        </a>
+      </div>
+    </section>
+
+    <!-- INFORMAÇÕES DE CONTATO -->
+    <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-white/10">
+      <div class="bg-[#111218] p-5 rounded-2xl border border-white/10 text-center">
+        <p class="text-xs text-white/50 font-bold uppercase">Telefone / WhatsApp</p>
+        <p class="text-sm font-bold text-white mt-1">${phone}</p>
+      </div>
+      <div class="bg-[#111218] p-5 rounded-2xl border border-white/10 text-center">
+        <p class="text-xs text-white/50 font-bold uppercase">Endereço</p>
+        <p class="text-sm font-bold text-white mt-1">${endereco}</p>
+      </div>
+      <div class="bg-[#111218] p-5 rounded-2xl border border-white/10 text-center">
+        <p class="text-xs text-white/50 font-bold uppercase">Avaliação no Google</p>
+        <p class="text-sm font-bold text-amber-400 mt-1">★ ${rating} (${reviews} avaliações)</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-white/10 py-6 text-center text-xs text-white/40">
+    <p>© ${new Date().getFullYear()} ${nome}. Todos os direitos reservados.</p>
+  </footer>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+    const link = document.createElement("a");
+    const nameClean = nome.toLowerCase().replace(/[^a-z0-9]/g, "-");
+    link.href = URL.createObjectURL(blob);
+    link.download = `site-${nameClean}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   if (realReviewsList.length === 0 && search.reviews_json) {
     try {
       const parsed: any = JSON.parse(search.reviews_json);
@@ -773,30 +907,71 @@ function FullSiteDemoPage() {
         color: config.textColor,
       }}
     >
-      {/* Top Banner de Demonstração Interativa */}
+      {/* TOP CONTROL BAR DE DEMONSTRAÇÃO E FERRAMENTAS DO PROSPECTOR */}
       <div
-        className="p-3 text-center text-xs font-bold flex items-center justify-center gap-2 shadow-md sticky top-0 z-50 transition-colors"
+        className="p-2.5 px-4 text-xs font-bold flex flex-wrap items-center justify-between gap-3 shadow-xl sticky top-0 z-50 transition-colors border-b"
         style={{
-          backgroundColor: "#111625",
+          backgroundColor: "#0B0E17",
           color: "#FAFAFA",
-          borderBottom: `1px solid ${config.borderColor}`,
+          borderColor: currentPalette.border,
         }}
       >
-        <Sparkles size={14} className="animate-pulse" style={{ color: config.accentColor }} />
-        <span>MODELO DE SITE OFICIAL — GERADO EXCLUSIVAMENTE PARA <strong style={{ color: config.accentColor }}>{nome.toUpperCase()}</strong></span>
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-3 px-3.5 py-1.5 font-black rounded-lg transition-all text-[11px] inline-flex items-center gap-1 shadow"
-          style={{
-            backgroundColor: config.accentColor,
-            color: config.accentText,
-          }}
-        >
-          <span>Agendar no WhatsApp</span>
-          <ArrowUpRight size={14} />
-        </a>
+        {/* Identificação do Cliente */}
+        <div className="flex items-center gap-2">
+          <Sparkles size={14} className="animate-pulse" style={{ color: currentPalette.accent }} />
+          <span className="truncate max-w-[220px] sm:max-w-none">
+            PRÉVIA: <strong style={{ color: currentPalette.accent }}>{nome.toUpperCase()}</strong>
+          </span>
+        </div>
+
+        {/* Seletor de Cores do Site */}
+        <div className="flex items-center gap-1.5 bg-white/5 p-1 rounded-full border border-white/10">
+          <span className="text-[10px] text-white/50 px-2 font-mono uppercase">Cor:</span>
+          {Object.entries(colorPalettes).map(([key, val]) => (
+            <button
+              key={key}
+              onClick={() => setSelectedColor(key)}
+              className={`w-4 h-4 rounded-full transition-transform ${selectedColor === key ? "scale-125 ring-2 ring-white" : "hover:scale-110 opacity-70"}`}
+              style={{ backgroundColor: val.accent }}
+              title={`Trocar cor para ${key}`}
+            />
+          ))}
+        </div>
+
+        {/* Ferramentas de Download, Prompt e Salvamento */}
+        <div className="flex items-center gap-2">
+          {/* Salvar nas Minhas Prévias */}
+          <button
+            onClick={handleSavePreviewLocally}
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5 border ${
+              isSavedLocally
+                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                : "bg-white/10 hover:bg-white/20 text-white border-white/15"
+            }`}
+          >
+            <span>{isSavedLocally ? "✓ Salvo no Histórico" : "💾 Salvar Prévia"}</span>
+          </button>
+
+          {/* Copiar Prompt para RDG AI */}
+          <button
+            onClick={handleCopyRdgAiPrompt}
+            className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5 border ${
+              copiedPrompt
+                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                : "bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border-purple-500/40"
+            }`}
+          >
+            <span>{copiedPrompt ? "✓ Prompt Copiado!" : "📋 Prompt RDG AI"}</span>
+          </button>
+
+          {/* Baixar Site HTML5 */}
+          <button
+            onClick={handleDownloadHtml5}
+            className="px-3.5 py-1.5 font-extrabold rounded-lg transition-all text-[11px] flex items-center gap-1 shadow-lg shadow-emerald-600/20 bg-emerald-600 hover:bg-emerald-500 text-white"
+          >
+            <span>📥 Baixar HTML5</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Header Estilo Personalizado por Nicho */}

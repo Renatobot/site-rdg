@@ -99,7 +99,33 @@ function ProspeccaoPage() {
   const [licenseError, setLicenseError] = useState<string | null>(null);
   const [userClientName, setUserClientName] = useState<string>("");
 
-  const [activeTab, setActiveTab] = useState<"prospectar" | "salvos">("prospectar");
+  const [activeTab, setActiveTab] = useState<"prospectar" | "salvos" | "previas">("prospectar");
+  const [savedPreviewsList, setSavedPreviewsList] = useState<any[]>([]);
+
+  // Carregar prévias salvas localmente
+  const loadSavedPreviews = () => {
+    try {
+      const list = JSON.parse(localStorage.getItem("rdg_saved_previews") || "[]");
+      setSavedPreviewsList(list);
+    } catch (e) {
+      setSavedPreviewsList([]);
+    }
+  };
+
+  useEffect(() => {
+    loadSavedPreviews();
+  }, [activeTab]);
+
+  const handleDeleteSavedPreview = (previewId: string) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("rdg_saved_previews") || "[]");
+      const updated = existing.filter((item: any) => item.id !== previewId && item.name !== previewId);
+      localStorage.setItem("rdg_saved_previews", JSON.stringify(updated));
+      setSavedPreviewsList(updated);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   // Filtros de Busca
   const [nicho, setNicho] = useState<string>("");
@@ -705,6 +731,17 @@ function ProspeccaoPage() {
                 <Kanban size={14} />
                 <span>Meus Leads Salvos ({savedLeads.length})</span>
               </button>
+              <button
+                onClick={() => setActiveTab("previas")}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  activeTab === "previas"
+                    ? "bg-primary text-black font-extrabold shadow"
+                    : "text-white/60 hover:text-white"
+                }`}
+              >
+                <Sparkles size={14} />
+                <span>Prévias Salvas ({savedPreviewsList.length})</span>
+              </button>
             </div>
           </div>
         </div>
@@ -788,6 +825,80 @@ function ProspeccaoPage() {
                 />
               ))}
             </div>
+          </div>
+        )}
+
+        {/* TAB 3: MINHAS PRÉVIAS SALVAS */}
+        {activeTab === "previas" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
+                <span>Minhas Prévias Salvas</span>
+                <span className="text-xs font-normal text-white/50">({savedPreviewsList.length} sites salvos)</span>
+              </h3>
+            </div>
+
+            {savedPreviewsList.length === 0 ? (
+              <div className="py-16 text-center space-y-4 bg-[#111218] rounded-3xl border border-white/10 p-8 max-w-2xl mx-auto shadow-2xl">
+                <div className="w-14 h-14 rounded-2xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center mx-auto">
+                  <Sparkles size={28} />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-lg font-black text-white">Nenhuma prévia salva ainda</h4>
+                  <p className="text-xs text-white/60">
+                    Ao abrir a prévia de um site, clique no botão <strong>"💾 Salvar Prévia"</strong> no topo da tela para guardar a demonstração aqui no seu histórico!
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {savedPreviewsList.map((prev: any, idx: number) => {
+                  const params = new URLSearchParams(prev.urlParams || {
+                    nome: prev.name,
+                    categoria: prev.category,
+                    phone: prev.phone,
+                    address: prev.address,
+                    cidade: prev.city || "São Paulo - SP",
+                  });
+                  if (apiKey) params.set("api_key", apiKey);
+
+                  return (
+                    <div key={prev.id || idx} className="bg-[#111218] border border-white/10 rounded-2xl p-5 space-y-4 hover:border-primary/40 transition-all flex flex-col justify-between shadow-xl">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="px-2.5 py-0.5 bg-primary/20 text-primary font-bold text-[10px] rounded-full border border-primary/30 uppercase tracking-wider">
+                            {prev.category}
+                          </span>
+                          <span className="text-[10px] font-mono text-white/40">
+                            {prev.savedAt ? new Date(prev.savedAt).toLocaleDateString("pt-BR") : "Recente"}
+                          </span>
+                        </div>
+                        <h4 className="text-base font-black text-white truncate">{prev.name}</h4>
+                        <p className="text-xs text-white/60 truncate">📍 {prev.address || prev.city}</p>
+                        <p className="text-xs text-white/60">📞 {prev.phone}</p>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/10">
+                        <button
+                          onClick={() => window.open(`/demo?${params.toString()}`, "_blank")}
+                          className="flex-1 py-2 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 shadow"
+                        >
+                          <Eye size={14} />
+                          <span>Abrir Prévia</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSavedPreview(prev.id || prev.name)}
+                          className="p-2 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30 rounded-xl text-xs transition-all"
+                          title="Excluir Prévia"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </main>
