@@ -997,26 +997,33 @@ function ProspeccaoPage() {
                 <div className="flex items-start gap-2.5">
                   <span className="w-5 h-5 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">2</span>
                   <p>
-                    No menu superior, clique em <strong>Selecionar Projeto -&gt; Novo Projeto</strong> (ex: digite o nome <code>Minha Prospecção B2B</code>) e clique em <strong>Criar</strong>.
+                    No menu superior, clique em <strong>Selecionar Projeto -&gt; Novo Projeto</strong> (ex: <code>Minha Prospecção B2B</code>) e clique em <strong>Criar</strong>.
                   </p>
                 </div>
 
                 <div className="flex items-start gap-2.5">
-                  <span className="w-5 h-5 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">3</span>
+                  <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">3</span>
                   <p>
-                    No menu lateral <strong>APIs e Serviços -&gt; Biblioteca</strong>, pesquise por <strong>Places API</strong> (ou <code>Places API New</code>) e clique no botão verde <strong>Ativar</strong>.
+                    <strong className="text-amber-300">Ativar Faturamento (Obrigatório do Google):</strong> No menu lateral, acesse <strong>Faturamento (Billing)</strong> e vincule uma conta/cartão. <em>O Google exige este cadastro para validar a chave e liberar o limite gratuito mensal (nada será cobrado enquanto estiver no limite grátis).</em>
                   </p>
                 </div>
 
                 <div className="flex items-start gap-2.5">
                   <span className="w-5 h-5 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">4</span>
                   <p>
-                    Vá em <strong>Credenciais -&gt; Criar Credenciais -&gt; Chave de API</strong>. O Google exibirá sua chave gerada (começando com <code>AIzaSy...</code>).
+                    No menu lateral <strong>APIs e Serviços -&gt; Biblioteca</strong>, pesquise por <strong>Places API</strong> (ou <code>Places API New</code>) e clique no botão verde <strong>Ativar</strong>.
                   </p>
                 </div>
 
                 <div className="flex items-start gap-2.5">
                   <span className="w-5 h-5 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">5</span>
+                  <p>
+                    Vá em <strong>Credenciais -&gt; Criar Credenciais -&gt; Chave de API</strong>. O Google exibirá sua chave gerada (começando com <code>AIzaSy...</code>).
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">6</span>
                   <p>
                     Copie a chave, cole no campo abaixo e clique em <strong>Salvar Minha Chave</strong>.
                   </p>
