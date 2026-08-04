@@ -124,6 +124,11 @@ function ProspeccaoPage() {
   const [scriptLead, setScriptLead] = useState<LeadItem | null>(null);
   const [copiedScriptIndex, setCopiedScriptIndex] = useState<number | null>(null);
 
+  // Modal de Personalização da Prévia do Site com Upload de Fotos
+  const [previewModalLead, setPreviewModalLead] = useState<LeadItem | null>(null);
+  const [customHeroPhoto, setCustomHeroPhoto] = useState<string>("");
+  const [customGalleryPhotos, setCustomGalleryPhotos] = useState<string[]>([]);
+
   // Verificar Chave de Licença de Acesso à Ferramenta de Prospecção (CHAVE VERIFICADA NO SUPABASE)
   useEffect(() => {
     const savedLicense = localStorage.getItem("prospeccao_license_key") || localStorage.getItem("rdg_license_key");
@@ -293,9 +298,43 @@ function ProspeccaoPage() {
 
   const isSaved = (leadId: string) => savedLeads.some((l) => l.id === leadId);
 
-  // AÇÃO EXECUTADA AO CLICAR EM "GERAR PRÉVIA" -> GRAVA SESSION E ABRE O SITE DEMO
+  // AÇÃO EXECUTADA AO CLICAR EM "GERAR PRÉVIA" -> ABRE MODAL DE CONFIGURAÇÃO E UPLOAD DE IMAGENS
   const openDemoPage = (lead: LeadItem) => {
-    sessionStorage.setItem("active_demo_lead", JSON.stringify(lead));
+    setCustomHeroPhoto("");
+    setCustomGalleryPhotos([]);
+    setPreviewModalLead(lead);
+  };
+
+  const handleUploadHeroImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => setCustomHeroPhoto(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUploadGalleryImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setCustomGalleryPhotos((prev) => [...prev.slice(-3), reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const generateDemoWithCustomization = (lead: LeadItem, useUploadedPhotos = false) => {
+    const updatedLead = {
+      ...lead,
+      customHeroPhoto: useUploadedPhotos && customHeroPhoto ? customHeroPhoto : undefined,
+      customGalleryPhotos: useUploadedPhotos && customGalleryPhotos.length > 0 ? customGalleryPhotos : undefined,
+    };
+
+    sessionStorage.setItem("active_demo_lead", JSON.stringify(updatedLead));
     const effectiveCategory = lead.category || nicho || "Estética";
     const params = new URLSearchParams({
       nome: lead.name,
@@ -311,11 +350,10 @@ function ProspeccaoPage() {
       endereco: lead.address,
       cidade: cidade || "São Paulo - SP",
     });
+
     if (apiKey) params.set("api_key", apiKey);
-    if (lead.photos && lead.photos.length > 0) {
-      params.set("photos", JSON.stringify(lead.photos));
-    }
     window.open(`/demo?${params.toString()}`, "_blank");
+    setPreviewModalLead(null);
   };
 
   const exportToCSV = (leadsToExport: LeadItem[]) => {
@@ -817,23 +855,178 @@ function ProspeccaoPage() {
         </div>
       )}
 
-      {/* MODAL CONFIGURAÇÃO CHAVE DE API GOOGLE */}
-      {isConfigOpen && (
+      {/* MODAL DE PERSONALIZAÇÃO E UPLOAD DE FOTOS DA PRÉVIA */}
+      {previewModalLead && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-[#111218] border border-white/10 rounded-3xl p-6 max-w-xl w-full space-y-6 relative shadow-2xl my-auto">
+            <button onClick={() => setPreviewModalLead(null)} className="absolute top-5 right-5 text-white/40 hover:text-white p-1">
+              <X size={20} />
+            </button>
+
+            <div className="space-y-1">
+              <span className="px-2.5 py-0.5 bg-primary/20 text-primary font-bold text-[10px] rounded-full border border-primary/30 uppercase tracking-wider">
+                PERSONALIZAR PRÉVIA DO SITE
+              </span>
+              <h3 className="text-xl font-black text-white">{previewModalLead.name}</h3>
+              <p className="text-xs text-white/60">
+                Categoria: <strong className="text-white">{formatCategoryLabel(previewModalLead.category)}</strong> · Cidade: <strong className="text-white">{cidade || "São Paulo - SP"}</strong>
+              </p>
+            </div>
+
+            {/* Dica amigável */}
+            <div className="bg-blue-500/10 border border-blue-500/20 p-3.5 rounded-2xl flex items-start gap-3">
+              <Info size={18} className="text-blue-400 shrink-0 mt-0.5" />
+              <p className="text-xs text-blue-200/90 leading-relaxed">
+                <strong>Opcional:</strong> Você pode baixar as fotos reais da empresa no Instagram ou Google Maps e fazer upload abaixo. Se preferir não enviar nada, basta clicar em <strong>"Gerar Prévia Instantânea"</strong> para usar nossas fotos HD de alta conversão!
+              </p>
+            </div>
+
+            {/* Áreas de Upload */}
+            <div className="space-y-4">
+              {/* Foto de Capa (Hero) */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-white/80 flex items-center gap-1.5">
+                  <ImageIcon size={14} className="text-primary" />
+                  <span>Foto da Capa do Site (Topo / Hero)</span>
+                </label>
+                <div className="flex items-center gap-3">
+                  <label className="flex-1 bg-[#0A0A0A] border border-dashed border-white/20 hover:border-primary/50 p-3.5 rounded-xl cursor-pointer text-center text-xs text-white/70 hover:text-white transition-all flex items-center justify-center gap-2">
+                    <Download size={14} />
+                    <span>{customHeroPhoto ? "✅ Foto de Capa Selecionada (Clique para alterar)" : "Clique ou arraste a Foto Principal do Topo"}</span>
+                    <input type="file" accept="image/*" onChange={handleUploadHeroImage} className="hidden" />
+                  </label>
+                  {customHeroPhoto && (
+                    <button
+                      onClick={() => setCustomHeroPhoto("")}
+                      className="px-2.5 py-2.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-xl text-xs hover:bg-rose-500/30"
+                      title="Remover foto"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Fotos da Galeria */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-white/80 flex items-center gap-1.5 justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <ImageIcon size={14} className="text-emerald-400" />
+                    <span>Galeria de Trabalhos / Fotos do Espaço</span>
+                  </span>
+                  <span className="text-[10px] text-white/40 font-mono">({customGalleryPhotos.length}/4 enviadas)</span>
+                </label>
+                <label className="bg-[#0A0A0A] border border-dashed border-white/20 hover:border-emerald-500/50 p-3.5 rounded-xl cursor-pointer text-center text-xs text-white/70 hover:text-white transition-all flex items-center justify-center gap-2">
+                  <Download size={14} />
+                  <span>Selecione até 4 fotos reais da empresa</span>
+                  <input type="file" accept="image/*" multiple onChange={handleUploadGalleryImage} className="hidden" />
+                </label>
+                {customGalleryPhotos.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    {customGalleryPhotos.map((img, i) => (
+                      <div key={i} className="relative w-14 h-14 rounded-lg overflow-hidden border border-white/20">
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        <button
+                          onClick={() => setCustomGalleryPhotos((prev) => prev.filter((_, idx) => idx !== i))}
+                          className="absolute top-0.5 right-0.5 bg-black/80 text-white p-0.5 rounded-full"
+                        >
+                          <X size={10} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Botoes de Ação */}
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
+              <button
+                onClick={() => generateDemoWithCustomization(previewModalLead, false)}
+                className="w-full sm:w-auto px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition-all"
+              >
+                🎨 Gerar com Fotos HD por Nicho
+              </button>
+              <button
+                onClick={() => generateDemoWithCustomization(previewModalLead, true)}
+                className="w-full sm:w-auto px-5 py-2.5 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-1.5"
+              >
+                <Zap size={14} />
+                <span>Gerar Prévia com Minhas Fotos</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CONFIGURAÇÃO CHAVE DE API GOOGLE E TUTORIAL */}
+      {isConfigOpen && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#111218] border border-white/10 rounded-3xl p-6 max-w-2xl w-full space-y-6 relative shadow-2xl my-auto">
             <button onClick={() => setIsConfigOpen(false)} className="absolute top-5 right-5 text-white/40 hover:text-white p-1">
               <X size={20} />
             </button>
 
             <div className="space-y-2">
-              <h3 className="text-xl font-black text-white">Configurar Sua Chave Grátis da Google Places API</h3>
-              <p className="text-xs text-white/60 leading-relaxed">
-                O Google presenteia <strong>$200 DÓLARES GRATUITOS TODO MÊS</strong> para cada conta do Google Cloud Console.
+              <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-400 font-bold text-[10px] rounded-full border border-emerald-500/30 uppercase tracking-wider">
+                CONFIGURAÇÃO GOOGLE CLOUD
+              </span>
+              <h3 className="text-xl font-black text-white">Como Pegar Sua Chave Grátis da Google Places API</h3>
+            </div>
+
+            {/* Banner do Modo Sem Chave */}
+            <div className="bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-2xl flex items-start gap-3">
+              <Sparkles size={18} className="text-amber-400 shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-200/90 leading-relaxed">
+                <strong>💡 Não tem chave do Google?</strong> Não tem problema! O software funciona perfeitamente no <strong>Modo Demonstração Sem Chave</strong> para você treinar e prospectar imediatamente sem precisar configurar nada.
               </p>
             </div>
 
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-white/70 uppercase">Cole Sua Chave de API Google (Places API)</label>
+            {/* Passo a Passo Interativo */}
+            <div className="space-y-3 bg-[#0A0A0A] p-4 rounded-2xl border border-white/10">
+              <h4 className="text-xs font-bold text-white uppercase tracking-wider text-primary">Passo a Passo para Resultados Ao Vivo:</h4>
+              
+              <div className="space-y-2.5 text-xs text-white/80">
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">1</span>
+                  <p>
+                    Acesse o site oficial do <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline font-bold">Google Cloud Console</a> e faça login com a sua conta Google.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">2</span>
+                  <p>
+                    No menu superior, clique em <strong>Selecionar Projeto -&gt; Novo Projeto</strong> (ex: digite o nome <code>Minha Prospecção B2B</code>) e clique em <strong>Criar</strong>.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">3</span>
+                  <p>
+                    No menu lateral <strong>APIs e Serviços -&gt; Biblioteca</strong>, pesquise por <strong>Places API</strong> (ou <code>Places API New</code>) e clique no botão verde <strong>Ativar</strong>.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">4</span>
+                  <p>
+                    Vá em <strong>Credenciais -&gt; Criar Credenciais -&gt; Chave de API</strong>. O Google exibirá sua chave gerada (começando com <code>AIzaSy...</code>).
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">5</span>
+                  <p>
+                    Copie a chave, cole no campo abaixo e clique em <strong>Salvar Minha Chave</strong>.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Input da Chave */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white/80 uppercase">Cole Sua Chave de API Google (Places API)</label>
               <input
                 type="password"
                 value={apiKey}
@@ -845,7 +1038,7 @@ function ProspeccaoPage() {
 
             <div className="flex items-center justify-end gap-3 pt-2">
               <button onClick={() => setIsConfigOpen(false)} className="px-4 py-2.5 text-xs font-bold text-white/60 hover:text-white">
-                Cancelar
+                Fechar
               </button>
               <button onClick={() => handleSaveApiKey(apiKey)} className="px-6 py-2.5 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
                 Salvar Minha Chave

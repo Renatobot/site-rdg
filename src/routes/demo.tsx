@@ -734,8 +734,10 @@ function FullSiteDemoPage() {
 
   const businessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${displayCategory} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
 
-  const heroImage = realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback;
-  const galleryImages = realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback;
+  const heroImage = storedLead?.customHeroPhoto || (search as any).hero_photo || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback);
+  const galleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
+    ? storedLead.customGalleryPhotos
+    : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback);
 
   const lowerName = nome.toLowerCase();
   let dynamicServices = config.services;
