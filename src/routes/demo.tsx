@@ -835,10 +835,30 @@ function FullSiteDemoPage() {
   const [editHeroImage, setEditHeroImage] = useState<string>("");
   const [editGalleryImages, setEditGalleryImages] = useState<string[]>([]);
   const [editServices, setEditServices] = useState<{ title: string; desc: string; price: string }[] | null>(null);
+
   // Estados da IA Gratuita (Pollinations.ai) & Tela de Carregamento Futurista
   const [isGeneratingAi, setIsGeneratingAi] = useState<boolean>(true);
   const [aiStepMessage, setAiStepMessage] = useState<string>("🧠 Analisando o nicho e dados do negócio...");
   const [aiProgressPercent, setAiProgressPercent] = useState<number>(15);
+  const [customColorHex, setCustomColorHex] = useState<string>((search as any).custom_color || "");
+
+  const defaultNome = storedLead?.name || search.nome || search.cliente || "Empresa de Destaque";
+  const defaultRawCategoria = storedLead?.category || search.categoria || "Empresa";
+  const defaultCidade = search.cidade || "São Paulo - SP";
+  const defaultEndereco = storedLead?.address || search.endereco || `Rua Principal, 1500 - ${defaultCidade}`;
+  const defaultPhone = storedLead?.phone || search.phone || search.telefone || "+55 11 98888-7777";
+  const defaultRating = storedLead?.rating || search.rating || "5.0";
+  const defaultReviews = storedLead?.user_ratings_total || search.reviews || "340";
+
+  const nome = editNome || defaultNome;
+  const rawCategoria = editCategoria || defaultRawCategoria;
+  const cidade = editCidade || defaultCidade;
+  const endereco = editEndereco || defaultEndereco;
+  const phone = editPhone || defaultPhone;
+  const rawPhone = phone.replace(/\D/g, "");
+  const waNum = rawPhone.length > 5 ? (rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`) : "5511988887777";
+  const rating = editRating || defaultRating;
+  const reviews = editReviews || defaultReviews;
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -955,24 +975,6 @@ function FullSiteDemoPage() {
       setIsGeneratingAi(false);
     }, 3500);
   };
-
-  const defaultNome = storedLead?.name || search.nome || search.cliente || "Empresa de Destaque";
-  const defaultRawCategoria = storedLead?.category || search.categoria || "Empresa";
-  const defaultCidade = search.cidade || "São Paulo - SP";
-  const defaultEndereco = storedLead?.address || search.endereco || `Rua Principal, 1500 - ${defaultCidade}`;
-  const defaultPhone = storedLead?.phone || search.phone || search.telefone || "+55 11 98888-7777";
-  const defaultRating = storedLead?.rating || search.rating || "5.0";
-  const defaultReviews = storedLead?.user_ratings_total || search.reviews || "340";
-
-  const nome = editNome || defaultNome;
-  const rawCategoria = editCategoria || defaultRawCategoria;
-  const cidade = editCidade || defaultCidade;
-  const endereco = editEndereco || defaultEndereco;
-  const phone = editPhone || defaultPhone;
-  const rawPhone = phone.replace(/\D/g, "");
-  const waNum = rawPhone.length > 5 ? (rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`) : "5511988887777";
-  const rating = editRating || defaultRating;
-  const reviews = editReviews || defaultReviews;
   const googleMapsUrl = storedLead?.google_maps_url || `https://www.google.com/maps/search/${encodeURIComponent(nome + " " + cidade)}`;
   const activeApiKey = (search as any).api_key || (typeof window !== "undefined" ? localStorage.getItem("google_places_api_key") : "") || "";
 
