@@ -835,6 +835,10 @@ function FullSiteDemoPage() {
   const [editHeroImage, setEditHeroImage] = useState<string>("");
   const [editGalleryImages, setEditGalleryImages] = useState<string[]>([]);
   const [editServices, setEditServices] = useState<{ title: string; desc: string; price: string }[] | null>(null);
+  const [editWaMsg, setEditWaMsg] = useState<string>("");
+  const [editBtnHeroText, setEditBtnHeroText] = useState<string>("");
+  const [editBtnHeaderText, setEditBtnHeaderText] = useState<string>("");
+  const [editBtnServiceText, setEditBtnServiceText] = useState<string>("");
 
   // Estados da IA Gratuita (Pollinations.ai) & Tela de Carregamento Futurista
   const [isGeneratingAi, setIsGeneratingAi] = useState<boolean>(true);
@@ -1263,19 +1267,34 @@ function FullSiteDemoPage() {
   const defaultBusinessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${displayCategory} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
   const businessSummary = editSummary || defaultBusinessSummary;
 
-  const sanitizePhotoUrl = (url: string) => (!url || url.includes("1590301157890-4810ed352733") ? "" : url);
+  const sanitizePhotoUrl = (url: string) => (!url || url.includes("1590301157890-4810ed352733") || url.includes("1541781774459") ? "" : url);
 
-  const rawHero = storedLead?.customHeroPhoto || (search as any).hero_photo;
-  const defaultHeroImage = sanitizePhotoUrl(rawHero) || (catKey !== "default" ? config.heroFallback : (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback));
+  const hasUserCustomHero = !!storedLead?.customHeroPhoto;
+  const defaultHeroImage = hasUserCustomHero
+    ? sanitizePhotoUrl(storedLead.customHeroPhoto)
+    : (catKey !== "default" ? config.heroFallback : (sanitizePhotoUrl((search as any).hero_photo) || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback)));
   const heroImage = sanitizePhotoUrl(editHeroImage) || defaultHeroImage;
 
-  const rawGallery = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
+  const hasUserCustomGallery = !!(storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0);
+  const defaultGalleryImages = hasUserCustomGallery
     ? storedLead.customGalleryPhotos.map(sanitizePhotoUrl).filter(Boolean)
-    : [];
-  const defaultGalleryImages = rawGallery.length > 0
-    ? rawGallery
     : (catKey !== "default" ? config.galleryFallback : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback));
   const galleryImages = (editGalleryImages.length > 0 ? editGalleryImages.map(sanitizePhotoUrl).filter(Boolean) : defaultGalleryImages);
+
+  const handleUpdateServiceTitle = (index: number, newTitle: string) => {
+    const list = (editServices || activeDynamicServices).map((s: any, i: number) => i === index ? { ...s, title: newTitle } : s);
+    setEditServices(list);
+  };
+
+  const handleUpdateServiceDesc = (index: number, newDesc: string) => {
+    const list = (editServices || activeDynamicServices).map((s: any, i: number) => i === index ? { ...s, desc: newDesc } : s);
+    setEditServices(list);
+  };
+
+  const handleUpdateServicePrice = (index: number, newPrice: string) => {
+    const list = (editServices || activeDynamicServices).map((s: any, i: number) => i === index ? { ...s, price: newPrice } : s);
+    setEditServices(list);
+  };
 
   const heroTagline = editTagline || config.heroTagline;
 
@@ -1725,7 +1744,14 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             style={{ background: config.accentColor, color: config.accentText }}
           >
             <MessageCircle size={15} />
-            <span className="hidden sm:inline">Falar no WhatsApp</span>
+            <span
+              contentEditable
+              suppressContentEditableWarning
+              onBlur={(e) => setEditBtnHeaderText(e.currentTarget.innerText)}
+              className="hidden sm:inline outline-none hover:ring-1 ring-white/40 rounded px-1"
+            >
+              {editBtnHeaderText || "Falar no WhatsApp"}
+            </span>
           </a>
         </div>
       </header>
@@ -1740,16 +1766,18 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               <span 
                 contentEditable 
                 suppressContentEditableWarning
+                onBlur={(e) => setEditTagline(e.currentTarget.innerText)}
                 className="text-xs font-bold uppercase tracking-[0.35em] outline-none hover:ring-2 ring-white/20 rounded-md px-1 -mx-1" 
                 style={{ color: config.accentColor }}
               >
-                {config.heroTagline}
+                {heroTagline}
               </span>
             </div>
 
             <h1
               contentEditable 
               suppressContentEditableWarning
+              onBlur={(e) => setEditNome(e.currentTarget.innerText)}
               className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.02] tracking-tight outline-none hover:ring-2 ring-white/20 rounded-xl px-2 -mx-2 transition-all"
               style={{
                 fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
@@ -1762,6 +1790,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             <p 
               contentEditable 
               suppressContentEditableWarning
+              onBlur={(e) => setEditSummary(e.currentTarget.innerText)}
               className="text-base sm:text-lg max-w-xl leading-relaxed font-normal outline-none hover:ring-2 ring-white/20 rounded-xl px-2 -mx-2 transition-all" 
               style={{ color: config.mutedTextColor }}
             >
@@ -1777,7 +1806,14 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                 style={{ background: config.accentColor, color: config.accentText }}
               >
                 <MessageCircle size={18} />
-                <span>Agendar Atendimento no WhatsApp</span>
+                <span
+                  contentEditable
+                  suppressContentEditableWarning
+                  onBlur={(e) => setEditBtnHeroText(e.currentTarget.innerText)}
+                  className="outline-none hover:ring-1 ring-white/40 rounded px-1"
+                >
+                  {editBtnHeroText || "Agendar Atendimento no WhatsApp"}
+                </span>
               </a>
 
               <a
@@ -1933,11 +1969,19 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
         <div className="max-w-7xl mx-auto space-y-12">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div className="max-w-xl space-y-2">
-              <div className="text-[10px] font-bold uppercase tracking-[0.35em]" style={{ color: config.accentColor }}>
+              <div
+                contentEditable
+                suppressContentEditableWarning
+                className="text-[10px] font-bold uppercase tracking-[0.35em] outline-none hover:ring-2 ring-white/20 rounded px-1"
+                style={{ color: config.accentColor }}
+              >
                 Destaques & Especialidades
               </div>
               <h2
-                className="text-4xl sm:text-5xl font-bold"
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={(e) => setEditNome(e.currentTarget.innerText.replace(/^Serviços de\s*/i, "").replace(/\.$/, ""))}
+                className="text-4xl sm:text-5xl font-bold outline-none hover:ring-2 ring-white/20 rounded-xl px-1 transition-all cursor-text"
                 style={{
                   fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                   color: config.textColor,
@@ -1945,7 +1989,12 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               >
                 Serviços de {nome}.
               </h2>
-              <p className="text-sm" style={{ color: config.mutedTextColor }}>
+              <p
+                contentEditable
+                suppressContentEditableWarning
+                className="text-sm outline-none hover:ring-2 ring-white/20 rounded px-1 transition-all cursor-text"
+                style={{ color: config.mutedTextColor }}
+              >
                 Confira o atendimento oferecido e solicite informações no WhatsApp.
               </p>
             </div>
@@ -1957,7 +2006,14 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] transition-all hover:opacity-80"
               style={{ color: config.accentColor }}
             >
-              <span>Solicitar Atendimento</span>
+              <span
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={(e) => setEditBtnServiceText(e.currentTarget.innerText)}
+                className="outline-none hover:ring-1 ring-white/40 rounded px-1 cursor-text"
+              >
+                {editBtnServiceText || "Solicitar Atendimento"}
+              </span>
               <ArrowUpRight size={16} />
             </a>
           </div>
@@ -1984,7 +2040,10 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                       0{idx + 1}.
                     </span>
                     <span
-                      className="text-xs font-bold px-2 py-1 rounded bg-white/5 border"
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) => handleUpdateServicePrice(idx, e.currentTarget.innerText)}
+                      className="text-xs font-bold px-2 py-1 rounded bg-white/5 border outline-none hover:ring-2 ring-white/30 cursor-text"
                       style={{
                         color: config.accentColor,
                         borderColor: config.borderColor,
@@ -1995,7 +2054,10 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                   </div>
 
                   <h3
-                    className="text-lg font-bold"
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={(e) => handleUpdateServiceTitle(idx, e.currentTarget.innerText)}
+                    className="text-lg font-bold outline-none hover:ring-2 ring-white/20 rounded px-1 transition-all cursor-text"
                     style={{
                       fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                       color: config.textColor,
@@ -2004,7 +2066,13 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                     {srv.title}
                   </h3>
 
-                  <p className="text-xs leading-relaxed" style={{ color: config.mutedTextColor }}>
+                  <p
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={(e) => handleUpdateServiceDesc(idx, e.currentTarget.innerText)}
+                    className="text-xs leading-relaxed outline-none hover:ring-2 ring-white/20 rounded px-1 transition-all cursor-text"
+                    style={{ color: config.mutedTextColor }}
+                  >
                     {srv.desc}
                   </p>
                 </div>
@@ -2024,11 +2092,19 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
         <div className="max-w-7xl mx-auto space-y-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div className="space-y-2">
-              <div className="text-[10px] font-bold uppercase tracking-[0.35em]" style={{ color: config.accentColor }}>
+              <div
+                contentEditable
+                suppressContentEditableWarning
+                className="text-[10px] font-bold uppercase tracking-[0.35em] outline-none hover:ring-2 ring-white/20 rounded px-1"
+                style={{ color: config.accentColor }}
+              >
                 Portfólio & Estrutura
               </div>
               <h2
-                className="text-4xl sm:text-5xl font-bold"
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={(e) => setEditNome(e.currentTarget.innerText.replace(/^Espaço & Galeria de\s*/i, "").replace(/\.$/, ""))}
+                className="text-4xl sm:text-5xl font-bold outline-none hover:ring-2 ring-white/20 rounded-xl px-1 transition-all cursor-text"
                 style={{
                   fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                   color: config.textColor,
@@ -2073,11 +2149,19 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
       >
         <div className="max-w-7xl mx-auto space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-4">
-            <div className="text-[10px] font-bold uppercase tracking-[0.35em]" style={{ color: config.accentColor }}>
+            <div
+              contentEditable
+              suppressContentEditableWarning
+              className="text-[10px] font-bold uppercase tracking-[0.35em] outline-none hover:ring-2 ring-white/20 rounded px-1"
+              style={{ color: config.accentColor }}
+            >
               Depoimentos Verificados
             </div>
             <h2
-              className="text-4xl sm:text-5xl font-bold"
+              contentEditable
+              suppressContentEditableWarning
+              onBlur={(e) => setEditNome(e.currentTarget.innerText.replace(/^O que dizem sobre\s*/i, "").replace(/\.$/, ""))}
+              className="text-4xl sm:text-5xl font-bold outline-none hover:ring-2 ring-white/20 rounded-xl px-1 transition-all cursor-text"
               style={{
                 fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                 color: config.textColor,
@@ -2143,14 +2227,21 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                       {rev.relative_time_description || "Verificado"}
                     </span>
                   </div>
-                  <blockquote className="text-xs leading-relaxed italic" style={{ color: config.textColor }}>
+                  <blockquote
+                    contentEditable
+                    suppressContentEditableWarning
+                    className="text-xs leading-relaxed italic outline-none hover:ring-2 ring-white/20 rounded p-1 cursor-text"
+                    style={{ color: config.textColor }}
+                  >
                     "{rev.text}"
                   </blockquote>
                 </div>
                 <figcaption className="mt-6 pt-6 border-t flex items-center justify-between" style={{ borderColor: config.borderColor }}>
                   <div>
                     <div
-                      className="font-bold text-sm"
+                      contentEditable
+                      suppressContentEditableWarning
+                      className="font-bold text-sm outline-none hover:ring-2 ring-white/20 rounded px-1 cursor-text"
                       style={{
                         fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                         color: config.textColor,
@@ -2173,7 +2264,10 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10 text-xs" style={{ color: config.mutedTextColor }}>
             <div className="md:col-span-4 space-y-3">
               <h4
-                className="font-bold text-base"
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={(e) => setEditNome(e.currentTarget.innerText)}
+                className="font-bold text-base outline-none hover:ring-2 ring-white/20 rounded px-1 cursor-text"
                 style={{
                   fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                   color: config.textColor,
@@ -2181,18 +2275,39 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               >
                 {nome}
               </h4>
-              <p className="leading-relaxed">{businessSummary}</p>
+              <p
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={(e) => setEditSummary(e.currentTarget.innerText)}
+                className="leading-relaxed outline-none hover:ring-2 ring-white/20 rounded p-1 cursor-text"
+              >
+                {businessSummary}
+              </p>
             </div>
 
             <div className="md:col-span-5 space-y-3">
               <h5 className="font-bold uppercase tracking-wider" style={{ color: config.textColor }}>LOCALIZAÇÃO & HORÁRIOS</h5>
               <p className="flex items-start gap-2">
                 <MapPin size={14} className="shrink-0 mt-0.5" style={{ color: config.accentColor }} />
-                <span>{endereco}</span>
+                <span
+                  contentEditable
+                  suppressContentEditableWarning
+                  onBlur={(e) => setEditEndereco(e.currentTarget.innerText)}
+                  className="outline-none hover:ring-2 ring-white/20 rounded px-1 cursor-text"
+                >
+                  {endereco}
+                </span>
               </p>
               <p className="flex items-center gap-2">
                 <Phone size={14} className="shrink-0" style={{ color: config.accentColor }} />
-                <span>{phone}</span>
+                <span
+                  contentEditable
+                  suppressContentEditableWarning
+                  onBlur={(e) => setEditPhone(e.currentTarget.innerText)}
+                  className="outline-none hover:ring-2 ring-white/20 rounded px-1 cursor-text"
+                >
+                  {phone}
+                </span>
               </p>
 
               {realOpeningHours.length > 0 && (
@@ -2396,6 +2511,19 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                         placeholder="Ex: +55 11 99999-8888"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase text-amber-400 mb-1">
+                      💬 Mensagem Personalizada do WhatsApp (Ao Clicar no Botão)
+                    </label>
+                    <input
+                      type="text"
+                      value={editWaMsg}
+                      onChange={(e) => setEditWaMsg(e.target.value)}
+                      className="w-full bg-[#1A1F2E] border border-amber-500/30 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                      placeholder="Ex: Olá! Vi o site e gostaria de agendar atendimento."
+                    />
                   </div>
 
                   <div>
