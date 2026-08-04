@@ -1036,7 +1036,12 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
     ];
   }
 
-  const activeDynamicServices = editServices || dynamicServices;
+  const activeDynamicServices = (Array.isArray(editServices) && editServices.length > 0)
+    ? editServices
+    : (Array.isArray(dynamicServices) && dynamicServices.length > 0 ? dynamicServices : [
+        { title: "Atendimento Especializado", desc: "Serviço profissional de alta qualidade com agendamento rápido.", price: "Sob Consulta" },
+        { title: "Consultoria & Avaliação", desc: "Análise completa das necessidades do cliente com orçamento sem compromisso.", price: "Agendar" }
+      ]);
 
   return (
     <div
@@ -1415,8 +1420,8 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             </a>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {dynamicServices.map((srv, idx) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {activeDynamicServices.map((srv: any, idx: number) => (
               <div
                 key={idx}
                 className="group p-6 transition backdrop-blur-sm rounded-2xl flex flex-col justify-between border shadow-lg"
@@ -2056,10 +2061,10 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                         <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Título do Serviço / Prato</label>
                         <input
                           type="text"
-                          value={srv.title}
+                          value={srv?.title || ""}
                           onChange={(e) => {
                             const updated = [...activeDynamicServices];
-                            updated[idx] = { ...updated[idx], title: e.target.value };
+                            updated[idx] = { ...(updated[idx] || {}), title: e.target.value };
                             setEditServices(updated);
                           }}
                           className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs font-bold focus:border-amber-400 outline-none"
@@ -2071,10 +2076,10 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                         <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Descrição Comercial</label>
                         <textarea
                           rows={2}
-                          value={srv.desc}
+                          value={srv?.desc || ""}
                           onChange={(e) => {
                             const updated = [...activeDynamicServices];
-                            updated[idx] = { ...updated[idx], desc: e.target.value };
+                            updated[idx] = { ...(updated[idx] || {}), desc: e.target.value };
                             setEditServices(updated);
                           }}
                           className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs focus:border-amber-400 outline-none resize-none"
@@ -2086,10 +2091,10 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                         <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Preço / Texto do Botão</label>
                         <input
                           type="text"
-                          value={srv.price}
+                          value={srv?.price || ""}
                           onChange={(e) => {
                             const updated = [...activeDynamicServices];
-                            updated[idx] = { ...updated[idx], price: e.target.value };
+                            updated[idx] = { ...(updated[idx] || {}), price: e.target.value };
                             setEditServices(updated);
                           }}
                           className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs focus:border-amber-400 outline-none"
