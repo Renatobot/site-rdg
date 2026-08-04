@@ -706,18 +706,7 @@ function FullSiteDemoPage() {
     catKey = "oficina";
   }
 
-  const config = NICHE_CONFIGS[catKey] || NICHE_CONFIGS["default"];
-  const NicheIcon = config.icon;
-
-  const isGenericCategory = !rawCategoria || ["establishment", "point_of_interest", "local_business", "store", "food", "health", "finance", "service", "gmn"].includes(rawCategoria.toLowerCase().trim());
-  const displayCategory = isGenericCategory ? config.prettyCategoryName : rawCategoria;
-
-  const businessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${displayCategory} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
-
-  const heroImage = storedLead?.customHeroPhoto || (search as any).hero_photo || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback);
-  const galleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
-    ? storedLead.customGalleryPhotos
-    : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback);
+  const baseConfig = NICHE_CONFIGS[catKey] || NICHE_CONFIGS["default"];
 
   // Paletas de Cores Rápidas
   const colorPalettes: Record<string, { accent: string; badgeBg: string; border: string }> = {
@@ -730,6 +719,26 @@ function FullSiteDemoPage() {
   };
 
   const currentPalette = colorPalettes[selectedColor] || colorPalettes.gold;
+
+  // Aplica a cor selecionada em toda a página sobrepondo o NicheConfig base
+  const config = {
+    ...baseConfig,
+    accentColor: currentPalette.accent,
+    borderColor: currentPalette.border,
+    accentText: "#FFFFFF"
+  };
+
+  const NicheIcon = config.icon;
+
+  const isGenericCategory = !rawCategoria || ["establishment", "point_of_interest", "local_business", "store", "food", "health", "finance", "service", "gmn"].includes(rawCategoria.toLowerCase().trim());
+  const displayCategory = isGenericCategory ? config.prettyCategoryName : rawCategoria;
+
+  const businessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${displayCategory} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
+
+  const heroImage = storedLead?.customHeroPhoto || (search as any).hero_photo || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback);
+  const galleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
+    ? storedLead.customGalleryPhotos
+    : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback);
 
   // Função para salvar a prévia localmente
   const handleSavePreviewLocally = () => {
@@ -1040,32 +1049,34 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
           <div className="lg:col-span-7 space-y-6">
             <div className="flex items-center gap-3">
               <span className="h-px w-10" style={{ background: config.accentColor }} />
-              <span className="text-xs font-bold uppercase tracking-[0.35em]" style={{ color: config.accentColor }}>
+              <span 
+                contentEditable 
+                suppressContentEditableWarning
+                className="text-xs font-bold uppercase tracking-[0.35em] outline-none hover:ring-2 ring-white/20 rounded-md px-1 -mx-1" 
+                style={{ color: config.accentColor }}
+              >
                 {config.heroTagline}
               </span>
             </div>
 
             <h1
-              className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.02] tracking-tight"
+              contentEditable 
+              suppressContentEditableWarning
+              className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.02] tracking-tight outline-none hover:ring-2 ring-white/20 rounded-xl px-2 -mx-2 transition-all"
               style={{
                 fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                 color: config.textColor,
               }}
             >
-              <a
-                href={googleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline"
-              >
-                {nome}
-              </a>{" "}
-              <span className="italic block" style={{ color: config.accentColor }}>
-                {cidade}.
-              </span>
+              {nome} <span className="italic" style={{ color: config.accentColor }}>{cidade}.</span>
             </h1>
 
-            <p className="text-base sm:text-lg max-w-xl leading-relaxed font-normal" style={{ color: config.mutedTextColor }}>
+            <p 
+              contentEditable 
+              suppressContentEditableWarning
+              className="text-base sm:text-lg max-w-xl leading-relaxed font-normal outline-none hover:ring-2 ring-white/20 rounded-xl px-2 -mx-2 transition-all" 
+              style={{ color: config.mutedTextColor }}
+            >
               {businessSummary}
             </p>
 
