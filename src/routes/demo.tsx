@@ -835,7 +835,10 @@ function FullSiteDemoPage() {
   const [editHeroImage, setEditHeroImage] = useState<string>("");
   const [editGalleryImages, setEditGalleryImages] = useState<string[]>([]);
   const [editServices, setEditServices] = useState<{ title: string; desc: string; price: string }[] | null>(null);
-  const [customColorHex, setCustomColorHex] = useState<string>((search as any).custom_color || "");
+  // Estados da IA Gratuita (Pollinations.ai) & Tela de Carregamento Futurista
+  const [isGeneratingAi, setIsGeneratingAi] = useState<boolean>(true);
+  const [aiStepMessage, setAiStepMessage] = useState<string>("🧠 Analisando o nicho e dados do negócio...");
+  const [aiProgressPercent, setAiProgressPercent] = useState<number>(15);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -852,6 +855,106 @@ function FullSiteDemoPage() {
       }
     }
   }, []);
+
+  // Efeito de Carregamento Interativo com IA Gratuita
+  useEffect(() => {
+    let isMounted = true;
+    let timer1: any, timer2: any, timer3: any, timer4: any;
+
+    const runAiGeneration = async () => {
+      setAiProgressPercent(25);
+      setAiStepMessage("🧠 Analisando nicho e inteligência comercial...");
+
+      timer1 = setTimeout(() => {
+        if (!isMounted) return;
+        setAiProgressPercent(55);
+        setAiStepMessage("✍️ Escrevendo apresentação & copy persuasiva com IA...");
+      }, 1500);
+
+      timer2 = setTimeout(() => {
+        if (!isMounted) return;
+        setAiProgressPercent(85);
+        setAiStepMessage("🎨 Otimizando imagens em HD & paleta de cores exclusiva...");
+      }, 3000);
+
+      timer3 = setTimeout(() => {
+        if (!isMounted) return;
+        setAiProgressPercent(100);
+        setAiStepMessage("⚡ Finalizando estrutura do site e WhatsApp...");
+      }, 4200);
+
+      // Consulta a IA Gratuita da Pollinations.ai em background sem travar
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s max
+
+        const promptText = `Escreva um resumo comercial curto de 2 frases em português para a empresa "${defaultNome}" do segmento de "${defaultRawCategoria}" na cidade de "${defaultCidade}".`;
+        
+        const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(promptText)}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const text = await res.text();
+          if (text && text.length > 20 && isMounted) {
+            setEditSummary(text.trim());
+          }
+        }
+      } catch (e) {
+        console.log("IA Pollinations fallback ativado (usando dados de nicho pré-configurados)");
+      }
+
+      timer4 = setTimeout(() => {
+        if (!isMounted) return;
+        setIsGeneratingAi(false);
+      }, 4800);
+    };
+
+    runAiGeneration();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearTimeout(timer4);
+    };
+  }, []);
+
+  const handleRegenerateWithAi = async () => {
+    setIsGeneratingAi(true);
+    setAiProgressPercent(20);
+    setAiStepMessage("✨ Conectando com IA Gratuita (Pollinations)...");
+
+    setTimeout(() => setAiProgressPercent(60), 1200);
+    setTimeout(() => setAiProgressPercent(90), 2500);
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+      const promptText = `Crie uma frase de destaque (tagline) curta e marcante de 1 linha para o site da empresa "${nome}" do segmento "${rawCategoria}".`;
+      const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(promptText)}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const text = await res.text();
+        if (text && text.length > 5) {
+          setEditTagline(text.replace(/["']/g, "").trim());
+        }
+      }
+    } catch (e) {
+      console.log("IA fallback ativado");
+    }
+
+    setTimeout(() => {
+      setAiProgressPercent(100);
+      setIsGeneratingAi(false);
+    }, 3500);
+  };
 
   const defaultNome = storedLead?.name || search.nome || search.cliente || "Empresa de Destaque";
   const defaultRawCategoria = storedLead?.category || search.categoria || "Empresa";
@@ -1365,12 +1468,63 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
   return (
     <div
-      className="min-h-screen flex flex-col font-sans transition-colors duration-300"
+      className="min-h-screen flex flex-col font-sans transition-colors duration-300 relative"
       style={{
         backgroundColor: config.bgColor,
         color: config.textColor,
       }}
     >
+      {/* OVERLAY FUTURISTA DE CARREGAMENTO COM IA GRATUITA (POLLINATIONS) */}
+      {isGeneratingAi && (
+        <div className="fixed inset-0 z-[100] bg-[#07090E] flex flex-col items-center justify-center p-6 text-center select-none backdrop-blur-xl">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+          <div className="relative max-w-md w-full bg-[#111625]/90 border border-white/15 p-8 rounded-3xl shadow-2xl space-y-6 backdrop-blur-md">
+            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-amber-500 to-purple-600 animate-ping opacity-25" />
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-500 to-purple-600 p-0.5 shadow-xl flex items-center justify-center">
+                <div className="w-full h-full bg-[#0B0E17] rounded-[14px] flex items-center justify-center">
+                  <Sparkles size={32} className="text-amber-400 animate-pulse" />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                RDG AI Engine (Grátis)
+              </span>
+              <h2 className="text-xl font-extrabold text-white tracking-tight">
+                Gerando Prévia Profissional
+              </h2>
+              <p className="text-xs text-white/70 font-medium min-h-[36px] flex items-center justify-center transition-all">
+                {aiStepMessage}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="w-full h-3 bg-black/60 rounded-full overflow-hidden p-0.5 border border-white/10">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-purple-500 rounded-full transition-all duration-700 shadow-[0_0_12px_rgba(245,158,11,0.5)]"
+                  style={{ width: `${aiProgressPercent}%` }}
+                />
+              </div>
+              <div className="flex justify-between items-center text-[10px] font-mono text-white/50 px-1">
+                <span>INTELIGÊNCIA DE NICHO</span>
+                <span className="font-bold text-amber-400">{aiProgressPercent}%</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsGeneratingAi(false)}
+              className="text-[11px] font-bold text-white/40 hover:text-white transition-colors underline underline-offset-4 pt-2"
+            >
+              Pular aguardo & abrir prévia agora ⚡
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* TOP CONTROL BAR DE DEMONSTRAÇÃO E FERRAMENTAS DO PROSPECTOR */}
       <div
         className="p-2 sm:p-2.5 px-3 sm:px-4 text-xs font-bold flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shadow-xl sticky top-0 z-50 transition-colors border-b"
@@ -1406,6 +1560,16 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
         {/* Linha 2 no mobile: Botões de Ação Scrolláveis Horizontalmente sem Quebra */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 sm:pb-0 scrollbar-none w-full sm:w-auto justify-start sm:justify-end">
+          {/* Botão para Gerar/Melhorar com IA Gratuita */}
+          <button
+            onClick={handleRegenerateWithAi}
+            className="px-2.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all flex items-center gap-1 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 shrink-0"
+            title="Reescrever textos e melhorar o site com IA Gratuita (Pollinations)"
+          >
+            <Sparkles size={12} className="text-purple-300 animate-pulse" />
+            <span>✨ Re-gerar com IA</span>
+          </button>
+
           {/* Botão de Edição e Personalização Completa */}
           <button
             onClick={() => setIsEditorOpen(true)}
