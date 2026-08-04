@@ -127,8 +127,10 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
               openingHours = r.opening_hours.weekday_text;
             }
 
-            // Não fazemos chamadas para a Places Photo API do Google para garantir custo ZERO ($0.00)
-            photos = [];
+            // Armazenamos as referencias de foto sem fazer chamadas da Photo API na busca (Custo R$ 0,00)
+            if (r.photos && r.photos.length > 0) {
+              photos = r.photos.slice(0, 4).map((p: any) => p.photo_reference);
+            }
 
             if (r.reviews && r.reviews.length > 0) {
               reviewsList = r.reviews.map((rev: any) => ({

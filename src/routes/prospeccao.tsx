@@ -311,6 +311,7 @@ function ProspeccaoPage() {
       endereco: lead.address,
       cidade: cidade || "São Paulo - SP",
     });
+    if (apiKey) params.set("api_key", apiKey);
     if (lead.photos && lead.photos.length > 0) {
       params.set("photos", JSON.stringify(lead.photos));
     }

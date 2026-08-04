@@ -558,15 +558,27 @@ function FullSiteDemoPage() {
   const rating = storedLead?.rating || search.rating || "5.0";
   const reviews = storedLead?.user_ratings_total || search.reviews || "340";
   const googleMapsUrl = storedLead?.google_maps_url || `https://www.google.com/maps/search/${encodeURIComponent(nome + " " + cidade)}`;
+  const activeApiKey = (search as any).api_key || (typeof window !== "undefined" ? localStorage.getItem("google_places_api_key") : "") || "";
 
-  let realGooglePhotos: string[] = storedLead?.photos || [];
-  if (realGooglePhotos.length === 0 && search.photos) {
+  let rawPhotoRefs: string[] = storedLead?.photos || [];
+  if (rawPhotoRefs.length === 0 && search.photos) {
     try {
       const parsed = JSON.parse(search.photos);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        realGooglePhotos = parsed;
+        rawPhotoRefs = parsed;
       }
     } catch (e) {}
+  }
+
+  let realGooglePhotos: string[] = [];
+  if (rawPhotoRefs.length > 0) {
+    realGooglePhotos = rawPhotoRefs.map((p) => {
+      if (p.startsWith("http://") || p.startsWith("https://")) return p;
+      if (activeApiKey) {
+        return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${p}&key=${activeApiKey}`;
+      }
+      return "";
+    }).filter(Boolean);
   }
 
   let realReviewsList: { author_name: string; rating: number; text: string; relative_time_description?: string }[] = storedLead?.reviews_list || [];
