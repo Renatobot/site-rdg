@@ -1267,18 +1267,22 @@ function FullSiteDemoPage() {
   const defaultBusinessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${displayCategory} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
   const businessSummary = editSummary || defaultBusinessSummary;
 
-  const sanitizePhotoUrl = (url: string) => (!url || url.includes("1590301157890-4810ed352733") || url.includes("1541781774459") ? "" : url);
+  const sanitizePhotoUrl = (url: string) => {
+    if (!url) return "";
+    if (url.includes("1590301157890-4810ed352733") || url.includes("1541781774459") || url.includes("1517248135467") || url.includes("1555396273") || url.includes("1550966871")) return "";
+    return url;
+  };
 
-  const hasUserCustomHero = !!storedLead?.customHeroPhoto;
-  const defaultHeroImage = hasUserCustomHero
-    ? sanitizePhotoUrl(storedLead.customHeroPhoto)
-    : (catKey !== "default" ? config.heroFallback : (sanitizePhotoUrl((search as any).hero_photo) || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback)));
+  const defaultHeroImage = (catKey !== "default" && config.heroFallback)
+    ? config.heroFallback
+    : (sanitizePhotoUrl(storedLead?.customHeroPhoto) || sanitizePhotoUrl((search as any).hero_photo) || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback));
   const heroImage = sanitizePhotoUrl(editHeroImage) || defaultHeroImage;
 
-  const hasUserCustomGallery = !!(storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0);
-  const defaultGalleryImages = hasUserCustomGallery
-    ? storedLead.customGalleryPhotos.map(sanitizePhotoUrl).filter(Boolean)
-    : (catKey !== "default" ? config.galleryFallback : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback));
+  const defaultGalleryImages = (catKey !== "default" && config.galleryFallback && config.galleryFallback.length > 0)
+    ? config.galleryFallback
+    : ((storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
+        ? storedLead.customGalleryPhotos.map(sanitizePhotoUrl).filter(Boolean)
+        : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback));
   const galleryImages = (editGalleryImages.length > 0 ? editGalleryImages.map(sanitizePhotoUrl).filter(Boolean) : defaultGalleryImages);
 
   const handleUpdateServiceTitle = (index: number, newTitle: string) => {
