@@ -69,7 +69,25 @@ const KANBAN_COLUMNS: { id: LeadStatus; title: string; badgeColor: string; heade
   { id: "proposta", title: "🎯 Proposta Enviada", badgeColor: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20", headerBorder: "border-cyan-500/40" },
   { id: "fechado", title: "✅ Cliente Fechado", badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", headerBorder: "border-emerald-500/40" },
   { id: "inativo", title: "❌ Sem Interesse", badgeColor: "bg-rose-500/10 text-rose-400 border-rose-500/20", headerBorder: "border-rose-500/40" },
-];
+function formatCategoryLabel(rawCat?: string, currentNicho?: string): string {
+  if (!rawCat || typeof rawCat !== "string") return currentNicho ? currentNicho.toUpperCase() : "NEGÓCIO LOCAL";
+  const cat = rawCat.toLowerCase().replace(/_/g, " ");
+
+  if (cat.includes("beauty") || cat.includes("spa") || cat.includes("estet") || cat.includes("micro") || cat.includes("hair")) return "ESTÉTICA & BELEZA";
+  if (cat.includes("barber") || cat.includes("barbea")) return "BARBEARIA";
+  if (cat.includes("dentist") || cat.includes("dental") || cat.includes("odonto")) return "ODONTOLOGIA";
+  if (cat.includes("real estate") || cat.includes("imob")) return "IMOBILIÁRIA";
+  if (cat.includes("restaurant") || cat.includes("food") || cat.includes("bistro") || cat.includes("bar")) return "RESTAURANTE & GASTRONOMIA";
+  if (cat.includes("pet") || cat.includes("vet")) return "PET SHOP & VET";
+  if (cat.includes("law") || cat.includes("advoc")) return "ADVOCACIA";
+  if (cat.includes("health") || cat.includes("medic") || cat.includes("saude") || cat.includes("doctor")) return "SAÚDE & CLÍNICA";
+  if (cat.includes("gym") || cat.includes("fitness") || cat.includes("academ")) return "ACADEMIA & FITNESS";
+  if (cat.includes("establishment") || cat.includes("point of interest")) {
+    return currentNicho ? currentNicho.toUpperCase() : "NEGÓCIO LOCAL";
+  }
+
+  return rawCat.toUpperCase().replace(/_/g, " ");
+}
 
 function ProspeccaoPage() {
   // Autenticação de Rota / Validação de Licença Exclusiva
@@ -272,26 +290,6 @@ function ProspeccaoPage() {
   };
 
   const isSaved = (leadId: string) => savedLeads.some((l) => l.id === leadId);
-
-function formatCategoryLabel(rawCat: string, currentNicho?: string): string {
-  if (!rawCat) return currentNicho ? currentNicho.toUpperCase() : "NEGÓCIO LOCAL";
-  const cat = rawCat.toLowerCase().replace(/_/g, " ");
-
-  if (cat.includes("beauty") || cat.includes("spa") || cat.includes("estet") || cat.includes("micro") || cat.includes("hair")) return "ESTÉTICA & BELEZA";
-  if (cat.includes("barber") || cat.includes("barbea")) return "BARBEARIA";
-  if (cat.includes("dentist") || cat.includes("dental") || cat.includes("odonto")) return "ODONTOLOGIA";
-  if (cat.includes("real estate") || cat.includes("imob")) return "IMOBILIÁRIA";
-  if (cat.includes("restaurant") || cat.includes("food") || cat.includes("bistro") || cat.includes("bar")) return "RESTAURANTE & GASTRONOMIA";
-  if (cat.includes("pet") || cat.includes("vet")) return "PET SHOP & VET";
-  if (cat.includes("law") || cat.includes("advoc")) return "ADVOCACIA";
-  if (cat.includes("health") || cat.includes("medic") || cat.includes("saude") || cat.includes("doctor")) return "SAÚDE & CLÍNICA";
-  if (cat.includes("gym") || cat.includes("fitness") || cat.includes("academ")) return "ACADEMIA & FITNESS";
-  if (cat.includes("establishment") || cat.includes("point of interest")) {
-    return currentNicho ? currentNicho.toUpperCase() : "NEGÓCIO LOCAL";
-  }
-
-  return rawCat.toUpperCase().replace(/_/g, " ");
-}
 
   // AÇÃO EXECUTADA AO CLICAR EM "GERAR PRÉVIA" -> GRAVA SESSION E ABRE O SITE DEMO
   const openDemoPage = (lead: LeadItem) => {
