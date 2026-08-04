@@ -581,6 +581,141 @@ function FullSiteDemoPage() {
     }).filter(Boolean);
   }
 
+  // RECONHECIMENTO ULTRA-EXATO E COMPLETO DE NICHO COMBINANDO NOME E CATEGORIA
+  const fullSearchStr = `${rawCategoria} ${nome} ${search.categoria || ""} ${search.nome || ""}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  let catKey = "default";
+  if (
+    fullSearchStr.includes("advogad") ||
+    fullSearchStr.includes("advocac") ||
+    fullSearchStr.includes("direit") ||
+    fullSearchStr.includes("jurid") ||
+    fullSearchStr.includes("law") ||
+    fullSearchStr.includes("oab")
+  ) {
+    catKey = "advocacia";
+  } else if (
+    fullSearchStr.includes("restauran") ||
+    fullSearchStr.includes("bistro") ||
+    fullSearchStr.includes("pizz") ||
+    fullSearchStr.includes("hamburg") ||
+    fullSearchStr.includes("comida") ||
+    fullSearchStr.includes("gourmet") ||
+    fullSearchStr.includes("bar") ||
+    fullSearchStr.includes("boteco") ||
+    fullSearchStr.includes("churrasc") ||
+    fullSearchStr.includes("lanchon") ||
+    fullSearchStr.includes("cafe") ||
+    fullSearchStr.includes("padar") ||
+    fullSearchStr.includes("docer") ||
+    fullSearchStr.includes("confeitar") ||
+    fullSearchStr.includes("sushi") ||
+    fullSearchStr.includes("pub") ||
+    fullSearchStr.includes("food")
+  ) {
+    catKey = "restaurante";
+  } else if (
+    fullSearchStr.includes("barbea") ||
+    fullSearchStr.includes("barber") ||
+    fullSearchStr.includes("cabelo masculino") ||
+    fullSearchStr.includes("navalha")
+  ) {
+    catKey = "barbearia";
+  } else if (
+    fullSearchStr.includes("odonto") ||
+    fullSearchStr.includes("denti") ||
+    fullSearchStr.includes("sorriso") ||
+    fullSearchStr.includes("ortodon") ||
+    fullSearchStr.includes("implant")
+  ) {
+    catKey = "odontologia";
+  } else if (
+    fullSearchStr.includes("estetic") ||
+    fullSearchStr.includes("beauty") ||
+    fullSearchStr.includes("salon") ||
+    fullSearchStr.includes("micro") ||
+    fullSearchStr.includes("pigmentac") ||
+    fullSearchStr.includes("spa") ||
+    fullSearchStr.includes("beleza") ||
+    fullSearchStr.includes("harmoniz") ||
+    fullSearchStr.includes("salao") ||
+    fullSearchStr.includes("cabel") ||
+    fullSearchStr.includes("unha") ||
+    fullSearchStr.includes("sobrancelha") ||
+    fullSearchStr.includes("maquiag")
+  ) {
+    catKey = "estetica";
+  } else if (
+    fullSearchStr.includes("medic") ||
+    fullSearchStr.includes("dermatolog") ||
+    fullSearchStr.includes("pediatr") ||
+    fullSearchStr.includes("cardiolog") ||
+    fullSearchStr.includes("oftalmo") ||
+    fullSearchStr.includes("ortoped") ||
+    fullSearchStr.includes("ginecolog") ||
+    fullSearchStr.includes("psicolog") ||
+    fullSearchStr.includes("terap") ||
+    fullSearchStr.includes("fisioter") ||
+    fullSearchStr.includes("nutri") ||
+    fullSearchStr.includes("saude") ||
+    fullSearchStr.includes("hospital") ||
+    fullSearchStr.includes("clinica")
+  ) {
+    catKey = "saude";
+  } else if (
+    fullSearchStr.includes("pet") ||
+    fullSearchStr.includes("vet") ||
+    fullSearchStr.includes("animal") ||
+    fullSearchStr.includes("canin") ||
+    fullSearchStr.includes("banho e tosa")
+  ) {
+    catKey = "petshop";
+  } else if (
+    fullSearchStr.includes("tatuag") ||
+    fullSearchStr.includes("tattoo") ||
+    fullSearchStr.includes("piercing")
+  ) {
+    catKey = "tatuagem";
+  } else if (
+    fullSearchStr.includes("imobil") ||
+    fullSearchStr.includes("corret") ||
+    fullSearchStr.includes("imovel") ||
+    fullSearchStr.includes("imoveis") ||
+    fullSearchStr.includes("arquitet") ||
+    fullSearchStr.includes("construt")
+  ) {
+    catKey = "imobiliaria";
+  } else if (
+    fullSearchStr.includes("academ") ||
+    fullSearchStr.includes("crossfit") ||
+    fullSearchStr.includes("fitness") ||
+    fullSearchStr.includes("personal") ||
+    fullSearchStr.includes("pilates")
+  ) {
+    catKey = "academia";
+  } else if (
+    fullSearchStr.includes("mecanic") ||
+    fullSearchStr.includes("oficin") ||
+    fullSearchStr.includes("auto") ||
+    fullSearchStr.includes("funilar") ||
+    fullSearchStr.includes("carro")
+  ) {
+    catKey = "oficina";
+  }
+
+  const config = NICHE_CONFIGS[catKey] || NICHE_CONFIGS["default"];
+  const NicheIcon = config.icon;
+
+  const isGenericCategory = !rawCategoria || ["establishment", "point_of_interest", "local_business", "store", "food", "health", "finance", "service", "gmn"].includes(rawCategoria.toLowerCase().trim());
+  const displayCategory = isGenericCategory ? config.prettyCategoryName : rawCategoria;
+
+  const businessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${displayCategory} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
+
+  const heroImage = storedLead?.customHeroPhoto || (search as any).hero_photo || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback);
+  const galleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
+    ? storedLead.customGalleryPhotos
+    : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback);
+
   const [selectedColor, setSelectedColor] = useState<string>("gold");
   const [isSavedLocally, setIsSavedLocally] = useState<boolean>(false);
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
@@ -737,141 +872,6 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
   const defaultMsg = encodeURIComponent(`Olá! Vi o site oficial da *${nome}* em ${cidade} e gostaria de agendar um atendimento.`);
   const waUrl = `https://wa.me/${waNum}?text=${defaultMsg}`;
-
-  // RECONHECIMENTO ULTRA-EXATO E COMPLETO DE NICHO COMBINANDO NOME E CATEGORIA
-  const fullSearchStr = `${rawCategoria} ${nome} ${search.categoria || ""} ${search.nome || ""}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-  let catKey = "default";
-  if (
-    fullSearchStr.includes("advogad") ||
-    fullSearchStr.includes("advocac") ||
-    fullSearchStr.includes("direit") ||
-    fullSearchStr.includes("jurid") ||
-    fullSearchStr.includes("law") ||
-    fullSearchStr.includes("oab")
-  ) {
-    catKey = "advocacia";
-  } else if (
-    fullSearchStr.includes("restauran") ||
-    fullSearchStr.includes("bistro") ||
-    fullSearchStr.includes("pizz") ||
-    fullSearchStr.includes("hamburg") ||
-    fullSearchStr.includes("comida") ||
-    fullSearchStr.includes("gourmet") ||
-    fullSearchStr.includes("bar") ||
-    fullSearchStr.includes("boteco") ||
-    fullSearchStr.includes("churrasc") ||
-    fullSearchStr.includes("lanchon") ||
-    fullSearchStr.includes("cafe") ||
-    fullSearchStr.includes("padar") ||
-    fullSearchStr.includes("docer") ||
-    fullSearchStr.includes("confeitar") ||
-    fullSearchStr.includes("sushi") ||
-    fullSearchStr.includes("pub") ||
-    fullSearchStr.includes("food")
-  ) {
-    catKey = "restaurante";
-  } else if (
-    fullSearchStr.includes("barbea") ||
-    fullSearchStr.includes("barber") ||
-    fullSearchStr.includes("cabelo masculino") ||
-    fullSearchStr.includes("navalha")
-  ) {
-    catKey = "barbearia";
-  } else if (
-    fullSearchStr.includes("odonto") ||
-    fullSearchStr.includes("denti") ||
-    fullSearchStr.includes("sorriso") ||
-    fullSearchStr.includes("ortodon") ||
-    fullSearchStr.includes("implant")
-  ) {
-    catKey = "odontologia";
-  } else if (
-    fullSearchStr.includes("estetic") ||
-    fullSearchStr.includes("beauty") ||
-    fullSearchStr.includes("salon") ||
-    fullSearchStr.includes("micro") ||
-    fullSearchStr.includes("pigmentac") ||
-    fullSearchStr.includes("spa") ||
-    fullSearchStr.includes("beleza") ||
-    fullSearchStr.includes("harmoniz") ||
-    fullSearchStr.includes("salao") ||
-    fullSearchStr.includes("cabel") ||
-    fullSearchStr.includes("unha") ||
-    fullSearchStr.includes("sobrancelha") ||
-    fullSearchStr.includes("maquiag")
-  ) {
-    catKey = "estetica";
-  } else if (
-    fullSearchStr.includes("medic") ||
-    fullSearchStr.includes("dermatolog") ||
-    fullSearchStr.includes("pediatr") ||
-    fullSearchStr.includes("cardiolog") ||
-    fullSearchStr.includes("oftalmo") ||
-    fullSearchStr.includes("ortoped") ||
-    fullSearchStr.includes("ginecolog") ||
-    fullSearchStr.includes("psicolog") ||
-    fullSearchStr.includes("terap") ||
-    fullSearchStr.includes("fisioter") ||
-    fullSearchStr.includes("nutri") ||
-    fullSearchStr.includes("saude") ||
-    fullSearchStr.includes("hospital") ||
-    fullSearchStr.includes("clinica")
-  ) {
-    catKey = "saude";
-  } else if (
-    fullSearchStr.includes("pet") ||
-    fullSearchStr.includes("vet") ||
-    fullSearchStr.includes("animal") ||
-    fullSearchStr.includes("canin") ||
-    fullSearchStr.includes("banho e tosa")
-  ) {
-    catKey = "petshop";
-  } else if (
-    fullSearchStr.includes("tatuag") ||
-    fullSearchStr.includes("tattoo") ||
-    fullSearchStr.includes("piercing")
-  ) {
-    catKey = "tatuagem";
-  } else if (
-    fullSearchStr.includes("imobil") ||
-    fullSearchStr.includes("corret") ||
-    fullSearchStr.includes("imovel") ||
-    fullSearchStr.includes("imoveis") ||
-    fullSearchStr.includes("arquitet") ||
-    fullSearchStr.includes("construt")
-  ) {
-    catKey = "imobiliaria";
-  } else if (
-    fullSearchStr.includes("academ") ||
-    fullSearchStr.includes("crossfit") ||
-    fullSearchStr.includes("fitness") ||
-    fullSearchStr.includes("personal") ||
-    fullSearchStr.includes("pilates")
-  ) {
-    catKey = "academia";
-  } else if (
-    fullSearchStr.includes("mecanic") ||
-    fullSearchStr.includes("oficin") ||
-    fullSearchStr.includes("auto") ||
-    fullSearchStr.includes("funilar") ||
-    fullSearchStr.includes("carro")
-  ) {
-    catKey = "oficina";
-  }
-
-  const config = NICHE_CONFIGS[catKey] || NICHE_CONFIGS["default"];
-  const NicheIcon = config.icon;
-
-  const isGenericCategory = !rawCategoria || ["establishment", "point_of_interest", "local_business", "store", "food", "health", "finance", "service", "gmn"].includes(rawCategoria.toLowerCase().trim());
-  const displayCategory = isGenericCategory ? config.prettyCategoryName : rawCategoria;
-
-  const businessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${displayCategory} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
-
-  const heroImage = storedLead?.customHeroPhoto || (search as any).hero_photo || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback);
-  const galleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
-    ? storedLead.customGalleryPhotos
-    : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback);
 
   const lowerName = nome.toLowerCase();
   let dynamicServices = config.services;
