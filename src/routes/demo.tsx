@@ -562,6 +562,7 @@ function FullSiteDemoPage() {
   const [editHeroImage, setEditHeroImage] = useState<string>("");
   const [editGalleryImages, setEditGalleryImages] = useState<string[]>([]);
   const [editServices, setEditServices] = useState<{ title: string; desc: string; price: string }[] | null>(null);
+  const [customColorHex, setCustomColorHex] = useState<string>((search as any).custom_color || "");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -744,7 +745,7 @@ function FullSiteDemoPage() {
 
   const baseConfig = NICHE_CONFIGS[catKey] || NICHE_CONFIGS["default"];
 
-  // Paletas de Cores Rápidas
+  // Paletas de Cores Rápidas Expandidas
   const colorPalettes: Record<string, { accent: string; badgeBg: string; border: string }> = {
     gold: { accent: "#D97706", badgeBg: "rgba(217, 119, 6, 0.15)", border: "rgba(217, 119, 6, 0.3)" },
     blue: { accent: "#2563EB", badgeBg: "rgba(37, 99, 235, 0.15)", border: "rgba(37, 99, 235, 0.3)" },
@@ -752,9 +753,24 @@ function FullSiteDemoPage() {
     purple: { accent: "#7C3AED", badgeBg: "rgba(124, 58, 237, 0.15)", border: "rgba(124, 58, 237, 0.3)" },
     pink: { accent: "#DB2777", badgeBg: "rgba(219, 39, 119, 0.15)", border: "rgba(219, 39, 119, 0.3)" },
     red: { accent: "#DC2626", badgeBg: "rgba(220, 38, 38, 0.15)", border: "rgba(220, 38, 38, 0.3)" },
+    cyan: { accent: "#06B6D4", badgeBg: "rgba(6, 182, 212, 0.15)", border: "rgba(6, 182, 212, 0.3)" },
+    orange: { accent: "#EA580C", badgeBg: "rgba(234, 88, 12, 0.15)", border: "rgba(234, 88, 12, 0.3)" },
+    indigo: { accent: "#4F46E5", badgeBg: "rgba(79, 70, 229, 0.15)", border: "rgba(79, 70, 229, 0.3)" },
+    teal: { accent: "#0D9488", badgeBg: "rgba(13, 148, 136, 0.15)", border: "rgba(13, 148, 136, 0.3)" },
+    rose: { accent: "#E11D48", badgeBg: "rgba(225, 29, 72, 0.15)", border: "rgba(225, 29, 72, 0.3)" },
+    amber: { accent: "#F59E0B", badgeBg: "rgba(245, 158, 11, 0.15)", border: "rgba(245, 158, 11, 0.3)" },
+    violet: { accent: "#8B5CF6", badgeBg: "rgba(139, 92, 246, 0.15)", border: "rgba(139, 92, 246, 0.3)" }
   };
 
-  const currentPalette = colorPalettes[selectedColor] || colorPalettes.gold;
+  const selectedAccent = (customColorHex && (customColorHex.startsWith("#") || customColorHex.startsWith("rgb")))
+    ? customColorHex
+    : (colorPalettes[selectedColor] ? colorPalettes[selectedColor].accent : "#D97706");
+
+  const currentPalette = {
+    accent: selectedAccent,
+    badgeBg: `${selectedAccent}26`,
+    border: `${selectedAccent}4D`,
+  };
 
   // Aplica a cor selecionada em toda a página sobrepondo o NicheConfig base
   const config = {
@@ -801,13 +817,26 @@ function FullSiteDemoPage() {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
-          const currentList = [...(editGalleryImages.length > 0 ? editGalleryImages : defaultGalleryImages)];
+          const currentList = editGalleryImages.length > 0 ? [...editGalleryImages] : [...defaultGalleryImages];
           currentList[index] = event.target.result as string;
           setEditGalleryImages(currentList);
         }
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleAddGalleryPhoto = () => {
+    const currentList = editGalleryImages.length > 0 ? [...editGalleryImages] : [...defaultGalleryImages];
+    currentList.push("https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80");
+    setEditGalleryImages(currentList);
+  };
+
+  const handleRemoveGalleryPhoto = (index: number) => {
+    const currentList = editGalleryImages.length > 0 ? [...editGalleryImages] : [...defaultGalleryImages];
+    if (currentList.length <= 1) return;
+    const updated = currentList.filter((_, i) => i !== index);
+    setEditGalleryImages(updated);
   };
 
   const handleResetCustomizations = () => {
@@ -823,6 +852,8 @@ function FullSiteDemoPage() {
     setEditHeroImage("");
     setEditGalleryImages([]);
     setEditServices(null);
+    setCustomColorHex("");
+    setSelectedColor("gold");
   };
 
   // Função para salvar a prévia localmente
@@ -839,9 +870,20 @@ function FullSiteDemoPage() {
         rating,
         reviews,
         savedAt: new Date().toISOString(),
-        urlParams: search,
+        urlParams: {
+          ...search,
+          nome,
+          categoria: rawCategoria,
+          cidade,
+          endereco,
+          phone,
+          hero_photo: heroImage,
+          photos: JSON.stringify(galleryImages),
+          custom_color: selectedAccent,
+          summary: businessSummary,
+        },
       };
-      const updated = [newEntry, ...existing.filter((item: any) => item.name !== nome)];
+      const updated = [newEntry, ...existing.filter((item: any) => item && item.id !== newEntry.id && item.name !== nome)];
       localStorage.setItem("rdg_saved_previews", JSON.stringify(updated));
       setIsSavedLocally(true);
       setTimeout(() => setIsSavedLocally(false), 3000);
@@ -1898,74 +1940,120 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                     </div>
                   </div>
 
-                  {/* Fotos da Galeria */}
+                  {/* Fotos da Galeria - Sem Limites */}
                   <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-4">
-                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
-                      📸 Fotos da Galeria do Espaço (Até 4 fotos)
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
+                        📸 Fotos da Galeria do Espaço ({galleryImages.length} fotos)
+                      </label>
+                      <button
+                        onClick={handleAddGalleryPhoto}
+                        className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-[10px] rounded-lg transition-transform active:scale-95 flex items-center gap-1"
+                      >
+                        <Plus size={12} />
+                        <span>Nova Foto</span>
+                      </button>
+                    </div>
 
-                    {[0, 1, 2, 3].map((idx) => {
-                      const currentImg = galleryImages[idx] || "";
-                      return (
-                        <div key={idx} className="p-3 bg-[#1A1F2E] rounded-xl border border-white/10 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase text-white/60">Foto da Galeria #{idx + 1}</span>
+                    {galleryImages.map((currentImg: string, idx: number) => (
+                      <div key={idx} className="p-3 bg-[#1A1F2E] rounded-xl border border-white/10 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold uppercase text-white/60">Foto da Galeria #{idx + 1}</span>
+                          <div className="flex items-center gap-2">
                             {currentImg && (
                               <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">
                                 Carregada
                               </span>
                             )}
+                            {galleryImages.length > 1 && (
+                              <button
+                                onClick={() => handleRemoveGalleryPhoto(idx)}
+                                className="p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors"
+                                title="Remover esta foto"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            )}
                           </div>
-
-                          {currentImg && (
-                            <div className="h-24 rounded-lg overflow-hidden border border-white/10 bg-black/40">
-                              <img src={currentImg} alt={`Galeria ${idx + 1}`} className="w-full h-full object-cover" />
-                            </div>
-                          )}
-
-                          <input
-                            type="text"
-                            value={editGalleryImages[idx] || ""}
-                            onChange={(e) => {
-                              const newGallery = [...(editGalleryImages.length > 0 ? editGalleryImages : defaultGalleryImages)];
-                              newGallery[idx] = e.target.value;
-                              setEditGalleryImages(newGallery);
-                            }}
-                            className="w-full bg-[#111420] border border-white/10 rounded-lg p-2 text-white text-[11px] font-mono focus:border-amber-400 outline-none"
-                            placeholder={`Cole a URL da foto ${idx + 1}`}
-                          />
-
-                          <label className="flex items-center justify-center gap-1.5 p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] font-bold cursor-pointer transition-colors border border-dashed border-white/15">
-                            <Upload size={12} />
-                            <span>Enviar Arquivo Local</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handleGalleryFileUpload(idx, e)}
-                              className="hidden"
-                            />
-                          </label>
                         </div>
-                      );
-                    })}
+
+                        {currentImg && (
+                          <div className="h-24 rounded-lg overflow-hidden border border-white/10 bg-black/40">
+                            <img src={currentImg} alt={`Galeria ${idx + 1}`} className="w-full h-full object-cover" />
+                          </div>
+                        )}
+
+                        <input
+                          type="text"
+                          value={editGalleryImages[idx] !== undefined ? editGalleryImages[idx] : currentImg}
+                          onChange={(e) => {
+                            const newGallery = editGalleryImages.length > 0 ? [...editGalleryImages] : [...galleryImages];
+                            newGallery[idx] = e.target.value;
+                            setEditGalleryImages(newGallery);
+                          }}
+                          className="w-full bg-[#111420] border border-white/10 rounded-lg p-2 text-white text-[11px] font-mono focus:border-amber-400 outline-none"
+                          placeholder={`Cole a URL da foto ${idx + 1}`}
+                        />
+
+                        <label className="flex items-center justify-center gap-1.5 p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] font-bold cursor-pointer transition-colors border border-dashed border-white/15">
+                          <Upload size={12} />
+                          <span>Enviar Arquivo Local</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleGalleryFileUpload(idx, e)}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    ))}
+
+                    <button
+                      onClick={handleAddGalleryPhoto}
+                      className="w-full py-2.5 bg-white/5 hover:bg-white/10 text-amber-400 border border-dashed border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                    >
+                      <Plus size={14} />
+                      <span>➕ Adicionar Mais uma Foto à Galeria</span>
+                    </button>
                   </div>
                 </div>
               )}
 
               {activeEditorTab === "servicos" && (
                 <div className="space-y-4">
-                  <div className="text-[11px] text-white/60 font-medium">
-                    Personalize o título, a descrição e o valor/ação dos 4 serviços exibidos no site.
+                  <div className="flex items-center justify-between">
+                    <div className="text-[11px] text-white/60 font-medium">
+                      Cadastre quantos serviços ou itens do cardápio quiser ({activeDynamicServices.length} itens):
+                    </div>
+                    <button
+                      onClick={handleAddService}
+                      className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-[10px] rounded-lg transition-transform active:scale-95 flex items-center gap-1 shrink-0"
+                    >
+                      <Plus size={12} />
+                      <span>Adicionar Item</span>
+                    </button>
                   </div>
 
                   {activeDynamicServices.map((srv: any, idx: number) => (
-                    <div key={idx} className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3">
-                      <div className="text-[11px] font-extrabold uppercase text-amber-400">
-                        Serviço / Especialidade #{idx + 1}
+                    <div key={idx} className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3 relative group">
+                      <div className="flex items-center justify-between">
+                        <div className="text-[11px] font-extrabold uppercase text-amber-400">
+                          Item / Serviço #{idx + 1}
+                        </div>
+                        {activeDynamicServices.length > 1 && (
+                          <button
+                            onClick={() => handleRemoveService(idx)}
+                            className="p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors flex items-center gap-1 text-[10px] font-bold"
+                            title="Remover este item"
+                          >
+                            <Trash2 size={13} />
+                            <span>Remover</span>
+                          </button>
+                        )}
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Título do Serviço</label>
+                        <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Título do Serviço / Prato</label>
                         <input
                           type="text"
                           value={srv.title}
@@ -1975,11 +2063,12 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                             setEditServices(updated);
                           }}
                           className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs font-bold focus:border-amber-400 outline-none"
+                          placeholder="Ex: Pizza Calabresa Especial / Corte Fade"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Descrição</label>
+                        <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Descrição Comercial</label>
                         <textarea
                           rows={2}
                           value={srv.desc}
@@ -1989,6 +2078,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                             setEditServices(updated);
                           }}
                           className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs focus:border-amber-400 outline-none resize-none"
+                          placeholder="Descreva o que inclui..."
                         />
                       </div>
 
@@ -2003,33 +2093,74 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                             setEditServices(updated);
                           }}
                           className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs focus:border-amber-400 outline-none"
+                          placeholder="Ex: R$ 49,90 ou Agendar Horário"
                         />
                       </div>
                     </div>
                   ))}
+
+                  <button
+                    onClick={handleAddService}
+                    className="w-full py-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-dashed border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <Plus size={15} />
+                    <span>➕ Adicionar Mais um Serviço / Prato do Cardápio</span>
+                  </button>
                 </div>
               )}
 
               {activeEditorTab === "cores" && (
-                <div className="space-y-4">
+                <div className="space-y-5">
+                  {/* Seletor Customizado por Lápis / Conta-Gotas e Hex */}
                   <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3">
                     <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
-                      🎨 Paleta de Cores de Destaque
+                      ✏️ Conta-Gotas & Código de Cor Personalizado (HEX)
                     </label>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="flex items-center gap-3">
+                      {/* Color Picker Native Input */}
+                      <label className="relative w-12 h-12 rounded-xl border border-white/20 overflow-hidden cursor-pointer shadow-lg shrink-0 flex items-center justify-center" style={{ backgroundColor: selectedAccent }}>
+                        <input
+                          type="color"
+                          value={selectedAccent.length === 7 ? selectedAccent : "#D97706"}
+                          onChange={(e) => setCustomColorHex(e.target.value)}
+                          className="w-full h-full opacity-0 cursor-pointer absolute inset-0"
+                        />
+                        <span className="text-sm">✏️</span>
+                      </label>
+
+                      <div className="flex-1 space-y-1">
+                        <label className="block text-[10px] font-bold uppercase text-white/50">Digite a numeração Hexadecimal</label>
+                        <input
+                          type="text"
+                          value={customColorHex}
+                          onChange={(e) => setCustomColorHex(e.target.value)}
+                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-mono text-xs focus:border-amber-400 outline-none"
+                          placeholder="Ex: #FF5722 ou #00D9FF"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Paletas de Presets */}
+                  <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3">
+                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-white/70">
+                      🎨 Paletas Rápidas Pré-Configuradas
+                    </label>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                       {Object.entries(colorPalettes).map(([key, val]) => (
                         <button
                           key={key}
-                          onClick={() => setSelectedColor(key)}
-                          className={`p-3 rounded-xl border transition-all flex items-center gap-3 ${
-                            selectedColor === key
-                              ? "border-white bg-white/10 ring-2 ring-amber-400"
-                              : "border-white/10 bg-[#1A1F2E] hover:border-white/30"
+                          onClick={() => { setSelectedColor(key); setCustomColorHex(""); }}
+                          className={`p-2.5 rounded-xl border transition-all flex items-center gap-2.5 ${
+                            selectedColor === key && !customColorHex
+                              ? "border-white bg-white/10 ring-2 ring-amber-400 font-bold"
+                              : "border-white/10 bg-[#1A1F2E] hover:border-white/30 text-white/70"
                           }`}
                         >
-                          <div className="w-6 h-6 rounded-full shadow-md" style={{ backgroundColor: val.accent }} />
-                          <span className="capitalize font-bold text-xs text-white">{key}</span>
+                          <div className="w-4 h-4 rounded-full shadow-md shrink-0" style={{ backgroundColor: val.accent }} />
+                          <span className="capitalize text-[11px] truncate">{key}</span>
                         </button>
                       ))}
                     </div>
