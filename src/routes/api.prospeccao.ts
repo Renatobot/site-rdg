@@ -123,10 +123,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
           console.error("Erro ao buscar Place Details para:", placeId, e);
         }
 
-        const nameClean = place.name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-        const instaHandle = `@${nameClean.slice(0, 16)}`;
-        const instagramUrl = `https://www.instagram.com/${nameClean.slice(0, 16)}/`;
-
+        const instaSearchUrl = `https://www.google.com/search?q=site:instagram.com+${encodeURIComponent(`"${place.name}"`)}`;
         const waNumber = rawPhone.length > 5 ? (rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`) : "5511988887777";
         const waMsg = encodeURIComponent(
           `Olá! Encontrei o perfil de *${place.name}* no Google Maps e gostaria de enviar a demonstração do novo site oficial de vocês.`
@@ -145,8 +142,8 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
           website_url: website || undefined,
           google_maps_url: place.url || `https://www.google.com/maps/search/?api=1&query=google_place_id:${placeId}`,
           whatsapp_link: `https://wa.me/${waNumber}?text=${waMsg}`,
-          instagram_url: instagramUrl,
-          instagram_handle: instaHandle,
+          instagram_url: instaSearchUrl,
+          instagram_handle: `@${place.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 14)}`,
           google_photos_count: photos.length,
           photos,
           reviews_list: reviewsList,
