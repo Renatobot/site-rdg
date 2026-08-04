@@ -104,9 +104,9 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
         let openingHours: string[] = [];
         let editorialSummary = "";
 
-        // Detalhes aprofundados por place_id
+        // Consulta leve limitada estritamente aos campos Essentials (Custo R$ 0,00)
         try {
-          const detailUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_phone_number,international_phone_number,website,photos,reviews,opening_hours,editorial_summary,url&key=${apiKey}&language=pt-BR`;
+          const detailUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_phone_number,website,url&key=${apiKey}&language=pt-BR`;
           const detailRes = await fetch(detailUrl);
           const detailJson = await detailRes.json();
 
@@ -118,28 +118,6 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
               rawPhone = phone.replace(/\D/g, "");
             }
             if (r.url) place.url = r.url;
-
-            if (r.editorial_summary?.overview) {
-              editorialSummary = r.editorial_summary.overview;
-            }
-
-            if (r.opening_hours?.weekday_text) {
-              openingHours = r.opening_hours.weekday_text;
-            }
-
-            // Armazenamos as referencias de foto sem fazer chamadas da Photo API na busca (Custo R$ 0,00)
-            if (r.photos && r.photos.length > 0) {
-              photos = r.photos.slice(0, 4).map((p: any) => p.photo_reference);
-            }
-
-            if (r.reviews && r.reviews.length > 0) {
-              reviewsList = r.reviews.map((rev: any) => ({
-                author_name: rev.author_name,
-                rating: rev.rating,
-                text: rev.text,
-                relative_time_description: rev.relative_time_description,
-              }));
-            }
           }
         } catch (e) {
           console.error("Erro ao buscar Place Details para:", placeId, e);
