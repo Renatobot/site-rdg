@@ -127,11 +127,8 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
               openingHours = r.opening_hours.weekday_text;
             }
 
-            if (r.photos && r.photos.length > 0) {
-              photos = r.photos.slice(0, 8).map((p: any) =>
-                `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photo_reference=${p.photo_reference}&key=${apiKey}`
-              );
-            }
+            // Não fazemos chamadas para a Places Photo API do Google para garantir custo ZERO ($0.00)
+            photos = [];
 
             if (r.reviews && r.reviews.length > 0) {
               reviewsList = r.reviews.map((rev: any) => ({
