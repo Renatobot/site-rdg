@@ -947,8 +947,57 @@ function FullSiteDemoPage() {
     setAiProgressPercent(20);
     setAiStepMessage("✨ Conectando com IA Gratuita (Pollinations)...");
 
-    setTimeout(() => setAiProgressPercent(60), 1200);
-    setTimeout(() => setAiProgressPercent(90), 2500);
+    setTimeout(() => {
+      setAiProgressPercent(50);
+      setAiStepMessage("✍️ Gerando novas frases e apresentações com IA...");
+    }, 1000);
+
+    setTimeout(() => {
+      setAiProgressPercent(80);
+      setAiStepMessage("🎨 Gerando novas fotos exclusivas em HD com IA...");
+    }, 2200);
+
+    const randomSeed = Math.floor(Math.random() * 999999);
+    
+    let aiHeroPrompt = `${nome} ${displayCategory} profissional, fotografia em alta resolução, 8k`;
+    let aiGalleryPrompts = [
+      `${displayCategory} produto 1, fotografia profissional, 8k`,
+      `${displayCategory} produto 2, detalhes e qualidade premium, 8k`,
+      `${displayCategory} produto 3, ambiente e atendimento de excelência, 8k`,
+      `${displayCategory} produto 4, especialidade da casa, 8k`
+    ];
+
+    if (catKey === "acai") {
+      aiHeroPrompt = `delicious acai bowl gourmet with fresh strawberries, sliced bananas, blueberries and powdered milk, professional food photography, 8k, vibrant purple colors`;
+      aiGalleryPrompts = [
+        `acai bowl topped with milk powder, strawberries and granola, top view food photography, 8k`,
+        `acai cup in transparent cup with condensed milk, peanuts and fruit toppings, food photography, 8k`,
+        `gourmet acai volcano sundae parfait in glass with chocolate, dessert photography, 8k`,
+        `artisan gelato ice cream cone, sweet dessert photography, 8k`
+      ];
+    } else if (catKey === "hamburgueria") {
+      aiHeroPrompt = `juicy artisan gourmet burger with melted cheddar cheese, bacon and brioche bun, professional food photography, 8k`;
+      aiGalleryPrompts = [
+        `double smash burger with melted cheese and crispy bacon, 8k`,
+        `french fries with cheddar cheese and bacon bits, 8k`,
+        `creamy chocolate milkshake with whipped cream, 8k`,
+        `gourmet burger set with onion rings, 8k`
+      ];
+    } else if (catKey === "pizzaria") {
+      aiHeroPrompt = `freshly baked woodfired pizza with melted mozzarella cheese and pepperoni, food photography, 8k`;
+      aiGalleryPrompts = [
+        `slice of pizza being lifted with melting cheese, 8k`,
+        `artisan italian pizza with basil and tomatoes, 8k`,
+        `stuffed calzone pizza, 8k`,
+        `sweet chocolate pizza with strawberries, 8k`
+      ];
+    }
+
+    const newAiHero = `https://image.pollinations.ai/prompt/${encodeURIComponent(aiHeroPrompt)}?width=1000&height=700&nologo=true&seed=${randomSeed}`;
+    const newAiGallery = aiGalleryPrompts.map((p, i) => `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=800&height=600&nologo=true&seed=${randomSeed + i + 1}`);
+
+    setEditHeroImage(newAiHero);
+    setEditGalleryImages(newAiGallery);
 
     try {
       const controller = new AbortController();
@@ -1213,12 +1262,12 @@ function FullSiteDemoPage() {
   const defaultBusinessSummary = storedLead?.editorial_summary || search.summary || `${nome} é uma das empresas de ${displayCategory} mais prestigiadas da região de ${cidade}, destacando-se pela excelência no atendimento com nota ${rating} e ${reviews} avaliações positivas de clientes.`;
   const businessSummary = editSummary || defaultBusinessSummary;
 
-  const defaultHeroImage = storedLead?.customHeroPhoto || (search as any).hero_photo || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback);
+  const defaultHeroImage = storedLead?.customHeroPhoto || (search as any).hero_photo || (catKey !== "default" ? config.heroFallback : (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback));
   const heroImage = editHeroImage || defaultHeroImage;
 
   const defaultGalleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
     ? storedLead.customGalleryPhotos
-    : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback);
+    : (catKey !== "default" ? config.galleryFallback : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback));
   const galleryImages = editGalleryImages.length > 0 ? editGalleryImages : defaultGalleryImages;
 
   const heroTagline = editTagline || config.heroTagline;
