@@ -531,6 +531,9 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
 function FullSiteDemoPage() {
   const search = Route.useSearch();
   const [storedLead, setStoredLead] = useState<any>(null);
+  const [selectedColor, setSelectedColor] = useState<string>("gold");
+  const [isSavedLocally, setIsSavedLocally] = useState<boolean>(false);
+  const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -715,10 +718,6 @@ function FullSiteDemoPage() {
   const galleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
     ? storedLead.customGalleryPhotos
     : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback);
-
-  const [selectedColor, setSelectedColor] = useState<string>("gold");
-  const [isSavedLocally, setIsSavedLocally] = useState<boolean>(false);
-  const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
 
   // Paletas de Cores Rápidas
   const colorPalettes: Record<string, { accent: string; badgeBg: string; border: string }> = {

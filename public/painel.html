@@ -732,7 +732,9 @@
     function closeModal() { document.getElementById('licenseModal').classList.remove('active'); }
 
     function generateRandomKey() {
-        if (document.getElementById('editingId').value) return;
+        if (document.getElementById('editingId').value) {
+            if (!confirm('Tem certeza que deseja gerar uma nova chave? A chave atual deixará de funcionar após salvar.')) return;
+        }
         const product = document.getElementById('productType').value;
         let prefix = 'IG-';
         if (product.includes('Lovable')) prefix = 'LOVE-';
