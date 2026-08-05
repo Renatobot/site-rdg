@@ -1341,20 +1341,6 @@ function FullSiteDemoPage() {
         : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback));
   const galleryImages = (editGalleryImages.length > 0 ? editGalleryImages.map(sanitizePhotoUrl).filter(Boolean) : defaultGalleryImages);
 
-  const handleUpdateServiceTitle = (index: number, newTitle: string) => {
-    const list = (editServices || activeDynamicServices).map((s: any, i: number) => i === index ? { ...s, title: newTitle } : s);
-    setEditServices(list);
-  };
-
-  const handleUpdateServiceDesc = (index: number, newDesc: string) => {
-    const list = (editServices || activeDynamicServices).map((s: any, i: number) => i === index ? { ...s, desc: newDesc } : s);
-    setEditServices(list);
-  };
-
-  const handleUpdateServicePrice = (index: number, newPrice: string) => {
-    const list = (editServices || activeDynamicServices).map((s: any, i: number) => i === index ? { ...s, price: newPrice } : s);
-    setEditServices(list);
-  };
 
   const heroTagline = editTagline || config.heroTagline;
 
@@ -1602,6 +1588,22 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
         { title: "Atendimento Especializado", desc: "Serviço profissional de alta qualidade com agendamento rápido.", price: "Sob Consulta" },
         { title: "Consultoria & Avaliação", desc: "Análise completa das necessidades do cliente com orçamento sem compromisso.", price: "Agendar" }
       ]);
+
+  const handleUpdateServiceTitle = (index: number, newTitle: string) => {
+    const list = (editServices || activeDynamicServices).map((s: any, i: number) => i === index ? { ...s, title: newTitle } : s);
+    setEditServices(list);
+  };
+
+  const handleUpdateServiceDesc = (index: number, newDesc: string) => {
+    const list = (editServices || activeDynamicServices).map((s: any, i: number) => i === index ? { ...s, desc: newDesc } : s);
+    setEditServices(list);
+  };
+
+  const handleUpdateServicePrice = (index: number, newPrice: string) => {
+    const list = (editServices || activeDynamicServices).map((s: any, i: number) => i === index ? { ...s, price: newPrice } : s);
+    setEditServices(list);
+  };
+
 
   return (
     <div
