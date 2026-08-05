@@ -111,6 +111,44 @@ interface NicheConfig {
 }
 
 const NICHE_CONFIGS: Record<string, NicheConfig> = {
+  // AÇAITERIA
+  acai: {
+    isDark: true,
+    bgColor: "#0F0A1F", // Deep dark purple
+    surfaceColor: "#1A1033",
+    cardBg: "#241547",
+    textColor: "#FAFAFA",
+    mutedTextColor: "#A1A1AA",
+    borderColor: "rgba(147, 51, 234, 0.25)",
+    accentColor: "#9333EA", // Purple
+    accentText: "#FFFFFF",
+    fontSerif: false,
+    heroTagline: "O Verdadeiro Sabor da Natureza",
+    titleSpan: "Açaí",
+    titleSuffix: "Premium.",
+    desc: "O açaí mais cremoso da região, com acompanhamentos frescos e de alta qualidade para você montar do seu jeito.",
+    icon: Utensils,
+    prettyCategoryName: "Açaiteria",
+    heroFallback: "https://images.unsplash.com/photo-1556614486-4e50d0d8282b?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1589301773722-b5e1b9f2b843?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1628172906497-60fcfba17937?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1590004953392-5aba2e72269a?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Açaí no Copo", desc: "Monte seu copo com diversas opções de cremes, frutas e adicionais.", price: "Montar Agora" },
+      { title: "Barca de Açaí", desc: "Açaí servido na barca com tudo que você tem direito para dividir.", price: "Ver Opções" },
+      { title: "Taças Gourmet", desc: "Taças elaboradas com Nutella, morango, leite em pó e muito creme.", price: "Experimentar" },
+      { title: "Sucos Naturais", desc: "Sucos naturais e detox com frutas frescas e selecionadas.", price: "Pedir Sucos" }
+    ],
+    stats: [
+      { label: "Copos Servidos", value: "10k+" },
+      { label: "Avaliação", value: "4.9" },
+      { label: "Adicionais", value: "35+" },
+      { label: "Fidelidade", value: "90%" }
+    ]
+  },
+
   // ADVOCACIA & JURÍDICO (Imperial Gold & Deep Executive Navy/Onyx)
   advocacia: {
     isDark: true,
@@ -1102,6 +1140,14 @@ function FullSiteDemoPage() {
     fullSearchStr.includes("panificad")
   ) {
     catKey = "confeitaria";
+  } else if (
+    fullSearchStr.includes("açaí") ||
+    fullSearchStr.includes("acai") ||
+    fullSearchStr.includes("açai") ||
+    fullSearchStr.includes("açaiteria") ||
+    fullSearchStr.includes("acaiteria")
+  ) {
+    catKey = "acai";
   } else if (
     fullSearchStr.includes("churrasc") ||
     fullSearchStr.includes("espet") ||
