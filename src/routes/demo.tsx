@@ -1329,16 +1329,12 @@ function FullSiteDemoPage() {
     return url;
   };
 
-  const defaultHeroImage = (catKey !== "default" && config.heroFallback)
-    ? config.heroFallback
-    : (sanitizePhotoUrl(storedLead?.customHeroPhoto) || sanitizePhotoUrl((search as any).hero_photo) || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback));
+  const defaultHeroImage = sanitizePhotoUrl(storedLead?.customHeroPhoto) || sanitizePhotoUrl((search as any).hero_photo) || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback);
   const heroImage = sanitizePhotoUrl(editHeroImage) || defaultHeroImage;
 
-  const defaultGalleryImages = (catKey !== "default" && config.galleryFallback && config.galleryFallback.length > 0)
-    ? config.galleryFallback
-    : ((storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
-        ? storedLead.customGalleryPhotos.map(sanitizePhotoUrl).filter(Boolean)
-        : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback));
+  const defaultGalleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
+    ? storedLead.customGalleryPhotos.map(sanitizePhotoUrl).filter(Boolean)
+    : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback);
   const galleryImages = (editGalleryImages.length > 0 ? editGalleryImages.map(sanitizePhotoUrl).filter(Boolean) : defaultGalleryImages);
 
 
