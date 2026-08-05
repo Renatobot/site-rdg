@@ -1615,6 +1615,19 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
     setEditServices(list);
   };
 
+  const handleAddService = () => {
+    const list = [...activeDynamicServices];
+    list.push({ title: "Novo Serviço", desc: "Descrição do serviço", price: "Sob Consulta" });
+    setEditServices(list);
+  };
+
+  const handleRemoveService = (index: number) => {
+    const list = [...activeDynamicServices];
+    if (list.length <= 1) return;
+    list.splice(index, 1);
+    setEditServices(list);
+  };
+
 
   return (
     <div
