@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { motion } from "framer-motion";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
 import {
   Phone,
@@ -32,7 +33,11 @@ import {
   RotateCcw,
   Upload,
   Plus,
-  Trash2
+  Trash2,
+  LayoutTemplate,
+  Grid3x3,
+  Type,
+  Square
 } from "lucide-react";
 
 const TITLE = "Demonstração de Website — RDG Digital";
@@ -56,6 +61,15 @@ export interface DemoSearchParams {
   hours_json?: string;
   summary?: string;
 }
+
+const convertFileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+  });
+};
 
 export const Route = createFileRoute("/demo")({
   validateSearch: (search: Record<string, unknown>): DemoSearchParams => {
@@ -852,16 +866,69 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
   }
 };
 
+function AnimatedSection({ children, animation, className, id, style }: any) {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!animation || animation === "none") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, [animation]);
+
+  if (!animation || animation === "none") {
+    return <section id={id} className={className} style={style}>{children}</section>;
+  }
+
+  let animClass = "transition-all duration-1000 ease-out";
+  if (animation === "fade") animClass += isVisible ? " opacity-100" : " opacity-0";
+  if (animation === "slide") animClass += isVisible ? " opacity-100 translate-y-0" : " opacity-0 translate-y-16";
+  if (animation === "zoom") animClass += isVisible ? " opacity-100 scale-100" : " opacity-0 scale-95";
+
+  return (
+    <section
+      ref={sectionRef}
+      id={id}
+      className={`${className} ${animClass}`}
+      style={style}
+    >
+      {children}
+    </section>
+  );
+}
+
 function FullSiteDemoPage() {
   const search = Route.useSearch();
   const [storedLead, setStoredLead] = useState<any>(null);
-  const [selectedColor, setSelectedColor] = useState<string>("gold");
+  const [selectedColor, setSelectedColor] = useState<string>((search as any).color || "gold");
   const [isSavedLocally, setIsSavedLocally] = useState<boolean>(false);
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  // NEW SITE BUILDER ADVANCED STATES
+  const [typography, setTypography] = useState<"modern" | "serif" | "mono">((search as any).font || "modern");
+  const [buttonStyle, setButtonStyle] = useState<"rounded" | "square" | "outline" | "neon">((search as any).btn || "rounded");
+  const [themeMode, setThemeMode] = useState<"dark" | "light" | "glass">((search as any).theme || "dark");
+  const [socialLinks, setSocialLinks] = useState({ instagram: "", tiktok: "", facebook: "" });
+  const [visibleSections, setVisibleSections] = useState({ 
+    hero: true, servicos: true, galeria: true, depoimentos: true, cardapio: false 
+  });
+  const [customBlocks, setCustomBlocks] = useState<any[]>([]);
+  const [logoImage, setLogoImage] = useState<string>("");
+  const [animationStyle, setAnimationStyle] = useState<"none" | "fade" | "slide" | "zoom">("fade");
 
   // Painel de Edição ao Vivo (Customizer Drawer)
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
-  const [activeEditorTab, setActiveEditorTab] = useState<"textos" | "imagens" | "servicos" | "cores">("textos");
+  const [activeEditorTab, setActiveEditorTab] = useState<"textos" | "imagens" | "servicos" | "cores" | "layout" | "design" | "cardapio">("textos");
 
   // Custom Editable Override States
   const [editNome, setEditNome] = useState<string>("");
@@ -880,6 +947,7 @@ function FullSiteDemoPage() {
   const [editBtnHeroText, setEditBtnHeroText] = useState<string>("");
   const [editBtnHeaderText, setEditBtnHeaderText] = useState<string>("");
   const [editBtnServiceText, setEditBtnServiceText] = useState<string>("");
+  const [editBtnFooterText, setEditBtnFooterText] = useState<string>("");
 
   // Estados da IA Gratuita (Pollinations.ai) & Tela de Carregamento Futurista
   const [isGeneratingAi, setIsGeneratingAi] = useState<boolean>(true);
@@ -1411,6 +1479,12 @@ function FullSiteDemoPage() {
     setEditServices(null);
     setCustomColorHex("");
     setSelectedColor("gold");
+    setTypography("modern");
+    setButtonStyle("rounded");
+    setThemeMode("dark");
+    setSocialLinks({ instagram: "", tiktok: "", facebook: "" });
+    setVisibleSections({ hero: true, servicos: true, galeria: true, depoimentos: true, cardapio: false });
+    setCustomBlocks([]);
   };
 
   // Função para salvar a prévia localmente
@@ -1471,6 +1545,28 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
     navigator.clipboard.writeText(promptText);
     setCopiedPrompt(true);
     setTimeout(() => setCopiedPrompt(false), 3000);
+  };
+
+  const handleSharePreview = () => {
+    try {
+      const url = new URL(window.location.origin + window.location.pathname);
+      url.searchParams.set("nome", nome);
+      url.searchParams.set("categoria", rawCategoria);
+      url.searchParams.set("cidade", cidade);
+      url.searchParams.set("endereco", endereco);
+      url.searchParams.set("phone", phone);
+      url.searchParams.set("color", selectedColor);
+      url.searchParams.set("theme", themeMode);
+      url.searchParams.set("font", typography);
+      url.searchParams.set("btn", buttonStyle);
+      // Inclui sections basico para toggle (apenas layout basico)
+      
+      navigator.clipboard.writeText(url.toString());
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 3000);
+    } catch (e) {
+      console.error("Erro ao gerar link de compartilhamento:", e);
+    }
   };
 
   // Função para fazer Download do Site HTML5 Completo em 1 clique
@@ -1628,13 +1724,34 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
     setEditServices(list);
   };
 
+  const isLight = themeMode === "light";
+  const isGlass = themeMode === "glass";
+  
+  // Theme overrides
+  const effectiveBg = isLight ? "#F8FAFC" : (isGlass ? "rgba(15, 20, 30, 0.8)" : config.bgColor);
+  const effectiveText = isLight ? "#0F172A" : config.textColor;
+  const effectiveCardBg = isLight ? "#FFFFFF" : config.cardBg;
+  const effectiveMutedText = isLight ? "#64748B" : config.mutedTextColor;
+  const effectiveBorder = isLight ? "rgba(0,0,0,0.1)" : config.borderColor;
+
+  const getButtonStyle = () => {
+    const isOutline = buttonStyle === "outline";
+    return {
+      background: isOutline ? "transparent" : config.accentColor,
+      color: isOutline ? config.accentColor : config.accentText,
+      borderColor: config.accentColor,
+      borderWidth: isOutline ? "2px" : "0px",
+      borderRadius: buttonStyle === "square" ? "0px" : buttonStyle === "rounded" ? "9999px" : "12px",
+      boxShadow: buttonStyle === "neon" ? `0 0 15px ${config.accentColor}, inset 0 0 5px ${config.accentColor}` : "none"
+    };
+  };
 
   return (
     <div
-      className="min-h-screen flex flex-col font-sans transition-colors duration-300 relative"
+      className={`min-h-screen flex flex-col transition-colors duration-300 relative ${typography === 'serif' ? 'font-serif' : typography === 'mono' ? 'font-mono' : 'font-sans'} ${isGlass ? 'backdrop-blur-xl' : ''}`}
       style={{
-        backgroundColor: config.bgColor,
-        color: config.textColor,
+        backgroundColor: effectiveBg,
+        color: effectiveText,
       }}
     >
       {/* OVERLAY FUTURISTA DE CARREGAMENTO COM IA GRATUITA (POLLINATIONS) */}
@@ -1767,6 +1884,19 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             <span>{copiedPrompt ? "✓ Copiado!" : "📋 Prompt AI"}</span>
           </button>
 
+          {/* Compartilhar Link da Prévia */}
+          <button
+            onClick={handleSharePreview}
+            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all flex items-center gap-1 border shrink-0 ${
+              copiedLink
+                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                : "bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 border-blue-500/40"
+            }`}
+            title="Copiar link com as configurações para enviar ao cliente"
+          >
+            <span>{copiedLink ? "✓ Link Copiado!" : "🔗 Compartilhar"}</span>
+          </button>
+
           {/* Baixar Site HTML5 */}
           <button
             onClick={handleDownloadHtml5}
@@ -1786,32 +1916,38 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
         }}
       >
         <div className="flex items-center gap-3">
-          <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center font-black text-xl shadow-lg"
-            style={{ background: config.accentColor, color: config.accentText }}
-          >
-            <NicheIcon size={22} />
-          </div>
-          <div>
-            <h2 className="font-bold text-xl tracking-wider uppercase">
-              <a
-                href={googleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Ver localização"
-                className="hover:underline flex items-center gap-1.5"
-                style={{
-                  fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
-                  color: config.textColor,
-                }}
+          {logoImage ? (
+            <img src={logoImage} alt={nome} className="h-10 sm:h-12 object-contain" />
+          ) : (
+            <>
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center font-black text-xl shadow-lg"
+                style={{ background: config.accentColor, color: config.accentText }}
               >
-                <span>{nome}</span>
-              </a>
-            </h2>
-            <p className="text-[10px] uppercase tracking-[0.25em] font-mono" style={{ color: config.mutedTextColor }}>
-              {displayCategory} • {cidade}
-            </p>
-          </div>
+                <NicheIcon size={22} />
+              </div>
+              <div>
+                <h2 className="font-bold text-xl tracking-wider uppercase">
+                  <a
+                    href={googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Ver localização"
+                    className="hover:underline flex items-center gap-1.5"
+                    style={{
+                      fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
+                      color: config.textColor,
+                    }}
+                  >
+                    <span>{nome}</span>
+                  </a>
+                </h2>
+                <p className="text-[10px] uppercase tracking-[0.25em] font-mono" style={{ color: config.mutedTextColor }}>
+                  {displayCategory} • {cidade}
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
         <nav className="hidden md:flex items-center gap-6 text-xs uppercase tracking-[0.2em] font-semibold" style={{ color: config.mutedTextColor }}>
@@ -1826,16 +1962,11 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-5 py-3 text-xs font-black uppercase tracking-[0.18em] transition-all shadow-xl rounded-xl flex items-center gap-2"
-            style={{ background: config.accentColor, color: config.accentText }}
+            className="px-5 py-3 text-xs font-black uppercase tracking-[0.18em] transition-all shadow-xl flex items-center gap-2"
+            style={getButtonStyle()}
           >
             <MessageCircle size={15} />
-            <span
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={(e) => setEditBtnHeaderText(e.currentTarget.innerText)}
-              className="hidden sm:inline outline-none hover:ring-1 ring-white/40 rounded px-1"
-            >
+            <span className="hidden sm:inline">
               {editBtnHeaderText || "Falar no WhatsApp"}
             </span>
           </a>
@@ -1843,7 +1974,8 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
       </header>
 
       {/* HERO SECTION */}
-      <section className="relative overflow-hidden py-16 sm:py-24 px-5 sm:px-8">
+      {visibleSections.hero && (
+      <AnimatedSection id="hero" animation={animationStyle} className="relative overflow-hidden py-16 sm:py-24 px-5 sm:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
           
           <div className="lg:col-span-7 space-y-6">
@@ -1888,17 +2020,12 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative inline-flex items-center gap-2 px-8 py-4 text-xs sm:text-sm font-black uppercase tracking-[0.18em] transition-transform duration-300 hover:scale-105 shadow-2xl rounded-xl"
-                style={{ background: config.accentColor, color: config.accentText }}
+                className="group relative inline-flex items-center gap-2 px-8 py-4 text-xs sm:text-sm font-black uppercase tracking-[0.18em] transition-transform duration-300 hover:scale-105 shadow-2xl"
+                style={getButtonStyle()}
               >
                 <MessageCircle size={18} />
-                <span
-                  contentEditable
-                  suppressContentEditableWarning
-                  onBlur={(e) => setEditBtnHeroText(e.currentTarget.innerText)}
-                  className="outline-none hover:ring-1 ring-white/40 rounded px-1"
-                >
-                  {editBtnHeroText || "Agendar Atendimento no WhatsApp"}
+                <span>
+                  {editBtnHeroText || "Agendar Atendimento"}
                 </span>
               </a>
 
@@ -2041,15 +2168,18 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             </div>
           </div>
         </div>
-      </section>
+      </AnimatedSection>
+      )}
 
       {/* SEÇÃO DE SERVIÇOS & ESPECIALIDADES */}
-      <section
+      {visibleSections.servicos && (
+      <AnimatedSection
         id="servicos"
+        animation={animationStyle}
         className="py-20 border-t px-5 sm:px-8 transition-colors"
         style={{
-          backgroundColor: config.surfaceColor,
-          borderColor: config.borderColor,
+          backgroundColor: effectiveCardBg,
+          borderColor: effectiveBorder,
         }}
       >
         <div className="max-w-7xl mx-auto space-y-12">
@@ -2092,12 +2222,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] transition-all hover:opacity-80"
               style={{ color: config.accentColor }}
             >
-              <span
-                contentEditable
-                suppressContentEditableWarning
-                onBlur={(e) => setEditBtnServiceText(e.currentTarget.innerText)}
-                className="outline-none hover:ring-1 ring-white/40 rounded px-1 cursor-text"
-              >
+              <span>
                 {editBtnServiceText || "Solicitar Atendimento"}
               </span>
               <ArrowUpRight size={16} />
@@ -2171,10 +2296,11 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             ))}
           </div>
         </div>
-      </section>
-
+      </AnimatedSection>
+      )}
       {/* GALERIA DE FOTOS REAIS */}
-      <section id="galeria" className="py-20 border-t px-5 sm:px-8" style={{ borderColor: config.borderColor }}>
+      {visibleSections.galeria && (
+      <AnimatedSection id="galeria" animation={animationStyle} className="py-20 border-t px-5 sm:px-8" style={{ borderColor: config.borderColor }}>
         <div className="max-w-7xl mx-auto space-y-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div className="space-y-2">
@@ -2222,11 +2348,14 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
+      )}
 
       {/* REVIEWS E DEPOIMENTOS REAIS DE CLIENTES */}
-      <section
+      {visibleSections.depoimentos && (
+      <AnimatedSection
         id="depoimentos"
+        animation={animationStyle}
         className="py-20 border-t px-5 sm:px-8 transition-colors"
         style={{
           backgroundColor: config.surfaceColor,
@@ -2342,7 +2471,88 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
+      )}
+
+      {/* CARDÁPIO / CATÁLOGO DIGITAL */}
+      {visibleSections.cardapio && customBlocks.length > 0 && (
+      <AnimatedSection
+        id="cardapio"
+        animation={animationStyle}
+        className="py-20 border-t px-5 sm:px-8 transition-colors"
+        style={{
+          backgroundColor: effectiveBg,
+          borderColor: effectiveBorder,
+        }}
+      >
+        <div className="max-w-7xl mx-auto space-y-12">
+          <div className="text-center max-w-2xl mx-auto space-y-4">
+            <div
+              className="text-[10px] font-bold uppercase tracking-[0.35em] rounded px-1"
+              style={{ color: config.accentColor }}
+            >
+              Catálogo de Produtos & Cardápio
+            </div>
+            <h2
+              className="text-4xl sm:text-5xl font-bold rounded-xl px-1 transition-all"
+              style={{
+                fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
+                color: config.textColor,
+              }}
+            >
+              Nossas Opções
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {customBlocks.map((block: any, idx: number) => (
+              <div
+                key={idx}
+                className="group p-0 overflow-hidden transition backdrop-blur-sm rounded-2xl flex flex-col justify-between border shadow-lg"
+                style={{
+                  backgroundColor: effectiveCardBg,
+                  borderColor: effectiveBorder,
+                }}
+              >
+                {block.image && (
+                  <div className="w-full aspect-video overflow-hidden border-b" style={{ borderColor: effectiveBorder }}>
+                    <img src={block.image} alt={block.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  </div>
+                )}
+                <div className="p-6 flex flex-col justify-between flex-1 gap-4">
+                  <div className="space-y-2">
+                    <h3
+                      className="text-lg font-bold"
+                      style={{
+                        fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
+                        color: config.textColor,
+                      }}
+                    >
+                      {block.title}
+                    </h3>
+                    <p className="text-xs leading-relaxed" style={{ color: config.mutedTextColor }}>
+                      {block.desc}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between mt-4">
+                    <span className="text-sm font-extrabold" style={{ color: config.accentColor }}>{block.price}</span>
+                    <a
+                      href={waUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase tracking-wider transition-all shadow-md"
+                      style={getButtonStyle()}
+                    >
+                      <span>{block.btnText || "Comprar"}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AnimatedSection>
+      )}
 
       {/* FOOTER & LOCALIZAÇÃO COM MAPA INTERATIVO EMBUTIDO */}
       <footer id="localizacao" className="border-t py-16 px-5 sm:px-8" style={{ borderColor: config.borderColor }}>
@@ -2417,12 +2627,33 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 font-black uppercase tracking-[0.18em] transition-all shadow-xl rounded-xl"
-                style={{ background: config.accentColor, color: config.accentText }}
+                className="inline-flex items-center gap-2 px-6 py-3 font-black uppercase tracking-[0.18em] transition-all shadow-xl"
+                style={getButtonStyle()}
               >
                 <MessageCircle size={16} />
-                <span>Falar no WhatsApp</span>
+                <span>{editBtnFooterText || "Falar no WhatsApp"}</span>
               </a>
+              
+              <div className="pt-4 flex flex-col md:items-end gap-3">
+                <h5 className="font-bold uppercase tracking-wider text-[10px]" style={{ color: config.textColor }}>Redes Sociais</h5>
+                <div className="flex items-center gap-2">
+                  {socialLinks.instagram && (
+                    <a href={socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center border hover:scale-110 transition-transform" style={{ borderColor: config.borderColor, color: config.accentColor }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    </a>
+                  )}
+                  {socialLinks.tiktok && (
+                    <a href={socialLinks.tiktok} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center border hover:scale-110 transition-transform" style={{ borderColor: config.borderColor, color: config.accentColor }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>
+                    </a>
+                  )}
+                  {socialLinks.facebook && (
+                    <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center border hover:scale-110 transition-transform" style={{ borderColor: config.borderColor, color: config.accentColor }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    </a>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -2503,10 +2734,32 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             </div>
 
             {/* Drawer Tabs Header */}
-            <div className="flex border-b border-white/10 bg-[#0B0D14] p-1.5 gap-1">
+            <div className="flex overflow-x-auto no-scrollbar border-b border-white/10 bg-[#0B0D14] p-1.5 gap-1 shrink-0">
+              <button
+                onClick={() => setActiveEditorTab("layout")}
+                className={`flex-none px-3 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                  activeEditorTab === "layout"
+                    ? "bg-amber-500 text-black shadow-md font-extrabold"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <LayoutTemplate size={13} />
+                <span>Layout</span>
+              </button>
+              <button
+                onClick={() => setActiveEditorTab("design")}
+                className={`flex-none px-3 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                  activeEditorTab === "design"
+                    ? "bg-amber-500 text-black shadow-md font-extrabold"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Palette size={13} />
+                <span>Design</span>
+              </button>
               <button
                 onClick={() => setActiveEditorTab("textos")}
-                className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-none px-3 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
                   activeEditorTab === "textos"
                     ? "bg-amber-500 text-black shadow-md font-extrabold"
                     : "text-white/60 hover:text-white hover:bg-white/5"
@@ -2517,7 +2770,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               </button>
               <button
                 onClick={() => setActiveEditorTab("imagens")}
-                className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-none px-3 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
                   activeEditorTab === "imagens"
                     ? "bg-amber-500 text-black shadow-md font-extrabold"
                     : "text-white/60 hover:text-white hover:bg-white/5"
@@ -2528,7 +2781,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               </button>
               <button
                 onClick={() => setActiveEditorTab("servicos")}
-                className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-none px-3 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
                   activeEditorTab === "servicos"
                     ? "bg-amber-500 text-black shadow-md font-extrabold"
                     : "text-white/60 hover:text-white hover:bg-white/5"
@@ -2538,20 +2791,49 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                 <span>Serviços</span>
               </button>
               <button
-                onClick={() => setActiveEditorTab("cores")}
-                className={`flex-1 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                  activeEditorTab === "cores"
+                onClick={() => setActiveEditorTab("cardapio")}
+                className={`flex-none px-3 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                  activeEditorTab === "cardapio"
                     ? "bg-amber-500 text-black shadow-md font-extrabold"
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
-                <Palette size={13} />
-                <span>Cores</span>
+                <Grid3x3 size={13} />
+                <span>Cardápio</span>
               </button>
             </div>
 
             {/* Drawer Body - Scrollable Content */}
             <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs">
+              {activeEditorTab === "layout" && (
+                <div className="space-y-4">
+                  <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-4">
+                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
+                      👁️ Visibilidade das Seções
+                    </label>
+                    <div className="space-y-3">
+                      {Object.entries({
+                        hero: "Seção Principal (Capa)",
+                        servicos: "Serviços / Especialidades",
+                        galeria: "Galeria de Fotos",
+                        depoimentos: "Depoimentos (Google)",
+                        cardapio: "Cardápio / Catálogo Digital"
+                      }).map(([key, label]) => (
+                        <div key={key} className="flex items-center justify-between">
+                          <span className="text-white/80 font-bold">{label}</span>
+                          <button
+                            onClick={() => setVisibleSections(prev => ({ ...prev, [key]: !prev[key as keyof typeof prev] }))}
+                            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${visibleSections[key as keyof typeof visibleSections] ? 'bg-amber-500' : 'bg-white/20'}`}
+                          >
+                            <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${visibleSections[key as keyof typeof visibleSections] ? 'translate-x-5' : 'translate-x-1'}`} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {activeEditorTab === "textos" && (
                 <div className="space-y-4">
                   <div>
@@ -2667,11 +2949,122 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                       />
                     </div>
                   </div>
+
+                  {/* NOVOS CONTROLES: TEXTOS DE BOTÕES E REDES SOCIAIS */}
+                  <div className="pt-4 border-t border-white/10 space-y-4">
+                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
+                      🖱️ Textos dos Botões
+                    </label>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-white/70 mb-1">Botão Principal (Capa)</label>
+                        <input
+                          type="text"
+                          value={editBtnHeroText}
+                          onChange={(e) => setEditBtnHeroText(e.target.value)}
+                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                          placeholder="Ex: Agendar Atendimento"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-white/70 mb-1">Botão do Rodapé</label>
+                        <input
+                          type="text"
+                          value={editBtnFooterText}
+                          onChange={(e) => setEditBtnFooterText(e.target.value)}
+                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                          placeholder="Ex: Falar com Especialista"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/10 space-y-4">
+                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
+                      📱 Redes Sociais
+                    </label>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-white/70 mb-1">Instagram (URL)</label>
+                        <input
+                          type="text"
+                          value={socialLinks.instagram}
+                          onChange={(e) => setSocialLinks(prev => ({ ...prev, instagram: e.target.value }))}
+                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                          placeholder="https://instagram.com/seu.perfil"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-white/70 mb-1">TikTok (URL)</label>
+                        <input
+                          type="text"
+                          value={socialLinks.tiktok}
+                          onChange={(e) => setSocialLinks(prev => ({ ...prev, tiktok: e.target.value }))}
+                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                          placeholder="https://tiktok.com/@seu.perfil"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-white/70 mb-1">Facebook (URL)</label>
+                        <input
+                          type="text"
+                          value={socialLinks.facebook}
+                          onChange={(e) => setSocialLinks(prev => ({ ...prev, facebook: e.target.value }))}
+                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white font-medium focus:border-amber-400 outline-none"
+                          placeholder="https://facebook.com/seu.perfil"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               )}
 
               {activeEditorTab === "imagens" && (
                 <div className="space-y-5">
+                  {/* Logo Image */}
+                  <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3">
+                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
+                      🏢 Logomarca (Opcional)
+                    </label>
+                    
+                    {logoImage && (
+                      <div className="relative h-20 rounded-xl overflow-hidden border border-white/10 bg-black/40 p-2 flex items-center justify-center">
+                        <img src={logoImage} alt="Logo" className="h-full w-auto object-contain" />
+                        <button
+                          onClick={() => setLogoImage("")}
+                          className="absolute top-1 right-1 p-1 bg-red-500/80 hover:bg-red-500 text-white rounded-full transition-colors"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        value={logoImage}
+                        onChange={(e) => setLogoImage(e.target.value)}
+                        className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white text-xs font-mono focus:border-amber-400 outline-none"
+                        placeholder="URL da Logomarca (ou Upload abaixo)"
+                      />
+
+                      <label className="flex items-center justify-center gap-2 p-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 rounded-xl text-xs font-bold cursor-pointer transition-colors border border-dashed border-amber-500/30">
+                        <Upload size={14} />
+                        <span>📁 Upload Local da Logo</span>
+                        <input type="file" accept="image/*" onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            try {
+                              const b64 = await convertFileToBase64(file);
+                              setLogoImage(b64);
+                            } catch(e) {}
+                          }
+                        }} className="hidden" />
+                      </label>
+                    </div>
+                  </div>
+
                   {/* Foto Hero */}
                   <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3">
                     <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
@@ -2870,8 +3263,205 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                 </div>
               )}
 
-              {activeEditorTab === "cores" && (
+              {activeEditorTab === "cardapio" && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-[11px] text-white/60 font-medium">
+                      Crie um Cardápio ou Catálogo Digital ({customBlocks.length} itens):
+                    </div>
+                    <button
+                      onClick={() => {
+                        setCustomBlocks([...customBlocks, { title: "Novo Produto", desc: "Descrição do produto", price: "R$ 0,00", image: "", btnText: "Comprar" }]);
+                      }}
+                      className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-[10px] rounded-lg transition-transform active:scale-95 flex items-center gap-1 shrink-0"
+                    >
+                      <Plus size={12} />
+                      <span>Adicionar</span>
+                    </button>
+                  </div>
+
+                  {customBlocks.length === 0 && (
+                    <div className="text-center p-4 bg-white/5 border border-dashed border-white/20 rounded-xl">
+                      <p className="text-[11px] text-white/50">Nenhum item adicionado ao cardápio ainda.</p>
+                    </div>
+                  )}
+
+                  {customBlocks.map((block: any, idx: number) => (
+                    <div key={idx} className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3 relative group">
+                      <div className="flex items-center justify-between">
+                        <div className="text-[11px] font-extrabold uppercase text-amber-400">
+                          Produto #{idx + 1}
+                        </div>
+                        <button
+                          onClick={() => {
+                            const updated = [...customBlocks];
+                            updated.splice(idx, 1);
+                            setCustomBlocks(updated);
+                          }}
+                          className="p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded transition-colors flex items-center gap-1 text-[10px] font-bold"
+                          title="Remover produto"
+                        >
+                          <Trash2 size={13} />
+                          <span>Remover</span>
+                        </button>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Imagem do Produto (URL)</label>
+                        <input
+                          type="text"
+                          value={block.image || ""}
+                          onChange={(e) => {
+                            const updated = [...customBlocks];
+                            updated[idx].image = e.target.value;
+                            setCustomBlocks(updated);
+                          }}
+                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs focus:border-amber-400 outline-none"
+                          placeholder="https://..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Nome do Produto</label>
+                        <input
+                          type="text"
+                          value={block.title || ""}
+                          onChange={(e) => {
+                            const updated = [...customBlocks];
+                            updated[idx].title = e.target.value;
+                            setCustomBlocks(updated);
+                          }}
+                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs font-bold focus:border-amber-400 outline-none"
+                          placeholder="Ex: Hambúrguer Artesanal"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Descrição</label>
+                        <textarea
+                          rows={2}
+                          value={block.desc || ""}
+                          onChange={(e) => {
+                            const updated = [...customBlocks];
+                            updated[idx].desc = e.target.value;
+                            setCustomBlocks(updated);
+                          }}
+                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs focus:border-amber-400 outline-none resize-none"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Preço</label>
+                          <input
+                            type="text"
+                            value={block.price || ""}
+                            onChange={(e) => {
+                              const updated = [...customBlocks];
+                              updated[idx].price = e.target.value;
+                              setCustomBlocks(updated);
+                            }}
+                            className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs focus:border-amber-400 outline-none"
+                            placeholder="R$ 0,00"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Texto do Botão</label>
+                          <input
+                            type="text"
+                            value={block.btnText || ""}
+                            onChange={(e) => {
+                              const updated = [...customBlocks];
+                              updated[idx].btnText = e.target.value;
+                              setCustomBlocks(updated);
+                            }}
+                            className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs focus:border-amber-400 outline-none"
+                            placeholder="Comprar"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => {
+                      setCustomBlocks([...customBlocks, { title: "Novo Produto", desc: "Descrição do produto", price: "R$ 0,00", image: "", btnText: "Comprar" }]);
+                    }}
+                    className="w-full py-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-dashed border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <Plus size={15} />
+                    <span>➕ Adicionar Produto ao Cardápio</span>
+                  </button>
+                </div>
+              )}
+
+              {activeEditorTab === "design" && (
                 <div className="space-y-5">
+                  <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-4">
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase text-white/70 mb-2">✨ Efeito de Animação (Scroll)</label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { val: "none", label: "Nenhum" },
+                          { val: "fade", label: "Fade" },
+                          { val: "slide", label: "Slide Up" },
+                          { val: "zoom", label: "Zoom" }
+                        ].map(anim => (
+                          <button
+                            key={anim.val}
+                            onClick={() => setAnimationStyle(anim.val as any)}
+                            className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase border ${animationStyle === anim.val ? 'bg-amber-500 text-black border-amber-500' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
+                          >
+                            {anim.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="w-full h-px bg-white/10 my-2"></div>
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase text-white/70 mb-2">Tema Base</label>
+                      <div className="flex gap-2">
+                        {["dark", "light", "glass"].map(theme => (
+                          <button
+                            key={theme}
+                            onClick={() => setThemeMode(theme as any)}
+                            className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase border ${themeMode === theme ? 'bg-amber-500 text-black border-amber-500' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
+                          >
+                            {theme === 'dark' ? 'Escuro' : theme === 'light' ? 'Claro' : 'Vidro'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase text-white/70 mb-2">Tipografia (Fontes)</label>
+                      <div className="flex gap-2">
+                        {["modern", "serif", "mono"].map(font => (
+                          <button
+                            key={font}
+                            onClick={() => setTypography(font as any)}
+                            className={`flex-1 py-2 rounded-lg text-[10px] font-bold uppercase border ${typography === font ? 'bg-amber-500 text-black border-amber-500' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
+                            style={{ fontFamily: font === 'serif' ? 'serif' : font === 'mono' ? 'monospace' : 'sans-serif' }}
+                          >
+                            {font === 'modern' ? 'Moderna' : font === 'serif' ? 'Clássica' : 'Tech'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase text-white/70 mb-2">Estilo dos Botões</label>
+                      <div className="flex flex-wrap gap-2">
+                        {["rounded", "square", "outline", "neon"].map(btn => (
+                          <button
+                            key={btn}
+                            onClick={() => setButtonStyle(btn as any)}
+                            className={`flex-1 min-w-[70px] py-2 rounded-lg text-[10px] font-bold uppercase border ${buttonStyle === btn ? 'bg-amber-500 text-black border-amber-500' : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'}`}
+                          >
+                            {btn}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Seletor Customizado por Lápis / Conta-Gotas e Hex */}
                   <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3">
                     <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
