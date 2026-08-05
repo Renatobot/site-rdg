@@ -696,6 +696,45 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
+  // YAKISSOBA & COMIDA CHINESA (Vermelho & Dourado Oriental)
+  yakissoba: {
+    isDark: true,
+    bgColor: "#0E0A06",
+    surfaceColor: "#1A1008",
+    cardBg: "#261710",
+    textColor: "#FAFAFA",
+    mutedTextColor: "#D4A574",
+    borderColor: "rgba(220, 38, 38, 0.35)",
+    accentColor: "#DC2626",
+    accentText: "#FFFFFF",
+    fontSerif: false,
+    heroTagline: "O Melhor Yakissoba da Cidade",
+    titleSpan: "Yakissoba",
+    titleSuffix: "Autêntico.",
+    desc: "Macarrão oriental refogado no wok com legumes frescos, frango ou carne, molho shoyu especial da casa e muito sabor.",
+    icon: Utensils,
+    prettyCategoryName: "Restaurante Oriental & Chinês",
+    heroFallback: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=1200&q=80",
+    galleryFallback: [
+      "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1534482421-64566f976cfa?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1617196034183-421b4040ed20?auto=format&fit=crop&w=800&q=80"
+    ],
+    services: [
+      { title: "Yakissoba Tradicional no Wok", desc: "Macarrão refogado com frango, legumes frescos e molho shoyu especial da casa.", price: "Consulte o Cardápio" },
+      { title: "Yakissoba de Carne & Frutos do Mar", desc: "Versão premium com carne macia, camarão e mix de legumes salteados na chapa.", price: "Consulte o Cardápio" },
+      { title: "Arroz Chop Suey & Especialidades", desc: "Arroz frito com legumes, ovos mexidos, frango e temperos orientais exclusivos.", price: "Consulte o Cardápio" },
+      { title: "Entradas Orientais & Rolinho Primavera", desc: "Rolinho primavera crocante, frango à xangai e sopas orientais quentinhas.", price: "Consulte o Cardápio" }
+    ],
+    stats: [
+      { label: "Pratos Servidos", value: "20k+" },
+      { label: "Molho Especial", value: "100%" },
+      { label: "Nota no Google", value: "4.9" },
+      { label: "Anos de Tradição", value: "10+" }
+    ]
+  },
+
   // CHAVEIRO & SERVIÇOS TÉCNICOS (Steel Navy & Amber Gold)
   chaveiro: {
     isDark: true,
@@ -1124,15 +1163,21 @@ function FullSiteDemoPage() {
   ) {
     catKey = "pizzaria";
   } else if (
+    fullSearchStr.includes("yakissoba") ||
+    fullSearchStr.includes("yakisoba") ||
+    fullSearchStr.includes("chines") ||
+    fullSearchStr.includes("wok") ||
+    fullSearchStr.includes("rolinho") ||
+    fullSearchStr.includes("chop suey")
+  ) {
+    catKey = "yakissoba";
+  } else if (
     fullSearchStr.includes("sushi") ||
     fullSearchStr.includes("japa") ||
     fullSearchStr.includes("temaki") ||
     fullSearchStr.includes("sashimi") ||
-    fullSearchStr.includes("oriental") ||
     fullSearchStr.includes("poke") ||
-    fullSearchStr.includes("yakissoba") ||
-    fullSearchStr.includes("yakisoba") ||
-    fullSearchStr.includes("chines")
+    fullSearchStr.includes("niguiri")
   ) {
     catKey = "sushi";
   } else if (
