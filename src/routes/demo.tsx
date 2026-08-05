@@ -522,12 +522,12 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     desc: "Açaí batido na hora, cremoso e sem gelo, com combinações ilimitadas de acompanhamentos, frutas frescas e cremes artesanais.",
     icon: Utensils,
     prettyCategoryName: "Açaíeria & Gelateria Gourmet",
-    heroFallback: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?auto=format&fit=crop&w=1200&q=80",
+    heroFallback: "/assets/niche/acai_hero.png",
     galleryFallback: [
-      "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1553978297-62a7a35e3d3a?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1494390248081-4e521a5940db?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1607532941433-304659e8198a?auto=format&fit=crop&w=800&q=80"
+      "/assets/niche/acai_hero.png",
+      "/assets/niche/acai_1.png",
+      "/assets/niche/acai_2.png",
+      "/assets/niche/acai_3.png"
     ],
     services: [
       { title: "Copo de Açaí Tradicional (Monte o Seu)", desc: "Açaí puro batido na hora com acompanhamentos ilimitados (Ninho, Granola, Paçoca e Frutas).", price: "A partir de R$ 14,90" },
