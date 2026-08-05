@@ -831,10 +831,10 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     desc: "Compromisso com a satisfação do cliente, agilidade no atendimento e infraestrutura completa em localização privilegiada.",
     icon: Briefcase,
     prettyCategoryName: "Empresa de Destaque",
-    heroFallback: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80",
+    heroFallback: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
-      "https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1556761175-5973dc0f32b7?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
       { title: "Atendimento Sob Medida", desc: "Soluções completas desenhadas exatamente para atender sua necessidade com excelência.", price: "Solicitar Informações" },
@@ -1129,7 +1129,10 @@ function FullSiteDemoPage() {
     fullSearchStr.includes("temaki") ||
     fullSearchStr.includes("sashimi") ||
     fullSearchStr.includes("oriental") ||
-    fullSearchStr.includes("poke")
+    fullSearchStr.includes("poke") ||
+    fullSearchStr.includes("yakissoba") ||
+    fullSearchStr.includes("yakisoba") ||
+    fullSearchStr.includes("chines")
   ) {
     catKey = "sushi";
   } else if (
@@ -1329,12 +1332,15 @@ function FullSiteDemoPage() {
     return url;
   };
 
-  const defaultHeroImage = sanitizePhotoUrl(storedLead?.customHeroPhoto) || sanitizePhotoUrl((search as any).hero_photo) || (realGooglePhotos.length > 0 ? realGooglePhotos[0] : config.heroFallback);
+  // IMPORTANT: Do not use realGooglePhotos to avoid charging the user's Google Places API billing!
+  const defaultHeroImage = sanitizePhotoUrl(storedLead?.customHeroPhoto) 
+    || sanitizePhotoUrl((search as any).hero_photo) 
+    || config.heroFallback;
   const heroImage = sanitizePhotoUrl(editHeroImage) || defaultHeroImage;
 
   const defaultGalleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
     ? storedLead.customGalleryPhotos.map(sanitizePhotoUrl).filter(Boolean)
-    : (realGooglePhotos.length > 1 ? realGooglePhotos.slice(1, 9) : config.galleryFallback);
+    : config.galleryFallback;
   const galleryImages = (editGalleryImages.length > 0 ? editGalleryImages.map(sanitizePhotoUrl).filter(Boolean) : defaultGalleryImages);
 
 
