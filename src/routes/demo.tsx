@@ -525,7 +525,7 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
       "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1626078436896-e26b1c4155b4?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1610970881699-44a5587cabec?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
       { title: "Copo de Açaí Tradicional (Monte o Seu)", desc: "Açaí puro batido na hora com acompanhamentos ilimitados (Ninho, Granola, Paçoca e Frutas).", price: "A partir de R$ 14,90" },
@@ -972,12 +972,12 @@ function FullSiteDemoPage() {
     ];
 
     if (catKey === "acai") {
-      aiHeroPrompt = `delicious acai bowl gourmet with fresh strawberries, sliced bananas, blueberries and powdered milk, professional food photography, 8k, vibrant purple colors`;
+      aiHeroPrompt = `delicious purple acai bowl gourmet with fresh strawberries, sliced bananas, blueberries and powdered milk, professional food photography, 8k, vibrant deep purple acai color`;
       aiGalleryPrompts = [
-        `acai bowl topped with milk powder, strawberries and granola, top view food photography, 8k`,
-        `acai cup in transparent cup with condensed milk, peanuts and fruit toppings, food photography, 8k`,
-        `gourmet acai volcano sundae parfait in glass with chocolate, dessert photography, 8k`,
-        `artisan gelato ice cream cone, sweet dessert photography, 8k`
+        `purple acai bowl topped with milk powder, strawberries and granola, top view food photography, 8k, acai berry bowl`,
+        `purple acai cup in transparent cup with condensed milk, peanuts and banana toppings, acai smoothie bowl, 8k`,
+        `gourmet purple acai bowl with fresh sliced strawberries, kiwi, blueberries and honey, food photography, 8k`,
+        `traditional Brazilian acai bowl with paçoca, granola and sliced bananas, 8k, acai palm fruit bowl`
       ];
     } else if (catKey === "hamburgueria") {
       aiHeroPrompt = `juicy artisan gourmet burger with melted cheddar cheese, bacon and brioche bun, professional food photography, 8k`;
@@ -1269,7 +1269,17 @@ function FullSiteDemoPage() {
 
   const sanitizePhotoUrl = (url: string) => {
     if (!url) return "";
-    if (url.includes("1590301157890-4810ed352733") || url.includes("1541781774459") || url.includes("1517248135467") || url.includes("1555396273") || url.includes("1550966871")) return "";
+    if (
+      url.includes("1590301157890") ||
+      url.includes("1541781774459") ||
+      url.includes("1519671482749") ||
+      url.includes("1563805042") ||
+      url.includes("1517248135467") ||
+      url.includes("1555396273") ||
+      url.includes("1550966871")
+    ) {
+      return "";
+    }
     return url;
   };
 
