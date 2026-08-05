@@ -110,44 +110,8 @@ interface NicheConfig {
   stats: { label: string; value: string }[];
 }
 
+
 const NICHE_CONFIGS: Record<string, NicheConfig> = {
-  // AÇAITERIA
-  acai: {
-    isDark: true,
-    bgColor: "#0F0A1F", // Deep dark purple
-    surfaceColor: "#1A1033",
-    cardBg: "#241547",
-    textColor: "#FAFAFA",
-    mutedTextColor: "#A1A1AA",
-    borderColor: "rgba(147, 51, 234, 0.25)",
-    accentColor: "#9333EA", // Purple
-    accentText: "#FFFFFF",
-    fontSerif: false,
-    heroTagline: "O Verdadeiro Sabor da Natureza",
-    titleSpan: "Açaí",
-    titleSuffix: "Premium.",
-    desc: "O açaí mais cremoso da região, com acompanhamentos frescos e de alta qualidade para você montar do seu jeito.",
-    icon: Utensils,
-    prettyCategoryName: "Açaiteria",
-    heroFallback: "https://images.unsplash.com/photo-1556614486-4e50d0d8282b?auto=format&fit=crop&w=1200&q=80",
-    galleryFallback: [
-      "https://images.unsplash.com/photo-1589301773722-b5e1b9f2b843?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1628172906497-60fcfba17937?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1590004953392-5aba2e72269a?auto=format&fit=crop&w=800&q=80"
-    ],
-    services: [
-      { title: "Açaí no Copo", desc: "Monte seu copo com diversas opções de cremes, frutas e adicionais.", price: "Montar Agora" },
-      { title: "Barca de Açaí", desc: "Açaí servido na barca com tudo que você tem direito para dividir.", price: "Ver Opções" },
-      { title: "Taças Gourmet", desc: "Taças elaboradas com Nutella, morango, leite em pó e muito creme.", price: "Experimentar" },
-      { title: "Sucos Naturais", desc: "Sucos naturais e detox com frutas frescas e selecionadas.", price: "Pedir Sucos" }
-    ],
-    stats: [
-      { label: "Copos Servidos", value: "10k+" },
-      { label: "Avaliação", value: "4.9" },
-      { label: "Adicionais", value: "35+" },
-      { label: "Fidelidade", value: "90%" }
-    ]
-  },
 
   // ADVOCACIA & JURÍDICO (Imperial Gold & Deep Executive Navy/Onyx)
   advocacia: {
@@ -558,12 +522,12 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     desc: "Açaí batido na hora, cremoso e sem gelo, com combinações ilimitadas de acompanhamentos, frutas frescas e cremes artesanais.",
     icon: Utensils,
     prettyCategoryName: "Açaíeria & Gelateria Gourmet",
-    heroFallback: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=1200&q=80",
+    heroFallback: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?auto=format&fit=crop&w=1200&q=80",
     galleryFallback: [
-      "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1626078436896-e26b1c4155b4?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1610970881699-44a5587cabec?auto=format&fit=crop&w=800&q=80"
+      "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1553978297-62a7a35e3d3a?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1494390248081-4e521a5940db?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1607532941433-304659e8198a?auto=format&fit=crop&w=800&q=80"
     ],
     services: [
       { title: "Copo de Açaí Tradicional (Monte o Seu)", desc: "Açaí puro batido na hora com acompanhamentos ilimitados (Ninho, Granola, Paçoca e Frutas).", price: "A partir de R$ 14,90" },
