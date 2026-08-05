@@ -60,6 +60,7 @@ export interface DemoSearchParams {
   reviews_json?: string;
   hours_json?: string;
   summary?: string;
+  mode?: string;
 }
 
 const convertFileToBase64 = (file: File): Promise<string> => {
@@ -92,6 +93,7 @@ export const Route = createFileRoute("/demo")({
       reviews_json: typeof search.reviews_json === "string" ? search.reviews_json : "",
       hours_json: typeof search.hours_json === "string" ? search.hours_json : "",
       summary: typeof search.summary === "string" ? search.summary : "",
+      mode: typeof search.mode === "string" ? search.mode : undefined,
     };
   },
   head: () => ({
@@ -1559,7 +1561,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
       url.searchParams.set("theme", themeMode);
       url.searchParams.set("font", typography);
       url.searchParams.set("btn", buttonStyle);
-      // Inclui sections basico para toggle (apenas layout basico)
+      url.searchParams.set("mode", "view"); // Esconde o painel do editor para o cliente final
       
       navigator.clipboard.writeText(url.toString());
       setCopiedLink(true);
@@ -1806,6 +1808,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
       )}
 
       {/* TOP CONTROL BAR DE DEMONSTRAÇÃO E FERRAMENTAS DO PROSPECTOR */}
+      {search.mode !== "view" && (
       <div
         className="p-2 sm:p-2.5 px-3 sm:px-4 text-xs font-bold flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shadow-xl sticky top-0 z-50 transition-colors border-b"
         style={{
@@ -1906,6 +1909,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
           </button>
         </div>
       </div>
+      )}
 
       {/* Main Header Estilo Personalizado por Nicho */}
       <header
@@ -3307,18 +3311,35 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Imagem do Produto (URL)</label>
-                        <input
-                          type="text"
-                          value={block.image || ""}
-                          onChange={(e) => {
-                            const updated = [...customBlocks];
-                            updated[idx].image = e.target.value;
-                            setCustomBlocks(updated);
-                          }}
-                          className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs focus:border-amber-400 outline-none"
-                          placeholder="https://..."
-                        />
+                        <label className="block text-[10px] font-bold uppercase text-white/60 mb-1">Imagem do Produto (URL ou Upload Local)</label>
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            value={block.image || ""}
+                            onChange={(e) => {
+                              const updated = [...customBlocks];
+                              updated[idx].image = e.target.value;
+                              setCustomBlocks(updated);
+                            }}
+                            className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2 text-white text-xs focus:border-amber-400 outline-none"
+                            placeholder="URL da imagem (https://...)"
+                          />
+                          <label className="flex items-center justify-center gap-2 p-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 rounded-xl text-xs font-bold cursor-pointer transition-colors border border-dashed border-amber-500/30">
+                            <Upload size={14} />
+                            <span>📁 Fazer Upload de Imagem</span>
+                            <input type="file" accept="image/*" onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                try {
+                                  const b64 = await convertFileToBase64(file);
+                                  const updated = [...customBlocks];
+                                  updated[idx].image = b64;
+                                  setCustomBlocks(updated);
+                                } catch(e) {}
+                              }
+                            }} className="hidden" />
+                          </label>
+                        </div>
                       </div>
 
                       <div>
