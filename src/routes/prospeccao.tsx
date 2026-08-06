@@ -748,7 +748,7 @@ function ProspeccaoPage() {
         </div>
 
         {/* TAB 1: PROSPECTAR LEADS */}
-        {activeTab === "prospectar" ? (
+        {activeTab === "prospectar" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
@@ -790,8 +790,10 @@ function ProspeccaoPage() {
               </div>
             )}
           </div>
-        ) : (
-          /* TAB 2: MEUS LEADS SALVOS (KANBAN BOARD) */
+        )}
+
+        {/* TAB 2: MEUS LEADS SALVOS */}
+        {activeTab === "salvos" && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#111218] p-4 sm:p-5 rounded-2xl border border-white/10">
               <div className="space-y-1">

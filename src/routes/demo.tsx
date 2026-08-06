@@ -37,7 +37,11 @@ import {
   LayoutTemplate,
   Grid3x3,
   Type,
-  Square
+  Square,
+  Bookmark,
+  Share2,
+  Download,
+  Copy
 } from "lucide-react";
 import { RichTextToolbar } from "@/components/RichTextToolbar";
 
