@@ -598,6 +598,45 @@ const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   },
 
+  // PASTELARIA & SALGADOS (Warm Amber & Fried Gold)
+  pastelaria: {
+    isDark: true,
+    bgColor: "#140B04",
+    surfaceColor: "#1C1108",
+    cardBg: "#26160B",
+    textColor: "#FAFAFA",
+    mutedTextColor: "#D6D3D1",
+    borderColor: "rgba(245, 158, 11, 0.3)",
+    accentColor: "#F59E0B",
+    accentText: "#FFFFFF",
+    fontSerif: false,
+    heroTagline: "Pastéis Super Recheados & Massa Crocante",
+    titleSpan: "Pastelaria",
+    titleSuffix: "Premium.",
+    desc: "O verdadeiro sabor do pastel de feira com massa sequinha, ingredientes selecionados e aquele caldo de cana geladíssimo tirado na hora.",
+    icon: Utensils,
+    prettyCategoryName: "Pastelaria & Salgados",
+    heroFallback: "https://image.pollinations.ai/prompt/brazilian%20pastel%20de%20feira%20fried%20pastry%20food%20photography%20crispy%20delicious%208k?width=1200&height=800&nologo=true&seed=10",
+    galleryFallback: [
+      "https://image.pollinations.ai/prompt/brazilian%20pastel%20de%20feira%20com%20caldo%20de%20cana%20food%20photography%208k?width=800&height=600&nologo=true&seed=11",
+      "https://image.pollinations.ai/prompt/salgados%20coxinha%20kibe%20fried%20brazilian%20snacks%20food%20photography%208k?width=800&height=600&nologo=true&seed=12",
+      "https://image.pollinations.ai/prompt/pastel%20doce%20chocolate%20morango%20fried%20pastry%20sweet%208k?width=800&height=600&nologo=true&seed=13",
+      "https://image.pollinations.ai/prompt/pastelaria%20ambiente%20brazilian%20street%20food%208k?width=800&height=600&nologo=true&seed=14"
+    ],
+    services: [
+      { title: "Pastéis Tradicionais & Especiais", desc: "Carne, queijo, pizza, frango com catupiry e moda da casa. Massa incrivelmente crocante e sequinha.", price: "Consulte o Cardápio" },
+      { title: "Caldo de Cana Tirado na Hora", desc: "Tradicional, com limão ou abacaxi. Sempre muito gelado para acompanhar seu pastel.", price: "Consulte o Cardápio" },
+      { title: "Porções & Salgados Diversos", desc: "Coxinhas cremosas, kibes recheados, bolinhos de carne e porções de batata frita.", price: "Consulte o Cardápio" },
+      { title: "Pastéis Doces Gourmet", desc: "Nutella com morango, doce de leite, romeu e julieta. A sobremesa perfeita.", price: "Consulte o Cardápio" }
+    ],
+    stats: [
+      { label: "Pastéis Vendidos", value: "20k+" },
+      { label: "Massa Fresca", value: "100%" },
+      { label: "Avaliação Média", value: "4.9" },
+      { label: "Opções de Sabores", value: "40+" }
+    ]
+  },
+
   // PIZZARIA (Woodfired Dark & Brick Red)
   pizzaria: {
     isDark: true,
@@ -1106,6 +1145,14 @@ function FullSiteDemoPage() {
         `stuffed calzone pizza, 8k`,
         `sweet chocolate pizza with strawberries, 8k`
       ];
+    } else if (catKey === "pastelaria") {
+      aiHeroPrompt = `brazilian pastel de feira fried pastry food photography crispy delicious 8k`;
+      aiGalleryPrompts = [
+        `brazilian pastel de feira com caldo de cana food photography 8k`,
+        `salgados coxinha kibe fried brazilian snacks food photography 8k`,
+        `pastel doce chocolate morango fried pastry sweet 8k`,
+        `pastelaria ambiente brazilian street food 8k`
+      ];
     }
 
     const newAiHero = `https://image.pollinations.ai/prompt/${encodeURIComponent(aiHeroPrompt)}?width=1000&height=700&nologo=true&seed=${randomSeed}`;
@@ -1196,6 +1243,12 @@ function FullSiteDemoPage() {
     fullSearchStr.includes("calzone")
   ) {
     catKey = "pizzaria";
+  } else if (
+    fullSearchStr.includes("pastel") ||
+    fullSearchStr.includes("salgado") ||
+    fullSearchStr.includes("caldo de cana")
+  ) {
+    catKey = "pastelaria";
   } else if (
     fullSearchStr.includes("yakissoba") ||
     fullSearchStr.includes("yakisoba") ||
