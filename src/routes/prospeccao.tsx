@@ -1198,7 +1198,8 @@ function LeadCard({
   onOpenDemoPage: () => void;
   onOpenScriptModal: () => void;
 }) {
-  const instaSearchUrl = lead.instagram_url || `https://www.google.com/search?q=site:instagram.com+${encodeURIComponent(`"${lead.name}"`)}`;
+  const cleanName = lead.name.split('-')[0].split('|')[0].trim();
+  const instaSearchUrl = lead.instagram_url || `https://www.google.com/search?q=site:instagram.com+${encodeURIComponent(cleanName)}`;
 
   return (
     <div className="bg-[#111218] border border-white/10 rounded-2xl p-5 space-y-4 hover:border-primary/40 transition-all flex flex-col justify-between shadow-xl">
