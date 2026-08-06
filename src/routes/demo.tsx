@@ -309,55 +309,45 @@ function FullSiteDemoPage() {
       setAiStepMessage("🎨 Gerando novas fotos exclusivas em HD com IA...");
     }, 2200);
 
-    const randomSeed = Math.floor(Math.random() * 999999);
-    
-    let aiHeroPrompt = `${nome} ${displayCategory} profissional, fotografia em alta resolução, 8k`;
-    let aiGalleryPrompts = [
-      `${displayCategory} produto 1, fotografia profissional, 8k`,
-      `${displayCategory} produto 2, detalhes e qualidade premium, 8k`,
-      `${displayCategory} produto 3, ambiente e atendimento de excelência, 8k`,
-      `${displayCategory} produto 4, especialidade da casa, 8k`
-    ];
-
-    if (catKey === "acai") {
-      aiHeroPrompt = `delicious purple acai bowl gourmet with fresh strawberries, sliced bananas, blueberries and powdered milk, professional food photography, 8k, vibrant deep purple acai color`;
-      aiGalleryPrompts = [
-        `purple acai bowl topped with milk powder, strawberries and granola, top view food photography, 8k, acai berry bowl`,
-        `purple acai cup in transparent cup with condensed milk, peanuts and banana toppings, acai smoothie bowl, 8k`,
-        `gourmet purple acai bowl with fresh sliced strawberries, kiwi, blueberries and honey, food photography, 8k`,
-        `traditional Brazilian acai bowl with paçoca, granola and sliced bananas, 8k, acai palm fruit bowl`
-      ];
-    } else if (catKey === "hamburgueria") {
-      aiHeroPrompt = `juicy artisan gourmet burger with melted cheddar cheese, bacon and brioche bun, professional food photography, 8k`;
-      aiGalleryPrompts = [
-        `double smash burger with melted cheese and crispy bacon, 8k`,
-        `french fries with cheddar cheese and bacon bits, 8k`,
-        `creamy chocolate milkshake with whipped cream, 8k`,
-        `gourmet burger set with onion rings, 8k`
-      ];
-    } else if (catKey === "pizzaria") {
-      aiHeroPrompt = `freshly baked woodfired pizza with melted mozzarella cheese and pepperoni, food photography, 8k`;
-      aiGalleryPrompts = [
-        `slice of pizza being lifted with melting cheese, 8k`,
-        `artisan italian pizza with basil and tomatoes, 8k`,
-        `stuffed calzone pizza, 8k`,
-        `sweet chocolate pizza with strawberries, 8k`
-      ];
-    } else if (catKey === "pastelaria") {
-      aiHeroPrompt = `brazilian pastel de feira fried pastry food photography crispy delicious 8k`;
-      aiGalleryPrompts = [
-        `brazilian pastel de feira com caldo de cana food photography 8k`,
-        `salgados coxinha kibe fried brazilian snacks food photography 8k`,
-        `pastel doce chocolate morango fried pastry sweet 8k`,
-        `pastelaria ambiente brazilian street food 8k`
-      ];
+        try {
+      // 🔑 PIXABAY API - Banco de Imagens Oficial
+      const pixabayKey = "56751364-1ce5ed59a7a46bca79fc7e359";
+      
+      let searchQuery = displayCategory;
+      if (catKey === "acai") searchQuery = "acai bowl berry";
+      else if (catKey === "hamburgueria") searchQuery = "burger hamburger";
+      else if (catKey === "pizzaria") searchQuery = "pizza slice";
+      else if (catKey === "pastelaria") searchQuery = "empanada pastry snack";
+      else if (catKey === "odontologia") searchQuery = "dentist smile teeth";
+      else if (catKey === "advocacia") searchQuery = "lawyer justice suit";
+      else if (catKey === "barbearia") searchQuery = "barbershop beard";
+      else if (catKey === "petshop") searchQuery = "dog cat pet";
+      else if (catKey === "estetica") searchQuery = "spa beauty facial";
+      else if (catKey === "saude") searchQuery = "doctor clinic";
+      else if (catKey === "oficina") searchQuery = "car mechanic garage";
+      
+      const res = await fetch(`https://pixabay.com/api/?key=${pixabayKey}&q=${encodeURIComponent(searchQuery)}&image_type=photo&orientation=horizontal&per_page=15`);
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (data.hits && data.hits.length >= 5) {
+          // Embaralhar resultados para não ficar sempre igual
+          const hits = [...data.hits].sort(() => 0.5 - Math.random());
+          setEditHeroImage(hits[0].largeImageURL);
+          setEditGalleryImages([
+            hits[1].largeImageURL,
+            hits[2].largeImageURL,
+            hits[3].largeImageURL,
+            hits[4].largeImageURL
+          ]);
+        } else {
+          // Fallback nativo
+          console.log("Poucas imagens no Pixabay para", searchQuery);
+        }
+      }
+    } catch (e) {
+      console.log("Erro no Pixabay:", e);
     }
-
-    const newAiHero = `https://image.pollinations.ai/prompt/${encodeURIComponent(aiHeroPrompt)}?width=1000&height=700&nologo=true&seed=${randomSeed}`;
-    const newAiGallery = aiGalleryPrompts.map((p, i) => `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=800&height=600&nologo=true&seed=${randomSeed + i + 1}`);
-
-    setEditHeroImage(newAiHero);
-    setEditGalleryImages(newAiGallery);
 
     try {
       const controller = new AbortController();
@@ -1582,14 +1572,14 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               <h2
                 contentEditable
                 suppressContentEditableWarning
-                onBlur={(e) => setEditNome(e.currentTarget.innerText.replace(/^Espaço & Galeria de\s*/i, "").replace(/\.$/, ""))}
+                onBlur={(e) => setEditNome(e.currentTarget.innerText.replace(/^Espaço & Galeria -\s*/i, "").replace(/\.$/, ""))}
                 className="text-4xl sm:text-5xl font-bold outline-none hover:ring-2 ring-white/20 rounded-xl px-1 transition-all cursor-text"
                 style={{
                   fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                   color: config.textColor,
                 }}
               >
-                Espaço & Galeria de {nome}.
+                Espaço & Galeria - {nome}.
               </h2>
             </div>
           </div>
@@ -2829,4 +2819,5 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
     </>
   );
 }
+
 
