@@ -15,8 +15,8 @@ export function RichTextToolbar() {
     const handleSelectionChange = () => {
       const selection = window.getSelection();
       
-      // Verifica se há seleção e se não está vazia
-      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+      // Verifica se há seleção
+      if (!selection || selection.rangeCount === 0) {
         setPosition(null);
         return;
       }
@@ -53,10 +53,7 @@ export function RichTextToolbar() {
       const target = e.target as HTMLElement;
       const isEditableTarget = target.isContentEditable || target.closest('.rich-text-toolbar');
       if (!isEditableTarget) {
-         const selection = window.getSelection();
-         if (selection && selection.isCollapsed) {
-           setPosition(null);
-         }
+         setPosition(null);
       }
     };
     document.addEventListener("mouseup", handleMouseUp);
