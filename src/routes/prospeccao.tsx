@@ -619,7 +619,7 @@ function ProspeccaoPage() {
         )}
 
         {/* Top Controls & Search Card */}
-        <div className="bg-[#111218] border border-white/10 rounded-3xl p-5 sm:p-6 space-y-5 shadow-2xl">
+        <div className="bg-[#0F1117] border border-white/10 rounded-3xl p-5 sm:p-6 space-y-5 shadow-2xl">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -638,7 +638,7 @@ function ProspeccaoPage() {
                   value={nicho}
                   onChange={(e) => setNicho(e.target.value)}
                   placeholder="Ex: Imobiliária, Barbearia, Odontologia..."
-                  className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-primary outline-none transition-colors"
+                  className="w-full bg-[#0A0B10] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-white/40 outline-none transition-colors"
                 />
               </div>
             </div>
@@ -654,7 +654,7 @@ function ProspeccaoPage() {
                   value={cidade}
                   onChange={(e) => setCidade(e.target.value)}
                   placeholder="Ex: Rio de Janeiro, São Paulo, Curitiba..."
-                  className="w-full bg-[#0A0A0A] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-primary outline-none transition-colors"
+                  className="w-full bg-[#0A0B10] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-white/40 outline-none transition-colors"
                 />
               </div>
             </div>
@@ -663,9 +663,9 @@ function ProspeccaoPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-5 sm:mt-0 py-3 bg-primary text-black font-extrabold text-sm rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-50"
+                className="w-full mt-5 sm:mt-0 py-3 bg-white text-black hover:bg-neutral-200 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
               >
-                {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+                {isLoading ? <Loader2 size={18} className="animate-spin text-black" /> : <Search size={18} />}
                 <span>Buscar Leads</span>
               </button>
             </div>
@@ -673,7 +673,7 @@ function ProspeccaoPage() {
 
           {/* Preset Chips */}
           <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5">
-            <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider mr-1">Atalhos Rápido:</span>
+            <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider mr-1">Atalhos Rápidos:</span>
             {["Imobiliária", "Barbearia", "Odontologia", "Estética", "Advocacia", "Restaurante", "Pet Shop"].map((preset) => (
               <button
                 key={preset}
@@ -682,9 +682,9 @@ function ProspeccaoPage() {
                   setNicho(preset);
                   handleSearch(preset, cidade || "São Paulo - SP");
                 }}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all border ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
                   nicho.toLowerCase() === preset.toLowerCase()
-                    ? "bg-primary/20 text-primary border-primary/40"
+                    ? "bg-white text-black border-white font-bold"
                     : "bg-white/5 text-white/70 border-white/10 hover:text-white hover:bg-white/10"
                 }`}
               >
@@ -703,18 +703,18 @@ function ProspeccaoPage() {
                     setOnlyNoWebsite(e.target.checked);
                     if (hasSearched) handleSearch(nicho, cidade);
                   }}
-                  className="rounded accent-primary w-4 h-4"
+                  className="rounded accent-white w-4 h-4"
                 />
-                <span className="font-semibold text-white">Priorizar Empresas Sem Website no Topo</span>
+                <span className="font-medium text-white/80">Priorizar Empresas Sem Website</span>
               </label>
             </div>
 
-            <div className="flex bg-[#0A0A0A] p-1 rounded-xl border border-white/10">
+            <div className="flex bg-[#0A0B10] p-1 rounded-xl border border-white/10">
               <button
                 onClick={() => setActiveTab("prospectar")}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   activeTab === "prospectar"
-                    ? "bg-primary text-black font-extrabold shadow"
+                    ? "bg-white text-black shadow"
                     : "text-white/60 hover:text-white"
                 }`}
               >
@@ -723,9 +723,9 @@ function ProspeccaoPage() {
               </button>
               <button
                 onClick={() => setActiveTab("salvos")}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   activeTab === "salvos"
-                    ? "bg-primary text-black font-extrabold shadow"
+                    ? "bg-white text-black shadow"
                     : "text-white/60 hover:text-white"
                 }`}
               >
@@ -734,9 +734,9 @@ function ProspeccaoPage() {
               </button>
               <button
                 onClick={() => setActiveTab("previas")}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   activeTab === "previas"
-                    ? "bg-primary text-black font-extrabold shadow"
+                    ? "bg-white text-black shadow"
                     : "text-white/60 hover:text-white"
                 }`}
               >
@@ -1202,22 +1202,22 @@ function LeadCard({
   const instaSearchUrl = lead.instagram_url || `https://www.google.com/search?q=site:instagram.com+${encodeURIComponent(cleanName)}`;
 
   return (
-    <div className="bg-[#111218] border border-white/10 rounded-2xl p-5 space-y-4 hover:border-primary/40 transition-all flex flex-col justify-between shadow-xl">
+    <div className="bg-[#0F1117] border border-white/10 rounded-2xl p-5 space-y-4 hover:border-white/25 transition-all flex flex-col justify-between shadow-lg">
       <div className="space-y-3">
         {/* Titulo e Avaliação */}
         <div className="flex items-start justify-between gap-3">
           <div>
-            <span className="px-2 py-0.5 bg-white/5 text-white/70 text-[10px] font-bold rounded border border-white/10 uppercase tracking-wider mb-1 inline-block">
+            <span className="px-2.5 py-1 bg-white/5 text-white/60 text-[10px] font-medium rounded-md border border-white/10 uppercase tracking-wider mb-1.5 inline-block font-mono">
               {formatCategoryLabel(lead.category)}
             </span>
-            <h3 className="font-extrabold text-base text-white hover:text-primary transition-colors">
+            <h3 className="font-bold text-base text-white hover:text-blue-400 transition-colors">
               <a href={lead.google_maps_url} target="_blank" rel="noopener noreferrer">
                 {lead.name}
               </a>
             </h3>
           </div>
 
-          <div className="flex items-center gap-1 text-xs font-bold text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded-lg border border-yellow-400/20 shrink-0">
+          <div className="flex items-center gap-1 text-xs font-semibold text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-lg border border-amber-400/20 shrink-0">
             <Star size={13} fill="currentColor" />
             <span>{lead.rating || "4.8"}</span>
             <span className="text-[10px] text-white/40">({lead.user_ratings_total || 12})</span>
@@ -1225,12 +1225,12 @@ function LeadCard({
         </div>
 
         {/* Endereço e Telefone */}
-        <div className="space-y-1 text-xs text-white/70">
-          <p className="flex items-start gap-1.5">
-            <MapPin size={14} className="text-primary shrink-0 mt-0.5" />
-            <span>{lead.address}</span>
+        <div className="space-y-1.5 text-xs text-white/70">
+          <p className="flex items-start gap-2">
+            <MapPin size={14} className="text-white/40 shrink-0 mt-0.5" />
+            <span className="line-clamp-2">{lead.address}</span>
           </p>
-          <p className="font-mono text-white/90 flex items-center gap-1.5">
+          <p className="font-mono text-white/90 flex items-center gap-2">
             <Phone size={14} className="text-emerald-400 shrink-0" />
             <span>{lead.phone}</span>
           </p>
@@ -1239,33 +1239,33 @@ function LeadCard({
         {/* Tag de Oportunidade */}
         <div className="flex flex-wrap items-center gap-2 pt-1">
           {!lead.has_website ? (
-            <span className="px-2.5 py-0.5 bg-amber-500/15 text-amber-300 text-[10px] font-extrabold rounded-full border border-amber-500/30 flex items-center gap-1">
+            <span className="px-2.5 py-1 bg-amber-500/10 text-amber-300 text-[10px] font-semibold rounded-md border border-amber-500/20 flex items-center gap-1.5">
               <Flame size={12} className="text-amber-400" />
-              <span>OPORTUNIDADE DE OURO (Sem Website)</span>
+              <span>Sem Website Registrado</span>
             </span>
           ) : (
-            <span className="px-2.5 py-0.5 bg-emerald-500/15 text-emerald-300 text-[10px] font-extrabold rounded-full border border-emerald-500/30 flex items-center gap-1">
+            <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-300 text-[10px] font-semibold rounded-md border border-emerald-500/20 flex items-center gap-1.5">
               <Globe size={12} />
               <span>Possui Website</span>
             </span>
           )}
 
           {lead.google_photos_count ? (
-            <span className="px-2.5 py-0.5 bg-white/5 text-white/70 text-[10px] font-semibold rounded-full border border-white/10 flex items-center gap-1">
+            <span className="px-2.5 py-1 bg-white/5 text-white/60 text-[10px] font-medium rounded-md border border-white/10 flex items-center gap-1.5">
               <ImageIcon size={12} />
-              <span>{lead.google_photos_count} Fotos do Google</span>
+              <span>{lead.google_photos_count} Fotos</span>
             </span>
           ) : null}
         </div>
       </div>
 
       {/* Botões de Ação Completa */}
-      <div className="pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
+      <div className="pt-3.5 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           {/* Salvar Lead */}
           <button
             onClick={onToggleSave}
-            className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-white/70 hover:text-white border border-white/10 transition-all"
+            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-white/70 hover:text-white border border-white/10 transition-all"
             title={isSaved ? "Remover dos Salvos" : "Salvar Lead"}
           >
             {isSaved ? <BookmarkCheck size={16} className="text-amber-400" /> : <Bookmark size={16} />}
@@ -1276,7 +1276,7 @@ function LeadCard({
             href={instaSearchUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-pink-300 border border-pink-500/30 rounded-xl text-xs font-bold transition-all"
+            className="p-2.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 rounded-xl transition-all"
             title="Buscar no Instagram"
           >
             <Instagram size={16} />
@@ -1287,7 +1287,7 @@ function LeadCard({
             href={lead.google_maps_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-bold transition-all"
+            className="p-2.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 rounded-xl transition-all"
             title="Abrir no Google Maps"
           >
             <MapPin size={16} />
@@ -1295,19 +1295,19 @@ function LeadCard({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Gerar Prévia (Abre o site de demonstração em 1-clique) */}
+          {/* Gerar Prévia */}
           <button
             onClick={onOpenDemoPage}
-            className="px-3.5 py-2 bg-gradient-to-r from-blue-500 to-teal-500 hover:opacity-90 text-black font-black text-xs rounded-xl transition-all shadow-md flex items-center gap-1.5"
+            className="px-4 py-2 bg-white hover:bg-gray-200 text-black font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5"
           >
             <Eye size={14} />
             <span>Gerar Prévia</span>
           </button>
 
-          {/* Botão de WhatsApp com Scripts */}
+          {/* Botão de WhatsApp */}
           <button
             onClick={onOpenScriptModal}
-            className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl transition-all shadow-md flex items-center gap-1.5"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5"
           >
             <MessageCircle size={14} />
             <span>WhatsApp</span>

@@ -1943,23 +1943,76 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
         <div className="fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm transition-all animate-in fade-in duration-200">
           <div className="w-full max-w-[420px] sm:max-w-md bg-[#111111] text-white h-full flex flex-col border-l border-white/10 shadow-2xl overflow-hidden">
             {/* Drawer Header */}
-            <div className="p-5 border-b border-white/5 flex items-center justify-between bg-[#111111]">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white">
-                  <Sliders size={18} />
+            <div className="p-5 border-b border-white/5 bg-[#111111] space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white">
+                    <Sliders size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm text-white">Editor & Opções do Site</h3>
+                    <p className="text-[11px] text-white/50">Personalize o design e exporte</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-sm text-white">Editar Site</h3>
-                  <p className="text-[11px] text-white/50">Personalize o design e conteúdo</p>
-                </div>
+                <button
+                  onClick={() => setIsEditorOpen(false)}
+                  className="p-2 rounded-xl bg-transparent hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                  title="Fechar painel"
+                >
+                  <X size={18} />
+                </button>
               </div>
-              <button
-                onClick={() => setIsEditorOpen(false)}
-                className="p-2 rounded-xl bg-transparent hover:bg-white/10 text-white/50 hover:text-white transition-colors"
-                title="Fechar painel"
-              >
-                <X size={18} />
-              </button>
+
+              {/* Toolbar de Ações Rápidas (Salvar, Compartilhar, HTML5, Prompt, IA) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                <button
+                  onClick={handleSavePreviewLocally}
+                  className={`px-2.5 py-2 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 border ${
+                    isSavedLocally
+                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                      : "bg-white/5 hover:bg-white/10 text-white/80 border-white/10"
+                  }`}
+                  title="Salvar prévia em Minhas Prévias"
+                >
+                  <Bookmark size={13} />
+                  <span>{isSavedLocally ? "Salvo!" : "Salvar"}</span>
+                </button>
+
+                <button
+                  onClick={handleSharePreview}
+                  className={`px-2.5 py-2 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 border ${
+                    copiedLink
+                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                      : "bg-white/5 hover:bg-white/10 text-white/80 border-white/10"
+                  }`}
+                  title="Copiar link da prévia para o cliente"
+                >
+                  <Share2 size={13} />
+                  <span>{copiedLink ? "Copiado!" : "Link"}</span>
+                </button>
+
+                <button
+                  onClick={handleDownloadHtml5}
+                  className="px-2.5 py-2 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 bg-white/5 hover:bg-white/10 text-white/80 border border-white/10"
+                  title="Baixar código HTML5 do site"
+                >
+                  <Download size={13} />
+                  <span>HTML5</span>
+                </button>
+
+                <button
+                  onClick={handleCopyRdgAiPrompt}
+                  className={`px-2.5 py-2 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 border ${
+                    copiedPrompt
+                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                      : "bg-white/5 hover:bg-white/10 text-white/80 border-white/10"
+                  }`}
+                  title="Copiar Prompt de criação para RDG AI"
+                >
+                  <Copy size={13} />
+                  <span>{copiedPrompt ? "Copiado!" : "Prompt"}</span>
+                </button>
+              </div>
             </div>
 
             {/* Drawer Tabs Header */}
