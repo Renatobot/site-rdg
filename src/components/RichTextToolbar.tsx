@@ -146,13 +146,27 @@ export function RichTextToolbar() {
       
       <div className="w-px h-5 bg-white/20 mx-1"></div>
       
-      <div className="relative group flex items-center justify-center p-1.5 hover:bg-white/10 rounded-md cursor-pointer">
-        <Baseline size={16} className="text-white" />
+      <div className="relative group flex items-center justify-center rounded-md">
+        <button
+          onMouseDown={(e) => {
+             e.preventDefault(); 
+             // We don't execute command here, just prevent focus loss.
+             // The click event will open the color picker.
+          }}
+          onClick={(e) => {
+             const input = e.currentTarget.nextElementSibling as HTMLInputElement;
+             if (input) input.click();
+          }}
+          className="p-1.5 hover:bg-white/10 rounded-md text-white transition-colors flex items-center justify-center cursor-pointer"
+          title="Cor do Texto"
+        >
+          <Baseline size={16} />
+        </button>
         <input
           type="color"
-          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+          className="absolute opacity-0 w-0 h-0 pointer-events-none"
+          tabIndex={-1}
           onChange={(e) => handleCommand("foreColor", e.target.value)}
-          title="Cor do Texto"
         />
       </div>
     </div>
