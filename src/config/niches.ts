@@ -1526,13 +1526,8 @@ export const NICHE_CONFIGS: Record<string, NicheConfig> = {
     desc: "Oferecemos o melhor atendimento e estrutura completa em Pastelaria para superar suas expectativas com máxima qualidade.",
     icon: Utensils,
     prettyCategoryName: "Pastelaria",
-    heroFallback: "https://image.pollinations.ai/prompt/professional%20pastelaria%20environment%20modern%20high%20quality%208k?width=1200&height=800&nologo=true&seed=441",
-    galleryFallback: [
-      "https://image.pollinations.ai/prompt/Pastelaria%20professional%20details%208k?width=800&height=600&nologo=true&seed=1",
-      "https://image.pollinations.ai/prompt/Pastelaria%20modern%20environment%208k?width=800&height=600&nologo=true&seed=2",
-      "https://image.pollinations.ai/prompt/Pastelaria%20service%20execution%208k?width=800&height=600&nologo=true&seed=3",
-      "https://image.pollinations.ai/prompt/Pastelaria%20high%20quality%20premium%208k?width=800&height=600&nologo=true&seed=4"
-    ],
+    heroFallback: "/assets/niche/pastel_hero.png",
+    galleryFallback: [["/assets/niche/pastel_gallery_1.png", "/assets/niche/pastel_gallery_2.png", "/assets/niche/pastel_gallery_3.png", "/assets/niche/pastel_gallery_4.png"],
     services: [
       { title: "Atendimento Personalizado", desc: "Soluções exclusivas e sob medida projetadas especificamente para sua necessidade.", price: "Consulte" },
       { title: "Consultoria Especializada", desc: "Acompanhamento profissional de ponta a ponta com especialistas do mercado.", price: "Consulte" },
@@ -6205,3 +6200,4 @@ export const NICHE_CONFIGS: Record<string, NicheConfig> = {
     ]
   }
 };
+

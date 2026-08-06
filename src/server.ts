@@ -178,6 +178,15 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const url = new URL(request.url);
+      
+      // SPA Fallback for RDG AI
+      if (url.pathname.startsWith("/rdg_ai") && !url.pathname.includes(".")) {
+        const indexUrl = new URL("/rdg_ai/index.html", request.url);
+        return await fetch(indexUrl.toString(), {
+          headers: request.headers,
+        });
+      }
+
       if (url.pathname === "/api/proxy") {
         return await handleProxyRequest(request);
       }
