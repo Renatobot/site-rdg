@@ -168,6 +168,28 @@ function ProspeccaoPage() {
     const savedKey = localStorage.getItem("google_places_api_key") || "";
     if (savedKey) setApiKey(savedKey);
 
+    const savedNicho = localStorage.getItem("prospeccao_last_nicho") || "";
+    if (savedNicho) setNicho(savedNicho);
+
+    const savedCidade = localStorage.getItem("prospeccao_last_cidade") || "";
+    if (savedCidade) setCidade(savedCidade);
+
+    const savedLastLeads = localStorage.getItem("prospeccao_last_leads");
+    if (savedLastLeads) {
+      try {
+        const parsed = JSON.parse(savedLastLeads);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setLeads(parsed);
+          setHasSearched(true);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    const savedNextToken = localStorage.getItem("prospeccao_last_next_page_token");
+    if (savedNextToken) setNextPageToken(savedNextToken);
+
     const saved = localStorage.getItem("saved_prospect_leads");
     if (saved) {
       try {
@@ -312,6 +334,19 @@ function ProspeccaoPage() {
       setLeads(fetchedLeads);
       setNextPageToken(token);
       setIsLoading(false);
+
+      try {
+        localStorage.setItem("prospeccao_last_nicho", targetNicho);
+        localStorage.setItem("prospeccao_last_cidade", targetCidade);
+        localStorage.setItem("prospeccao_last_leads", JSON.stringify(fetchedLeads));
+        if (token) {
+          localStorage.setItem("prospeccao_last_next_page_token", token);
+        } else {
+          localStorage.removeItem("prospeccao_last_next_page_token");
+        }
+      } catch (e) {
+        console.error("Erro ao salvar busca no LocalStorage:", e);
+      }
     }
   };
 
@@ -333,8 +368,21 @@ function ProspeccaoPage() {
         const newLeads = result.leads.filter(
           (newLead) => !leads.some((existing) => existing.id === newLead.id)
         );
-        setLeads((prev) => [...prev, ...newLeads]);
-        setNextPageToken(result.nextPageToken || null);
+        const updatedLeads = [...leads, ...newLeads];
+        const newToken = result.nextPageToken || null;
+        setLeads(updatedLeads);
+        setNextPageToken(newToken);
+
+        try {
+          localStorage.setItem("prospeccao_last_leads", JSON.stringify(updatedLeads));
+          if (newToken) {
+            localStorage.setItem("prospeccao_last_next_page_token", newToken);
+          } else {
+            localStorage.removeItem("prospeccao_last_next_page_token");
+          }
+        } catch (e) {
+          console.error("Erro ao atualizar LocalStorage ao carregar mais:", e);
+        }
       }
     } catch (err) {
       console.error("Erro ao carregar mais leads:", err);
