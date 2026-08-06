@@ -51,20 +51,6 @@ export interface ProspeccaoSearchResponse {
   googleStatus?: string;
 }
 
-async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 4500) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, { ...options, signal: controller.signal });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch (e) {
-    return null;
-  } finally {
-    clearTimeout(id);
-  }
-}
-
 export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
   .validator((d: ProspeccaoSearchInput) => d)
   .handler(async ({ data }): Promise<ProspeccaoSearchResponse> => {
@@ -87,23 +73,17 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
         ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${encodeURIComponent(data.pageToken)}&key=${apiKey}&language=pt-BR`
         : `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}&language=pt-BR`;
 
-      let json = await fetchWithTimeout(searchUrl, {}, 6000);
+      const res = await fetch(searchUrl);
+      const json = await res.json();
 
-      // Tratar ativação retardada do next_page_token do Google (INVALID_REQUEST requer ~1.5s de pausa)
-      if (json && json.status === "INVALID_REQUEST" && data.pageToken) {
-        await new Promise((r) => setTimeout(r, 1800));
-        json = await fetchWithTimeout(searchUrl, {}, 6000);
-      }
-
-      if (!json || (json.status !== "OK" && json.status !== "ZERO_RESULTS")) {
-        const status = json?.status || "TIMEOUT";
-        console.error("Google Places API error status:", status, json?.error_message);
+      if (json.status !== "OK" && json.status !== "ZERO_RESULTS") {
+        console.error("Google Places API error status:", json.status, json.error_message);
         return {
           success: false,
           leads: generateMockLeads(nicho, cidade, data.onlyNoWebsite),
           source: "google_error",
-          googleStatus: status,
-          message: json?.error_message || `Falha na Google API (Status: ${status}). Verifique se a Places API está ativada e se há Billing ativo no Google Cloud Console.`,
+          googleStatus: json.status || "ERROR",
+          message: json.error_message || `Falha na Google API (Status: ${json.status}). Verifique se a Places API está ativada e se há Billing ativo no Google Cloud Console.`,
         };
       }
 
@@ -119,36 +99,34 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
         };
       }
 
-      // Processar até 15 empresas principais simultaneamente com timeout individual
+      // Processar até 15 empresas em paralelo rápido
       const detailedLeadsProm = results.slice(0, 15).map(async (place: any): Promise<LeadItem> => {
         const placeId = place.place_id;
         let phone = "(11) 98888-7777";
         let rawPhone = "5511988887777";
         let website = place.website;
-        let photos: string[] = [];
-        let reviewsList: any[] = [];
-        let openingHours: string[] = [];
-        let editorialSummary = "";
 
-        // Consulta leve limitada estritamente aos campos Essentials com timeout de 3s
         try {
           const detailUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_phone_number,website,url&key=${apiKey}&language=pt-BR`;
-          const detailJson = await fetchWithTimeout(detailUrl, {}, 3500);
-
-          if (detailJson && detailJson.status === "OK" && detailJson.result) {
-            const r = detailJson.result;
-            if (r.website) website = r.website;
-            if (r.formatted_phone_number || r.international_phone_number) {
-              phone = r.formatted_phone_number || r.international_phone_number;
-              rawPhone = phone.replace(/\D/g, "");
+          const detailRes = await fetch(detailUrl);
+          if (detailRes.ok) {
+            const detailJson = await detailRes.json();
+            if (detailJson.status === "OK" && detailJson.result) {
+              const r = detailJson.result;
+              if (r.website) website = r.website;
+              if (r.formatted_phone_number || r.international_phone_number) {
+                phone = r.formatted_phone_number || r.international_phone_number;
+                rawPhone = phone.replace(/\D/g, "");
+              }
+              if (r.url) place.url = r.url;
             }
-            if (r.url) place.url = r.url;
           }
         } catch (e) {
-          console.error("Erro ao buscar Place Details para:", placeId, e);
+          // Ignora falhas de detalhes individuais para velocidade
         }
 
-        const instaSearchUrl = `https://www.google.com/search?q=site:instagram.com+${encodeURIComponent(`"${place.name}"`)}`;
+        const cleanName = place.name.split('-')[0].split('|')[0].trim();
+        const instaSearchUrl = `https://www.google.com/search?q=site:instagram.com+${encodeURIComponent(cleanName)}`;
         const waNumber = rawPhone.length > 5 ? (rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`) : "5511988887777";
         const waMsg = encodeURIComponent(
           `Olá! Encontrei o perfil de *${place.name}* no Google Maps e gostaria de enviar a demonstração do novo site oficial de vocês.`
@@ -169,11 +147,11 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
           whatsapp_link: `https://wa.me/${waNumber}?text=${waMsg}`,
           instagram_url: instaSearchUrl,
           instagram_handle: `@${place.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 14)}`,
-          google_photos_count: photos.length,
-          photos,
-          reviews_list: reviewsList,
-          opening_hours: openingHours,
-          editorial_summary: editorialSummary,
+          google_photos_count: place.photos?.length || 0,
+          photos: [],
+          reviews_list: [],
+          opening_hours: [],
+          editorial_summary: "",
           status: "novo",
         };
       });

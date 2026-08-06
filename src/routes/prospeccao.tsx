@@ -142,6 +142,8 @@ function ProspeccaoPage() {
   const [isConfigOpen, setIsConfigOpen] = useState<boolean>(false);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
+  const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState<boolean>(false);
   const [leads, setLeads] = useState<LeadItem[]>([]);
   const [savedLeads, setSavedLeads] = useState<LeadItem[]>([]);
