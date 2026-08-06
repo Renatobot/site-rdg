@@ -3,6 +3,7 @@ import { Bold, Italic, Underline, Baseline } from "lucide-react";
 
 export function RichTextToolbar() {
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
+  const [currentRange, setCurrentRange] = useState<Range | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const toolbarRef = useRef<HTMLDivElement>(null);
 
@@ -34,6 +35,7 @@ export function RichTextToolbar() {
 
       if (isEditable) {
         const range = selection.getRangeAt(0);
+        setCurrentRange(range.cloneRange());
         const rect = range.getBoundingClientRect();
         
         // Posição ajustada acima do texto selecionado
@@ -68,11 +70,43 @@ export function RichTextToolbar() {
   if (!position) return null;
 
   const handleCommand = (command: string, value: string | undefined = undefined) => {
+    const selection = window.getSelection();
+    let targetNode: HTMLElement | null = null;
+    
+    if (selection && currentRange) {
+      selection.removeAllRanges();
+      
+      // Se não houver texto selecionado (apenas o cursor piscando), vamos selecionar todo o conteúdo do elemento
+      if (currentRange.collapsed) {
+        let node = currentRange.startContainer;
+        let el = node.nodeType === 1 ? (node as HTMLElement) : (node.parentNode as HTMLElement);
+        while (el && !el.isContentEditable && el.parentElement) {
+          el = el.parentElement;
+        }
+        targetNode = el;
+        
+        const newRange = document.createRange();
+        newRange.selectNodeContents(el);
+        selection.addRange(newRange);
+      } else {
+        selection.addRange(currentRange);
+        
+        let node = currentRange.commonAncestorContainer;
+        let el = node.nodeType === 1 ? (node as HTMLElement) : (node.parentNode as HTMLElement);
+        while (el && !el.isContentEditable && el.parentElement) {
+          el = el.parentElement;
+        }
+        targetNode = el;
+      }
+    }
+    
+    try { document.execCommand("styleWithCSS", false, true as any); } catch(e) {}
     document.execCommand(command, false, value);
-    // Para forçar a atualização do React em componentes que dependem de innerHTML, dispararemos um blur no elemento ativo
-    const activeEl = document.activeElement;
-    if (activeEl && activeEl.getAttribute("contenteditable") === "true") {
-       activeEl.dispatchEvent(new Event("blur", { bubbles: true })); 
+    
+    // Disparar eventos no elemento correto (já que o botão de cor rouba o foco)
+    if (targetNode) {
+       targetNode.dispatchEvent(new Event("input", { bubbles: true })); 
+       targetNode.dispatchEvent(new Event("focusout", { bubbles: true })); 
     }
   };
 
