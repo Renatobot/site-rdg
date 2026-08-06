@@ -1736,11 +1736,13 @@ function CursosPage() {
                 <button 
                   disabled={activeModuleIdx === 0 && activeVideoIdx === 0}
                   onClick={() => {
-                    if (activeVideoIdx > 0) {
-                      setActiveVideoIdx(prev => prev - 1);
-                    } else if (activeModuleIdx > 0) {
-                      setActiveModuleIdx(prev => prev - 1);
-                      setActiveVideoIdx(activeCourse.modules[activeModuleIdx - 1].videos.length - 1);
+                    if (activeModuleIdx !== null) {
+                      if (activeVideoIdx > 0) {
+                        setActiveVideoIdx(prev => prev - 1);
+                      } else if (activeModuleIdx > 0) {
+                        setActiveModuleIdx(activeModuleIdx - 1);
+                        setActiveVideoIdx(activeCourse.modules[activeModuleIdx - 1].videos.length - 1);
+                      }
                     }
                   }}
                   className="px-4 py-2.5 bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5 text-xs font-bold rounded-xl border border-white/5 transition-colors flex items-center gap-2"
@@ -1749,13 +1751,15 @@ function CursosPage() {
                   Anterior
                 </button>
                 <button 
-                  disabled={activeModuleIdx === activeCourse.modules.length - 1 && activeVideoIdx === activeCourse.modules[activeModuleIdx].videos.length - 1}
+                  disabled={activeModuleIdx !== null && activeModuleIdx === activeCourse.modules.length - 1 && activeVideoIdx === activeCourse.modules[activeModuleIdx].videos.length - 1}
                   onClick={() => {
-                    if (activeVideoIdx < activeCourse.modules[activeModuleIdx].videos.length - 1) {
-                      setActiveVideoIdx(prev => prev + 1);
-                    } else if (activeModuleIdx < activeCourse.modules.length - 1) {
-                      setActiveModuleIdx(prev => prev + 1);
-                      setActiveVideoIdx(0);
+                    if (activeModuleIdx !== null) {
+                      if (activeVideoIdx < activeCourse.modules[activeModuleIdx].videos.length - 1) {
+                        setActiveVideoIdx(prev => prev + 1);
+                      } else if (activeModuleIdx < activeCourse.modules.length - 1) {
+                        setActiveModuleIdx(activeModuleIdx + 1);
+                        setActiveVideoIdx(0);
+                      }
                     }
                   }}
                   className="px-5 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-30 text-xs font-extrabold rounded-xl transition-all transform hover:scale-105 disabled:hover:scale-100 shadow-lg shadow-primary/20 flex items-center gap-2"

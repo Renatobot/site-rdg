@@ -169,8 +169,18 @@ function FullSiteDemoPage() {
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   const [activeEditorTab, setActiveEditorTab] = useState<"textos" | "imagens" | "servicos" | "cores" | "layout" | "design" | "cardapio">("textos");
 
+  // Global Edit Mode (WYSIWYG)
+  const [isGlobalEditMode, setIsGlobalEditMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("editModeChanged", { detail: isGlobalEditMode }));
+  }, [isGlobalEditMode]);
+
   // Custom Editable Override States
   const [editNome, setEditNome] = useState<string>("");
+  const [editHeroTitleHtml, setEditHeroTitleHtml] = useState<string>("");
+  const [editSummaryHtml, setEditSummaryHtml] = useState<string>("");
+  const [editHeroTaglineHtml, setEditHeroTaglineHtml] = useState<string>("");
   const [editCategoria, setEditCategoria] = useState<string>("");
   const [editCidade, setEditCidade] = useState<string>("");
   const [editEndereco, setEditEndereco] = useState<string>("");
@@ -1096,6 +1106,20 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
         {/* Linha 2 no mobile: Botões de Ação Scrolláveis Horizontalmente sem Quebra */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 sm:pb-0 scrollbar-none w-full sm:w-auto justify-start sm:justify-end">
+          {/* Botão de Toggle do Modo Edição */}
+          <button
+            onClick={() => setIsGlobalEditMode(!isGlobalEditMode)}
+            className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-[11px] font-bold rounded-md whitespace-nowrap shrink-0 transition-colors border ${
+              isGlobalEditMode 
+                ? "bg-purple-600/20 text-purple-400 border-purple-500/50 hover:bg-purple-600/30 ring-1 ring-purple-500"
+                : "bg-white/5 hover:bg-white/10 text-white/80 border-white/10"
+            }`}
+            title="Ao ativar, todos os textos e botões do site podem ser editados e formatados."
+          >
+            <Edit3 size={12} className={isGlobalEditMode ? "animate-pulse" : ""} />
+            {isGlobalEditMode ? "SAIR DO MODO EDIÇÃO" : "MODO EDIÇÃO"}
+          </button>
+
           {/* Botão para Gerar/Melhorar com IA Gratuita */}
           <button
             onClick={handleRegenerateWithAi}
@@ -1238,39 +1262,45 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
           <div className="lg:col-span-7 space-y-6">
             <div className="flex items-center gap-3">
               <span className="h-px w-10" style={{ background: config.accentColor }} />
-              <span 
-                contentEditable 
+              <span
+                contentEditable={isGlobalEditMode} 
                 suppressContentEditableWarning
-                onBlur={(e) => setEditTagline(e.currentTarget.innerText)}
+                onBlur={(e) => {
+                  setEditTagline(e.currentTarget.innerText);
+                  setEditHeroTaglineHtml(e.currentTarget.innerHTML);
+                }}
                 className="text-xs font-bold uppercase tracking-[0.35em] outline-none hover:ring-2 ring-white/20 rounded-md px-1 -mx-1" 
                 style={{ color: config.accentColor }}
-              >
-                {heroTagline}
-              </span>
+                dangerouslySetInnerHTML={{ __html: editHeroTaglineHtml || heroTagline }}
+              />
             </div>
 
             <h1
-              contentEditable 
+              contentEditable={isGlobalEditMode} 
               suppressContentEditableWarning
-              onBlur={(e) => setEditNome(e.currentTarget.innerText)}
+              onBlur={(e) => {
+                setEditNome(e.currentTarget.innerText);
+                setEditHeroTitleHtml(e.currentTarget.innerHTML);
+              }}
               className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.02] tracking-tight outline-none hover:ring-2 ring-white/20 rounded-xl px-2 -mx-2 transition-all"
               style={{
                 fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                 color: config.textColor,
               }}
-            >
-              {nome} <span className="italic" style={{ color: config.accentColor }}>{cidade}.</span>
-            </h1>
+              dangerouslySetInnerHTML={{ __html: editHeroTitleHtml || nome }}
+            />
 
             <p 
-              contentEditable 
+              contentEditable={isGlobalEditMode} 
               suppressContentEditableWarning
-              onBlur={(e) => setEditSummary(e.currentTarget.innerText)}
+              onBlur={(e) => {
+                setEditSummary(e.currentTarget.innerText);
+                setEditSummaryHtml(e.currentTarget.innerHTML);
+              }}
               className="text-base sm:text-lg max-w-xl leading-relaxed font-normal outline-none hover:ring-2 ring-white/20 rounded-xl px-2 -mx-2 transition-all" 
               style={{ color: config.mutedTextColor }}
-            >
-              {businessSummary}
-            </p>
+              dangerouslySetInnerHTML={{ __html: editSummaryHtml || businessSummary }}
+            />
 
             <div className="flex flex-wrap items-center gap-5 pt-2">
               <a
@@ -1585,7 +1615,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {galleryImages.map((imgUrl, i) => (
+            {galleryImages.map((imgUrl: string, i: number) => (
               <div key={i} className="group overflow-hidden rounded-2xl aspect-square border relative shadow-md bg-black/40 flex items-center justify-center p-1" style={{ borderColor: config.borderColor }}>
                 <img
                   src={imgUrl}
@@ -2819,5 +2849,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
     </>
   );
 }
+
+
 
 
