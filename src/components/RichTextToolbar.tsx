@@ -21,11 +21,11 @@ export function RichTextToolbar() {
         return;
       }
 
-      // Verifica se o elemento selecionado é contentEditable
+      // Verifica se o elemento selecionado é editável
       let isEditable = false;
       let node = selection.anchorNode;
       while (node) {
-        if (node.nodeType === 1 && (node as HTMLElement).getAttribute("contenteditable") === "true") {
+        if (node.nodeType === 1 && (node as HTMLElement).isContentEditable) {
           isEditable = true;
           break;
         }
@@ -51,7 +51,8 @@ export function RichTextToolbar() {
     // Ocultar ao clicar fora de um editável
     const handleMouseUp = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (!target.closest('[contenteditable="true"]') && !target.closest('.rich-text-toolbar')) {
+      const isEditableTarget = target.isContentEditable || target.closest('.rich-text-toolbar');
+      if (!isEditableTarget) {
          const selection = window.getSelection();
          if (selection && selection.isCollapsed) {
            setPosition(null);

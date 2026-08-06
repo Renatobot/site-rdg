@@ -1243,13 +1243,18 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-5 py-3 text-xs font-black uppercase tracking-[0.18em] transition-all shadow-xl flex items-center gap-2"
+            onClick={(e) => { if (isGlobalEditMode) e.preventDefault(); }}
+            className="px-5 py-3 text-xs font-black uppercase tracking-[0.18em] transition-all shadow-xl flex items-center gap-2 cursor-pointer"
             style={getButtonStyle()}
           >
             <MessageCircle size={15} />
-            <span className="hidden sm:inline">
-              {editBtnHeaderText || "Falar no WhatsApp"}
-            </span>
+            <span 
+              className="hidden sm:inline outline-none"
+              contentEditable={isGlobalEditMode}
+              suppressContentEditableWarning
+              onBlur={(e) => setEditBtnHeaderText(e.currentTarget.innerHTML)}
+              dangerouslySetInnerHTML={{ __html: editBtnHeaderText || "Falar no WhatsApp" }}
+            />
           </a>
         </div>
       </header>
@@ -1307,13 +1312,18 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => { if (isGlobalEditMode) e.preventDefault(); }}
                 className="group relative inline-flex items-center gap-2 px-8 py-4 text-xs sm:text-sm font-black uppercase tracking-[0.18em] transition-transform duration-300 hover:scale-105 shadow-2xl"
                 style={getButtonStyle()}
               >
                 <MessageCircle size={18} />
-                <span>
-                  {editBtnHeroText || "Agendar Atendimento"}
-                </span>
+                <span
+                  contentEditable={isGlobalEditMode} 
+                  suppressContentEditableWarning
+                  onBlur={(e) => setEditBtnHeroText(e.currentTarget.innerText)}
+                  className="outline-none"
+                  dangerouslySetInnerHTML={{ __html: editBtnHeroText || "Agendar Atendimento" }}
+                />
               </a>
 
               <a
@@ -1506,12 +1516,17 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] transition-all hover:opacity-80"
+              onClick={(e) => { if (isGlobalEditMode) e.preventDefault(); }}
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] transition-all hover:opacity-80 cursor-pointer"
               style={{ color: config.accentColor }}
             >
-              <span>
-                {editBtnServiceText || "Solicitar Atendimento"}
-              </span>
+              <span
+                className="outline-none"
+                contentEditable={isGlobalEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => setEditBtnServiceText(e.currentTarget.innerHTML)}
+                dangerouslySetInnerHTML={{ __html: editBtnServiceText || "Solicitar Atendimento" }}
+              />
               <ArrowUpRight size={16} />
             </a>
           </div>
@@ -1914,11 +1929,18 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 font-black uppercase tracking-[0.18em] transition-all shadow-xl"
+                onClick={(e) => { if (isGlobalEditMode) e.preventDefault(); }}
+                className="inline-flex items-center gap-2 px-6 py-3 font-black uppercase tracking-[0.18em] transition-all shadow-xl cursor-pointer"
                 style={getButtonStyle()}
               >
                 <MessageCircle size={16} />
-                <span>{editBtnFooterText || "Falar no WhatsApp"}</span>
+                <span
+                  className="outline-none"
+                  contentEditable={isGlobalEditMode}
+                  suppressContentEditableWarning
+                  onBlur={(e) => setEditBtnFooterText(e.currentTarget.innerHTML)}
+                  dangerouslySetInnerHTML={{ __html: editBtnFooterText || "Falar no WhatsApp" }}
+                />
               </a>
               
               <div className="pt-4 flex flex-col md:items-end gap-3">
