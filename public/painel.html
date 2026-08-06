@@ -399,6 +399,7 @@
                 <option value="Instagram">Extensão Instagram (instaPRO)</option>
                 <option value="Lovable">Extensão Lovable</option>
                 <option value="Prospecção B2B">Prospecção B2B (Google Maps)</option>
+                <option value="RDG AI">RDG AI (Plataforma IA)</option>
                 <option value="Master">Licença Master (Todos os Produtos)</option>
             </select>
         </div>
@@ -739,6 +740,7 @@
         let prefix = 'IG-';
         if (product.includes('Lovable')) prefix = 'LOVE-';
         else if (product.includes('Prospecção') || product.includes('B2B')) prefix = 'MAPS-';
+        else if (product.includes('RDG AI')) prefix = 'RDGAI-';
         else if (product.includes('Master')) prefix = 'MASTER-';
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let result = prefix;

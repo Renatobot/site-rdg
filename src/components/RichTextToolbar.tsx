@@ -109,11 +109,9 @@ export function RichTextToolbar() {
     try { document.execCommand("styleWithCSS", false, true as any); } catch(e) {}
     document.execCommand(command, false, value);
     
-    // Disparar eventos no elemento correto (já que o botão de cor rouba o foco)
-    if (targetNode) {
-       targetNode.dispatchEvent(new Event("input", { bubbles: true })); 
-       targetNode.dispatchEvent(new Event("focusout", { bubbles: true })); 
-    }
+    // NOTA: Não disparamos 'focusout' manualmente aqui porque isso faria o React recriar 
+    // o HTML interno via state (dangerouslySetInnerHTML), destruindo a seleção enquanto 
+    // o usuário arrasta o controle de cor. O onBlur natural cuidará de salvar o state.
   };
 
   return (
