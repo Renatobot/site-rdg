@@ -39,6 +39,7 @@ import {
   Type,
   Square
 } from "lucide-react";
+import { RichTextToolbar } from "@/components/RichTextToolbar";
 
 const TITLE = "Demonstração de Website — RDG Digital";
 const DESCRIPTION = "Página de demonstração de site de alta conversão para empresas locais.";
@@ -1012,6 +1013,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
   return (
     <>
+      <RichTextToolbar />
     <div
       className={`min-h-screen flex flex-col transition-colors duration-300 relative ${typography === 'serif' ? 'font-serif' : typography === 'mono' ? 'font-mono' : 'font-sans'} ${isGlass ? 'backdrop-blur-xl' : ''}`}
       style={{
