@@ -18,6 +18,9 @@ export function RichTextToolbar() {
       
       // Verifica se há seleção
       if (!selection || selection.rangeCount === 0) {
+        if (toolbarRef.current && toolbarRef.current.contains(document.activeElement)) {
+          return;
+        }
         setPosition(null);
         return;
       }
@@ -44,6 +47,9 @@ export function RichTextToolbar() {
           left: rect.left + window.scrollX + (rect.width / 2),
         });
       } else {
+        if (toolbarRef.current && toolbarRef.current.contains(document.activeElement)) {
+          return;
+        }
         setPosition(null);
       }
     };
