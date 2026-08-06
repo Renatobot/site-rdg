@@ -279,7 +279,9 @@ function ProspeccaoPage() {
   ) => {
     setIsLoading(true);
     setHasSearched(true);
+    setNextPageToken(null);
     let fetchedLeads: LeadItem[] = [];
+    let token: string | null = null;
     let source = targetApiKey ? "google_api" : "demo_mock";
     let googleStatus = "";
     let message = targetApiKey
@@ -298,6 +300,7 @@ function ProspeccaoPage() {
 
       if (result && Array.isArray(result.leads)) {
         fetchedLeads = result.leads;
+        token = result.nextPageToken || null;
         source = result.source || source;
         message = result.message || message;
         googleStatus = result.googleStatus || "";
@@ -307,7 +310,36 @@ function ProspeccaoPage() {
     } finally {
       setSourceInfo({ source, message, googleStatus });
       setLeads(fetchedLeads);
+      setNextPageToken(token);
       setIsLoading(false);
+    }
+  };
+
+  const handleLoadMore = async () => {
+    if (!nextPageToken || isFetchingMore) return;
+    setIsFetchingMore(true);
+    try {
+      const result = await getProspeccaoLeadsServerFn({
+        data: {
+          nicho: nicho || "Advocacia",
+          cidade: cidade || "São Paulo - SP",
+          onlyNoWebsite,
+          apiKey,
+          pageToken: nextPageToken,
+        },
+      });
+
+      if (result && Array.isArray(result.leads)) {
+        const newLeads = result.leads.filter(
+          (newLead) => !leads.some((existing) => existing.id === newLead.id)
+        );
+        setLeads((prev) => [...prev, ...newLeads]);
+        setNextPageToken(result.nextPageToken || null);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar mais leads:", err);
+    } finally {
+      setIsFetchingMore(false);
     }
   };
 
@@ -776,17 +808,36 @@ function ProspeccaoPage() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {leads.map((lead) => (
-                  <LeadCard
-                    key={lead.id}
-                    lead={lead}
-                    isSaved={isSaved(lead.id)}
-                    onToggleSave={() => toggleSaveLead(lead)}
-                    onOpenDemoPage={() => openDemoPage(lead)}
-                    onOpenScriptModal={() => setScriptLead(lead)}
-                  />
-                ))}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {leads.map((lead) => (
+                    <LeadCard
+                      key={lead.id}
+                      lead={lead}
+                      isSaved={isSaved(lead.id)}
+                      onToggleSave={() => toggleSaveLead(lead)}
+                      onOpenDemoPage={() => openDemoPage(lead)}
+                      onOpenScriptModal={() => setScriptLead(lead)}
+                    />
+                  ))}
+                </div>
+
+                {nextPageToken && (
+                  <div className="pt-4 flex justify-center">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={isFetchingMore}
+                      className="px-6 py-3 bg-white hover:bg-neutral-200 text-black font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {isFetchingMore ? (
+                        <Loader2 size={16} className="animate-spin text-black" />
+                      ) : (
+                        <ChevronRight size={16} />
+                      )}
+                      <span>{isFetchingMore ? "Buscando Próxima Página do Google..." : "Carregar Mais Leads (Google Maps)"}</span>
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

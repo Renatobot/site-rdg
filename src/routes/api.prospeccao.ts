@@ -34,6 +34,7 @@ export interface ProspeccaoSearchInput {
   nicho: string;
   cidade: string;
   apiKey?: string;
+  pageToken?: string;
   onlyNoWebsite?: boolean;
   onlyWithPhotos?: boolean;
   onlyWithWhatsapp?: boolean;
@@ -44,6 +45,7 @@ export interface ProspeccaoSearchInput {
 export interface ProspeccaoSearchResponse {
   success: boolean;
   leads: LeadItem[];
+  nextPageToken?: string;
   source: "google_api" | "demo_mock" | "google_error";
   message?: string;
   googleStatus?: string;
@@ -67,7 +69,9 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
 
     try {
       const query = `${nicho} em ${cidade}`;
-      const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}&language=pt-BR`;
+      const searchUrl = data.pageToken 
+        ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${encodeURIComponent(data.pageToken)}&key=${apiKey}&language=pt-BR`
+        : `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}&language=pt-BR`;
 
       const res = await fetch(searchUrl);
       const json = await res.json();
@@ -84,6 +88,8 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
       }
 
       const results = json.results || [];
+      const nextPageToken = json.next_page_token || undefined;
+
       if (results.length === 0) {
         return {
           success: true,
@@ -176,6 +182,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
       return {
         success: true,
         leads,
+        nextPageToken,
         source: "google_api",
         message: `Busca ao vivo realizada! Retornados ${leads.length} resultados reais do Google Maps.`,
       };
