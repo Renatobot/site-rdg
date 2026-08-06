@@ -3,7 +3,6 @@ import { Bold, Italic, Underline, Baseline } from "lucide-react";
 
 export function RichTextToolbar() {
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
-  const [currentRange, setCurrentRange] = useState<Range | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const toolbarRef = useRef<HTMLDivElement>(null);
 
@@ -38,7 +37,6 @@ export function RichTextToolbar() {
 
       if (isEditable) {
         const range = selection.getRangeAt(0);
-        setCurrentRange(range.cloneRange());
         const rect = range.getBoundingClientRect();
         
         // Posição ajustada acima do texto selecionado
@@ -77,32 +75,22 @@ export function RichTextToolbar() {
 
   const handleCommand = (command: string, value: string | undefined = undefined) => {
     const selection = window.getSelection();
-    let targetNode: HTMLElement | null = null;
     
-    if (selection && currentRange) {
-      selection.removeAllRanges();
-      
+    if (selection) {
       // Se não houver texto selecionado (apenas o cursor piscando), vamos selecionar todo o conteúdo do elemento
-      if (currentRange.collapsed) {
-        let node = currentRange.startContainer;
+      if (selection.isCollapsed && selection.anchorNode) {
+        let node = selection.anchorNode;
         let el = node.nodeType === 1 ? (node as HTMLElement) : (node.parentNode as HTMLElement);
         while (el && !el.isContentEditable && el.parentElement) {
           el = el.parentElement;
         }
-        targetNode = el;
         
-        const newRange = document.createRange();
-        newRange.selectNodeContents(el);
-        selection.addRange(newRange);
-      } else {
-        selection.addRange(currentRange);
-        
-        let node = currentRange.commonAncestorContainer;
-        let el = node.nodeType === 1 ? (node as HTMLElement) : (node.parentNode as HTMLElement);
-        while (el && !el.isContentEditable && el.parentElement) {
-          el = el.parentElement;
+        if (el && el.isContentEditable) {
+          const newRange = document.createRange();
+          newRange.selectNodeContents(el);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
         }
-        targetNode = el;
       }
     }
     
