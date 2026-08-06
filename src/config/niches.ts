@@ -1527,7 +1527,7 @@ export const NICHE_CONFIGS: Record<string, NicheConfig> = {
     icon: Utensils,
     prettyCategoryName: "Pastelaria",
     heroFallback: "/assets/niche/pastel_hero.png",
-    galleryFallback: [["/assets/niche/pastel_gallery_1.png", "/assets/niche/pastel_gallery_2.png", "/assets/niche/pastel_gallery_3.png", "/assets/niche/pastel_gallery_4.png"],
+    galleryFallback: ["/assets/niche/pastel_gallery_1.png", "/assets/niche/pastel_gallery_2.png", "/assets/niche/pastel_gallery_3.png", "/assets/niche/pastel_gallery_4.png"],
     services: [
       { title: "Atendimento Personalizado", desc: "Soluções exclusivas e sob medida projetadas especificamente para sua necessidade.", price: "Consulte" },
       { title: "Consultoria Especializada", desc: "Acompanhamento profissional de ponta a ponta com especialistas do mercado.", price: "Consulte" },
