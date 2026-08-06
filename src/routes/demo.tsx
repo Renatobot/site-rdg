@@ -1749,6 +1749,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
   };
 
   return (
+    <>
     <div
       className={`min-h-screen flex flex-col transition-colors duration-300 relative ${typography === 'serif' ? 'font-serif' : typography === 'mono' ? 'font-mono' : 'font-sans'} ${isGlass ? 'backdrop-blur-xl' : ''}`}
       style={{
@@ -2712,6 +2713,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
           </div>
         </div>
       </footer>
+    </div>
 
       {/* PAINEL LATERAL DE PERSONALIZAÇÃO AO VIVO DO SITE (LIVE CUSTOMIZER DRAWER) */}
       {isEditorOpen && (
@@ -3562,6 +3564,6 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
