@@ -1072,122 +1072,39 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
         </div>
       )}
 
-      {/* TOP CONTROL BAR DE DEMONSTRAÇÃO E FERRAMENTAS DO PROSPECTOR */}
+      {/* FLOATING ACTION BUTTONS (FAB) - CONTROLES DE EDIÇÃO */}
       {search.mode !== "view" && (
-      <div
-        className="p-2 sm:p-2.5 px-3 sm:px-4 text-xs font-bold flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shadow-xl sticky top-0 z-50 transition-colors border-b"
-        style={{
-          backgroundColor: "#0B0E17",
-          color: "#FAFAFA",
-          borderColor: currentPalette.border,
-        }}
-      >
-        {/* Linha 1 no mobile: Nome + Cores */}
-        <div className="flex items-center justify-between gap-2 w-full sm:w-auto">
-          <div className="flex items-center gap-1.5 truncate">
-            <Sparkles size={13} className="animate-pulse shrink-0" style={{ color: currentPalette.accent }} />
-            <span className="truncate text-[11px] sm:text-xs">
-              PRÉVIA: <strong style={{ color: currentPalette.accent }}>{nome.toUpperCase()}</strong>
-            </span>
-          </div>
-
-          {/* Seletor de Cores */}
-          <div className="flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10 shrink-0">
-            <span className="text-[9px] text-white/50 px-1 font-mono uppercase hidden sm:inline">Cor:</span>
-            {Object.entries(colorPalettes).map(([key, val]) => (
-              <button
-                key={key}
-                onClick={() => setSelectedColor(key)}
-                className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full transition-transform ${selectedColor === key ? "scale-125 ring-2 ring-white" : "hover:scale-110 opacity-70"}`}
-                style={{ backgroundColor: val.accent }}
-                title={`Trocar cor para ${key}`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Linha 2 no mobile: Botões de Ação Scrolláveis Horizontalmente sem Quebra */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 sm:pb-0 scrollbar-none w-full sm:w-auto justify-start sm:justify-end">
+        <div className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-[90] flex flex-col gap-3">
           {/* Botão de Toggle do Modo Edição */}
           <button
             onClick={() => setIsGlobalEditMode(!isGlobalEditMode)}
-            className={`flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-[11px] font-bold rounded-md whitespace-nowrap shrink-0 transition-colors border ${
+            className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative border ${
               isGlobalEditMode 
-                ? "bg-purple-600/20 text-purple-400 border-purple-500/50 hover:bg-purple-600/30 ring-1 ring-purple-500"
-                : "bg-white/5 hover:bg-white/10 text-white/80 border-white/10"
+                ? "bg-purple-600 text-white border-purple-400 hover:bg-purple-500 ring-2 ring-purple-500/30"
+                : "bg-[#111218]/90 backdrop-blur-md hover:bg-[#1A1F2E] text-white border-white/10"
             }`}
-            title="Ao ativar, todos os textos e botões do site podem ser editados e formatados."
           >
-            <Edit3 size={12} className={isGlobalEditMode ? "animate-pulse" : ""} />
-            {isGlobalEditMode ? "SAIR DO MODO EDIÇÃO" : "MODO EDIÇÃO"}
+            <Type size={20} className={isGlobalEditMode ? "animate-pulse" : ""} />
+            
+            {/* Tooltip Hover */}
+            <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#111218] border border-white/10 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
+              {isGlobalEditMode ? "Sair do Modo Edição" : "Editar Textos na Tela"}
+            </div>
           </button>
 
-          {/* Botão para Gerar/Melhorar com IA Gratuita */}
-          <button
-            onClick={handleRegenerateWithAi}
-            className="px-2.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all flex items-center gap-1 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 shrink-0"
-            title="Reescrever textos e melhorar o site com IA Gratuita (Pollinations)"
-          >
-            <Sparkles size={12} className="text-purple-300 animate-pulse" />
-            <span>✨ Re-gerar com IA</span>
-          </button>
-
-          {/* Botão de Edição e Personalização Completa */}
+          {/* Botão de Edição Completa (Painel Lateral) */}
           <button
             onClick={() => setIsEditorOpen(true)}
-            className="px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-extrabold transition-all flex items-center gap-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black shadow-lg shadow-amber-500/20 active:scale-95 shrink-0"
-            title="Abrir painel para editar textos, fotos, serviços e dados do site"
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative bg-white text-black hover:bg-gray-100 border border-white/20 hover:scale-105"
           >
-            <Edit3 size={12} />
-            <span>✏️ Editar <span className="hidden sm:inline">Site / Fotos</span></span>
-          </button>
-
-          {/* Salvar nas Minhas Prévias */}
-          <button
-            onClick={handleSavePreviewLocally}
-            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all flex items-center gap-1 border shrink-0 ${
-              isSavedLocally
-                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                : "bg-white/10 hover:bg-white/20 text-white border-white/15"
-            }`}
-          >
-            <span>{isSavedLocally ? "✓ Salvo" : "💾 Salvar"}</span>
-          </button>
-
-          {/* Copiar Prompt para RDG AI */}
-          <button
-            onClick={handleCopyRdgAiPrompt}
-            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all flex items-center gap-1 border shrink-0 ${
-              copiedPrompt
-                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                : "bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border-purple-500/40"
-            }`}
-          >
-            <span>{copiedPrompt ? "✓ Copiado!" : "📋 Prompt AI"}</span>
-          </button>
-
-          {/* Compartilhar Link da Prévia */}
-          <button
-            onClick={handleSharePreview}
-            className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all flex items-center gap-1 border shrink-0 ${
-              copiedLink
-                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                : "bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 border-blue-500/40"
-            }`}
-            title="Copiar link com as configurações para enviar ao cliente"
-          >
-            <span>{copiedLink ? "✓ Link Copiado!" : "🔗 Compartilhar"}</span>
-          </button>
-
-          {/* Baixar Site HTML5 */}
-          <button
-            onClick={handleDownloadHtml5}
-            className="px-2.5 sm:px-3.5 py-1.5 font-extrabold rounded-lg transition-all text-[10px] sm:text-[11px] flex items-center gap-1 shadow-lg shadow-emerald-600/20 bg-emerald-600 hover:bg-emerald-500 text-white shrink-0"
-          >
-            <span>📥 HTML5</span>
+            <Sliders size={22} />
+            
+            {/* Tooltip Hover */}
+            <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
+              Personalizar Design & Imagens
+            </div>
           </button>
         </div>
-      </div>
       )}
 
       {/* Main Header Estilo Personalizado por Nicho */}
@@ -2023,22 +1940,22 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
       {/* PAINEL LATERAL DE PERSONALIZAÇÃO AO VIVO DO SITE (LIVE CUSTOMIZER DRAWER) */}
       {isEditorOpen && (
-        <div className="fixed inset-0 z-[100] flex justify-end bg-black/70 backdrop-blur-sm transition-all animate-in fade-in duration-200">
-          <div className="w-full max-w-lg bg-[#0F121C] text-white h-full flex flex-col border-l border-white/15 shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm transition-all animate-in fade-in duration-200">
+          <div className="w-full max-w-[420px] sm:max-w-md bg-[#111111] text-white h-full flex flex-col border-l border-white/10 shadow-2xl overflow-hidden">
             {/* Drawer Header */}
-            <div className="p-4 px-5 border-b border-white/10 flex items-center justify-between bg-[#151926]">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
-                  <Edit3 size={16} />
+            <div className="p-5 border-b border-white/5 flex items-center justify-between bg-[#111111]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white">
+                  <Sliders size={18} />
                 </div>
                 <div>
-                  <h3 className="font-black text-sm text-white">Editar & Personalizar Prévia</h3>
-                  <p className="text-[10px] text-white/50">Edite textos, fotos e serviços em tempo real</p>
+                  <h3 className="font-semibold text-sm text-white">Editar Site</h3>
+                  <p className="text-[11px] text-white/50">Personalize o design e conteúdo</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsEditorOpen(false)}
-                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                className="p-2 rounded-xl bg-transparent hover:bg-white/10 text-white/50 hover:text-white transition-colors"
                 title="Fechar painel"
               >
                 <X size={18} />
@@ -2046,71 +1963,71 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             </div>
 
             {/* Drawer Tabs Header */}
-            <div className="flex overflow-x-auto no-scrollbar border-b border-white/10 bg-[#0B0D14] p-1.5 gap-1 shrink-0">
+            <div className="flex overflow-x-auto no-scrollbar border-b border-white/5 bg-[#161616] p-2 gap-1.5 shrink-0">
               <button
                 onClick={() => setActiveEditorTab("layout")}
-                className={`flex-none px-3 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-none px-3.5 py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                   activeEditorTab === "layout"
-                    ? "bg-amber-500 text-black shadow-md font-extrabold"
+                    ? "bg-white text-black shadow-md"
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
-                <LayoutTemplate size={13} />
+                <LayoutTemplate size={14} />
                 <span>Layout</span>
               </button>
               <button
                 onClick={() => setActiveEditorTab("design")}
-                className={`flex-none px-3 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-none px-3.5 py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                   activeEditorTab === "design"
-                    ? "bg-amber-500 text-black shadow-md font-extrabold"
+                    ? "bg-white text-black shadow-md"
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
-                <Palette size={13} />
+                <Palette size={14} />
                 <span>Design</span>
               </button>
               <button
                 onClick={() => setActiveEditorTab("textos")}
-                className={`flex-none px-3 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-none px-3.5 py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                   activeEditorTab === "textos"
-                    ? "bg-amber-500 text-black shadow-md font-extrabold"
+                    ? "bg-white text-black shadow-md"
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
-                <FileText size={13} />
+                <FileText size={14} />
                 <span>Textos</span>
               </button>
               <button
                 onClick={() => setActiveEditorTab("imagens")}
-                className={`flex-none px-3 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-none px-3.5 py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                   activeEditorTab === "imagens"
-                    ? "bg-amber-500 text-black shadow-md font-extrabold"
+                    ? "bg-white text-black shadow-md"
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
-                <Image size={13} />
+                <Image size={14} />
                 <span>Fotos</span>
               </button>
               <button
                 onClick={() => setActiveEditorTab("servicos")}
-                className={`flex-none px-3 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-none px-3.5 py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                   activeEditorTab === "servicos"
-                    ? "bg-amber-500 text-black shadow-md font-extrabold"
+                    ? "bg-white text-black shadow-md"
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
-                <Sliders size={13} />
+                <Sliders size={14} />
                 <span>Serviços</span>
               </button>
               <button
                 onClick={() => setActiveEditorTab("cardapio")}
-                className={`flex-none px-3 py-2 text-[11px] font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-none px-3.5 py-2 text-[11px] font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                   activeEditorTab === "cardapio"
-                    ? "bg-amber-500 text-black shadow-md font-extrabold"
+                    ? "bg-white text-black shadow-md"
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
-                <Grid3x3 size={13} />
+                <Grid3x3 size={14} />
                 <span>Cardápio</span>
               </button>
             </div>
@@ -2849,22 +2766,14 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               )}
             </div>
 
-            {/* Drawer Footer */}
-            <div className="p-4 px-5 border-t border-white/10 bg-[#151926] flex items-center justify-between gap-3">
-              <button
-                onClick={handleResetCustomizations}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1.5"
-              >
-                <RotateCcw size={14} />
-                <span>Resetar Edições</span>
-              </button>
-
+            {/* Footer */}
+            <div className="p-4 border-t border-white/5 bg-[#111111] flex items-center justify-end shrink-0">
               <button
                 onClick={() => setIsEditorOpen(false)}
-                className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs rounded-xl shadow-lg transition-transform active:scale-95 flex items-center gap-1.5"
+                className="px-6 py-2.5 bg-white hover:bg-gray-200 text-black font-bold text-xs rounded-lg shadow-lg transition-transform active:scale-95 flex items-center gap-2"
               >
-                <Check size={15} />
-                <span>Salvar & Ver Prévia</span>
+                <Check size={16} />
+                <span>Concluir Edição</span>
               </button>
             </div>
           </div>
