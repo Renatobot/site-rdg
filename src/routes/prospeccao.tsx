@@ -872,7 +872,7 @@ function ProspeccaoPage() {
                   ))}
                 </div>
 
-                {(nextPageToken || leads.length > 0) && (
+                {nextPageToken ? (
                   <div className="pt-4 flex justify-center">
                     <button
                       onClick={handleLoadMore}
@@ -884,8 +884,15 @@ function ProspeccaoPage() {
                       ) : (
                         <ChevronRight size={16} />
                       )}
-                      <span>{isFetchingMore ? "Buscando Mais Empresas..." : "Carregar Mais Leads (Google Maps)"}</span>
+                      <span>{isFetchingMore ? "Buscando Mais Empresas no Google..." : "Carregar Mais Leads (Google Maps)"}</span>
                     </button>
+                  </div>
+                ) : (
+                  <div className="pt-4 flex justify-center">
+                    <div className="px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white/50 text-xs font-medium flex items-center gap-2">
+                      <Check size={14} className="text-emerald-400" />
+                      <span>Todas as empresas do Google Maps para esta região já foram carregadas ({leads.length} resultados)</span>
+                    </div>
                   </div>
                 )}
               </div>
