@@ -61,7 +61,8 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
     if (!apiKey) {
       return {
         success: true,
-        leads: generateMockLeads(nicho, cidade, data.onlyNoWebsite),
+        leads: generateMockLeads(nicho, cidade, data.onlyNoWebsite, Boolean(data.pageToken)),
+        nextPageToken: "demo_next_page",
         source: "demo_mock",
         message: "Demonstração com dados simulados. Insira sua chave da Google Places API nas configurações para buscar ao vivo.",
       };
@@ -99,7 +100,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
         };
       }
 
-      // Processar até 15 empresas em paralelo rápido
+      // Processar até 15 empresas em paralelo rápido (SEM BUSCAR OU CONSUMIR FOTOS DO GOOGLE PLACES)
       const detailedLeadsProm = results.slice(0, 15).map(async (place: any): Promise<LeadItem> => {
         const placeId = place.place_id;
         let phone = "(11) 98888-7777";
@@ -107,6 +108,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
         let website = place.website;
 
         try {
+          // Apenas campos de texto gratuitos (Essentials: name, formatted_phone_number, website, url)
           const detailUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_phone_number,website,url&key=${apiKey}&language=pt-BR`;
           const detailRes = await fetch(detailUrl);
           if (detailRes.ok) {
@@ -147,7 +149,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
           whatsapp_link: `https://wa.me/${waNumber}?text=${waMsg}`,
           instagram_url: instaSearchUrl,
           instagram_handle: `@${place.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 14)}`,
-          google_photos_count: place.photos?.length || 0,
+          google_photos_count: 0,
           photos: [],
           reviews_list: [],
           opening_hours: [],
@@ -161,19 +163,6 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
       // Aplicar ordenação: Sem Website primeiro
       if (data.onlyNoWebsite) {
         leads.sort((a, b) => (a.has_website === b.has_website ? 0 : a.has_website ? 1 : -1));
-      }
-
-      // Aplicar filtros avançados
-      if (data.onlyWithPhotos) {
-        leads = leads.filter((l) => (l.google_photos_count || 0) > 0 || (l.photos && l.photos.length > 0));
-      }
-
-      if (data.minReviewsCount && data.minReviewsCount > 0) {
-        leads = leads.filter((l) => l.user_ratings_total >= (data.minReviewsCount || 0));
-      }
-
-      if (data.onlyWithWhatsapp) {
-        leads = leads.filter((l) => l.raw_phone && l.raw_phone.length >= 8);
       }
 
       return {
@@ -194,16 +183,17 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
     }
   });
 
-export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite = true): LeadItem[] {
+export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite = true, isPage2 = false): LeadItem[] {
+  const prefix = isPage2 ? "Nova " : "";
   const sampleNames = [
-    `${nicho} Imperial`,
-    `Grupo ${nicho} & Associados`,
-    `Estúdio ${nicho} Prime`,
-    `Centro de ${nicho} ${cidade.split("-")[0].trim()}`,
-    `${nicho} Excellence`,
-    `Clínica ${nicho} Vida`,
-    `${nicho} Conceito VIP`,
-    `Oficina ${nicho} São José`,
+    `${prefix}${nicho} Imperial`,
+    `Grupo ${prefix}${nicho} & Associados`,
+    `Estúdio ${prefix}${nicho} Prime`,
+    `Centro de ${prefix}${nicho} ${cidade.split("-")[0].trim()}`,
+    `${prefix}${nicho} Excellence`,
+    `Clínica ${prefix}${nicho} Vida`,
+    `${prefix}${nicho} Conceito VIP`,
+    `Oficina ${prefix}${nicho} São José`,
   ];
 
   const mockLeads: LeadItem[] = sampleNames.map((name, index) => {
@@ -213,7 +203,7 @@ export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite =
     const rawPhone = `55119${Math.floor(10000000 + Math.random() * 90000000)}`;
 
     return {
-      id: `mock_lead_${index}_${Date.now()}`,
+      id: `mock_lead_${index}_${isPage2 ? "p2_" : ""}${Date.now()}`,
       name,
       category: nicho,
       address: `Av. Paulista, ${100 + index * 150} - Bairro Central, ${cidade}`,
@@ -227,25 +217,11 @@ export function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite =
       whatsapp_link: `https://wa.me/${rawPhone}?text=${encodeURIComponent(`Olá! Gostaria de enviar a demonstração do novo site oficial de ${name}.`)}`,
       instagram_url: `https://www.instagram.com/${cleanName}/`,
       instagram_handle: `@${cleanName}`,
-      google_photos_count: 6,
-      photos: [
-        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=800&q=80"
-      ],
-      reviews_list: [
-        { author_name: "Marcos Silva", rating: 5, text: "Excelente atendimento e ambiente super agradável. Recomendo muito!", relative_time_description: "há 1 semana" },
-        { author_name: "Fernanda Lima", rating: 5, text: "Serviço de altíssima qualidade e profissionais atenciosos.", relative_time_description: "há 3 semanas" }
-      ],
-      opening_hours: [
-        "segunda-feira: 09:00 – 19:00",
-        "terça-feira: 09:00 – 19:00",
-        "quarta-feira: 09:00 – 19:00",
-        "quinta-feira: 09:00 – 19:00",
-        "sexta-feira: 09:00 – 19:00",
-        "sábado: 09:00 – 16:00"
-      ],
-      editorial_summary: `${name} é uma empresa de ${nicho} com excelente reputação e atendimento diferenciado na região de ${cidade}.`,
+      google_photos_count: 0,
+      photos: [],
+      reviews_list: [],
+      opening_hours: [],
+      editorial_summary: "",
       status: "novo",
     };
   });

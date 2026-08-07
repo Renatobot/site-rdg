@@ -843,7 +843,7 @@ function ProspeccaoPage() {
               <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-white/10">
                 <Loader2 size={36} className="animate-spin text-primary mx-auto" />
                 <p className="text-sm font-bold text-white">Buscando empresas no Google Maps...</p>
-                <p className="text-xs text-white/40">Filtrando telefones, Instagram e fotos reais do local</p>
+                <p className="text-xs text-white/40">Filtrando telefones e perfis sociais do local (dados de texto gratuitos)</p>
               </div>
             ) : leads.length === 0 ? (
               <div className="py-16 text-center space-y-4 bg-[#111218] rounded-3xl border border-white/10 p-8 max-w-2xl mx-auto shadow-2xl">
@@ -872,7 +872,7 @@ function ProspeccaoPage() {
                   ))}
                 </div>
 
-                {nextPageToken && (
+                {(nextPageToken || leads.length > 0) && (
                   <div className="pt-4 flex justify-center">
                     <button
                       onClick={handleLoadMore}
@@ -884,7 +884,7 @@ function ProspeccaoPage() {
                       ) : (
                         <ChevronRight size={16} />
                       )}
-                      <span>{isFetchingMore ? "Buscando Próxima Página do Google..." : "Carregar Mais Leads (Google Maps)"}</span>
+                      <span>{isFetchingMore ? "Buscando Mais Empresas..." : "Carregar Mais Leads (Google Maps)"}</span>
                     </button>
                   </div>
                 )}
