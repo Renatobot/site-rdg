@@ -581,9 +581,24 @@ function ScriptGeneratorShowcase() {
 
 function BonusSection() {
   const bonuses = [
-    { title: "Bônus #1: +700 Prompts de IA para Fotografia", desc: "Biblioteca completa de prompts para criar fotos profissionais para os sites." },
-    { title: "Bônus #2: Script Generator Comercial WhatsApp", desc: "3 modelos de mensagens de abordagem pré-preenchidas para alta conversão." },
-    { title: "Bônus #3: Plataforma de Cursos RDG", desc: "Acesso a aulas de tráfego pago, criação de criativos e vendas B2B." },
+    {
+      badge: "LIBERADO",
+      badgeColor: "text-[#38BDF8] border-[#38BDF8]/30 bg-[#38BDF8]/10",
+      title: "Plataforma de Cursos RDG",
+      desc: "Treinamentos completos de tráfego pago, edições no CapCut, copy e vendas.",
+    },
+    {
+      badge: "+700 PROMPTS DE IA",
+      badgeColor: "text-amber-400 border-amber-400/30 bg-amber-400/10",
+      title: "Prompts de IA para Fotografia",
+      desc: "700+ prompts de referências prontas para transformar um retrato comum em ensaio autoral. Escolha um enquadramento, copie o prompt e leve para o seu gerador preferido.",
+    },
+    {
+      badge: "SUPORTE VIP",
+      badgeColor: "text-[#25D366] border-[#25D366]/30 bg-[#25D366]/10",
+      title: "Atendimento no WhatsApp",
+      desc: "Tire dúvidas técnicas da sua licença e receba auxílio direto da equipe.",
+    },
   ];
 
   return (
@@ -594,12 +609,16 @@ function BonusSection() {
           Tudo o que você precisa para escalar sua operação B2B.
         </h2>
 
-        <div className="mt-16 grid gap-6 sm:grid-cols-3">
+        <div className="mt-16 grid gap-6 sm:grid-cols-3 text-left">
           {bonuses.map((b, i) => (
-            <div key={i} className="border border-white/10 p-6 text-left bg-white/[0.02]">
-              <span className="text-xs font-mono text-amber-400 font-bold">✨ BÔNUS INCLUSO</span>
-              <h3 className="mt-3 text-lg font-bold text-white">{b.title}</h3>
-              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{b.desc}</p>
+            <div key={i} className="border border-white/10 p-6 rounded-2xl bg-[#0F1117] space-y-4 hover:border-white/20 transition-all shadow-xl flex flex-col justify-between">
+              <div className="space-y-3">
+                <span className={`inline-block text-[10px] font-mono font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-md border ${b.badgeColor}`}>
+                  {b.badge}
+                </span>
+                <h3 className="text-xl font-bold text-white tracking-tight">{b.title}</h3>
+                <p className="text-xs text-white/60 leading-relaxed">{b.desc}</p>
+              </div>
             </div>
           ))}
         </div>
