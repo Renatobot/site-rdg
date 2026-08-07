@@ -942,61 +942,6 @@ function MembrosPage() {
                 </div>
               </div>
 
-              {/* CARD 3: PROSPECÇÃO B2B (AZUL / GOOGLE ACCENT) */}
-              <div className="border border-[#4285F4]/40 bg-[#0A0A0A] hover:border-[#4285F4] transition-all flex flex-col justify-between group">
-                <div className="p-6 space-y-5">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#4285F4] flex items-center gap-1.5 font-bold">
-                      🗺️ PROSPECÇÃO B2B
-                    </span>
-                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#4285F4]/40 bg-[#4285F4]/10 text-blue-300">
-                      EM BREVE
-                    </span>
-                  </div>
-
-                  {/* Mockup Retangular Estilo Terminal RDG */}
-                  <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
-                    <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#4285F4]">
-                      <span>Google Maps Scraper</span>
-                      <span className="text-amber-400">EM BREVE</span>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground">
-                      &gt; Filtro de empresas SEM site ativo
-                    </p>
-                    <div className="flex justify-between text-[9px] text-[#4285F4] pt-1 font-bold">
-                      <span>STATUS: EM DESENVOLVIMENTO</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <h2 className="text-lg font-light text-white group-hover:text-[#4285F4] transition-colors">
-                      Prospecção B2B (Google Maps)
-                    </h2>
-                    <p className="text-xs text-foreground/75 leading-relaxed font-light">
-                      Software de busca de negócios locais sem site e gerador de demonstração em 1-clique.
-                    </p>
-
-                    <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
-                      <li className="flex items-center gap-2">
-                        <Clock size={12} className="text-[#4285F4]" />
-                        <span>Em breve mais uma solução disponível</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="p-6 pt-0">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("prospeccao")}
-                    className="w-full inline-flex items-center justify-center gap-2 border border-[#4285F4]/50 bg-[#4285F4]/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-blue-300 font-bold hover:bg-[#4285F4]/20 transition-all"
-                  >
-                    <span>ACESSAR MÓDULO</span>
-                    <ArrowRight size={13} />
-                  </button>
-                </div>
-              </div>
-
             </div>
           </section>
 
