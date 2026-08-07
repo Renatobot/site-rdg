@@ -745,7 +745,7 @@ function ProspeccaoPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-5 sm:mt-0 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-[0.98] disabled:opacity-50"
+                className="w-full mt-5 sm:mt-0 py-3 bg-[#00FF88] hover:bg-[#33FF9E] text-black font-extrabold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,255,136,0.3)] active:scale-[0.98] disabled:opacity-50"
               >
                 {isLoading ? <Loader2 size={18} className="animate-spin text-black" /> : <Search size={18} />}
                 <span>Buscar Leads</span>
@@ -764,7 +764,7 @@ function ProspeccaoPage() {
                   setNicho(preset);
                   handleSearch(preset, cidade || "São Paulo - SP");
                 }}
-                className="px-3 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-all"
+                className="px-3 py-1 bg-[#00FF88]/10 hover:bg-[#00FF88]/20 text-[#00FF88] border border-[#00FF88]/30 rounded-lg text-xs font-semibold transition-all"
               >
                 {preset}
               </button>
@@ -781,18 +781,18 @@ function ProspeccaoPage() {
                     setOnlyNoWebsite(e.target.checked);
                     if (hasSearched) handleSearch(nicho, cidade);
                   }}
-                  className="rounded border-white/20 text-emerald-500 focus:ring-emerald-500 bg-[#0A0B10] w-4 h-4"
+                  className="rounded border-white/20 text-[#00FF88] focus:ring-[#00FF88] bg-[#0A0B10] w-4 h-4"
                 />
                 <span className="font-medium text-white/80">Priorizar Empresas Sem Website</span>
               </label>
             </div>
 
-            <div className="flex bg-[#0A0B10] p-1 rounded-xl border border-emerald-500/20 overflow-x-auto max-w-full whitespace-nowrap">
+            <div className="flex bg-[#0A0B10] p-1 rounded-xl border border-[#00FF88]/20 overflow-x-auto max-w-full whitespace-nowrap">
               <button
                 onClick={() => setActiveTab("prospectar")}
                 className={`flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                   activeTab === "prospectar"
-                    ? "bg-emerald-500 text-black font-extrabold shadow-lg shadow-emerald-500/20"
+                    ? "bg-[#00FF88] text-black font-extrabold shadow-[0_0_12px_rgba(0,255,136,0.3)]"
                     : "text-white/60 hover:text-white"
                 }`}
               >
@@ -803,7 +803,7 @@ function ProspeccaoPage() {
                 onClick={() => setActiveTab("salvos")}
                 className={`flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                   activeTab === "salvos"
-                    ? "bg-emerald-500 text-black font-extrabold shadow-lg shadow-emerald-500/20"
+                    ? "bg-[#00FF88] text-black font-extrabold shadow-[0_0_12px_rgba(0,255,136,0.3)]"
                     : "text-white/60 hover:text-white"
                 }`}
               >
@@ -814,7 +814,7 @@ function ProspeccaoPage() {
                 onClick={() => setActiveTab("previas")}
                 className={`flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                   activeTab === "previas"
-                    ? "bg-emerald-500 text-black font-extrabold shadow-lg shadow-emerald-500/20"
+                    ? "bg-[#00FF88] text-black font-extrabold shadow-[0_0_12px_rgba(0,255,136,0.3)]"
                     : "text-white/60 hover:text-white"
                 }`}
               >
@@ -836,14 +836,14 @@ function ProspeccaoPage() {
             </div>
 
             {isLoading ? (
-              <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-emerald-500/20">
-                <Loader2 size={36} className="animate-spin text-emerald-400 mx-auto" />
+              <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-[#00FF88]/20">
+                <Loader2 size={36} className="animate-spin text-[#00FF88] mx-auto" />
                 <p className="text-sm font-bold text-white">Buscando empresas no Google Maps...</p>
                 <p className="text-xs text-white/40">Filtrando telefones e perfis sociais do local (dados de texto gratuitos)</p>
               </div>
             ) : leads.length === 0 ? (
-              <div className="py-16 text-center space-y-4 bg-[#111218] rounded-3xl border border-emerald-500/20 p-8 max-w-2xl mx-auto shadow-2xl">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
+              <div className="py-16 text-center space-y-4 bg-[#111218] rounded-3xl border border-[#00FF88]/20 p-8 max-w-2xl mx-auto shadow-2xl">
+                <div className="w-14 h-14 rounded-2xl bg-[#00FF88]/20 text-[#00FF88] border border-[#00FF88]/30 flex items-center justify-center mx-auto">
                   <Search size={28} />
                 </div>
                 <div className="space-y-1">
@@ -873,7 +873,7 @@ function ProspeccaoPage() {
                     <button
                       onClick={handleLoadMore}
                       disabled={isFetchingMore}
-                      className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 disabled:opacity-50"
+                      className="px-6 py-3 bg-[#00FF88] hover:bg-[#33FF9E] text-black font-extrabold text-xs rounded-xl shadow-[0_0_15px_rgba(0,255,136,0.3)] transition-all flex items-center gap-2 disabled:opacity-50"
                     >
                       {isFetchingMore ? (
                         <Loader2 size={16} className="animate-spin text-black" />
@@ -1397,7 +1397,7 @@ function LeadCard({
           {/* Gerar Prévia */}
           <button
             onClick={onOpenDemoPage}
-            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl transition-all shadow-md shadow-emerald-500/20 flex items-center gap-1.5"
+            className="px-4 py-2 bg-[#00FF88] hover:bg-[#33FF9E] text-black font-extrabold text-xs rounded-xl transition-all shadow-[0_0_15px_rgba(0,255,136,0.35)] flex items-center gap-1.5 active:scale-95"
           >
             <Eye size={14} />
             <span>Gerar Prévia</span>
@@ -1406,7 +1406,7 @@ function LeadCard({
           {/* Botão de WhatsApp */}
           <button
             onClick={onOpenScriptModal}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+            className="px-4 py-2 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] border border-[#25D366]/35 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
           >
             <MessageCircle size={14} />
             <span>WhatsApp</span>
