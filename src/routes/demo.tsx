@@ -41,7 +41,9 @@ import {
   Bookmark,
   Share2,
   Download,
-  Copy
+  Copy,
+  Sun,
+  Moon
 } from "lucide-react";
 import { RichTextToolbar } from "@/components/RichTextToolbar";
 
@@ -646,11 +648,17 @@ function FullSiteDemoPage() {
     border: `${selectedAccent}4D`,
   };
 
-  // Aplica a cor selecionada em toda a página sobrepondo o NicheConfig base
+  // Aplica a cor selecionada e o modo Claro/Escuro em toda a página sobrepondo o NicheConfig base
+  const isLight = themeMode === "light";
   const config = {
     ...baseConfig,
+    bgColor: isLight ? "#F8FAFC" : baseConfig.bgColor,
+    surfaceColor: isLight ? "#FFFFFF" : baseConfig.surfaceColor,
+    cardBg: isLight ? "#FFFFFF" : baseConfig.cardBg,
+    textColor: isLight ? "#0F172A" : baseConfig.textColor,
+    mutedTextColor: isLight ? "#475569" : baseConfig.mutedTextColor,
     accentColor: currentPalette.accent,
-    borderColor: currentPalette.border,
+    borderColor: isLight ? "rgba(0, 0, 0, 0.1)" : currentPalette.border,
     accentText: "#FFFFFF"
   };
 
@@ -1163,11 +1171,11 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
     >
       {/* OVERLAY FUTURISTA DE CARREGAMENTO COM IA GRATUITA (POLLINATIONS) */}
       {isGeneratingAi && (
-        <div className="fixed inset-0 z-[100] bg-[#07090E] flex flex-col items-center justify-center p-6 text-center select-none backdrop-blur-xl">
+        <div className="fixed inset-0 z-[100] bg-[#07090E] flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none backdrop-blur-xl">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
 
-          <div className="relative max-w-md w-full bg-[#0F1117] border border-white/15 p-8 rounded-3xl shadow-2xl space-y-6 backdrop-blur-xl text-center">
+          <div className="relative max-w-md w-[92vw] sm:w-full bg-[#0F1117] border border-white/15 p-6 sm:p-8 rounded-3xl shadow-2xl space-y-5 sm:space-y-6 backdrop-blur-xl text-center">
             <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
               <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/15 shadow-xl flex items-center justify-center text-white">
                 <LayoutTemplate size={28} className="animate-pulse text-white" />
@@ -1212,33 +1220,47 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
       {/* FLOATING ACTION BUTTONS (FAB) - CONTROLES DE EDIÇÃO */}
       {search.mode !== "view" && (
-        <div className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-[90] flex flex-col gap-3">
+        <div className="fixed bottom-4 right-4 sm:right-6 sm:top-1/2 sm:-translate-y-1/2 sm:bottom-auto z-[90] flex sm:flex-col flex-row gap-2.5">
           {/* Botão de Toggle do Modo Edição */}
           <button
             onClick={() => setIsGlobalEditMode(!isGlobalEditMode)}
-            className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative border ${
+            className={`w-11 h-11 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative border ${
               isGlobalEditMode 
                 ? "bg-purple-600 text-white border-purple-400 hover:bg-purple-500 ring-2 ring-purple-500/30"
                 : "bg-[#111218]/90 backdrop-blur-md hover:bg-[#1A1F2E] text-white border-white/10"
             }`}
           >
-            <Type size={20} className={isGlobalEditMode ? "animate-pulse" : ""} />
+            <Type size={18} className={isGlobalEditMode ? "animate-pulse" : ""} />
             
             {/* Tooltip Hover */}
-            <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#111218] border border-white/10 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
+            <div className="hidden sm:block absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#111218] border border-white/10 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
               {isGlobalEditMode ? "Sair do Modo Edição" : "Editar Textos na Tela"}
+            </div>
+          </button>
+
+          {/* Botão de Alternar Modo Claro / Modo Escuro */}
+          <button
+            onClick={() => setThemeMode(themeMode === "dark" ? "light" : "dark")}
+            className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative bg-[#111218]/90 backdrop-blur-md hover:bg-[#1A1F2E] text-white border border-white/15 hover:scale-105"
+            title={themeMode === "dark" ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
+          >
+            {themeMode === "dark" ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-emerald-400" />}
+            
+            {/* Tooltip Hover */}
+            <div className="hidden sm:block absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#111218] border border-white/10 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
+              {themeMode === "dark" ? "Mudar para Modo Claro ☀️" : "Mudar para Modo Escuro 🌙"}
             </div>
           </button>
 
           {/* Botão de Edição Completa (Painel Lateral) */}
           <button
             onClick={() => setIsEditorOpen(true)}
-            className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative bg-white text-black hover:bg-gray-100 border border-white/20 hover:scale-105"
+            className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative bg-white text-black hover:bg-gray-100 border border-white/20 hover:scale-105"
           >
-            <Sliders size={22} />
+            <Sliders size={20} />
             
             {/* Tooltip Hover */}
-            <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
+            <div className="hidden sm:block absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
               Personalizar Design & Imagens
             </div>
           </button>
@@ -1247,40 +1269,40 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
       {/* Main Header Estilo Personalizado por Nicho */}
       <header
-        className="backdrop-blur-md border-b px-5 sm:px-8 h-20 flex items-center justify-between sticky top-11 z-40 transition-colors"
+        className="backdrop-blur-md border-b px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between sticky top-11 z-40 transition-colors"
         style={{
-          backgroundColor: "rgba(11, 15, 24, 0.92)",
+          backgroundColor: isLight ? "rgba(255, 255, 255, 0.92)" : "rgba(11, 15, 24, 0.92)",
           borderColor: config.borderColor,
         }}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3 max-w-[70%] sm:max-w-none">
           {logoImage ? (
-            <img src={logoImage} alt={nome} className="h-10 sm:h-12 object-contain" />
+            <img src={logoImage} alt={nome} className="h-9 sm:h-12 object-contain" />
           ) : (
             <>
               <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center font-black text-xl shadow-lg"
+                className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-black text-lg sm:text-xl shadow-lg shrink-0"
                 style={{ background: config.accentColor, color: config.accentText }}
               >
-                <NicheIcon size={22} />
+                <NicheIcon size={20} />
               </div>
-              <div>
-                <h2 className="font-bold text-xl tracking-wider uppercase">
+              <div className="min-w-0">
+                <h2 className="font-bold text-sm sm:text-xl tracking-wider uppercase truncate">
                   <a
                     href={googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     title="Ver localização"
-                    className="hover:underline flex items-center gap-1.5"
+                    className="hover:underline flex items-center gap-1.5 truncate"
                     style={{
                       fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                       color: config.textColor,
                     }}
                   >
-                    <span>{nome}</span>
+                    <span className="truncate">{nome}</span>
                   </a>
                 </h2>
-                <p className="text-[10px] uppercase tracking-[0.25em] font-mono" style={{ color: config.mutedTextColor }}>
+                <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] font-mono truncate" style={{ color: config.mutedTextColor }}>
                   {displayCategory} • {cidade}
                 </p>
               </div>
@@ -1295,22 +1317,22 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
           <a href="#localizacao" className="hover:opacity-100 transition-opacity">Horários & Localização</a>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 shrink-0">
           <a
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => { if (isGlobalEditMode) e.preventDefault(); }}
-            className="px-5 py-3 text-xs font-black uppercase tracking-[0.18em] transition-all shadow-xl flex items-center gap-2 cursor-pointer"
+            className="px-3 py-2 sm:px-5 sm:py-3 text-[11px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.18em] transition-all shadow-xl flex items-center gap-1.5 sm:gap-2 cursor-pointer rounded-xl"
             style={getButtonStyle()}
           >
             <MessageCircle size={15} />
             <span 
-              className="hidden sm:inline outline-none"
+              className="outline-none"
               contentEditable={isGlobalEditMode}
               suppressContentEditableWarning
               onBlur={(e) => setEditBtnHeaderText(e.currentTarget.innerHTML)}
-              dangerouslySetInnerHTML={{ __html: editBtnHeaderText || "Falar no WhatsApp" }}
+              dangerouslySetInnerHTML={{ __html: editBtnHeaderText || "WhatsApp" }}
             />
           </a>
         </div>
@@ -1318,12 +1340,12 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
       {/* HERO SECTION */}
       {visibleSections.hero && (
-      <AnimatedSection id="hero" animation={animationStyle} className="relative overflow-hidden py-16 sm:py-24 px-5 sm:px-8">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
+      <AnimatedSection id="hero" animation={animationStyle} className="relative overflow-hidden py-10 sm:py-24 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
           
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 space-y-5 sm:space-y-6">
             <div className="flex items-center gap-3">
-              <span className="h-px w-10" style={{ background: config.accentColor }} />
+              <span className="h-px w-8 sm:w-10" style={{ background: config.accentColor }} />
               <span
                 contentEditable={isGlobalEditMode} 
                 suppressContentEditableWarning
@@ -1331,7 +1353,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                   setEditTagline(e.currentTarget.innerText);
                   setEditHeroTaglineHtml(e.currentTarget.innerHTML);
                 }}
-                className="text-xs font-bold uppercase tracking-[0.35em] outline-none hover:ring-2 ring-white/20 rounded-md px-1 -mx-1" 
+                className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.25em] sm:tracking-[0.35em] outline-none hover:ring-2 ring-white/20 rounded-md px-1 -mx-1" 
                 style={{ color: config.accentColor }}
                 dangerouslySetInnerHTML={{ __html: editHeroTaglineHtml || heroTagline }}
               />
@@ -1344,7 +1366,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                 setEditNome(e.currentTarget.innerText);
                 setEditHeroTitleHtml(e.currentTarget.innerHTML);
               }}
-              className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.02] tracking-tight outline-none hover:ring-2 ring-white/20 rounded-xl px-2 -mx-2 transition-all"
+              className="text-3xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] sm:leading-[1.02] tracking-tight outline-none hover:ring-2 ring-white/20 rounded-xl px-2 -mx-2 transition-all"
               style={{
                 fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                 color: config.textColor,
@@ -1359,56 +1381,53 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                 setEditSummary(e.currentTarget.innerText);
                 setEditSummaryHtml(e.currentTarget.innerHTML);
               }}
-              className="text-base sm:text-lg max-w-xl leading-relaxed font-normal outline-none hover:ring-2 ring-white/20 rounded-xl px-2 -mx-2 transition-all" 
+              className="text-xs sm:text-base leading-relaxed opacity-85 font-normal outline-none hover:ring-2 ring-white/20 rounded-xl px-2 -mx-2 transition-all"
               style={{ color: config.mutedTextColor }}
               dangerouslySetInnerHTML={{ __html: editSummaryHtml || businessSummary }}
             />
 
-            <div className="flex flex-wrap items-center gap-5 pt-2">
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <a
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => { if (isGlobalEditMode) e.preventDefault(); }}
-                className="group relative inline-flex items-center gap-2 px-8 py-4 text-xs sm:text-sm font-black uppercase tracking-[0.18em] transition-transform duration-300 hover:scale-105 shadow-2xl"
+                className="px-6 py-3.5 text-xs font-black uppercase tracking-[0.18em] transition-all shadow-2xl flex items-center justify-center gap-2.5 cursor-pointer"
                 style={getButtonStyle()}
               >
-                <MessageCircle size={18} />
-                <span
-                  contentEditable={isGlobalEditMode} 
-                  suppressContentEditableWarning
-                  onBlur={(e) => setEditBtnHeroText(e.currentTarget.innerText)}
+                <MessageCircle size={17} />
+                <span 
                   className="outline-none"
+                  contentEditable={isGlobalEditMode}
+                  suppressContentEditableWarning
+                  onBlur={(e) => setEditBtnHeroText(e.currentTarget.innerHTML)}
                   dangerouslySetInnerHTML={{ __html: editBtnHeroText || "Agendar Atendimento" }}
                 />
               </a>
 
               <a
                 href="#servicos"
-                className="group flex items-center gap-3 transition-colors"
-                style={{ color: config.textColor }}
+                className="px-5 py-3.5 border rounded-xl text-xs font-bold uppercase tracking-[0.18em] transition-all hover:bg-white/5 flex items-center justify-center gap-2"
+                style={{ borderColor: config.borderColor, color: config.textColor }}
               >
-                <span
-                  className="w-11 h-11 rounded-full flex items-center justify-center border transition-transform group-hover:scale-105"
-                  style={{ borderColor: config.accentColor, color: config.accentColor }}
-                >
-                  <Play size={14} className="fill-current ml-0.5" />
+                <span className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: `${config.accentColor}25`, color: config.accentColor }}>
+                  <Play size={12} className="fill-current ml-0.5" />
                 </span>
                 <span className="text-xs font-semibold tracking-[0.2em] uppercase">Ver Especialidades</span>
               </a>
             </div>
 
             {/* Contador de Métricas Reais */}
-            <div className="pt-10 grid grid-cols-2 sm:grid-cols-4 gap-6 border-t" style={{ borderColor: config.borderColor }}>
+            <div className="pt-6 sm:pt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 border-t" style={{ borderColor: config.borderColor }}>
               <div className="space-y-1">
-                <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: config.mutedTextColor }}>
+                <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em]" style={{ color: config.mutedTextColor }}>
                   Avaliação Média
                 </div>
                 <a
                   href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-2xl sm:text-3xl font-bold hover:underline"
+                  className="block text-xl sm:text-3xl font-bold hover:underline"
                   style={{
                     color: config.accentColor,
                     fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
@@ -1419,13 +1438,13 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               </div>
 
               <div className="space-y-1">
-                <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: config.mutedTextColor }}>
+                <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em]" style={{ color: config.mutedTextColor }}>
                   Total de Reviews
                 </div>
                 <span
-                  className="block text-2xl sm:text-3xl font-bold"
+                  className="block text-xl sm:text-3xl font-bold"
                   style={{
-                    color: config.accentColor,
+                    color: config.textColor,
                     fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
                   }}
                 >
@@ -1434,11 +1453,11 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               </div>
 
               <div className="space-y-1">
-                <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: config.mutedTextColor }}>
+                <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em]" style={{ color: config.mutedTextColor }}>
                   Pontualidade
                 </div>
                 <span
-                  className="block text-2xl sm:text-3xl font-bold"
+                  className="block text-xl sm:text-3xl font-bold"
                   style={{
                     color: config.accentColor,
                     fontFamily: config.fontSerif ? "Playfair Display, Georgia, serif" : "inherit",
@@ -1449,11 +1468,11 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               </div>
 
               <div className="space-y-1">
-                <div className="text-[10px] uppercase tracking-[0.25em]" style={{ color: config.mutedTextColor }}>
+                <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em]" style={{ color: config.mutedTextColor }}>
                   Localização
                 </div>
                 <span
-                  className="block text-sm font-bold truncate pt-1"
+                  className="block text-xs sm:text-sm font-bold truncate pt-1"
                   style={{
                     color: config.textColor,
                   }}
@@ -1467,7 +1486,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
           {/* LADO DIREITO: CARD DE IMAGEM COM AMBIENT BLUR E OBJECT-CONTAIN (ENQUADRAMENTO PERFEITO SEM CORTES) */}
           <div className="lg:col-span-5 relative">
             <div
-              className="relative w-full h-[460px] sm:h-[540px] overflow-hidden shadow-2xl rounded-2xl border flex items-center justify-center p-2"
+              className="relative w-full h-[260px] xs:h-[320px] sm:h-[460px] lg:h-[540px] overflow-hidden shadow-2xl rounded-2xl border flex items-center justify-center p-2"
               style={{
                 borderColor: config.borderColor,
                 backgroundColor: config.surfaceColor,

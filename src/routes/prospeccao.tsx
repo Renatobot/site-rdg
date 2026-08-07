@@ -745,7 +745,7 @@ function ProspeccaoPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-5 sm:mt-0 py-3 bg-white text-black hover:bg-neutral-200 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                className="w-full mt-5 sm:mt-0 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-[0.98] disabled:opacity-50"
               >
                 {isLoading ? <Loader2 size={18} className="animate-spin text-black" /> : <Search size={18} />}
                 <span>Buscar Leads</span>
@@ -764,20 +764,16 @@ function ProspeccaoPage() {
                   setNicho(preset);
                   handleSearch(preset, cidade || "São Paulo - SP");
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-                  nicho.toLowerCase() === preset.toLowerCase()
-                    ? "bg-white text-black border-white font-bold"
-                    : "bg-white/5 text-white/70 border-white/10 hover:text-white hover:bg-white/10"
-                }`}
+                className="px-3 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-all"
               >
                 {preset}
               </button>
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-white/5 text-xs text-white/70">
-            <div className="flex flex-wrap items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer select-none">
+          <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-white/5">
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 text-xs text-white/70 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={onlyNoWebsite}
@@ -785,18 +781,18 @@ function ProspeccaoPage() {
                     setOnlyNoWebsite(e.target.checked);
                     if (hasSearched) handleSearch(nicho, cidade);
                   }}
-                  className="rounded accent-white w-4 h-4"
+                  className="rounded border-white/20 text-emerald-500 focus:ring-emerald-500 bg-[#0A0B10] w-4 h-4"
                 />
                 <span className="font-medium text-white/80">Priorizar Empresas Sem Website</span>
               </label>
             </div>
 
-            <div className="flex bg-[#0A0B10] p-1 rounded-xl border border-white/10">
+            <div className="flex bg-[#0A0B10] p-1 rounded-xl border border-emerald-500/20 overflow-x-auto max-w-full whitespace-nowrap">
               <button
                 onClick={() => setActiveTab("prospectar")}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                   activeTab === "prospectar"
-                    ? "bg-white text-black shadow"
+                    ? "bg-emerald-500 text-black font-extrabold shadow-lg shadow-emerald-500/20"
                     : "text-white/60 hover:text-white"
                 }`}
               >
@@ -805,9 +801,9 @@ function ProspeccaoPage() {
               </button>
               <button
                 onClick={() => setActiveTab("salvos")}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                   activeTab === "salvos"
-                    ? "bg-white text-black shadow"
+                    ? "bg-emerald-500 text-black font-extrabold shadow-lg shadow-emerald-500/20"
                     : "text-white/60 hover:text-white"
                 }`}
               >
@@ -816,9 +812,9 @@ function ProspeccaoPage() {
               </button>
               <button
                 onClick={() => setActiveTab("previas")}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
                   activeTab === "previas"
-                    ? "bg-white text-black shadow"
+                    ? "bg-emerald-500 text-black font-extrabold shadow-lg shadow-emerald-500/20"
                     : "text-white/60 hover:text-white"
                 }`}
               >
@@ -840,14 +836,14 @@ function ProspeccaoPage() {
             </div>
 
             {isLoading ? (
-              <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-white/10">
-                <Loader2 size={36} className="animate-spin text-primary mx-auto" />
+              <div className="py-16 text-center space-y-3 bg-[#111218] rounded-3xl border border-emerald-500/20">
+                <Loader2 size={36} className="animate-spin text-emerald-400 mx-auto" />
                 <p className="text-sm font-bold text-white">Buscando empresas no Google Maps...</p>
                 <p className="text-xs text-white/40">Filtrando telefones e perfis sociais do local (dados de texto gratuitos)</p>
               </div>
             ) : leads.length === 0 ? (
-              <div className="py-16 text-center space-y-4 bg-[#111218] rounded-3xl border border-white/10 p-8 max-w-2xl mx-auto shadow-2xl">
-                <div className="w-14 h-14 rounded-2xl bg-primary/20 text-primary border border-primary/30 flex items-center justify-center mx-auto">
+              <div className="py-16 text-center space-y-4 bg-[#111218] rounded-3xl border border-emerald-500/20 p-8 max-w-2xl mx-auto shadow-2xl">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
                   <Search size={28} />
                 </div>
                 <div className="space-y-1">
@@ -877,7 +873,7 @@ function ProspeccaoPage() {
                     <button
                       onClick={handleLoadMore}
                       disabled={isFetchingMore}
-                      className="px-6 py-3 bg-white hover:bg-neutral-200 text-black font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+                      className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 disabled:opacity-50"
                     >
                       {isFetchingMore ? (
                         <Loader2 size={16} className="animate-spin text-black" />
@@ -1346,27 +1342,20 @@ function LeadCard({
           </p>
         </div>
 
-        {/* Tag de Oportunidade */}
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          {!lead.has_website ? (
-            <span className="px-2.5 py-1 bg-amber-500/10 text-amber-300 text-[10px] font-semibold rounded-md border border-amber-500/20 flex items-center gap-1.5">
-              <Flame size={12} className="text-amber-400" />
-              <span>Sem Website Registrado</span>
-            </span>
-          ) : (
-            <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-300 text-[10px] font-semibold rounded-md border border-emerald-500/20 flex items-center gap-1.5">
-              <Globe size={12} />
-              <span>Possui Website</span>
-            </span>
-          )}
-
-          {lead.google_photos_count ? (
-            <span className="px-2.5 py-1 bg-white/5 text-white/60 text-[10px] font-medium rounded-md border border-white/10 flex items-center gap-1.5">
-              <ImageIcon size={12} />
-              <span>{lead.google_photos_count} Fotos</span>
-            </span>
-          ) : null}
-        </div>
+          {/* Tag de Oportunidade */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            {!lead.has_website ? (
+              <span className="px-2.5 py-1 bg-amber-500/10 text-amber-300 text-[10px] font-semibold rounded-md border border-amber-500/20 flex items-center gap-1.5">
+                <Flame size={12} className="text-amber-400" />
+                <span>Sem Website Registrado</span>
+              </span>
+            ) : (
+              <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-300 text-[10px] font-semibold rounded-md border border-emerald-500/20 flex items-center gap-1.5">
+                <Globe size={12} />
+                <span>Possui Website</span>
+              </span>
+            )}
+          </div>
       </div>
 
       {/* Botões de Ação Completa */}
@@ -1408,7 +1397,7 @@ function LeadCard({
           {/* Gerar Prévia */}
           <button
             onClick={onOpenDemoPage}
-            className="px-4 py-2 bg-white hover:bg-gray-200 text-black font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl transition-all shadow-md shadow-emerald-500/20 flex items-center gap-1.5"
           >
             <Eye size={14} />
             <span>Gerar Prévia</span>
