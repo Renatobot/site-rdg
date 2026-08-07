@@ -100,7 +100,7 @@ function ProspeccaoPage() {
   const [licenseError, setLicenseError] = useState<string | null>(null);
   const [userClientName, setUserClientName] = useState<string>("");
 
-  const [activeTab, setActiveTab] = useState<"prospectar" | "salvos" | "previas">("prospectar");
+  const [activeTab, setActiveTab] = useState<"prospectar" | "salvos" | "previas" | "kanban">("prospectar");
   const [savedPreviewsList, setSavedPreviewsList] = useState<any[]>([]);
 
   // Carregar prévias salvas localmente
@@ -1065,22 +1065,16 @@ function ProspeccaoPage() {
             </div>
 
             {/* Colunas do Kanban CRM */}
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 overflow-x-auto pb-4">
-              {[
-                { id: "novo", label: "📥 Novos Leads", bg: "bg-slate-500/10", border: "border-slate-500/30", color: "text-slate-300" },
-                { id: "previas", label: "👁️ Prévia Criada", bg: "bg-sky-500/10", border: "border-sky-500/30", color: "text-sky-300" },
-                { id: "contato", label: "💬 Abordado (WhatsApp)", bg: "bg-emerald-500/10", border: "border-emerald-500/30", color: "text-emerald-300" },
-                { id: "proposta", label: "💰 Proposta Enviada", bg: "bg-purple-500/10", border: "border-purple-500/30", color: "text-purple-300" },
-                { id: "fechado", label: "🏆 Cliente Fechado", bg: "bg-amber-500/10", border: "border-amber-500/30", color: "text-amber-300" },
-              ].map((column) => {
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3.5 overflow-x-auto pb-4">
+              {KANBAN_COLUMNS.map((column) => {
                 const columnLeads = savedLeads.filter((l) => (l.status || "novo") === column.id);
 
                 return (
-                  <div key={column.id} className={`bg-[#0F1117] border ${column.border} rounded-2xl p-3.5 space-y-3 min-w-[240px] flex flex-col justify-between shadow-lg`}>
+                  <div key={column.id} className={`bg-[#0F1117] border ${column.headerBorder} rounded-2xl p-3.5 space-y-3 min-w-[220px] flex flex-col justify-between shadow-lg`}>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                        <span className={`text-xs font-black uppercase tracking-wider ${column.color}`}>
-                          {column.label}
+                        <span className={`text-[11px] font-black uppercase tracking-wider ${column.badgeColor.split(' ')[1]}`}>
+                          {column.title}
                         </span>
                         <span className="text-[10px] font-mono font-bold bg-white/10 px-2 py-0.5 rounded-full text-white">
                           {columnLeads.length}
@@ -1089,7 +1083,7 @@ function ProspeccaoPage() {
 
                       {columnLeads.length === 0 ? (
                         <div className="py-8 text-center border border-dashed border-white/10 rounded-xl">
-                          <p className="text-[11px] text-white/30 italic">Nenhum lead nesta etapa</p>
+                          <p className="text-[10px] text-white/30 italic">Nenhum lead aqui</p>
                         </div>
                       ) : (
                         <div className="space-y-3">
@@ -1106,7 +1100,7 @@ function ProspeccaoPage() {
                                 </button>
                               </div>
 
-                              <p className="text-[10px] text-white/50 truncate">📍 {lead.city || lead.address || "Localização"}</p>
+                              <p className="text-[10px] text-white/50 truncate">📍 {lead.address || "Localização"}</p>
                               <p className="text-[10px] text-white/50 truncate">📞 {lead.phone || "Sem telefone"}</p>
 
                               {/* Mudar Etapa Dropdown Selector */}
@@ -1114,7 +1108,7 @@ function ProspeccaoPage() {
                                 <select
                                   value={lead.status || "novo"}
                                   onChange={(e) => {
-                                    const newStage = e.target.value;
+                                    const newStage = e.target.value as LeadStatus;
                                     const updated = savedLeads.map((l) => (l.id === lead.id ? { ...l, status: newStage } : l));
                                     setSavedLeads(updated);
                                     localStorage.setItem("saved_prospect_leads", JSON.stringify(updated));
@@ -1122,10 +1116,11 @@ function ProspeccaoPage() {
                                   className="w-full bg-[#0B0D14] border border-white/15 rounded-lg px-2 py-1 text-[10px] font-bold text-white/80 focus:border-[#38BDF8] outline-none"
                                 >
                                   <option value="novo">📥 Mover: Novo Lead</option>
-                                  <option value="previas">👁️ Mover: Prévia Criada</option>
-                                  <option value="contato">💬 Mover: Abordado</option>
-                                  <option value="proposta">💰 Mover: Proposta</option>
-                                  <option value="fechado">🏆 Mover: Cliente Fechado</option>
+                                  <option value="em_contato">💬 Mover: Em Contato</option>
+                                  <option value="followup">⏳ Mover: Follow-Up</option>
+                                  <option value="proposta">🎯 Mover: Proposta</option>
+                                  <option value="fechado">✅ Mover: Fechado</option>
+                                  <option value="inativo">❌ Mover: Sem Interesse</option>
                                 </select>
                               </div>
 
