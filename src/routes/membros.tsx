@@ -757,6 +757,70 @@ function MembrosPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
+              {/* CARD 0: SOFTWARE DE PROSPECÇÃO B2B GOOGLE MAPS (DISPONÍVEL / ATIVO) */}
+              <div className="border border-[#38BDF8]/40 bg-[#0A0A0A] hover:border-[#38BDF8] transition-all flex flex-col justify-between group shadow-xl">
+                <div className="p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#38BDF8] flex items-center gap-1.5 font-bold">
+                      🗺️ PROSPECÇÃO B2B
+                    </span>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 font-bold">
+                      DISPONÍVEL
+                    </span>
+                  </div>
+
+                  {/* Mockup Retangular Estilo Terminal RDG */}
+                  <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#38BDF8]">
+                      <span>Software Prospecção B2B</span>
+                      <span className="text-emerald-400">● SISTEMA ATIVO</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      &gt; Google Maps API + Gerador 1-Clique
+                    </p>
+                    <div className="flex justify-between text-[9px] text-emerald-400 pt-1 font-bold">
+                      <span>STATUS: LICENÇA LIBERADA</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h2 className="text-lg font-light text-white group-hover:text-[#38BDF8] transition-colors">
+                      Prospecção B2B (Google Maps)
+                    </h2>
+                    <p className="text-xs text-foreground/75 leading-relaxed font-light">
+                      Software completo para rastrear empresas sem site em qualquer cidade, gerar demonstrações em 1-clique e obter scripts de WhatsApp.
+                    </p>
+
+                    <ul className="space-y-1.5 font-mono text-[10px] text-foreground/80 pt-1 border-t border-white/10">
+                      <li className="flex items-center gap-2">
+                        <Check size={12} className="text-[#38BDF8]" />
+                        <span>Rastreamento em Tempo Real de Leads</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check size={12} className="text-[#38BDF8]" />
+                        <span>Gerador de Sites em 1-Clique &amp; Kanban CRM</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="p-6 pt-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (licenseInfo?.key) {
+                        localStorage.setItem("prospeccao_license_key", licenseInfo.key);
+                      }
+                      setViewMode("prospeccao");
+                    }}
+                    className="w-full inline-flex items-center justify-center gap-2 border border-[#38BDF8] bg-[#38BDF8] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-black font-extrabold transition-transform hover:scale-[1.01] hover:brightness-110"
+                  >
+                    <span>ACESSAR SOFTWARE B2B</span>
+                    <ArrowRight size={13} />
+                  </button>
+                </div>
+              </div>
+
               {/* CARD 1: WHATSAPP MULTI AGENTE (VERDE / EMERALD ACCENT) */}
               <div className="border border-emerald-500/40 bg-[#0A0A0A] hover:border-emerald-500 transition-all flex flex-col justify-between group">
                 <div className="p-6 space-y-5">
@@ -1508,48 +1572,128 @@ function MembrosPage() {
       )}
 
       {/* ==================================================================================== */}
-      {/* VISTA 4: PÁGINA DEDICADA DA PROSPECÇÃO B2B GOOGLE MAPS (EM DESENVOLVIMENTO) */}
+      {/* VISTA 4: PÁGINA DEDICADA DA PROSPECÇÃO B2B GOOGLE MAPS (DISPONÍVEL / LIBERADO) */}
       {/* ==================================================================================== */}
       {viewMode === "prospeccao" && (
-        <main className="max-w-6xl mx-auto px-4 py-8 space-y-12 animate-[fadeIn_0.3s_ease]">
-          <div className="border border-[#4285F4]/40 bg-[#0A0A0A] p-6 sm:p-8 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+        <main className="max-w-6xl mx-auto px-4 py-8 space-y-10 animate-[fadeIn_0.3s_ease]">
+          {/* Header do Módulo */}
+          <div className="border border-[#38BDF8]/40 bg-[#0A0A0A] p-6 sm:p-8 space-y-6 rounded-2xl shadow-2xl">
+            <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="space-y-2">
-                <span className="inline-flex items-center gap-2 border border-[#4285F4]/40 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-[#4285F4]">
-                  🗺️ MÓDULO PROSPECÇÃO B2B
+                <span className="inline-flex items-center gap-2 border border-[#38BDF8]/40 px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.25em] text-[#38BDF8] font-bold">
+                  🗺️ MÓDULO SISTEMA PROSPECÇÃO B2B
                 </span>
                 <h1 className="text-3xl font-light text-white">
-                  Prospecção B2B (Google Maps)
+                  Software de Prospecção B2B Google Maps
                 </h1>
-                <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl">
-                  Software de busca de negócios locais sem site e gerador de demonstração em 1-clique.
+                <p className="text-xs sm:text-sm font-light text-muted-foreground max-w-2xl leading-relaxed">
+                  Rastreie empresas sem site em qualquer cidade, gere prévias personalizadas ao vivo em 1-clique e obtenha mensagens de abordagem comercial.
                 </p>
               </div>
 
               <button
                 type="button"
-                onClick={() => openDevNotice("Prospecção B2B (Google Maps)", "Ainda em desenvolvimento. Em breve mais uma solução disponível.", "blue")}
-                className="inline-flex items-center gap-2 border border-[#4285F4]/50 bg-[#4285F4]/10 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-blue-300 font-bold hover:bg-[#4285F4]/20 transition-all"
+                onClick={() => {
+                  if (licenseInfo?.key) {
+                    localStorage.setItem("prospeccao_license_key", licenseInfo.key);
+                  }
+                  window.location.href = "/prospeccao";
+                }}
+                className="inline-flex items-center gap-2.5 bg-[#38BDF8] hover:bg-[#7dd3fc] text-black px-7 py-4 font-mono text-[11px] uppercase tracking-[0.2em] font-extrabold transition-all shadow-lg shadow-[#38BDF8]/20 hover:scale-[1.02]"
               >
-                <Clock size={15} />
-                <span>EM DESENVOLVIMENTO</span>
+                <span>ABRIR SOFTWARE EM TELA CHEIA</span>
+                <ExternalLink size={16} />
               </button>
+            </div>
+
+            {/* Chave de Licença Sincronizada */}
+            <div className="border-t border-white/10 pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono text-xs">
+              <div className="flex items-center gap-2 text-white/80">
+                <Key size={14} className="text-[#38BDF8]" />
+                <span>Sua Chave de Acesso Sincronizada:</span>
+                <code className="text-[#38BDF8] font-bold bg-[#38BDF8]/10 px-2 py-0.5 rounded border border-[#38BDF8]/30">
+                  {licenseInfo?.key || "RDG-VIP-PROSPECT"}
+                </code>
+              </div>
+              <span className="text-emerald-400 font-bold text-[11px] flex items-center gap-1.5">
+                <CheckCircle2 size={14} /> LICENÇA VIP ATIVA E LIBERADA
+              </span>
             </div>
           </div>
 
-          <section className="border border-[#4285F4]/30 bg-[#0A0A0A] p-8 sm:p-12 text-center space-y-5 max-w-3xl mx-auto">
-            <div className="w-14 h-14 border border-[#4285F4]/40 bg-[#4285F4]/10 text-[#4285F4] flex items-center justify-center mx-auto">
-              <Clock size={28} />
+          {/* Cards de Recursos */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="border border-white/10 bg-[#111218] p-6 space-y-3 rounded-2xl">
+              <div className="w-10 h-10 rounded-xl bg-[#38BDF8]/20 text-[#38BDF8] flex items-center justify-center font-bold">
+                <Search size={20} />
+              </div>
+              <h3 className="text-base font-bold text-white">1. Rastreamento Google Maps</h3>
+              <p className="text-xs text-white/60 leading-relaxed font-light">
+                Pesquise qualquer nicho e cidade para encontrar centenas de empresas locais que ainda não possuem site.
+              </p>
             </div>
 
-            <div className="space-y-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#4285F4] border border-[#4285F4]/30 px-3 py-1 inline-block">
-                EM DESENVOLVIMENTO
-              </span>
-              <h2 className="text-2xl font-light text-white">Ainda em desenvolvimento</h2>
-              <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed font-light">
-                Em breve mais uma solução disponível para você impulsionar suas prospecções no Google Maps.
+            <div className="border border-white/10 bg-[#111218] p-6 space-y-3 rounded-2xl">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+                <Sparkles size={20} />
+              </div>
+              <h3 className="text-base font-bold text-white">2. Gerador 1-Clique</h3>
+              <p className="text-xs text-white/60 leading-relaxed font-light">
+                Crie um site de alta conversão ao vivo para a empresa do lead com fotos HD e avaliações em menos de 5 segundos.
               </p>
+            </div>
+
+            <div className="border border-white/10 bg-[#111218] p-6 space-y-3 rounded-2xl">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                <MessageCircle size={20} />
+              </div>
+              <h3 className="text-base font-bold text-white">3. Scripts de WhatsApp</h3>
+              <p className="text-xs text-white/60 leading-relaxed font-light">
+                Copie mensagens de abordagem comercial validadas para enviar direto no WhatsApp do proprietário do negócio.
+              </p>
+            </div>
+          </div>
+
+          {/* Treinamento em Vídeo VIP */}
+          <section className="border border-white/10 bg-[#111218] p-6 sm:p-8 space-y-6 rounded-2xl shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="space-y-1">
+                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#38BDF8] font-bold flex items-center gap-2">
+                  <Play size={13} /> TREINAMENTO EM VÍDEO VIP
+                </span>
+                <h2 className="text-xl font-bold text-white">Como Prospectar Empresas e Fechar Contratos</h2>
+              </div>
+              <span className="font-mono text-[10px] text-muted-foreground uppercase bg-white/5 px-3 py-1 rounded border border-white/10">
+                AULA COMPLETA
+              </span>
+            </div>
+
+            <div className="relative aspect-video bg-black border border-white/10 rounded-xl overflow-hidden shadow-2xl">
+              <iframe
+                src="https://www.loom.com/embed/eac334f209654087868a30e852e8315b"
+                title="Treinamento Prospecção B2B"
+                className="w-full h-full border-0"
+                allowFullScreen
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+              <p className="text-xs text-muted-foreground font-light leading-relaxed">
+                Assista ao vídeo para dominar a estratégia de prospecção fria pelo Google Maps e fechamento de contratos de sites.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  if (licenseInfo?.key) {
+                    localStorage.setItem("prospeccao_license_key", licenseInfo.key);
+                  }
+                  window.location.href = "/prospeccao";
+                }}
+                className="w-full sm:w-auto shrink-0 px-6 py-3 bg-[#38BDF8] hover:bg-[#7dd3fc] text-black font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+              >
+                <span>Acessar Ferramenta Agora</span>
+                <ArrowRight size={14} />
+              </button>
             </div>
           </section>
         </main>
