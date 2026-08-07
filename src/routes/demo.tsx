@@ -1137,7 +1137,6 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
     setEditServices(list);
   };
 
-  const isLight = themeMode === "light";
   const isGlass = themeMode === "glass";
   
   // Theme overrides
