@@ -654,11 +654,13 @@ function PricingSection() {
               </div>
               <ul className="space-y-3 pt-4 border-t border-white/10 text-xs text-foreground/80">
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Acesso Completo ao Software Prospecção B2B</li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Busca de Leads em Tempo Real no Google Maps</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Gerador de Sites de Demonstração em 1-Clique</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Painel Kanban CRM Integrado</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Personalização de Fotos & Capa com Upload Próprio</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Script Generator Comercial para WhatsApp</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Exportação Ilimitada em Formato CSV</li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Todos os 3 Bônus Exclusivos Inclusos</li>
               </ul>
             </div>
 
@@ -687,11 +689,12 @@ function PricingSection() {
               </div>
               <ul className="space-y-3 pt-4 border-t border-white/10 text-xs text-foreground/90">
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> <strong>Licença de Acesso Válida por 1 Ano Inteiro</strong></li>
-                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Buscas Ilimitadas no Google Maps</li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Busca de Leads em Tempo Real no Google Maps</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Gerador de Sites de Demonstração Ilimitados</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Painel Kanban CRM Integrado</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Personalização de Fotos & Capa com Upload Próprio</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Script Generator Comercial para WhatsApp</li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Exportação Ilimitada em Formato CSV</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Todos os 3 Bônus Exclusivos Inclusos</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Suporte VIP Prioritário no WhatsApp</li>
               </ul>
