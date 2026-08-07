@@ -92,7 +92,50 @@ function formatCategoryLabel(rawCat?: string, currentNicho?: string): string {
   return rawCat.toUpperCase().replace(/_/g, " ");
 }
 
+function generateDemoMockLeads(nichoInput: string, cidadeInput: string): LeadItem[] {
+  const cleanNicho = nichoInput || "Estética & Beleza";
+  const cleanCidade = cidadeInput || "São Paulo - SP";
+
+  const prefixes = [
+    "Clínica Especializada",
+    "Estúdio & Espaço",
+    "Consultório Central",
+    "Centro Integrado",
+    "Ateliê & Studio",
+    "Espaço VIP",
+    "Instituto",
+    "Grupo Comercial",
+  ];
+
+  const phoneDDD = cleanCidade.includes("Rio") ? "21" : cleanCidade.includes("Belo") ? "31" : cleanCidade.includes("Curitiba") ? "41" : cleanCidade.includes("Salvador") ? "71" : "11";
+
+  return prefixes.map((pref, idx) => {
+    const name = `${pref} ${cleanNicho} ${idx % 2 === 0 ? "Prime" : "Master"}`;
+    const num = 100 + idx * 140;
+    return {
+      id: `demo_mock_lead_${idx}_${Date.now()}`,
+      name,
+      category: cleanNicho,
+      address: `Rua das Flores, ${num} - ${cleanCidade}`,
+      phone: `+55 ${phoneDDD} 9${8800 + idx * 11}-${1000 + idx * 22}`,
+      raw_phone: `55${phoneDDD}9${8800 + idx * 11}${1000 + idx * 22}`,
+      rating: Number((4.7 + (idx % 4) * 0.1).toFixed(1)),
+      user_ratings_total: 24 + idx * 19,
+      has_website: false,
+      google_maps_url: `https://maps.google.com/?q=${encodeURIComponent(name + " " + cleanCidade)}`,
+      whatsapp_link: `https://wa.me/55${phoneDDD}9${8800 + idx * 11}${1000 + idx * 22}`,
+      google_photos_count: 8 + idx * 3,
+      editorial_summary: `Estabelecimento local de destaque no segmento de ${cleanNicho} com excelentes avaliações de clientes.`,
+      status: idx === 0 ? "novo" : idx === 1 ? "em_contato" : "novo",
+    };
+  });
+}
+
 function ProspeccaoPage() {
+  const search = Route.useSearch();
+  const isDemoMode = (search as any).demo === "true" || (search as any).mode === "demo";
+  const [showDemoLockModal, setShowDemoLockModal] = useState<boolean>(false);
+
   // Autenticação de Rota / Validação de Licença Exclusiva
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isVerifying, setIsVerifying] = useState<boolean>(true);
@@ -160,6 +203,24 @@ function ProspeccaoPage() {
 
   // Verificar Chave de Licença de Acesso à Ferramenta de Prospecção (CHAVE VERIFICADA NO SUPABASE)
   useEffect(() => {
+    if (isDemoMode) {
+      setIsAuthenticated(true);
+      setUserClientName("Visitante (Modo Demonstração)");
+      setIsVerifying(false);
+
+      const initialNicho = nicho || "Estética & Beleza";
+      const initialCidade = cidade || "São Paulo - SP";
+      setNicho(initialNicho);
+      setCidade(initialCidade);
+      setLeads(generateDemoMockLeads(initialNicho, initialCidade));
+      setHasSearched(true);
+      setSourceInfo({
+        source: "demo_mock",
+        message: "Modo Demonstração — Exibindo empresas fictícias para testes ao vivo do gerador de sites.",
+      });
+      return;
+    }
+
     const savedLicense = localStorage.getItem("prospeccao_license_key") || localStorage.getItem("rdg_license_key");
     if (savedLicense) {
       validateLicenseKey(savedLicense, true);
@@ -304,6 +365,20 @@ function ProspeccaoPage() {
     setIsLoading(true);
     setHasSearched(true);
     setNextPageToken(null);
+
+    if (isDemoMode) {
+      setTimeout(() => {
+        const mockData = generateDemoMockLeads(targetNicho, targetCidade);
+        setLeads(mockData);
+        setSourceInfo({
+          source: "demo_mock",
+          message: `Modo Demonstração — Exibindo empresas fictícias para "${targetNicho}" em "${targetCidade}".`,
+        });
+        setIsLoading(false);
+      }, 600);
+      return;
+    }
+
     let fetchedLeads: LeadItem[] = [];
     let token: string | null = null;
     let source = targetApiKey ? "google_api" : "demo_mock";
@@ -353,6 +428,11 @@ function ProspeccaoPage() {
   };
 
   const handleLoadMore = async () => {
+    if (isDemoMode) {
+      const moreMock = generateDemoMockLeads(nicho || "Estética", cidade || "São Paulo - SP");
+      setLeads((prev) => [...prev, ...moreMock]);
+      return;
+    }
     if (!nextPageToken || isFetchingMore) return;
     setIsFetchingMore(true);
     try {
@@ -406,6 +486,34 @@ function ProspeccaoPage() {
   };
 
   const isSaved = (leadId: string) => savedLeads.some((l) => l.id === leadId);
+
+  const exportToCSV = (leadsToExport: LeadItem[]) => {
+    if (isDemoMode) {
+      setShowDemoLockModal(true);
+      return;
+    }
+    if (!leadsToExport.length) return;
+    const headers = ["Nome", "Categoria", "Telefone", "Sem Website", "Endereço", "Avaliação", "Avaliações Qtd", "Google Maps URL"];
+    const rows = leadsToExport.map((l) => [
+      `"${l.name.replace(/"/g, '""')}"`,
+      `"${l.category.replace(/"/g, '""')}"`,
+      `"${l.phone}"`,
+      l.has_website ? "Não" : "Sim",
+      `"${l.address.replace(/"/g, '""')}"`,
+      l.rating,
+      l.user_ratings_total,
+      `"${l.google_maps_url}"`,
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `prospeccao_leads_${nicho || "empresas"}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // AÇÃO EXECUTADA AO CLICAR EM "GERAR PRÉVIA" -> ABRE MODAL DE CONFIGURAÇÃO E UPLOAD DE IMAGENS
   const openDemoPage = (lead: LeadItem) => {
@@ -464,30 +572,6 @@ function ProspeccaoPage() {
     if (apiKey) params.set("api_key", apiKey);
     window.open(`/demo?${params.toString()}`, "_blank");
     setPreviewModalLead(null);
-  };
-
-  const exportToCSV = (leadsToExport: LeadItem[]) => {
-    if (!leadsToExport.length) return;
-    const headers = ["Nome", "Categoria", "Telefone", "Sem Website", "Endereço", "Avaliação", "Avaliações Qtd", "Google Maps URL"];
-    const rows = leadsToExport.map((l) => [
-      `"${l.name.replace(/"/g, '""')}"`,
-      `"${l.category.replace(/"/g, '""')}"`,
-      `"${l.phone}"`,
-      l.has_website ? "Não" : "Sim",
-      `"${l.address.replace(/"/g, '""')}"`,
-      l.rating,
-      l.user_ratings_total,
-      `"${l.google_maps_url}"`,
-    ]);
-
-    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `prospeccao_leads_${nicho || "empresas"}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const generateWhatsAppScripts = (lead: LeadItem) => {
@@ -672,6 +756,25 @@ function ProspeccaoPage() {
           )}
         </div>
       </header>
+
+      {/* Top Banner de Modo Demonstração */}
+      {isDemoMode && (
+        <div className="bg-gradient-to-r from-amber-500/20 via-sky-500/20 to-purple-500/20 border-b border-white/10 px-4 py-2.5 text-center flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 mx-auto text-xs text-white font-bold">
+            <span className="px-2.5 py-0.5 bg-amber-500 text-black text-[10px] font-extrabold uppercase rounded-full shrink-0 shadow">
+              🧪 MODO DEMONSTRAÇÃO ATIVO
+            </span>
+            <span className="hidden sm:inline">Você está testando a pré-visualização do Software B2B. Faça buscas e gere prévias ao vivo!</span>
+          </div>
+          <a
+            href="/prospeccao-b2b#planos"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#38BDF8] text-black font-extrabold text-[11px] rounded-xl hover:brightness-110 transition-all shrink-0 shadow-lg shadow-[#38BDF8]/20"
+          >
+            <span>Garantir Licença (R$ 67/mês)</span>
+            <ArrowRight size={12} />
+          </a>
+        </div>
+      )}
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
@@ -1412,6 +1515,44 @@ function ProspeccaoPage() {
                 Salvar Minha Chave
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE BLOQUEIO DE RECURSO NO MODO DEMONSTRAÇÃO */}
+      {showDemoLockModal && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-[#111218] border border-[#38BDF8]/40 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-5 relative shadow-2xl">
+            <button
+              onClick={() => setShowDemoLockModal(false)}
+              className="absolute top-4 right-4 text-white/40 hover:text-white"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="w-14 h-14 rounded-2xl bg-[#38BDF8]/20 text-[#38BDF8] border border-[#38BDF8]/30 flex items-center justify-center mx-auto">
+              <Lock size={28} />
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#38BDF8] bg-[#38BDF8]/10 px-3 py-1 rounded-full border border-[#38BDF8]/20">
+                RECURSO EXCLUSIVO PARA LICENCIADOS
+              </span>
+              <h3 className="text-xl font-bold text-white tracking-tight pt-1">
+                Disparos de Mensagens & CSV Ilimitado
+              </h3>
+              <p className="text-xs text-white/60 leading-relaxed">
+                Você está no <strong>Modo Demonstração Gratuito</strong>. Adquira sua licença oficial por apenas R$ 67/mês para realizar disparos reais no WhatsApp, buscas ao vivo no Google Maps e exportação em CSV!
+              </p>
+            </div>
+
+            <a
+              href="/prospeccao-b2b#planos"
+              className="w-full py-3.5 bg-[#38BDF8] hover:bg-[#7dd3fc] text-black font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+            >
+              <span>Garantir Licença (R$ 67/mês)</span>
+              <ArrowRight size={14} />
+            </a>
           </div>
         </div>
       )}

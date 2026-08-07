@@ -141,9 +141,7 @@ function Navbar() {
             Ver Planos
           </a>
           <a
-            href={WA_PLANO_PROSPECCAO_ANUAL}
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/prospeccao?demo=true"
             className="inline-flex items-center gap-2 bg-primary px-5 py-2 text-[10px] font-light uppercase tracking-[0.2em] text-[#0A0A0A] transition-transform hover:scale-[1.02] hover:brightness-110 font-bold"
           >
             Testar Agora
@@ -190,7 +188,7 @@ function Hero() {
             <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
           </a>
           <a
-            href="/prospeccao"
+            href="/prospeccao?demo=true"
             className="inline-flex items-center gap-2 border border-white/20 px-8 py-4 text-[11px] font-light uppercase tracking-[0.25em] text-foreground/80 transition-colors hover:border-primary/40 hover:text-foreground"
           >
             Abrir Demonstração Ao Vivo
