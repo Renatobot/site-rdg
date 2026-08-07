@@ -43,7 +43,8 @@ import {
   Download,
   Copy,
   Sun,
-  Moon
+  Moon,
+  Lock
 } from "lucide-react";
 import { RichTextToolbar } from "@/components/RichTextToolbar";
 
