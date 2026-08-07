@@ -27,6 +27,7 @@ import { Route as SistemasRouteImport } from './routes/sistemas'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as ApiAiProxyRouteImport } from './routes/api.ai-proxy'
 import { Route as ApiPhotoRouteImport } from './routes/api.photo'
 import { Route as ApiProxyRouteImport } from './routes/api.proxy'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
@@ -125,6 +126,11 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
     path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAiProxyRoute = ApiAiProxyRouteImport.update({
+  id: '/api/ai-proxy',
+  path: '/api/ai-proxy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPhotoRoute = ApiPhotoRouteImport.update({
   id: '/api/photo',
   path: '/api/photo',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/api/ai-proxy': typeof ApiAiProxyRoute
   '/api/photo': typeof ApiPhotoRoute
   '/api/proxy': typeof ApiProxyRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/api/ai-proxy': typeof ApiAiProxyRoute
   '/api/photo': typeof ApiPhotoRoute
   '/api/proxy': typeof ApiProxyRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -222,6 +230,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/api/ai-proxy': typeof ApiAiProxyRoute
   '/api/photo': typeof ApiPhotoRoute
   '/api/proxy': typeof ApiProxyRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -249,6 +258,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/api/ai-proxy'
     | '/api/photo'
     | '/api/proxy'
     | '/blog/$slug'
@@ -274,6 +284,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/api/ai-proxy'
     | '/api/photo'
     | '/api/proxy'
     | '/blog/$slug'
@@ -299,6 +310,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/api/ai-proxy'
     | '/api/photo'
     | '/api/proxy'
     | '/blog/$slug'
@@ -325,6 +337,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  ApiAiProxyRoute: typeof ApiAiProxyRoute
   ApiPhotoRoute: typeof ApiPhotoRoute
   ApiProxyRoute: typeof ApiProxyRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -460,6 +473,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-proxy': {
+      id: '/api/ai-proxy'
+      path: '/api/ai-proxy'
+      fullPath: '/api/ai-proxy'
+      preLoaderRoute: typeof ApiAiProxyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/photo': {
       id: '/api/photo'
       path: '/api/photo'
@@ -518,6 +538,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  ApiAiProxyRoute: ApiAiProxyRoute,
   ApiPhotoRoute: ApiPhotoRoute,
   ApiProxyRoute: ApiProxyRoute,
   BlogSlugRoute: BlogSlugRoute,

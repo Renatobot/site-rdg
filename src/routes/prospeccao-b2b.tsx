@@ -42,7 +42,7 @@ const CANONICAL_URL = `${BASE_URL}/prospeccao-b2b`;
 const SERIF = "'Cormorant Garamond', 'Times New Roman', serif";
 
 const WA_PLANO_PROSPECCAO_INDIVIDUAL = waLink(
-  "Olá, equipe RDG Digital! Quero assinar o Plano Mensal Operator do Software de Prospecção B2B Google Maps por R$ 97/mês."
+  "Olá, equipe RDG Digital! Quero assinar o Plano Mensal Operator do Software de Prospecção B2B Google Maps por R$ 67/mês."
 );
 const WA_PLANO_PROSPECCAO_ANUAL = waLink(
   "Olá, equipe RDG Digital! Quero assinar o Plano Anual Agência do Software de Prospecção B2B Google Maps por R$ 497/ano."
@@ -630,14 +630,16 @@ function PricingSection() {
               <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest">PLANO MENSAL</span>
               <h3 className="text-2xl font-light text-white" style={{ fontFamily: SERIF }}>Licença Mensal Operator</h3>
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-light text-primary" style={{ fontFamily: SERIF }}>R$ 97</span>
+                <span className="text-4xl font-light text-primary" style={{ fontFamily: SERIF }}>R$ 67</span>
                 <span className="text-xs text-muted-foreground">/mês</span>
               </div>
               <ul className="space-y-3 pt-4 border-t border-white/10 text-xs text-foreground/80">
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Acesso Completo ao Software Prospecção B2B</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Gerador de Sites de Demonstração em 1-Clique</li>
-                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Script Generator Comercial para WhatsApp</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Painel Kanban CRM Integrado</li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Editor de Fotos & Logo Remover por IA</li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Script Generator Comercial para WhatsApp</li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Exportação Ilimitada em Formato CSV</li>
               </ul>
             </div>
 
@@ -647,7 +649,7 @@ function PricingSection() {
               rel="noopener noreferrer"
               className="w-full py-4 text-center bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-widest transition-all"
             >
-              Assinar Plano Mensal (R$ 97/mês)
+              Assinar Plano Mensal (R$ 67/mês)
             </a>
           </div>
 

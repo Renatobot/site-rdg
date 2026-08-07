@@ -808,8 +808,19 @@ function ProspeccaoPage() {
                     : "text-white/60 hover:text-white"
                 }`}
               >
-                <Kanban size={14} />
+                <Bookmark size={14} />
                 <span>Meus Leads Salvos ({savedLeads.length})</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("kanban")}
+                className={`flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
+                  activeTab === "kanban"
+                    ? "bg-[#38BDF8] text-black font-extrabold shadow-[0_0_15px_rgba(56,189,248,0.4)]"
+                    : "text-white/60 hover:text-white"
+                }`}
+              >
+                <Kanban size={14} />
+                <span>Painel Kanban CRM</span>
               </button>
               <button
                 onClick={() => setActiveTab("previas")}
@@ -1021,6 +1032,128 @@ function ProspeccaoPage() {
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* TAB 4: PAINEL KANBAN CRM PIPELINE */}
+        {activeTab === "kanban" && (
+          <div className="space-y-6">
+            {/* Header com Métricas de Vendas do Pipeline */}
+            <div className="bg-[#0F1117] border border-[#38BDF8]/20 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xl">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Kanban size={20} className="text-[#38BDF8]" />
+                  <h3 className="text-xl font-black text-white tracking-tight">Painel Kanban CRM de Vendas B2B</h3>
+                </div>
+                <p className="text-xs text-white/60">
+                  Gerencie seus leads por etapas de prospecção, desde a busca até o fechamento de contrato.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="bg-[#0A0B10] border border-white/10 px-4 py-2 rounded-xl text-center">
+                  <span className="text-[10px] font-mono text-white/40 uppercase block">Total em Pipeline</span>
+                  <span className="text-sm font-bold text-white">{savedLeads.length} empresas</span>
+                </div>
+                <div className="bg-emerald-500/10 border border-emerald-500/30 px-4 py-2 rounded-xl text-center">
+                  <span className="text-[10px] font-mono text-emerald-400 uppercase block">Clientes Fechados</span>
+                  <span className="text-sm font-extrabold text-emerald-400">
+                    {savedLeads.filter(l => (l.status || "novo") === "fechado").length} (R$ {savedLeads.filter(l => (l.status || "novo") === "fechado").length * 750}/mês)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Colunas do Kanban CRM */}
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 overflow-x-auto pb-4">
+              {[
+                { id: "novo", label: "📥 Novos Leads", bg: "bg-slate-500/10", border: "border-slate-500/30", color: "text-slate-300" },
+                { id: "previas", label: "👁️ Prévia Criada", bg: "bg-sky-500/10", border: "border-sky-500/30", color: "text-sky-300" },
+                { id: "contato", label: "💬 Abordado (WhatsApp)", bg: "bg-emerald-500/10", border: "border-emerald-500/30", color: "text-emerald-300" },
+                { id: "proposta", label: "💰 Proposta Enviada", bg: "bg-purple-500/10", border: "border-purple-500/30", color: "text-purple-300" },
+                { id: "fechado", label: "🏆 Cliente Fechado", bg: "bg-amber-500/10", border: "border-amber-500/30", color: "text-amber-300" },
+              ].map((column) => {
+                const columnLeads = savedLeads.filter((l) => (l.status || "novo") === column.id);
+
+                return (
+                  <div key={column.id} className={`bg-[#0F1117] border ${column.border} rounded-2xl p-3.5 space-y-3 min-w-[240px] flex flex-col justify-between shadow-lg`}>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+                        <span className={`text-xs font-black uppercase tracking-wider ${column.color}`}>
+                          {column.label}
+                        </span>
+                        <span className="text-[10px] font-mono font-bold bg-white/10 px-2 py-0.5 rounded-full text-white">
+                          {columnLeads.length}
+                        </span>
+                      </div>
+
+                      {columnLeads.length === 0 ? (
+                        <div className="py-8 text-center border border-dashed border-white/10 rounded-xl">
+                          <p className="text-[11px] text-white/30 italic">Nenhum lead nesta etapa</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {columnLeads.map((lead) => (
+                            <div key={lead.id} className="bg-[#161924] border border-white/10 p-3 rounded-xl space-y-2.5 shadow-md hover:border-white/20 transition-all">
+                              <div className="flex items-start justify-between gap-1">
+                                <h5 className="text-xs font-bold text-white truncate leading-snug">{lead.name}</h5>
+                                <button
+                                  onClick={() => toggleSaveLead(lead)}
+                                  className="text-white/40 hover:text-rose-400 transition-colors p-0.5"
+                                  title="Remover do Kanban"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
+
+                              <p className="text-[10px] text-white/50 truncate">📍 {lead.city || lead.address || "Localização"}</p>
+                              <p className="text-[10px] text-white/50 truncate">📞 {lead.phone || "Sem telefone"}</p>
+
+                              {/* Mudar Etapa Dropdown Selector */}
+                              <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-1">
+                                <select
+                                  value={lead.status || "novo"}
+                                  onChange={(e) => {
+                                    const newStage = e.target.value;
+                                    const updated = savedLeads.map((l) => (l.id === lead.id ? { ...l, status: newStage } : l));
+                                    setSavedLeads(updated);
+                                    localStorage.setItem("saved_prospect_leads", JSON.stringify(updated));
+                                  }}
+                                  className="w-full bg-[#0B0D14] border border-white/15 rounded-lg px-2 py-1 text-[10px] font-bold text-white/80 focus:border-[#38BDF8] outline-none"
+                                >
+                                  <option value="novo">📥 Mover: Novo Lead</option>
+                                  <option value="previas">👁️ Mover: Prévia Criada</option>
+                                  <option value="contato">💬 Mover: Abordado</option>
+                                  <option value="proposta">💰 Mover: Proposta</option>
+                                  <option value="fechado">🏆 Mover: Cliente Fechado</option>
+                                </select>
+                              </div>
+
+                              <div className="flex items-center gap-1.5 pt-1">
+                                <button
+                                  onClick={() => openDemoPage(lead)}
+                                  className="flex-1 py-1.5 bg-[#38BDF8] hover:bg-[#7dd3fc] text-black font-extrabold text-[10px] rounded-lg transition-all flex items-center justify-center gap-1 shadow"
+                                >
+                                  <Eye size={12} />
+                                  <span>Prévia</span>
+                                </button>
+                                <button
+                                  onClick={() => setScriptLead(lead)}
+                                  className="flex-1 py-1.5 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/30 font-bold text-[10px] rounded-lg transition-all flex items-center justify-center gap-1"
+                                >
+                                  <MessageCircle size={12} />
+                                  <span>Whats</span>
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </main>
