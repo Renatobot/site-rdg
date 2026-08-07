@@ -644,7 +644,7 @@ function PricingSection() {
 
         <div className="mt-16 grid gap-8 md:grid-cols-2 max-w-4xl mx-auto text-left">
           {/* Plano Mensal Operator */}
-          <div className="border border-white/10 bg-[#0A0A0A] p-8 space-y-6 flex flex-col justify-between hover:border-primary/40 transition-colors">
+          <div className="border border-white/10 bg-[#0A0A0A] p-8 space-y-6 flex flex-col justify-between hover:border-primary/40 transition-colors rounded-2xl shadow-xl">
             <div className="space-y-4">
               <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest">PLANO MENSAL</span>
               <h3 className="text-2xl font-light text-white" style={{ fontFamily: SERIF }}>Licença Mensal Operator</h3>
@@ -666,14 +666,14 @@ function PricingSection() {
               href={WA_PLANO_PROSPECCAO_INDIVIDUAL}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-4 text-center bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-widest transition-all"
+              className="w-full py-4 text-center bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-widest transition-all rounded-xl border border-white/15"
             >
               Assinar Plano Mensal (R$ 67/mês)
             </a>
           </div>
 
           {/* Plano Anual Agência (R$ 497/ano - Destaque) */}
-          <div className="border border-primary bg-gradient-to-b from-[#181928] to-[#0A0A0A] p-8 space-y-6 flex flex-col justify-between relative shadow-2xl">
+          <div className="border border-primary bg-gradient-to-b from-[#181928] to-[#0A0A0A] p-8 space-y-6 flex flex-col justify-between relative shadow-2xl rounded-2xl">
             <span className="absolute top-0 right-8 -translate-y-1/2 bg-primary text-black font-extrabold text-[10px] uppercase tracking-widest px-3 py-1 rounded-full shadow">
               🔥 MELHOR CUSTO-BENEFÍCIO (ANUIDADE)
             </span>
@@ -686,9 +686,12 @@ function PricingSection() {
                 <span className="text-xs text-muted-foreground">/ano</span>
               </div>
               <ul className="space-y-3 pt-4 border-t border-white/10 text-xs text-foreground/90">
-                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> <strong>Licença de Acesso Valida por 1 Ano Inteiro</strong></li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> <strong>Licença de Acesso Válida por 1 Ano Inteiro</strong></li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Buscas Ilimitadas no Google Maps</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Gerador de Sites de Demonstração Ilimitados</li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Painel Kanban CRM Integrado</li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Personalização de Fotos & Capa com Upload Próprio</li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Script Generator Comercial para WhatsApp</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Todos os 3 Bônus Exclusivos Inclusos</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Suporte VIP Prioritário no WhatsApp</li>
               </ul>
@@ -698,7 +701,7 @@ function PricingSection() {
               href={WA_PLANO_PROSPECCAO_ANUAL}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-4 text-center bg-primary hover:bg-primary/90 text-black font-extrabold text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary/20"
+              className="w-full py-4 text-center bg-primary hover:bg-primary/90 text-black font-extrabold text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary/20 rounded-xl"
             >
               Garantir Licença Anual (R$ 497/ano)
             </a>
