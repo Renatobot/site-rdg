@@ -205,8 +205,10 @@ function FullSiteDemoPage() {
   const [editBtnServiceText, setEditBtnServiceText] = useState<string>("");
   const [editBtnFooterText, setEditBtnFooterText] = useState<string>("");
 
-  // Estados da IA Gratuita (Pollinations.ai) & Tela de Carregamento Futurista
-  const [isGeneratingAi, setIsGeneratingAi] = useState<boolean>(true);
+  // Apenas exibe a tela de carregamento/geração se for a primeira geração (mode === 'generate' ou 'preview' ou generate=true)
+  // Para o cliente final (mode === 'view' ou link do WhatsApp/compartilhado), NÃO exibe a tela de carregamento!
+  const shouldShowLoadingScreen = search.mode === "generate" || search.mode === "preview" || (search as any).generate === "true" || (search as any).isGenerating === "true";
+  const [isGeneratingAi, setIsGeneratingAi] = useState<boolean>(shouldShowLoadingScreen);
   const [aiStepMessage, setAiStepMessage] = useState<string>("🧠 Analisando o nicho e dados do negócio...");
   const [aiProgressPercent, setAiProgressPercent] = useState<number>(15);
   const [customColorHex, setCustomColorHex] = useState<string>((search as any).custom_color || "");
@@ -247,6 +249,11 @@ function FullSiteDemoPage() {
 
   // Efeito de Carregamento Interativo com IA Gratuita
   useEffect(() => {
+    if (!shouldShowLoadingScreen) {
+      setIsGeneratingAi(false);
+      return;
+    }
+
     let isMounted = true;
     let timer1: any, timer2: any, timer3: any, timer4: any;
 

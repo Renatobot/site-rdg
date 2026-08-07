@@ -458,6 +458,7 @@ function ProspeccaoPage() {
       address: lead.address,
       endereco: lead.address,
       cidade: cidade || "São Paulo - SP",
+      mode: "generate",
     });
 
     if (apiKey) params.set("api_key", apiKey);
@@ -490,7 +491,7 @@ function ProspeccaoPage() {
   };
 
   const generateWhatsAppScripts = (lead: LeadItem) => {
-    const demoUrl = `${BASE_URL}/demo?name=${encodeURIComponent(lead.name)}&category=${encodeURIComponent(lead.category)}&phone=${encodeURIComponent(lead.phone)}`;
+    const demoUrl = `${BASE_URL}/demo?name=${encodeURIComponent(lead.name)}&category=${encodeURIComponent(lead.category)}&phone=${encodeURIComponent(lead.phone)}&mode=view`;
 
     return [
       {
