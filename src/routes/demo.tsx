@@ -250,25 +250,25 @@ function FullSiteDemoPage() {
 
     const runAiGeneration = async () => {
       setAiProgressPercent(25);
-      setAiStepMessage("🧠 Analisando nicho e inteligência comercial...");
+      setAiStepMessage("Analisando segmento comercial & paleta de cores...");
 
       timer1 = setTimeout(() => {
         if (!isMounted) return;
         setAiProgressPercent(55);
-        setAiStepMessage("✍️ Escrevendo apresentação & copy persuasiva com IA...");
-      }, 1500);
+        setAiStepMessage("Estruturando banner principal e serviços em alta definição...");
+      }, 1200);
 
       timer2 = setTimeout(() => {
         if (!isMounted) return;
         setAiProgressPercent(85);
-        setAiStepMessage("🎨 Otimizando imagens em HD & paleta de cores exclusiva...");
-      }, 3000);
+        setAiStepMessage("Carregando acervo de fotos HD do setor...");
+      }, 2400);
 
       timer3 = setTimeout(() => {
         if (!isMounted) return;
         setAiProgressPercent(100);
-        setAiStepMessage("⚡ Finalizando estrutura do site e WhatsApp...");
-      }, 4200);
+        setAiStepMessage("Finalizando personalização e botão de atendimento...");
+      }, 3600);
 
       // Consulta a IA Gratuita da Pollinations.ai em background sem travar
       try {
@@ -1167,46 +1167,44 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
 
-          <div className="relative max-w-md w-full bg-[#111625]/90 border border-white/15 p-8 rounded-3xl shadow-2xl space-y-6 backdrop-blur-md">
-            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-amber-500 to-purple-600 animate-ping opacity-25" />
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-500 to-purple-600 p-0.5 shadow-xl flex items-center justify-center">
-                <div className="w-full h-full bg-[#0B0E17] rounded-[14px] flex items-center justify-center">
-                  <Sparkles size={32} className="text-amber-400 animate-pulse" />
-                </div>
+          <div className="relative max-w-md w-full bg-[#0F1117] border border-white/15 p-8 rounded-3xl shadow-2xl space-y-6 backdrop-blur-xl text-center">
+            <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/15 shadow-xl flex items-center justify-center text-white">
+                <LayoutTemplate size={28} className="animate-pulse text-white" />
               </div>
             </div>
 
             <div className="space-y-2">
-              <span className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
-                RDG AI Engine (Grátis)
+              <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-white/60 bg-white/5 px-3.5 py-1 rounded-full border border-white/10">
+                RDG DESIGN STUDIO
               </span>
-              <h2 className="text-xl font-extrabold text-white tracking-tight">
-                Gerando Prévia Profissional
+              <h2 className="text-xl font-bold text-white tracking-tight pt-1">
+                Personalizando Seu Novo Site
               </h2>
-              <p className="text-xs text-white/70 font-medium min-h-[36px] flex items-center justify-center transition-all">
+              <p className="text-xs text-white/70 font-medium min-h-[36px] flex items-center justify-center transition-all leading-relaxed px-2">
                 {aiStepMessage}
               </p>
             </div>
 
             <div className="space-y-2">
-              <div className="w-full h-3 bg-black/60 rounded-full overflow-hidden p-0.5 border border-white/10">
+              <div className="w-full h-2.5 bg-black/60 rounded-full overflow-hidden p-0.5 border border-white/10">
                 <div
-                  className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-purple-500 rounded-full transition-all duration-700 shadow-[0_0_12px_rgba(245,158,11,0.5)]"
+                  className="h-full bg-white rounded-full transition-all duration-700 shadow-[0_0_12px_rgba(255,255,255,0.4)]"
                   style={{ width: `${aiProgressPercent}%` }}
                 />
               </div>
-              <div className="flex justify-between items-center text-[10px] font-mono text-white/50 px-1">
-                <span>INTELIGÊNCIA DE NICHO</span>
-                <span className="font-bold text-amber-400">{aiProgressPercent}%</span>
+              <div className="flex justify-between items-center text-[10px] font-mono text-white/40 px-1">
+                <span>MONTAGEM DO LAYOUT</span>
+                <span className="font-bold text-white">{aiProgressPercent}%</span>
               </div>
             </div>
 
             <button
               onClick={() => setIsGeneratingAi(false)}
-              className="text-[11px] font-bold text-white/40 hover:text-white transition-colors underline underline-offset-4 pt-2"
+              className="text-[11px] font-bold text-white/50 hover:text-white transition-colors underline underline-offset-4 pt-1 inline-flex items-center gap-1"
             >
-              Pular aguardo & abrir prévia agora ⚡
+              <span>Visualizar Site Agora</span>
+              <span>→</span>
             </button>
           </div>
         </div>
