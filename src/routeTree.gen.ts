@@ -22,6 +22,7 @@ import { Route as PromptsRouteImport } from './routes/prompts'
 import { Route as PromptsInstagramRouteImport } from './routes/prompts-instagram'
 import { Route as ProspeccaoRouteImport } from './routes/prospeccao'
 import { Route as ProspeccaoB2bRouteImport } from './routes/prospeccao-b2b'
+import { Route as RdgAiRouteImport } from './routes/rdg-ai'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as SistemasRouteImport } from './routes/sistemas'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -99,6 +100,11 @@ const ProspeccaoB2bRoute = ProspeccaoB2bRouteImport.update({
   path: '/prospeccao-b2b',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RdgAiRoute = RdgAiRouteImport.update({
+  id: '/rdg-ai',
+  path: '/rdg-ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicosRoute = ServicosRouteImport.update({
   id: '/servicos',
   path: '/servicos',
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/prompts-instagram': typeof PromptsInstagramRoute
   '/prospeccao': typeof ProspeccaoRoute
   '/prospeccao-b2b': typeof ProspeccaoB2bRoute
+  '/rdg-ai': typeof RdgAiRoute
   '/servicos': typeof ServicosRoute
   '/sistemas': typeof SistemasRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/prompts-instagram': typeof PromptsInstagramRoute
   '/prospeccao': typeof ProspeccaoRoute
   '/prospeccao-b2b': typeof ProspeccaoB2bRoute
+  '/rdg-ai': typeof RdgAiRoute
   '/servicos': typeof ServicosRoute
   '/sistemas': typeof SistemasRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -225,6 +233,7 @@ export interface FileRoutesById {
   '/prompts-instagram': typeof PromptsInstagramRoute
   '/prospeccao': typeof ProspeccaoRoute
   '/prospeccao-b2b': typeof ProspeccaoB2bRoute
+  '/rdg-ai': typeof RdgAiRoute
   '/servicos': typeof ServicosRoute
   '/sistemas': typeof SistemasRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -253,6 +262,7 @@ export interface FileRouteTypes {
     | '/prompts-instagram'
     | '/prospeccao'
     | '/prospeccao-b2b'
+    | '/rdg-ai'
     | '/servicos'
     | '/sistemas'
     | '/sitemap.xml'
@@ -279,6 +289,7 @@ export interface FileRouteTypes {
     | '/prompts-instagram'
     | '/prospeccao'
     | '/prospeccao-b2b'
+    | '/rdg-ai'
     | '/servicos'
     | '/sistemas'
     | '/sitemap.xml'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/prompts-instagram'
     | '/prospeccao'
     | '/prospeccao-b2b'
+    | '/rdg-ai'
     | '/servicos'
     | '/sistemas'
     | '/sitemap.xml'
@@ -332,6 +344,7 @@ export interface RootRouteChildren {
   PromptsInstagramRoute: typeof PromptsInstagramRoute
   ProspeccaoRoute: typeof ProspeccaoRoute
   ProspeccaoB2bRoute: typeof ProspeccaoB2bRoute
+  RdgAiRoute: typeof RdgAiRoute
   ServicosRoute: typeof ServicosRoute
   SistemasRoute: typeof SistemasRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -438,6 +451,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProspeccaoB2bRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rdg-ai': {
+      id: '/rdg-ai'
+      path: '/rdg-ai'
+      fullPath: '/rdg-ai'
+      preLoaderRoute: typeof RdgAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/servicos': {
       id: '/servicos'
       path: '/servicos'
@@ -532,6 +552,7 @@ const rootRouteChildren: RootRouteChildren = {
   PromptsInstagramRoute: PromptsInstagramRoute,
   ProspeccaoRoute: ProspeccaoRoute,
   ProspeccaoB2bRoute: ProspeccaoB2bRoute,
+  RdgAiRoute: RdgAiRoute,
   ServicosRoute: ServicosRoute,
   SistemasRoute: SistemasRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

@@ -71,8 +71,33 @@ function SistemasPage() {
           </p>
         </div>
 
-        {/* Grid de Sistemas da RDG Digital (Formatado no mesmo padrão de Screenshot 1) */}
+        {/* Grid de Sistemas da RDG Digital */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left max-w-5xl mx-auto">
+          {/* Software 0: RDG AI Plataforma Completa */}
+          <div className="md:col-span-2 border border-cyan-500/30 bg-gradient-to-r from-violet-950/40 via-[#0A0A0A] to-cyan-950/40 p-8 sm:p-10 space-y-6 flex flex-col justify-between hover:border-cyan-400 transition-colors relative overflow-hidden group rounded-2xl shadow-xl shadow-cyan-500/10">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyan-400 font-bold border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-1 rounded-full">
+                    PLATAFORMA COMPLETA DE IA & CRIADOR DE APPS
+                  </span>
+                </div>
+                <h2 className="text-3xl sm:text-4xl font-light text-white group-hover:text-cyan-300 transition-colors" style={{ fontFamily: SERIF }}>
+                  RDG AI Plataforma All-in-One
+                </h2>
+                <p className="text-xs sm:text-sm font-light leading-relaxed text-zinc-300 max-w-3xl">
+                  Criador de aplicativos e sites (RDG Builder) com leitor de PDFs/E-books e vídeos + Multi-IA Chat (GPT-5.6 Sol, Claude 3.7 Sonnet, Gemini 3.6 Flash) + Gerador de Imagens 4K + Estúdio de Vozes Realistas + Central com Rotação Ilimitada de Chaves de API.
+                </p>
+              </div>
+              <Link
+                to="/rdg-ai"
+                className="shrink-0 py-4 px-8 bg-gradient-to-r from-violet-600 to-cyan-500 text-white font-extrabold text-xs uppercase tracking-widest transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 hover:scale-105 rounded-xl"
+              >
+                <span>Ver Página de Vendas</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
           {/* Software 1: Prospecção B2B Google Maps */}
           <div className="border border-white/10 bg-[#0A0A0A] p-8 space-y-6 flex flex-col justify-between hover:border-primary/40 transition-colors relative overflow-hidden group">
             <div className="space-y-4">

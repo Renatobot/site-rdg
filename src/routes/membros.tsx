@@ -76,7 +76,7 @@ const DOWNLOAD_ZIP_URL = "https://www.dropbox.com/scl/fo/dt1wornxoi3o7r8mbvxqa/A
 const DOWNLOAD_LOVABLE_ZIP_URL = "https://www.dropbox.com/scl/fo/e71wms6kcsre6igkjaz4y/ACt1_0xTijL9wIujqccUhXM?rlkey=koog865sgc18l38g8sf3cwl4t&st=l5tvgzk9&dl=1";
 
 // Loom Embed oficial de Visão Geral & Boas-Vindas da Área de Membros
-const HOME_WELCOME_VIDEO_URL = "https://www.loom.com/embed/eac334f209654087868a30e852e8315b";
+const HOME_WELCOME_VIDEO_URL = "https://www.loom.com/embed/eac334f209654087868a30e852e8315b?hide_owner=true&hide_share=true&hide_title=true&hide_embed_top_bar=true";
 
 interface LicenseData {
   cliente: string;
@@ -1599,32 +1599,38 @@ function MembrosPage() {
             </div>
           </div>
 
-          {/* Treinamento em Vídeo VIP */}
+          {/* Treinamento em Vídeo VIP - EM GRAVAÇÃO / EM BREVE */}
           <section className="border border-white/10 bg-[#111218] p-6 sm:p-8 space-y-6 rounded-2xl shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div className="space-y-1">
                 <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#38BDF8] font-bold flex items-center gap-2">
                   <Play size={13} /> TREINAMENTO EM VÍDEO VIP
                 </span>
-                <h2 className="text-xl font-bold text-white">Como Prospectar Empresas e Fechar Contratos</h2>
+                <h2 className="text-xl font-bold text-white">Como Prospectar Negócios no Google Maps</h2>
               </div>
-              <span className="font-mono text-[10px] text-muted-foreground uppercase bg-white/5 px-3 py-1 rounded border border-white/10">
-                AULA COMPLETA
+              <span className="font-mono text-[10px] text-amber-400 font-bold uppercase bg-amber-500/10 px-3 py-1 rounded border border-amber-500/30">
+                EM BREVE
               </span>
             </div>
 
-            <div className="relative aspect-video bg-black border border-white/10 rounded-xl overflow-hidden shadow-2xl">
-              <iframe
-                src="https://www.loom.com/embed/eac334f209654087868a30e852e8315b"
-                title="Treinamento Prospecção B2B"
-                className="w-full h-full border-0"
-                allowFullScreen
-              />
+            <div className="relative aspect-video bg-[#0A0A0A] border border-white/10 rounded-xl flex flex-col items-center justify-center text-center p-8 space-y-4 shadow-inner">
+              <div className="w-14 h-14 rounded-2xl bg-[#38BDF8]/10 text-[#38BDF8] border border-[#38BDF8]/30 flex items-center justify-center mx-auto">
+                <Clock size={28} className="animate-pulse" />
+              </div>
+              <div className="space-y-1 max-w-md mx-auto">
+                <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#38BDF8] border border-[#38BDF8]/30 px-3 py-1 inline-block bg-[#38BDF8]/10">
+                  AULA EM GRAVAÇÃO
+                </span>
+                <h3 className="text-lg font-bold text-white pt-2">Vídeo Aula em Produção</h3>
+                <p className="text-xs text-muted-foreground font-light leading-relaxed">
+                  O treinamento em vídeo dedicado deste módulo estará disponível nesta seção em breve assim que as gravações forem finalizadas.
+                </p>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
               <p className="text-xs text-muted-foreground font-light leading-relaxed">
-                Assista ao vídeo para dominar a estratégia de prospecção fria pelo Google Maps e fechamento de contratos de sites.
+                Utilize o botão ao lado para abrir o software de prospecção B2B em tela cheia agora mesmo.
               </p>
               <button
                 type="button"
