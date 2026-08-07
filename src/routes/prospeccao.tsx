@@ -41,7 +41,8 @@ import {
   HelpCircle,
   Eye,
   Share2,
-  Trash2
+  Trash2,
+  ArrowRight
 } from "lucide-react";
 
 const TITLE = "Ferramenta de Prospecção B2B Google Maps — RDG Digital";
