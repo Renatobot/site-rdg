@@ -134,8 +134,24 @@ function generateDemoMockLeads(nichoInput: string, cidadeInput: string): LeadIte
 
 function ProspeccaoPage() {
   const search = Route.useSearch();
-  const isDemoMode = (search as any).demo === "true" || (search as any).mode === "demo";
   const [showDemoLockModal, setShowDemoLockModal] = useState<boolean>(false);
+
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("demo") === "true" || params.get("mode") === "demo") return true;
+    }
+    return (search as any)?.demo === "true" || (search as any)?.mode === "demo";
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("demo") === "true" || params.get("mode") === "demo") {
+        setIsDemoMode(true);
+      }
+    }
+  }, [search]);
 
   // Autenticação de Rota / Validação de Licença Exclusiva
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
