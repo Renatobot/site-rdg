@@ -582,7 +582,7 @@ function ScriptGeneratorShowcase() {
 function BonusSection() {
   const bonuses = [
     { title: "Bônus #1: +700 Prompts de IA para Fotografia", desc: "Biblioteca completa de prompts para criar fotos profissionais para os sites." },
-    { title: "Bônus #2: Calculadora de Metas & ROI", desc: "Planeje o número de abordagens diárias para atingir sua meta financeira." },
+    { title: "Bônus #2: Script Generator Comercial WhatsApp", desc: "3 modelos de mensagens de abordagem pré-preenchidas para alta conversão." },
     { title: "Bônus #3: Plataforma de Cursos RDG", desc: "Acesso a aulas de tráfego pago, criação de criativos e vendas B2B." },
   ];
 
@@ -637,7 +637,7 @@ function PricingSection() {
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Acesso Completo ao Software Prospecção B2B</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Gerador de Sites de Demonstração em 1-Clique</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Painel Kanban CRM Integrado</li>
-                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Editor de Fotos & Logo Remover por IA</li>
+                <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Personalização de Fotos & Capa com Upload Próprio</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Script Generator Comercial para WhatsApp</li>
                 <li className="flex items-center gap-2"><Check size={14} className="text-primary" /> Exportação Ilimitada em Formato CSV</li>
               </ul>
