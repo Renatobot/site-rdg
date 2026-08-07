@@ -160,6 +160,25 @@ function FullSiteDemoPage() {
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("demo") === "true" || params.get("mode") === "demo") return true;
+    }
+    return (search as any)?.demo === "true" || (search as any)?.mode === "demo";
+  });
+
+  const [showDemoShareLock, setShowDemoShareLock] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("demo") === "true" || params.get("mode") === "demo") {
+        setIsDemoMode(true);
+      }
+    }
+  }, [search]);
+
   // NEW SITE BUILDER ADVANCED STATES
   const [typography, setTypography] = useState<"modern" | "serif" | "mono">((search as any).font || "modern");
   const [buttonStyle, setButtonStyle] = useState<"rounded" | "square" | "outline" | "neon">((search as any).btn || "rounded");
@@ -2992,6 +3011,76 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                 <span>Concluir Edição</span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* BANNER FIXO DE MODO DEMONSTRAÇÃO NO TOPO DA PÁGINA DEMO */}
+      {isDemoMode && (
+        <div className="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-black py-2.5 px-4 font-bold text-xs flex items-center justify-between shadow-2xl border-b border-black/20">
+          <div className="flex items-center gap-2.5 mx-auto">
+            <span className="bg-black text-amber-300 text-[10px] uppercase font-mono px-2.5 py-0.5 rounded-full font-extrabold tracking-wider border border-amber-300/30 shrink-0">
+              🧪 MODO DEMONSTRAÇÃO FICTÍCIO
+            </span>
+            <span className="hidden sm:inline font-sans text-xs">
+              Esta é uma pré-visualização de teste. O link oficial de compartilhamento com o cliente é exclusivo para assinantes.
+            </span>
+          </div>
+          <a
+            href="/prospeccao-b2b#planos"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-black hover:bg-black/90 text-amber-400 font-extrabold text-[11px] px-4 py-1.5 rounded-xl uppercase tracking-widest transition-all shrink-0 shadow-md hover:scale-105"
+          >
+            Garantir Licença (R$ 67/mês)
+          </a>
+        </div>
+      )}
+
+      {/* MARCA D'ÁGUA TRANSLÚCIDA FIXA NO CANTO DA PÁGINA */}
+      {isDemoMode && (
+        <div className="fixed bottom-4 left-4 z-[9999] bg-black/85 backdrop-blur-md border border-amber-500/40 text-white px-3.5 py-2 rounded-2xl shadow-2xl flex items-center gap-2 text-xs font-bold pointer-events-none">
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping shrink-0" />
+          <span className="text-[11px] tracking-wide">🔒 PRÉVIA DE TESTE — RDG DIGITAL</span>
+        </div>
+      )}
+
+      {/* MODAL DE BLOQUEIO DE COMPARTILHAMENTO DE LINK NO MODO DEMO */}
+      {showDemoShareLock && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
+          <div className="bg-[#111218] border border-[#38BDF8]/40 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-5 relative shadow-2xl">
+            <button
+              onClick={() => setShowDemoShareLock(false)}
+              className="absolute top-4 right-4 text-white/40 hover:text-white"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="w-14 h-14 rounded-2xl bg-[#38BDF8]/20 text-[#38BDF8] border border-[#38BDF8]/30 flex items-center justify-center mx-auto">
+              <Lock size={28} />
+            </div>
+
+            <div className="space-y-2">
+              <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#38BDF8] bg-[#38BDF8]/10 px-3 py-1 rounded-full border border-[#38BDF8]/20">
+                LINK DE CLIENTE BLOQUEADO
+              </span>
+              <h3 className="text-xl font-bold text-white tracking-tight pt-1">
+                Adquira a Licença Oficial para Enviar aos Clientes
+              </h3>
+              <p className="text-xs text-white/60 leading-relaxed">
+                No <strong>Modo Demonstração Gratuito</strong> os links gerados são fictícios para testes. Adquira sua licença por R$ 67/mês para remover avisos de demo e gerar links limpos e profissionais!
+              </p>
+            </div>
+
+            <a
+              href="/prospeccao-b2b#planos"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3.5 bg-[#38BDF8] hover:bg-[#7dd3fc] text-black font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+            >
+              <span>Garantir Licença (R$ 67/mês)</span>
+              <ArrowUpRight size={14} />
+            </a>
           </div>
         </div>
       )}

@@ -586,13 +586,18 @@ function ProspeccaoPage() {
       mode: "generate",
     });
 
+    if (isDemoMode) {
+      params.set("demo", "true");
+    }
     if (apiKey) params.set("api_key", apiKey);
     window.open(`/demo?${params.toString()}`, "_blank");
     setPreviewModalLead(null);
   };
 
   const generateWhatsAppScripts = (lead: LeadItem) => {
-    const demoUrl = `${BASE_URL}/demo?name=${encodeURIComponent(lead.name)}&category=${encodeURIComponent(lead.category)}&phone=${encodeURIComponent(lead.phone)}&mode=view`;
+    const demoUrl = isDemoMode
+      ? `https://www.rdgdigital.com.br/demo-ficticia-bloqueada?id=DEMO-${Math.floor(1000 + Math.random() * 9000)}`
+      : `${BASE_URL}/demo?name=${encodeURIComponent(lead.name)}&category=${encodeURIComponent(lead.category)}&phone=${encodeURIComponent(lead.phone)}&mode=view`;
 
     return [
       {
