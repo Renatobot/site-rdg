@@ -257,15 +257,21 @@ function FullSiteDemoPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        const stored = sessionStorage.getItem("active_demo_lead");
+        const stored = localStorage.getItem("active_demo_lead") || sessionStorage.getItem("active_demo_lead");
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed) {
             setStoredLead(parsed);
+            if (parsed.customHeroPhoto) {
+              setEditHeroImage(parsed.customHeroPhoto);
+            }
+            if (parsed.customGalleryPhotos && Array.isArray(parsed.customGalleryPhotos) && parsed.customGalleryPhotos.length > 0) {
+              setEditGalleryImages(parsed.customGalleryPhotos);
+            }
           }
         }
       } catch (e) {
-        console.error("Erro ao carregar lead do sessionStorage:", e);
+        console.error("Erro ao carregar lead do storage:", e);
       }
     }
   }, []);

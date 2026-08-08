@@ -585,6 +585,40 @@ function ProspeccaoPage() {
     document.body.removeChild(link);
   };
 
+function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200, quality = 0.82): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+      if (height > maxHeight) {
+        width = Math.round((width * maxHeight) / height);
+        height = maxHeight;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressed = canvas.toDataURL("image/jpeg", quality);
+        resolve(compressed);
+      } else {
+        resolve(dataUrl);
+      }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
   // AÇÃO EXECUTADA AO CLICAR EM "GERAR PRÉVIA" -> ABRE MODAL DE CONFIGURAÇÃO E UPLOAD DE IMAGENS
   const openDemoPage = (lead: LeadItem) => {
     setCustomHeroPhoto("");
@@ -596,7 +630,11 @@ function ProspeccaoPage() {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => setCustomHeroPhoto(reader.result as string);
+      reader.onload = async () => {
+        const raw = reader.result as string;
+        const compressed = await compressImageDataUrl(raw, 1200, 1200, 0.82);
+        setCustomHeroPhoto(compressed);
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -606,8 +644,10 @@ function ProspeccaoPage() {
     if (files.length > 0) {
       files.forEach((file) => {
         const reader = new FileReader();
-        reader.onload = () => {
-          setCustomGalleryPhotos((prev) => [...prev.slice(-3), reader.result as string]);
+        reader.onload = async () => {
+          const raw = reader.result as string;
+          const compressed = await compressImageDataUrl(raw, 1000, 1000, 0.82);
+          setCustomGalleryPhotos((prev) => [...prev.slice(-3), compressed]);
         };
         reader.readAsDataURL(file);
       });
@@ -621,7 +661,13 @@ function ProspeccaoPage() {
       customGalleryPhotos: useUploadedPhotos && customGalleryPhotos.length > 0 ? customGalleryPhotos : undefined,
     };
 
-    sessionStorage.setItem("active_demo_lead", JSON.stringify(updatedLead));
+    try {
+      localStorage.setItem("active_demo_lead", JSON.stringify(updatedLead));
+      sessionStorage.setItem("active_demo_lead", JSON.stringify(updatedLead));
+    } catch (e) {
+      console.error("Erro ao salvar active_demo_lead no storage:", e);
+    }
+
     const effectiveCategory = lead.category || nicho || "Estética";
     const params = new URLSearchParams({
       nome: lead.name,
