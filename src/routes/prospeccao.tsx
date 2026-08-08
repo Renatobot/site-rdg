@@ -1348,27 +1348,6 @@ function ProspeccaoPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                {/* Botões de Navegação Horizontal das Colunas */}
-                <div className="flex items-center gap-1.5 bg-[#0A0B10] p-1.5 rounded-2xl border border-white/10 shrink-0">
-                  <button
-                    onClick={() => scrollKanban("left")}
-                    className="p-1.5 bg-[#161924] hover:bg-[#202535] text-white/80 hover:text-white rounded-xl transition-all border border-white/10 active:scale-95 flex items-center gap-1 text-xs font-bold"
-                    title="Rolar para Esquerda"
-                  >
-                    <ChevronLeft size={16} />
-                    <span className="hidden sm:inline">Anterior</span>
-                  </button>
-                  <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider px-1">Navegar</span>
-                  <button
-                    onClick={() => scrollKanban("right")}
-                    className="p-1.5 bg-[#161924] hover:bg-[#202535] text-white/80 hover:text-white rounded-xl transition-all border border-white/10 active:scale-95 flex items-center gap-1 text-xs font-bold"
-                    title="Rolar para Direita"
-                  >
-                    <span className="hidden sm:inline">Próxima</span>
-                    <ChevronRight size={16} />
-                  </button>
-                </div>
-
                 <div className="bg-[#0A0B10] border border-white/10 px-4 py-2 rounded-xl text-center">
                   <span className="text-[10px] font-mono text-white/40 uppercase block">Total em Pipeline</span>
                   <span className="text-sm font-bold text-white">{savedLeads.length} empresas</span>
@@ -1382,8 +1361,28 @@ function ProspeccaoPage() {
               </div>
             </div>
 
-            {/* Colunas do Kanban CRM (Flex Container com Scroll Horizontal Elegante de 8px) */}
-            <div ref={kanbanScrollRef} className="flex gap-4 overflow-x-auto pb-6 kanban-scrollbar items-start select-none">
+            {/* Contêiner do Kanban com Botões Flutuantes nas Laterais Esquerda e Direita */}
+            <div className="relative group">
+              {/* Botão de Rolagem Lateral Esquerda */}
+              <button
+                onClick={() => scrollKanban("left")}
+                className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-[#0F1117]/90 hover:bg-[#38BDF8] text-white hover:text-black border border-white/20 hover:border-[#38BDF8] shadow-[0_0_25px_rgba(0,0,0,0.8)] items-center justify-center transition-all hover:scale-110 active:scale-95 backdrop-blur-md opacity-80 group-hover:opacity-100"
+                title="Rolar Colunas para Esquerda"
+              >
+                <ChevronLeft size={22} />
+              </button>
+
+              {/* Botão de Rolagem Lateral Direita */}
+              <button
+                onClick={() => scrollKanban("right")}
+                className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-[#0F1117]/90 hover:bg-[#38BDF8] text-white hover:text-black border border-white/20 hover:border-[#38BDF8] shadow-[0_0_25px_rgba(0,0,0,0.8)] items-center justify-center transition-all hover:scale-110 active:scale-95 backdrop-blur-md opacity-80 group-hover:opacity-100"
+                title="Rolar Colunas para Direita"
+              >
+                <ChevronRight size={22} />
+              </button>
+
+              {/* Colunas do Kanban CRM (Flex Container com Scroll Horizontal Elegante de 8px) */}
+              <div ref={kanbanScrollRef} className="flex gap-4 overflow-x-auto pb-6 kanban-scrollbar items-start select-none px-1">
               {KANBAN_COLUMNS.map((column) => {
                 const columnLeads = savedLeads.filter((l) => (l.status || "novo") === column.id);
                 const isOver = dragOverColumnId === column.id;
@@ -1533,6 +1532,7 @@ function ProspeccaoPage() {
               })}
             </div>
           </div>
+        </div>
         )}
       </main>
 
