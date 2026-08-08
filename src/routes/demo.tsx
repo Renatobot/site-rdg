@@ -991,6 +991,10 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
   };
 
   const handleSharePreview = () => {
+    if (isDemoMode) {
+      setShowDemoShareLock(true);
+      return;
+    }
     try {
       const url = new URL(window.location.origin + window.location.pathname);
       url.searchParams.set("nome", nome);
@@ -1014,6 +1018,10 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
   // Função para fazer Download do Site HTML5 Completo em 1 clique
   const handleDownloadHtml5 = () => {
+    if (isDemoMode) {
+      setShowDemoShareLock(true);
+      return;
+    }
     const htmlContent = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>

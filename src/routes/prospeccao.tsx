@@ -800,7 +800,7 @@ function ProspeccaoPage() {
             href="/prospeccao-b2b#planos"
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#38BDF8] text-black font-extrabold text-[11px] rounded-xl hover:brightness-110 transition-all shrink-0 shadow-lg shadow-[#38BDF8]/20"
           >
-            <span>Garantir Licença (R$ 67/mês)</span>
+            <span>Garantir Licença Oficial</span>
             <ArrowRight size={12} />
           </a>
         </div>
@@ -1572,7 +1572,7 @@ function ProspeccaoPage() {
                 Disparos de Mensagens & CSV Ilimitado
               </h3>
               <p className="text-xs text-white/60 leading-relaxed">
-                Você está no <strong>Modo Demonstração Gratuito</strong>. Adquira sua licença oficial por apenas R$ 67/mês para realizar disparos reais no WhatsApp, buscas ao vivo no Google Maps e exportação em CSV!
+                Você está no <strong>Modo Demonstração Gratuito</strong>. Adquira sua licença oficial mensal ou anual para realizar disparos reais no WhatsApp, buscas ao vivo no Google Maps e exportação em CSV!
               </p>
             </div>
 
@@ -1580,7 +1580,7 @@ function ProspeccaoPage() {
               href="/prospeccao-b2b#planos"
               className="w-full py-3.5 bg-[#38BDF8] hover:bg-[#7dd3fc] text-black font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
             >
-              <span>Garantir Licença (R$ 67/mês)</span>
+              <span>Garantir Licença Oficial</span>
               <ArrowRight size={14} />
             </a>
           </div>
