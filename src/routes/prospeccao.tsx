@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
 import { waLink } from "@/lib/site";
@@ -38,6 +38,7 @@ import {
   ShieldCheck,
   UserCheck,
   ChevronRight,
+  ChevronLeft,
   HelpCircle,
   Eye,
   Share2,
@@ -228,6 +229,14 @@ function ProspeccaoPage() {
   // Drag and Drop States for Kanban CRM
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
   const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
+  const kanbanScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollKanban = (direction: "left" | "right") => {
+    if (kanbanScrollRef.current) {
+      const scrollAmount = direction === "left" ? -320 : 320;
+      kanbanScrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
 
   // Computed Filtered & Sorted Leads
   const filteredAndSortedLeads = useMemo(() => {
@@ -931,76 +940,7 @@ function ProspeccaoPage() {
             </div>
           </form>
 
-          {/* Expandable Advanced Filters Panel */}
-          {showFiltersPanel && (
-            <div className="pt-3 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-[#0A0B10] p-4 rounded-2xl border border-white/10 shadow-inner">
-              {/* Filtro: Telefone / WhatsApp */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
-                  Telefone / WhatsApp
-                </label>
-                <label className="flex items-center gap-2 text-xs text-white/80 cursor-pointer pt-1">
-                  <input
-                    type="checkbox"
-                    checked={onlyWithPhone}
-                    onChange={(e) => setOnlyWithPhone(e.target.checked)}
-                    className="rounded border-white/20 text-[#38BDF8] focus:ring-[#38BDF8] bg-[#111218] w-4 h-4"
-                  />
-                  <span>Com Telefone Válido</span>
-                </label>
-              </div>
-
-              {/* Filtro: Nota no Google */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
-                  Nota no Google (GMB)
-                </label>
-                <select
-                  value={filterRating}
-                  onChange={(e: any) => setFilterRating(e.target.value)}
-                  className="w-full bg-[#111218] border border-white/15 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none focus:border-[#38BDF8]"
-                >
-                  <option value="todas">Todas as Notas</option>
-                  <option value="baixa">⚠️ Nota Baixa (&lt; 4.4) · Gestão Reputação</option>
-                  <option value="alta">⭐ Nota Alta (≥ 4.5) · Empresas Premium</option>
-                </select>
-              </div>
-
-              {/* Filtro: Volume de Avaliações */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
-                  Volume de Avaliações
-                </label>
-                <select
-                  value={filterReviews}
-                  onChange={(e: any) => setFilterReviews(e.target.value)}
-                  className="w-full bg-[#111218] border border-white/15 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none focus:border-[#38BDF8]"
-                >
-                  <option value="todas">Todas as Avaliações</option>
-                  <option value="poucas">📉 Poucas Avaliações (&lt; 30) · Otimização GMB</option>
-                  <option value="muitas">🔥 Muitas Avaliações (≥ 30) · Alta Procura</option>
-                </select>
-              </div>
-
-              {/* Ordenação */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
-                  Ordenar Resultados
-                </label>
-                <select
-                  value={sortOption}
-                  onChange={(e: any) => setSortOption(e.target.value)}
-                  className="w-full bg-[#111218] border border-white/15 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none focus:border-[#38BDF8]"
-                >
-                  <option value="relevancia">Relevância Padrão (Google)</option>
-                  <option value="nota_asc">Menor Nota Primeiro (Reputação)</option>
-                  <option value="nota_desc">Maior Nota Primeiro</option>
-                  <option value="reviews_asc">Menos Avaliações Primeiro</option>
-                  <option value="reviews_desc">Mais Avaliações Primeiro</option>
-                </select>
-              </div>
-            </div>
-          )}
+          {/* Preset Chips */}
           <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5">
             <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider mr-1">Atalhos Rápidos:</span>
             {["Imobiliária", "Barbearia", "Odontologia", "Estética", "Advocacia", "Restaurante", "Pet Shop"].map((preset) => (
@@ -1018,32 +958,20 @@ function ProspeccaoPage() {
             ))}
           </div>
 
+          {/* Bottom Toolbar & Tabs */}
           <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-white/5">
-            <div className="flex flex-wrap items-center gap-3">
-              <label className="flex items-center gap-2 text-xs text-white/70 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={onlyNoWebsite}
-                  onChange={(e) => {
-                    setOnlyNoWebsite(e.target.checked);
-                    if (hasSearched) handleSearch(nicho, cidade);
-                  }}
-                  className="rounded border-white/20 text-[#38BDF8] focus:ring-[#38BDF8] bg-[#0A0B10] w-4 h-4"
-                />
-                <span className="font-medium text-white/80">Sem Website</span>
-              </label>
-
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setShowFiltersPanel(!showFiltersPanel)}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all border ${
-                  showFiltersPanel || filterRating !== "todas" || filterReviews !== "todas" || sortOption !== "relevancia"
-                    ? "bg-[#38BDF8]/20 text-[#38BDF8] border-[#38BDF8]/40"
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                  showFiltersPanel || filterRating !== "todas" || filterReviews !== "todas" || sortOption !== "relevancia" || onlyNoWebsite
+                    ? "bg-[#38BDF8]/20 text-[#38BDF8] border-[#38BDF8]/40 shadow-[0_0_15px_rgba(56,189,248,0.2)]"
                     : "bg-[#0A0B10] text-white/70 hover:text-white border-white/15"
                 }`}
               >
-                <SlidersHorizontal size={13} />
-                <span>Filtros Avançados {filterRating !== "todas" || filterReviews !== "todas" || sortOption !== "relevancia" ? "• Ativos" : ""}</span>
+                <SlidersHorizontal size={14} />
+                <span>Filtros Avançados {showFiltersPanel ? "▲" : "▼"} {filterRating !== "todas" || filterReviews !== "todas" || sortOption !== "relevancia" ? "• Ativos" : ""}</span>
               </button>
             </div>
 
@@ -1094,6 +1022,96 @@ function ProspeccaoPage() {
               </button>
             </div>
           </div>
+
+          {/* Expandable Advanced Filters Panel (Posicionado Diretamente Abaixo do Botão de Filtros) */}
+          {showFiltersPanel && (
+            <div className="pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 bg-[#0A0B10] p-4.5 rounded-2xl border border-[#38BDF8]/30 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+              {/* Filtro 1: Sem Website */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                  Presença Web
+                </label>
+                <label className="flex items-center gap-2 text-xs text-white/80 cursor-pointer pt-1 bg-[#111218] border border-white/10 px-3 py-2 rounded-xl hover:border-white/20 transition-all">
+                  <input
+                    type="checkbox"
+                    checked={onlyNoWebsite}
+                    onChange={(e) => {
+                      setOnlyNoWebsite(e.target.checked);
+                      if (hasSearched) handleSearch(nicho, cidade);
+                    }}
+                    className="rounded border-white/20 text-[#38BDF8] focus:ring-[#38BDF8] bg-[#0A0B10] w-4 h-4"
+                  />
+                  <span className="font-semibold text-white">Apenas Sem Website</span>
+                </label>
+              </div>
+
+              {/* Filtro 2: Telefone / WhatsApp */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                  Contato Válido
+                </label>
+                <label className="flex items-center gap-2 text-xs text-white/80 cursor-pointer pt-1 bg-[#111218] border border-white/10 px-3 py-2 rounded-xl hover:border-white/20 transition-all">
+                  <input
+                    type="checkbox"
+                    checked={onlyWithPhone}
+                    onChange={(e) => setOnlyWithPhone(e.target.checked)}
+                    className="rounded border-white/20 text-[#38BDF8] focus:ring-[#38BDF8] bg-[#0A0B10] w-4 h-4"
+                  />
+                  <span className="font-semibold text-white">Com Telefone/Whats</span>
+                </label>
+              </div>
+
+              {/* Filtro 3: Nota no Google */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                  Nota Google (GMB)
+                </label>
+                <select
+                  value={filterRating}
+                  onChange={(e: any) => setFilterRating(e.target.value)}
+                  className="w-full bg-[#111218] border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#38BDF8] font-medium"
+                >
+                  <option value="todas">Todas as Notas</option>
+                  <option value="baixa">⚠️ Nota Baixa (&lt; 4.4)</option>
+                  <option value="alta">⭐ Nota Alta (≥ 4.5)</option>
+                </select>
+              </div>
+
+              {/* Filtro 4: Volume de Avaliações */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                  Volume Avaliações
+                </label>
+                <select
+                  value={filterReviews}
+                  onChange={(e: any) => setFilterReviews(e.target.value)}
+                  className="w-full bg-[#111218] border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#38BDF8] font-medium"
+                >
+                  <option value="todas">Todas as Avaliações</option>
+                  <option value="poucas">📉 Poucas (&lt; 30 avaliações)</option>
+                  <option value="muitas">🔥 Muitas (≥ 30 avaliações)</option>
+                </select>
+              </div>
+
+              {/* Filtro 5: Ordenação */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                  Ordenar Resultados
+                </label>
+                <select
+                  value={sortOption}
+                  onChange={(e: any) => setSortOption(e.target.value)}
+                  className="w-full bg-[#111218] border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#38BDF8] font-medium"
+                >
+                  <option value="relevancia">Relevância (Google)</option>
+                  <option value="nota_asc">Menor Nota Primeiro</option>
+                  <option value="nota_desc">Maior Nota Primeiro</option>
+                  <option value="reviews_asc">Menos Avaliações</option>
+                  <option value="reviews_desc">Mais Avaliações</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* TAB 1: PROSPECTAR LEADS */}
@@ -1299,6 +1317,24 @@ function ProspeccaoPage() {
         {/* TAB 4: PAINEL KANBAN CRM PIPELINE */}
         {activeTab === "kanban" && (
           <div className="space-y-6">
+            <style>{`
+              .kanban-scrollbar::-webkit-scrollbar {
+                height: 8px;
+              }
+              .kanban-scrollbar::-webkit-scrollbar-track {
+                background: rgba(10, 11, 16, 0.8);
+                border-radius: 9999px;
+              }
+              .kanban-scrollbar::-webkit-scrollbar-thumb {
+                background: rgba(56, 189, 248, 0.35);
+                border-radius: 9999px;
+                border: 2px solid rgba(15, 17, 23, 0.9);
+              }
+              .kanban-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: rgba(56, 189, 248, 0.75);
+              }
+            `}</style>
+
             {/* Header com Métricas de Vendas do Pipeline */}
             <div className="bg-[#0F1117] border border-[#38BDF8]/20 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xl">
               <div className="space-y-1">
@@ -1307,11 +1343,32 @@ function ProspeccaoPage() {
                   <h3 className="text-xl font-black text-white tracking-tight">Painel Kanban CRM de Vendas B2B</h3>
                 </div>
                 <p className="text-xs text-white/60">
-                  Arraste e solte os cards entre as colunas ou altere o status para gerenciar o funil de vendas.
+                  Arraste e solte os cards entre as colunas ou use as setas para navegar no funil de vendas.
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
+                {/* Botões de Navegação Horizontal das Colunas */}
+                <div className="flex items-center gap-1.5 bg-[#0A0B10] p-1.5 rounded-2xl border border-white/10 shrink-0">
+                  <button
+                    onClick={() => scrollKanban("left")}
+                    className="p-1.5 bg-[#161924] hover:bg-[#202535] text-white/80 hover:text-white rounded-xl transition-all border border-white/10 active:scale-95 flex items-center gap-1 text-xs font-bold"
+                    title="Rolar para Esquerda"
+                  >
+                    <ChevronLeft size={16} />
+                    <span className="hidden sm:inline">Anterior</span>
+                  </button>
+                  <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider px-1">Navegar</span>
+                  <button
+                    onClick={() => scrollKanban("right")}
+                    className="p-1.5 bg-[#161924] hover:bg-[#202535] text-white/80 hover:text-white rounded-xl transition-all border border-white/10 active:scale-95 flex items-center gap-1 text-xs font-bold"
+                    title="Rolar para Direita"
+                  >
+                    <span className="hidden sm:inline">Próxima</span>
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+
                 <div className="bg-[#0A0B10] border border-white/10 px-4 py-2 rounded-xl text-center">
                   <span className="text-[10px] font-mono text-white/40 uppercase block">Total em Pipeline</span>
                   <span className="text-sm font-bold text-white">{savedLeads.length} empresas</span>
@@ -1325,8 +1382,8 @@ function ProspeccaoPage() {
               </div>
             </div>
 
-            {/* Colunas do Kanban CRM (Flex Container com Scroll Horizontal Limpo) */}
-            <div className="flex gap-4 overflow-x-auto pb-6 custom-scrollbar items-start">
+            {/* Colunas do Kanban CRM (Flex Container com Scroll Horizontal Elegante de 8px) */}
+            <div ref={kanbanScrollRef} className="flex gap-4 overflow-x-auto pb-6 kanban-scrollbar items-start select-none">
               {KANBAN_COLUMNS.map((column) => {
                 const columnLeads = savedLeads.filter((l) => (l.status || "novo") === column.id);
                 const isOver = dragOverColumnId === column.id;
