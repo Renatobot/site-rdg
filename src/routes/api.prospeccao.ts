@@ -28,6 +28,7 @@ export interface LeadItem {
   opening_hours?: string[];
   editorial_summary?: string;
   status?: LeadStatus;
+  sale_value?: number;
 }
 
 export interface ProspeccaoSearchInput {

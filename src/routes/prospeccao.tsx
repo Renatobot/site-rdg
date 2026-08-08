@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
 import { waLink } from "@/lib/site";
@@ -217,6 +217,50 @@ function ProspeccaoPage() {
   const [previewModalLead, setPreviewModalLead] = useState<LeadItem | null>(null);
   const [customHeroPhoto, setCustomHeroPhoto] = useState<string>("");
   const [customGalleryPhotos, setCustomGalleryPhotos] = useState<string[]>([]);
+
+  // Advanced Filter States
+  const [onlyWithPhone, setOnlyWithPhone] = useState<boolean>(true);
+  const [filterRating, setFilterRating] = useState<"todas" | "baixa" | "alta">("todas");
+  const [filterReviews, setFilterReviews] = useState<"todas" | "poucas" | "muitas">("todas");
+  const [sortOption, setSortOption] = useState<"relevancia" | "nota_asc" | "nota_desc" | "reviews_asc" | "reviews_desc">("relevancia");
+  const [showFiltersPanel, setShowFiltersPanel] = useState<boolean>(false);
+
+  // Drag and Drop States for Kanban CRM
+  const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
+  const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
+
+  // Computed Filtered & Sorted Leads
+  const filteredAndSortedLeads = useMemo(() => {
+    let result = [...leads];
+
+    if (onlyWithPhone) {
+      result = result.filter((l) => l.phone && l.phone !== "Sem telefone" && l.phone.trim().length > 5);
+    }
+
+    if (filterRating === "baixa") {
+      result = result.filter((l) => l.rating < 4.4);
+    } else if (filterRating === "alta") {
+      result = result.filter((l) => l.rating >= 4.5);
+    }
+
+    if (filterReviews === "poucas") {
+      result = result.filter((l) => (l.user_ratings_total || 0) < 30);
+    } else if (filterReviews === "muitas") {
+      result = result.filter((l) => (l.user_ratings_total || 0) >= 30);
+    }
+
+    if (sortOption === "nota_asc") {
+      result.sort((a, b) => a.rating - b.rating);
+    } else if (sortOption === "nota_desc") {
+      result.sort((a, b) => b.rating - a.rating);
+    } else if (sortOption === "reviews_asc") {
+      result.sort((a, b) => (a.user_ratings_total || 0) - (b.user_ratings_total || 0));
+    } else if (sortOption === "reviews_desc") {
+      result.sort((a, b) => (b.user_ratings_total || 0) - (a.user_ratings_total || 0));
+    }
+
+    return result;
+  }, [leads, onlyWithPhone, filterRating, filterReviews, sortOption]);
 
   // Verificar Chave de Licença de Acesso à Ferramenta de Prospecção (CHAVE VERIFICADA NO SUPABASE)
   useEffect(() => {
@@ -887,7 +931,76 @@ function ProspeccaoPage() {
             </div>
           </form>
 
-          {/* Preset Chips */}
+          {/* Expandable Advanced Filters Panel */}
+          {showFiltersPanel && (
+            <div className="pt-3 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 bg-[#0A0B10] p-4 rounded-2xl border border-white/10 shadow-inner">
+              {/* Filtro: Telefone / WhatsApp */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                  Telefone / WhatsApp
+                </label>
+                <label className="flex items-center gap-2 text-xs text-white/80 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={onlyWithPhone}
+                    onChange={(e) => setOnlyWithPhone(e.target.checked)}
+                    className="rounded border-white/20 text-[#38BDF8] focus:ring-[#38BDF8] bg-[#111218] w-4 h-4"
+                  />
+                  <span>Com Telefone Válido</span>
+                </label>
+              </div>
+
+              {/* Filtro: Nota no Google */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                  Nota no Google (GMB)
+                </label>
+                <select
+                  value={filterRating}
+                  onChange={(e: any) => setFilterRating(e.target.value)}
+                  className="w-full bg-[#111218] border border-white/15 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none focus:border-[#38BDF8]"
+                >
+                  <option value="todas">Todas as Notas</option>
+                  <option value="baixa">⚠️ Nota Baixa (&lt; 4.4) · Gestão Reputação</option>
+                  <option value="alta">⭐ Nota Alta (≥ 4.5) · Empresas Premium</option>
+                </select>
+              </div>
+
+              {/* Filtro: Volume de Avaliações */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                  Volume de Avaliações
+                </label>
+                <select
+                  value={filterReviews}
+                  onChange={(e: any) => setFilterReviews(e.target.value)}
+                  className="w-full bg-[#111218] border border-white/15 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none focus:border-[#38BDF8]"
+                >
+                  <option value="todas">Todas as Avaliações</option>
+                  <option value="poucas">📉 Poucas Avaliações (&lt; 30) · Otimização GMB</option>
+                  <option value="muitas">🔥 Muitas Avaliações (≥ 30) · Alta Procura</option>
+                </select>
+              </div>
+
+              {/* Ordenação */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                  Ordenar Resultados
+                </label>
+                <select
+                  value={sortOption}
+                  onChange={(e: any) => setSortOption(e.target.value)}
+                  className="w-full bg-[#111218] border border-white/15 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none focus:border-[#38BDF8]"
+                >
+                  <option value="relevancia">Relevância Padrão (Google)</option>
+                  <option value="nota_asc">Menor Nota Primeiro (Reputação)</option>
+                  <option value="nota_desc">Maior Nota Primeiro</option>
+                  <option value="reviews_asc">Menos Avaliações Primeiro</option>
+                  <option value="reviews_desc">Mais Avaliações Primeiro</option>
+                </select>
+              </div>
+            </div>
+          )}
           <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5">
             <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider mr-1">Atalhos Rápidos:</span>
             {["Imobiliária", "Barbearia", "Odontologia", "Estética", "Advocacia", "Restaurante", "Pet Shop"].map((preset) => (
@@ -906,7 +1019,7 @@ function ProspeccaoPage() {
           </div>
 
           <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-white/5">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3">
               <label className="flex items-center gap-2 text-xs text-white/70 cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -917,8 +1030,21 @@ function ProspeccaoPage() {
                   }}
                   className="rounded border-white/20 text-[#38BDF8] focus:ring-[#38BDF8] bg-[#0A0B10] w-4 h-4"
                 />
-                <span className="font-medium text-white/80">Priorizar Empresas Sem Website</span>
+                <span className="font-medium text-white/80">Sem Website</span>
               </label>
+
+              <button
+                type="button"
+                onClick={() => setShowFiltersPanel(!showFiltersPanel)}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all border ${
+                  showFiltersPanel || filterRating !== "todas" || filterReviews !== "todas" || sortOption !== "relevancia"
+                    ? "bg-[#38BDF8]/20 text-[#38BDF8] border-[#38BDF8]/40"
+                    : "bg-[#0A0B10] text-white/70 hover:text-white border-white/15"
+                }`}
+              >
+                <SlidersHorizontal size={13} />
+                <span>Filtros Avançados {filterRating !== "todas" || filterReviews !== "todas" || sortOption !== "relevancia" ? "• Ativos" : ""}</span>
+              </button>
             </div>
 
             <div className="flex bg-[#0A0B10] p-1 rounded-xl border border-[#38BDF8]/25 overflow-x-auto max-w-full whitespace-nowrap">
@@ -976,7 +1102,9 @@ function ProspeccaoPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
                 <span>Empresas Encontradas</span>
-                <span className="text-xs font-normal text-white/50">({leads.length} resultados)</span>
+                <span className="text-xs font-bold text-[#38BDF8]">
+                  ({filteredAndSortedLeads.length} de {leads.length} exibidos)
+                </span>
               </h3>
             </div>
 
@@ -1001,7 +1129,7 @@ function ProspeccaoPage() {
             ) : (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {leads.map((lead) => (
+                  {filteredAndSortedLeads.map((lead) => (
                     <LeadCard
                       key={lead.id}
                       lead={lead}
@@ -1179,7 +1307,7 @@ function ProspeccaoPage() {
                   <h3 className="text-xl font-black text-white tracking-tight">Painel Kanban CRM de Vendas B2B</h3>
                 </div>
                 <p className="text-xs text-white/60">
-                  Gerencie seus leads por etapas de prospecção, desde a busca até o fechamento de contrato.
+                  Arraste e solte os cards entre as colunas ou altere o status para gerenciar o funil de vendas.
                 </p>
               </div>
 
@@ -1191,90 +1319,155 @@ function ProspeccaoPage() {
                 <div className="bg-emerald-500/10 border border-emerald-500/30 px-4 py-2 rounded-xl text-center">
                   <span className="text-[10px] font-mono text-emerald-400 uppercase block">Clientes Fechados</span>
                   <span className="text-sm font-extrabold text-emerald-400">
-                    {savedLeads.filter(l => (l.status || "novo") === "fechado").length} (R$ {savedLeads.filter(l => (l.status || "novo") === "fechado").length * 750}/mês)
+                    {savedLeads.filter(l => (l.status || "novo") === "fechado").length} empresas ({savedLeads.filter(l => (l.status || "novo") === "fechado").reduce((acc, l) => acc + (l.sale_value || 0), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })})
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Colunas do Kanban CRM */}
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3.5 overflow-x-auto pb-4">
+            {/* Colunas do Kanban CRM (Flex Container com Scroll Horizontal Limpo) */}
+            <div className="flex gap-4 overflow-x-auto pb-6 custom-scrollbar items-start">
               {KANBAN_COLUMNS.map((column) => {
                 const columnLeads = savedLeads.filter((l) => (l.status || "novo") === column.id);
+                const isOver = dragOverColumnId === column.id;
 
                 return (
-                  <div key={column.id} className={`bg-[#0F1117] border ${column.headerBorder} rounded-2xl p-3.5 space-y-3 min-w-[220px] flex flex-col justify-between shadow-lg`}>
+                  <div
+                    key={column.id}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      if (dragOverColumnId !== column.id) setDragOverColumnId(column.id);
+                    }}
+                    onDragLeave={() => setDragOverColumnId(null)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const leadId = e.dataTransfer.getData("text/plain") || draggedLeadId;
+                      if (leadId) {
+                        const updated = savedLeads.map((l) => (l.id === leadId ? { ...l, status: column.id as LeadStatus } : l));
+                        setSavedLeads(updated);
+                        localStorage.setItem("saved_prospect_leads", JSON.stringify(updated));
+                      }
+                      setDragOverColumnId(null);
+                      setDraggedLeadId(null);
+                    }}
+                    className={`w-72 shrink-0 bg-[#0F1117] border ${
+                      isOver ? "border-[#38BDF8] ring-2 ring-[#38BDF8]/40 bg-[#161924]" : column.headerBorder
+                    } rounded-2xl p-4 space-y-3 flex flex-col justify-between shadow-2xl transition-all min-h-[380px]`}
+                  >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
                         <span className={`text-[11px] font-black uppercase tracking-wider ${column.badgeColor.split(' ')[1]}`}>
                           {column.title}
                         </span>
-                        <span className="text-[10px] font-mono font-bold bg-white/10 px-2 py-0.5 rounded-full text-white">
+                        <span className="text-[10px] font-mono font-bold bg-white/10 px-2.5 py-0.5 rounded-full text-white">
                           {columnLeads.length}
                         </span>
                       </div>
 
                       {columnLeads.length === 0 ? (
-                        <div className="py-8 text-center border border-dashed border-white/10 rounded-xl">
-                          <p className="text-[10px] text-white/30 italic">Nenhum lead aqui</p>
+                        <div className="py-12 text-center border border-dashed border-white/10 rounded-xl bg-[#0A0B10]/40">
+                          <p className="text-[11px] text-white/30 italic">Arraste ou selecione um lead aqui</p>
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          {columnLeads.map((lead) => (
-                            <div key={lead.id} className="bg-[#161924] border border-white/10 p-3 rounded-xl space-y-2.5 shadow-md hover:border-white/20 transition-all">
-                              <div className="flex items-start justify-between gap-1">
-                                <h5 className="text-xs font-bold text-white truncate leading-snug">{lead.name}</h5>
-                                <button
-                                  onClick={() => toggleSaveLead(lead)}
-                                  className="text-white/40 hover:text-rose-400 transition-colors p-0.5"
-                                  title="Remover do Kanban"
-                                >
-                                  <Trash2 size={12} />
-                                </button>
-                              </div>
+                          {columnLeads.map((lead) => {
+                            const isBeingDragged = draggedLeadId === lead.id;
 
-                              <p className="text-[10px] text-white/50 truncate">📍 {lead.address || "Localização"}</p>
-                              <p className="text-[10px] text-white/50 truncate">📞 {lead.phone || "Sem telefone"}</p>
+                            return (
+                              <div
+                                key={lead.id}
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData("text/plain", lead.id);
+                                  setDraggedLeadId(lead.id);
+                                }}
+                                onDragEnd={() => {
+                                  setDraggedLeadId(null);
+                                  setDragOverColumnId(null);
+                                }}
+                                className={`bg-[#161924] border ${
+                                  isBeingDragged ? "border-[#38BDF8] opacity-50 shadow-2xl scale-95" : "border-white/10 hover:border-white/25"
+                                } p-3.5 rounded-xl space-y-2.5 shadow-md transition-all cursor-grab active:cursor-grabbing group`}
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <h5 className="text-xs font-bold text-white leading-snug break-words flex-1">{lead.name}</h5>
+                                  <button
+                                    onClick={() => toggleSaveLead(lead)}
+                                    className="text-white/30 hover:text-rose-400 transition-colors p-0.5 shrink-0"
+                                    title="Remover do Kanban"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
 
-                              {/* Mudar Etapa Dropdown Selector */}
-                              <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-1">
-                                <select
-                                  value={lead.status || "novo"}
-                                  onChange={(e) => {
-                                    const newStage = e.target.value as LeadStatus;
-                                    const updated = savedLeads.map((l) => (l.id === lead.id ? { ...l, status: newStage } : l));
-                                    setSavedLeads(updated);
-                                    localStorage.setItem("saved_prospect_leads", JSON.stringify(updated));
-                                  }}
-                                  className="w-full bg-[#0B0D14] border border-white/15 rounded-lg px-2 py-1 text-[10px] font-bold text-white/80 focus:border-[#38BDF8] outline-none"
-                                >
-                                  <option value="novo">📥 Mover: Novo Lead</option>
-                                  <option value="em_contato">💬 Mover: Em Contato</option>
-                                  <option value="followup">⏳ Mover: Follow-Up</option>
-                                  <option value="proposta">🎯 Mover: Proposta</option>
-                                  <option value="fechado">✅ Mover: Fechado</option>
-                                  <option value="inativo">❌ Mover: Sem Interesse</option>
-                                </select>
-                              </div>
+                                <p className="text-[10px] text-white/50 truncate">📍 {lead.address || "Localização não informada"}</p>
+                                <p className="text-[10px] text-white/50 truncate">📞 {lead.phone || "Sem telefone"}</p>
 
-                              <div className="flex items-center gap-1.5 pt-1">
-                                <button
-                                  onClick={() => openDemoPage(lead)}
-                                  className="flex-1 py-1.5 bg-[#38BDF8] hover:bg-[#7dd3fc] text-black font-extrabold text-[10px] rounded-lg transition-all flex items-center justify-center gap-1 shadow"
-                                >
-                                  <Eye size={12} />
-                                  <span>Prévia</span>
-                                </button>
-                                <button
-                                  onClick={() => setScriptLead(lead)}
-                                  className="flex-1 py-1.5 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/30 font-bold text-[10px] rounded-lg transition-all flex items-center justify-center gap-1"
-                                >
-                                  <MessageCircle size={12} />
-                                  <span>Whats</span>
-                                </button>
+                                {/* Campo Editável de Valor da Venda (Exibido para Clientes Fechados ou em qualquer card) */}
+                                {(lead.status === "fechado" || column.id === "fechado") && (
+                                  <div className="pt-2 border-t border-emerald-500/20 bg-emerald-500/10 p-2 rounded-lg space-y-1">
+                                    <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider block">
+                                      Valor Fechado da Venda (R$):
+                                    </span>
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-xs font-bold text-emerald-400">R$</span>
+                                      <input
+                                        type="number"
+                                        step="50"
+                                        value={lead.sale_value ?? ""}
+                                        onChange={(e) => {
+                                          const val = parseFloat(e.target.value) || 0;
+                                          const updated = savedLeads.map((l) => (l.id === lead.id ? { ...l, sale_value: val } : l));
+                                          setSavedLeads(updated);
+                                          localStorage.setItem("saved_prospect_leads", JSON.stringify(updated));
+                                        }}
+                                        placeholder="750"
+                                        className="w-full bg-[#0A0B10] border border-emerald-500/40 rounded-md px-2 py-1 text-xs text-emerald-300 font-mono font-extrabold outline-none focus:border-emerald-400"
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Mudar Etapa Dropdown Selector (Para dispositivos Touch / Celular) */}
+                                <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-1">
+                                  <select
+                                    value={lead.status || "novo"}
+                                    onChange={(e) => {
+                                      const newStage = e.target.value as LeadStatus;
+                                      const updated = savedLeads.map((l) => (l.id === lead.id ? { ...l, status: newStage } : l));
+                                      setSavedLeads(updated);
+                                      localStorage.setItem("saved_prospect_leads", JSON.stringify(updated));
+                                    }}
+                                    className="w-full bg-[#0B0D14] border border-white/15 rounded-lg px-2 py-1 text-[10px] font-bold text-white/80 focus:border-[#38BDF8] outline-none"
+                                  >
+                                    <option value="novo">📥 Mover: Novo Lead</option>
+                                    <option value="em_contato">💬 Mover: Em Contato</option>
+                                    <option value="followup">⏳ Mover: Follow-Up</option>
+                                    <option value="proposta">🎯 Mover: Proposta</option>
+                                    <option value="fechado">✅ Mover: Fechado</option>
+                                    <option value="inativo">❌ Mover: Sem Interesse</option>
+                                  </select>
+                                </div>
+
+                                <div className="flex items-center gap-1.5 pt-1">
+                                  <button
+                                    onClick={() => openDemoPage(lead)}
+                                    className="flex-1 py-1.5 bg-[#38BDF8] hover:bg-[#7dd3fc] text-black font-extrabold text-[10px] rounded-lg transition-all flex items-center justify-center gap-1 shadow"
+                                  >
+                                    <Eye size={12} />
+                                    <span>Prévia</span>
+                                  </button>
+                                  <button
+                                    onClick={() => setScriptLead(lead)}
+                                    className="flex-1 py-1.5 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/30 font-bold text-[10px] rounded-lg transition-all flex items-center justify-center gap-1"
+                                  >
+                                    <MessageCircle size={12} />
+                                    <span>Whats</span>
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
                     </div>
