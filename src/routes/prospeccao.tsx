@@ -759,17 +759,25 @@ function ProspeccaoPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsConfigOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-white/80 hover:text-white transition-all"
-          >
-            <Settings size={14} className={apiKey ? "text-emerald-400" : "text-amber-400"} />
-            <span className="hidden sm:inline">{apiKey ? "API Configurada" : "Configurar API Google"}</span>
-          </button>
+          {!isDemoMode && (
+            <button
+              onClick={() => setIsConfigOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-white/80 hover:text-white transition-all"
+            >
+              <Settings size={14} className={apiKey ? "text-emerald-400" : "text-amber-400"} />
+              <span className="hidden sm:inline">{apiKey ? "API Configurada" : "Configurar API Google"}</span>
+            </button>
+          )}
 
           {savedLeads.length > 0 && (
             <button
-              onClick={() => exportToCSV(activeTab === "salvos" ? savedLeads : leads)}
+              onClick={() => {
+                if (isDemoMode) {
+                  setShowDemoLockModal(true);
+                  return;
+                }
+                exportToCSV(activeTab === "salvos" ? savedLeads : leads);
+              }}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 rounded-xl text-xs font-bold transition-all"
             >
               <Download size={14} />
@@ -801,7 +809,7 @@ function ProspeccaoPage() {
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
         {/* Banner de Erro do Google Cloud */}
-        {sourceInfo?.source === "google_error" && (
+        {!isDemoMode && sourceInfo?.source === "google_error" && (
           <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-rose-500/5">
             <div className="flex items-start sm:items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 border border-rose-500/30">

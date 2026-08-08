@@ -165,6 +165,8 @@ function FullSiteDemoPage() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("demo") === "true" || params.get("mode") === "demo") return true;
+      const hasLicense = localStorage.getItem("prospeccao_license_key") || localStorage.getItem("rdg_license_key");
+      if (!hasLicense) return true;
     }
     return (search as any)?.demo === "true" || (search as any)?.mode === "demo";
   });
@@ -174,7 +176,8 @@ function FullSiteDemoPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("demo") === "true" || params.get("mode") === "demo") {
+      const hasLicense = localStorage.getItem("prospeccao_license_key") || localStorage.getItem("rdg_license_key");
+      if (params.get("demo") === "true" || params.get("mode") === "demo" || !hasLicense) {
         setIsDemoMode(true);
       }
     }
@@ -1249,7 +1252,13 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
         <div className="fixed bottom-4 right-4 sm:right-6 sm:top-1/2 sm:-translate-y-1/2 sm:bottom-auto z-[90] flex sm:flex-col flex-row gap-2.5">
           {/* Botão de Toggle do Modo Edição */}
           <button
-            onClick={() => setIsGlobalEditMode(!isGlobalEditMode)}
+            onClick={() => {
+              if (isDemoMode) {
+                setShowDemoShareLock(true);
+                return;
+              }
+              setIsGlobalEditMode(!isGlobalEditMode);
+            }}
             className={`w-11 h-11 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative border ${
               isGlobalEditMode 
                 ? "bg-purple-600 text-white border-purple-400 hover:bg-purple-500 ring-2 ring-purple-500/30"
@@ -1260,7 +1269,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             
             {/* Tooltip Hover */}
             <div className="hidden sm:block absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#111218] border border-white/10 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
-              {isGlobalEditMode ? "Sair do Modo Edição" : "Editar Textos na Tela"}
+              {isDemoMode ? "🔒 Edição Bloqueada no Modo Demo" : isGlobalEditMode ? "Sair do Modo Edição" : "Editar Textos na Tela"}
             </div>
           </button>
 
@@ -1280,14 +1289,20 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
           {/* Botão de Edição Completa (Painel Lateral) */}
           <button
-            onClick={() => setIsEditorOpen(true)}
+            onClick={() => {
+              if (isDemoMode) {
+                setShowDemoShareLock(true);
+                return;
+              }
+              setIsEditorOpen(true);
+            }}
             className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative bg-white text-black hover:bg-gray-100 border border-white/20 hover:scale-105"
           >
             <Sliders size={20} />
             
             {/* Tooltip Hover */}
             <div className="hidden sm:block absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
-              Personalizar Design & Imagens
+              {isDemoMode ? "🔒 Painel Bloqueado no Modo Demo" : "Personalizar Design & Imagens"}
             </div>
           </button>
         </div>
