@@ -1538,31 +1538,30 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             </div>
           </div>
 
-          {/* LADO DIREITO: CARD DE IMAGEM COM PREENCHIMENTO PERFEITO EDGE-TO-EDGE (OBJECT-COVER SEM ESPAÇOS BRANCOS) */}
+          {/* LADO DIREITO: CARD DE IMAGEM COM MOLDURA AMBIENTAL INTELIGENTE (100% DA FOTO VISÍVEL SEM CORTES E SEM BORDAS BRANCAS) */}
           <div className="lg:col-span-5 relative">
             <div
-              className="relative w-full h-[260px] xs:h-[320px] sm:h-[460px] lg:h-[540px] overflow-hidden shadow-2xl rounded-2xl border flex items-center justify-center p-0"
+              className="relative w-full h-[260px] xs:h-[320px] sm:h-[460px] lg:h-[540px] overflow-hidden shadow-2xl rounded-2xl border flex items-center justify-center p-3 bg-[#0B0D14]"
               style={{
                 borderColor: config.borderColor,
-                backgroundColor: config.surfaceColor,
               }}
             >
-              {/* Fundo Desfocado Ambiental para Preenchimento Elegante das Bordas */}
+              {/* Fundo Desfocado Ambiental que Preenche as Laterais e Topo com as Cores da Imagem */}
               <img
                 src={heroImage}
                 alt=""
                 aria-hidden="true"
-                className="absolute inset-0 w-full h-full object-cover filter blur-3xl opacity-45 scale-125 pointer-events-none"
+                className="absolute inset-0 w-full h-full object-cover filter blur-3xl opacity-65 scale-125 pointer-events-none"
               />
 
-              {/* Imagem Principal Enquadrada Perfeitamente Sem Espaços Em Branco */}
+              {/* Imagem Principal 100% Completa (NUNCA CORTA LOGOS, TEXTOS OU FLYERS) */}
               <img
                 src={heroImage}
                 alt={nome}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = config.heroFallback;
                 }}
-                className="relative z-10 w-full h-full object-cover rounded-2xl transition duration-500 hover:scale-[1.02] filter drop-shadow-2xl"
+                className="relative z-10 max-w-full max-h-full object-contain rounded-xl transition duration-500 hover:scale-[1.02] filter drop-shadow-2xl"
               />
 
               {realOpeningHours.length > 0 && (
@@ -1762,20 +1761,22 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {galleryImages.map((imgUrl: string, i: number) => (
-              <div key={i} className="group overflow-hidden rounded-2xl aspect-square border relative shadow-md bg-black/40 flex items-center justify-center p-0" style={{ borderColor: config.borderColor }}>
+              <div key={i} className="group overflow-hidden rounded-2xl aspect-square border relative shadow-md bg-[#0B0D14] flex items-center justify-center p-2" style={{ borderColor: config.borderColor }}>
+                {/* Fundo Desfocado Ambiental que Preenche as Bordas da Galeria com as Cores da Foto */}
                 <img
                   src={imgUrl}
                   alt=""
                   aria-hidden="true"
-                  className="absolute inset-0 w-full h-full object-cover filter blur-xl opacity-35 scale-110 pointer-events-none"
+                  className="absolute inset-0 w-full h-full object-cover filter blur-2xl opacity-65 scale-125 pointer-events-none"
                 />
+                {/* Imagem Principal 100% Completa (NUNCA CORTA LOGOS, TEXTOS OU TELAS DE CELULAR) */}
                 <img
                   src={imgUrl}
                   alt={`${nome} foto ${i + 1}`}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = config.galleryFallback[i % config.galleryFallback.length];
                   }}
-                  className="relative z-10 w-full h-full object-cover rounded-2xl transition duration-700 group-hover:scale-105 filter brightness-95 group-hover:brightness-100"
+                  className="relative z-10 max-w-full max-h-full object-contain rounded-xl transition duration-500 group-hover:scale-105 filter drop-shadow-xl"
                 />
               </div>
             ))}
