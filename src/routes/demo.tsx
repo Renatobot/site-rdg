@@ -1538,23 +1538,23 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             </div>
           </div>
 
-          {/* LADO DIREITO: CARD DE IMAGEM 100% PREENCHIDO (EDGE-TO-EDGE FULL-BLEED ZERO ESPAÇOS) */}
-          <div className="lg:col-span-5 relative">
+          {/* LADO DIREITO: CARD DE IMAGEM ADAPTATIVO DINÂMICO (ADAPTA-SE AO FORMATO DA FOTO SEM CORTES E SEM ESPAÇOS) */}
+          <div className="lg:col-span-5 relative flex items-center justify-center">
             <div
-              className="relative w-full h-[260px] xs:h-[320px] sm:h-[460px] lg:h-[540px] overflow-hidden shadow-2xl rounded-2xl border p-0"
+              className="relative w-full overflow-hidden shadow-2xl rounded-3xl border p-0 bg-[#0B0D14] flex items-center justify-center transition-all duration-300"
               style={{
                 borderColor: config.borderColor,
                 backgroundColor: config.surfaceColor,
               }}
             >
-              {/* Imagem Principal Preenchendo 100% do Card sem NENHUM Espaço ou Borda Em Branco */}
+              {/* Imagem Principal Adaptativa (100% Inteira Sem Cortar Logos ou Textos, Adaptando a Altura do Card) */}
               <img
                 src={heroImage}
                 alt={nome}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = config.heroFallback;
                 }}
-                className="w-full h-full object-cover rounded-2xl transition duration-500 hover:scale-[1.02] filter drop-shadow-2xl"
+                className="w-full h-auto max-h-[580px] block object-contain sm:object-cover rounded-3xl transition duration-500 hover:scale-[1.01] filter drop-shadow-2xl"
               />
 
               {realOpeningHours.length > 0 && (
@@ -1752,17 +1752,21 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 items-start gap-5">
             {galleryImages.map((imgUrl: string, i: number) => (
-              <div key={i} className="group overflow-hidden rounded-2xl aspect-square border relative shadow-md p-0" style={{ borderColor: config.borderColor }}>
-                {/* Imagem da Galeria Preenchendo 100% do Card sem NENHUM Espaço ou Borda Em Branco */}
+              <div
+                key={i}
+                className="group overflow-hidden rounded-3xl border relative shadow-lg bg-[#0E1017] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
+                style={{ borderColor: config.borderColor }}
+              >
+                {/* Imagem Adaptativa da Galeria (Enquadramento 100% sem Cortar e sem Espaços) */}
                 <img
                   src={imgUrl}
                   alt={`${nome} foto ${i + 1}`}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = config.galleryFallback[i % config.galleryFallback.length];
                   }}
-                  className="w-full h-full object-cover rounded-2xl transition duration-500 group-hover:scale-105 filter brightness-95 group-hover:brightness-100"
+                  className="w-full h-auto block rounded-3xl object-contain sm:object-cover transition duration-500 filter brightness-95 group-hover:brightness-100"
                 />
               </div>
             ))}
