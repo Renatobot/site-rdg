@@ -97,37 +97,55 @@ function formatCategoryLabel(rawCat?: string, currentNicho?: string): string {
 function generateDemoMockLeads(nichoInput: string, cidadeInput: string): LeadItem[] {
   const cleanNicho = nichoInput || "Estética & Beleza";
   const cleanCidade = cidadeInput || "São Paulo - SP";
+  const cityLower = cleanCidade.toLowerCase();
+  const isRio = cityLower.includes("rio de janeiro") || cityLower.includes("rio");
+  const isSP = cityLower.includes("são paulo") || cityLower.includes("sao paulo");
 
-  const prefixes = [
-    "Clínica Especializada",
-    "Estúdio & Espaço",
-    "Consultório Central",
-    "Centro Integrado",
-    "Ateliê & Studio",
-    "Espaço VIP",
-    "Instituto",
-    "Grupo Comercial",
+  const phoneDDD = isRio ? "21" : isSP ? "11" : "21";
+  const streets = isRio
+    ? ["Av. Atlântica", "Rua Visconde de Pirajá", "Av. das Américas", "Rua Voluntários da Pátria", "Rua Conde de Bonfim", "Av. Rio Branco", "Av. Presidente Vargas", "Rua Santa Clara"]
+    : isSP
+    ? ["Av. Paulista", "Av. Faria Lima", "Rua Augusta", "Av. Rebouças", "Rua Oscar Freire", "Av. Eng. Luís Carlos Berrini", "Av. Cruzeiro do Sul", "Rua Teodoro Sampaio"]
+    : ["Av. Central", "Rua das Flores", "Av. Brasil", "Rua Principal", "Av. Getúlio Vargas"];
+
+  const neighborhoods = isRio
+    ? ["Copacabana", "Ipanema", "Barra da Tijuca", "Botafogo", "Tijuca", "Centro", "Campo Grande", "Leblon"]
+    : isSP
+    ? ["Moema", "Pinheiros", "Jardins", "Tatuapé", "Itaim Bibi", "Santana", "Bela Vista", "Perdizes"]
+    : ["Centro", "Jardim América", "Vila Nova", "Alto da Boa Vista"];
+
+  const sampleNames = [
+    `Clínica ${cleanNicho} ${neighborhoods[0]}`,
+    `Estúdio & Espaço ${cleanNicho} ${neighborhoods[1]}`,
+    `Consultório Central ${cleanNicho} ${neighborhoods[2]}`,
+    `Centro Integrado ${cleanNicho} ${neighborhoods[3]}`,
+    `Ateliê ${cleanNicho} ${neighborhoods[4]} Prime`,
+    `Espaço VIP ${cleanNicho} ${neighborhoods[5]}`,
+    `Instituto ${cleanNicho} ${neighborhoods[6]}`,
+    `Grupo Comercial ${cleanNicho} ${neighborhoods[7 % neighborhoods.length]}`,
   ];
 
-  const phoneDDD = cleanCidade.includes("Rio") ? "21" : cleanCidade.includes("Belo") ? "31" : cleanCidade.includes("Curitiba") ? "41" : cleanCidade.includes("Salvador") ? "71" : "11";
+  return sampleNames.map((name, idx) => {
+    const num = 100 + idx * 160;
+    const street = streets[idx % streets.length];
+    const nbd = neighborhoods[idx % neighborhoods.length];
+    const address = `${street}, ${num} - ${nbd}, ${cleanCidade.split("-")[0].trim()}`;
+    const rawNum = 98800000 + idx * 1234;
 
-  return prefixes.map((pref, idx) => {
-    const name = `${pref} ${cleanNicho} ${idx % 2 === 0 ? "Prime" : "Master"}`;
-    const num = 100 + idx * 140;
     return {
       id: `demo_mock_lead_${idx}_${Date.now()}`,
       name,
       category: cleanNicho,
-      address: `Rua das Flores, ${num} - ${cleanCidade}`,
-      phone: `+55 ${phoneDDD} 9${8800 + idx * 11}-${1000 + idx * 22}`,
-      raw_phone: `55${phoneDDD}9${8800 + idx * 11}${1000 + idx * 22}`,
-      rating: Number((4.7 + (idx % 4) * 0.1).toFixed(1)),
-      user_ratings_total: 24 + idx * 19,
+      address,
+      phone: `+55 ${phoneDDD} 9${String(rawNum).slice(1, 5)}-${String(rawNum).slice(5)}`,
+      raw_phone: `55${phoneDDD}${rawNum}`,
+      rating: Number((4.7 + (idx % 3) * 0.1).toFixed(1)),
+      user_ratings_total: 24 + idx * 22,
       has_website: false,
-      google_maps_url: `https://maps.google.com/?q=${encodeURIComponent(name + " " + cleanCidade)}`,
-      whatsapp_link: `https://wa.me/55${phoneDDD}9${8800 + idx * 11}${1000 + idx * 22}`,
+      google_maps_url: `https://maps.google.com/?q=${encodeURIComponent(name + " " + address)}`,
+      whatsapp_link: `https://wa.me/55${phoneDDD}${rawNum}?text=${encodeURIComponent(`Olá! Encontrei ${name} no Google Maps e gostaria de enviar a demonstração do novo site.`)}`,
       google_photos_count: 8 + idx * 3,
-      editorial_summary: `Estabelecimento local de destaque no segmento de ${cleanNicho} com excelentes avaliações de clientes.`,
+      editorial_summary: `Estabelecimento de destaque no segmento de ${cleanNicho} em ${nbd}, ${cleanCidade} com excelentes avaliações de clientes.`,
       status: idx === 0 ? "novo" : idx === 1 ? "em_contato" : "novo",
     };
   });
@@ -499,8 +517,16 @@ function ProspeccaoPage() {
 
   const handleLoadMore = async () => {
     if (isDemoMode) {
-      const moreMock = generateDemoMockLeads(nicho || "Estética", cidade || "São Paulo - SP");
-      setLeads((prev) => [...prev, ...moreMock]);
+      setIsFetchingMore(true);
+      try {
+        const moreMock = generateDemoMockLeads(nicho || "Odontologia", cidade || "Rio de Janeiro - RJ");
+        const newLeads = moreMock.filter((newLead: LeadItem) => !leads.some((existing) => existing.id === newLead.id));
+        setLeads((prev) => [...prev, ...newLeads]);
+      } catch (e) {
+        console.error("Erro ao carregar mais empresas:", e);
+      } finally {
+        setIsFetchingMore(false);
+      }
       return;
     }
     if (!nextPageToken || isFetchingMore) return;
