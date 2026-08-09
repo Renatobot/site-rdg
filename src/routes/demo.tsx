@@ -1538,10 +1538,10 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             </div>
           </div>
 
-          {/* LADO DIREITO: CARD DE IMAGEM COM AMBIENT BLUR E OBJECT-CONTAIN (ENQUADRAMENTO PERFEITO SEM CORTES) */}
+          {/* LADO DIREITO: CARD DE IMAGEM COM PREENCHIMENTO PERFEITO EDGE-TO-EDGE (OBJECT-COVER SEM ESPAÇOS BRANCOS) */}
           <div className="lg:col-span-5 relative">
             <div
-              className="relative w-full h-[260px] xs:h-[320px] sm:h-[460px] lg:h-[540px] overflow-hidden shadow-2xl rounded-2xl border flex items-center justify-center p-2"
+              className="relative w-full h-[260px] xs:h-[320px] sm:h-[460px] lg:h-[540px] overflow-hidden shadow-2xl rounded-2xl border flex items-center justify-center p-0"
               style={{
                 borderColor: config.borderColor,
                 backgroundColor: config.surfaceColor,
@@ -1555,14 +1555,14 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                 className="absolute inset-0 w-full h-full object-cover filter blur-3xl opacity-45 scale-125 pointer-events-none"
               />
 
-              {/* Imagem Principal Enquadrada sem Cortar Flyers ou Rostos */}
+              {/* Imagem Principal Enquadrada Perfeitamente Sem Espaços Em Branco */}
               <img
                 src={heroImage}
                 alt={nome}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = config.heroFallback;
                 }}
-                className="relative z-10 w-full h-full object-contain rounded-xl transition duration-500 hover:scale-[1.02] filter drop-shadow-2xl"
+                className="relative z-10 w-full h-full object-cover rounded-2xl transition duration-500 hover:scale-[1.02] filter drop-shadow-2xl"
               />
 
               {realOpeningHours.length > 0 && (
@@ -1762,7 +1762,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {galleryImages.map((imgUrl: string, i: number) => (
-              <div key={i} className="group overflow-hidden rounded-2xl aspect-square border relative shadow-md bg-black/40 flex items-center justify-center p-1" style={{ borderColor: config.borderColor }}>
+              <div key={i} className="group overflow-hidden rounded-2xl aspect-square border relative shadow-md bg-black/40 flex items-center justify-center p-0" style={{ borderColor: config.borderColor }}>
                 <img
                   src={imgUrl}
                   alt=""
@@ -1775,7 +1775,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = config.galleryFallback[i % config.galleryFallback.length];
                   }}
-                  className="relative z-10 w-full h-full object-cover rounded-xl transition duration-700 group-hover:scale-105 filter brightness-95 group-hover:brightness-100"
+                  className="relative z-10 w-full h-full object-cover rounded-2xl transition duration-700 group-hover:scale-105 filter brightness-95 group-hover:brightness-100"
                 />
               </div>
             ))}
