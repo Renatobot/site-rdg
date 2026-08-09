@@ -37,10 +37,7 @@ export interface ProspeccaoSearchInput {
   apiKey?: string;
   pageToken?: string;
   onlyNoWebsite?: boolean;
-  onlyWithPhotos?: boolean;
-  onlyWithWhatsapp?: boolean;
-  onlyWithInstagram?: boolean;
-  minReviewsCount?: number;
+  deepSearch?: boolean;
 }
 
 export interface ProspeccaoSearchResponse {
@@ -70,6 +67,10 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
     }
 
     try {
+      let rawPlaces: any[] = [];
+      let nextPageToken: string | undefined = undefined;
+
+      // 1. Busca Principal na Google Places API
       const query = `${nicho} em ${cidade}`;
       const searchUrl = data.pageToken 
         ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${encodeURIComponent(data.pageToken)}&key=${apiKey}&language=pt-BR`
@@ -89,10 +90,57 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
         };
       }
 
-      const results = json.results || [];
-      const nextPageToken = json.next_page_token || undefined;
+      rawPlaces = json.results || [];
+      nextPageToken = json.next_page_token || undefined;
 
-      if (results.length === 0) {
+      // 2. Se for a busca inicial (sem pageToken) e deepSearch estiver ativado (padrão true), busca automaticamente Página 2 para multiplicar leads
+      if (!data.pageToken && nextPageToken && data.deepSearch !== false) {
+        try {
+          // Aguarda 2 segundos para o token do Google ser ativado
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          const page2Url = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${encodeURIComponent(nextPageToken)}&key=${apiKey}&language=pt-BR`;
+          const page2Res = await fetch(page2Url);
+          const page2Json = await page2Res.json();
+          if (page2Json.status === "OK" && Array.isArray(page2Json.results)) {
+            rawPlaces = [...rawPlaces, ...page2Json.results];
+            nextPageToken = page2Json.next_page_token || undefined;
+          }
+        } catch (e) {
+          console.warn("Erro ao buscar página 2 do Google:", e);
+        }
+      }
+
+      // 3. Se for uma grande cidade/metrópole e for a busca inicial, realiza busca secundária em bairros estratégicos para trazer 60 a 100+ leads
+      const cityLower = cidade.toLowerCase();
+      const isMetropolis = cityLower.includes("rio de janeiro") || cityLower.includes("são paulo") || cityLower.includes("sao paulo") || cityLower.includes("belo horizonte") || cityLower.includes("salvador") || cityLower.includes("curitiba") || cityLower.includes("brasília") || cityLower.includes("fortaleza") || cityLower.includes("porto alegre") || cityLower.includes("recife") || cityLower.includes("campinas") || cityLower.includes("goiânia") || cityLower.includes("manaus");
+
+      if (!data.pageToken && isMetropolis && data.deepSearch !== false) {
+        let subQueries: string[] = [];
+        if (cityLower.includes("rio de janeiro")) {
+          subQueries = [`${nicho} em Barra da Tijuca, Rio de Janeiro`, `${nicho} em Copacabana, Rio de Janeiro`, `${nicho} em Campo Grande, Rio de Janeiro`];
+        } else if (cityLower.includes("são paulo") || cityLower.includes("sao paulo")) {
+          subQueries = [`${nicho} em Moema, São Paulo`, `${nicho} em Tatuapé, São Paulo`, `${nicho} em Pinheiros, São Paulo`];
+        }
+
+        for (const subQ of subQueries) {
+          try {
+            const subUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(subQ)}&key=${apiKey}&language=pt-BR`;
+            const subRes = await fetch(subUrl);
+            const subJson = await subRes.json();
+            if (subJson.status === "OK" && Array.isArray(subJson.results)) {
+              for (const item of subJson.results) {
+                if (!rawPlaces.some((p) => p.place_id === item.place_id)) {
+                  rawPlaces.push(item);
+                }
+              }
+            }
+          } catch (e) {
+            // Ignora falhas em sub-queries
+          }
+        }
+      }
+
+      if (rawPlaces.length === 0) {
         return {
           success: true,
           leads: [],
@@ -101,15 +149,15 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
         };
       }
 
-      // Processar até 15 empresas em paralelo rápido (SEM BUSCAR OU CONSUMIR FOTOS DO GOOGLE PLACES)
-      const detailedLeadsProm = results.slice(0, 15).map(async (place: any): Promise<LeadItem> => {
+      // Processar TODAS as empresas encontradas sem limitação artificial de 15 leads
+      const detailedLeadsProm = rawPlaces.map(async (place: any): Promise<LeadItem> => {
         const placeId = place.place_id;
-        let phone = "(11) 98888-7777";
-        let rawPhone = "5511988887777";
+        let phone = place.formatted_phone_number || "(21) 98888-7777";
+        let rawPhone = phone.replace(/\D/g, "");
         let website = place.website;
 
         try {
-          // Apenas campos de texto gratuitos (Essentials: name, formatted_phone_number, website, url)
+          // Busca detalhes gratuitos (Essentials: name, formatted_phone_number, website, url)
           const detailUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_phone_number,website,url&key=${apiKey}&language=pt-BR`;
           const detailRes = await fetch(detailUrl);
           if (detailRes.ok) {
@@ -125,12 +173,12 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
             }
           }
         } catch (e) {
-          // Ignora falhas de detalhes individuais para velocidade
+          // Ignora falhas de detalhes individuais
         }
 
         const cleanName = place.name.split('-')[0].split('|')[0].trim();
         const instaSearchUrl = `https://www.google.com/search?q=site:instagram.com+${encodeURIComponent(cleanName)}`;
-        const waNumber = rawPhone.length > 5 ? (rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`) : "5511988887777";
+        const waNumber = rawPhone.length > 5 ? (rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`) : "5521988887777";
         const waMsg = encodeURIComponent(
           `Olá! Encontrei o perfil de *${place.name}* no Google Maps e gostaria de enviar a demonstração do novo site oficial de vocês.`
         );
@@ -161,6 +209,15 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
 
       let leads = await Promise.all(detailedLeadsProm);
 
+      // Remover duplicados por ID
+      const uniqueMap = new Map<string, LeadItem>();
+      leads.forEach((item) => {
+        if (!uniqueMap.has(item.id)) {
+          uniqueMap.set(item.id, item);
+        }
+      });
+      leads = Array.from(uniqueMap.values());
+
       // Aplicar ordenação: Sem Website primeiro
       if (data.onlyNoWebsite) {
         leads.sort((a, b) => (a.has_website === b.has_website ? 0 : a.has_website ? 1 : -1));
@@ -171,7 +228,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
         leads,
         nextPageToken,
         source: "google_api",
-        message: `Busca ao vivo realizada! Retornados ${leads.length} resultados reais do Google Maps.`,
+        message: `Busca ao vivo realizada! Retornadas ${leads.length} empresas reais do Google Maps para ${cidade}.`,
       };
     } catch (err: any) {
       console.error("Erro no processamento da busca:", err);
