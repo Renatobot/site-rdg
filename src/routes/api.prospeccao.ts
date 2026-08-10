@@ -60,13 +60,22 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
 
     // Se o usuário selecionou Explicitamente OpenStreetMap
     if (data.dataSource === "osm") {
-      let leads = await fetchOpenStreetMapLeads(nicho, cidade);
+      let leads = await fetchOpenStreetMapLeads(nicho, cidade, data.pageToken);
+      
+      let nextToken: string | undefined = undefined;
+      // Gerar tokens para simular paginação com sub-regiões
+      if (!data.pageToken) nextToken = "osm_page_2";
+      else if (data.pageToken === "osm_page_2") nextToken = "osm_page_3";
+      else if (data.pageToken === "osm_page_3") nextToken = "osm_page_4";
+      // Página 4 é o fim para evitar esgotar variações
+      
       if (data.onlyNoWebsite) {
         leads = leads.filter(l => !l.has_website);
       }
       return {
         success: true,
         leads: leads,
+        nextPageToken: nextToken,
         source: "osm_api",
         message: `Busca concluída via OpenStreetMap! Retornadas ${leads.length} empresas para ${cidade}.`
       };
@@ -315,7 +324,7 @@ export async function generateMockLeads(nicho: string, cidade: string, onlyNoWeb
   return generateSmartCityLeads(nicho, cidade, onlyNoWebsite, isPage2);
 }
 
-async function fetchOpenStreetMapLeads(nicho: string, cidade: string): Promise<LeadItem[]> {
+async function fetchOpenStreetMapLeads(nicho: string, cidade: string, pageToken?: string): Promise<LeadItem[]> {
   try {
     const cleanCity = cidade.split("-")[0].trim();
     const cityLower = cidade.toLowerCase();
@@ -323,7 +332,18 @@ async function fetchOpenStreetMapLeads(nicho: string, cidade: string): Promise<L
 
     // O Nominatim do OpenStreetMap frequentemente bloqueia múltiplos requests ou retorna erro 429 Too Many Requests se usarmos sub-queries ou consultas complexas, especialmente em IPs de servidores (Vercel).
     // Faremos apenas 1 requisição com limit=50 para buscar o máximo possível com segurança.
-    const query = `${nicho} ${cleanCity}`;
+    
+    let query = `${nicho} ${cleanCity}`;
+    
+    // Simular paginação mudando a região de busca se um token de próxima página for passado
+    if (pageToken === "osm_page_2") {
+      query = `${nicho} Centro ${cleanCity}`;
+    } else if (pageToken === "osm_page_3") {
+      query = `${nicho} Zona Sul ${cleanCity}`;
+    } else if (pageToken === "osm_page_4") {
+      query = `${nicho} Zona Norte ${cleanCity}`;
+    }
+
     const searchUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=50`;
     
     const res = await fetch(searchUrl, {
@@ -352,7 +372,7 @@ async function fetchOpenStreetMapLeads(nicho: string, cidade: string): Promise<L
       const cleanName = (item.display_name?.split(",")[0] || `${nicho} ${suburb}`).trim();
 
       return {
-        id: `osm_${item.place_id || index}_${Date.now()}`,
+        id: `osm_${item.place_id || index}`,
         name: cleanName,
         category: nicho,
         address: fullAddress,
