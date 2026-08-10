@@ -181,6 +181,8 @@ function ProspeccaoPage() {
   const [userClientName, setUserClientName] = useState<string>("");
 
   const [activeTab, setActiveTab] = useState<"prospectar" | "salvos" | "previas" | "kanban">("prospectar");
+  const [chartViewMode, setChartViewMode] = useState<"donut" | "bars">("donut");
+  const [hoveredStatusId, setHoveredStatusId] = useState<string | null>(null);
   const [savedPreviewsList, setSavedPreviewsList] = useState<any[]>([]);
 
   // Carregar prévias salvas localmente
@@ -1419,112 +1421,302 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
               }
             `}</style>
 
-            {/* Dashboard Visual de Vendas e Métricas do CRM */}
-            <div className="bg-[#0F1117] border border-[#38BDF8]/20 rounded-3xl p-5 sm:p-6 space-y-5 shadow-2xl">
+            {/* Dashboard Visual de Vendas e Métricas do CRM com Gráficos Modernos */}
+            <div className="bg-[#0F1117] border border-[#38BDF8]/20 rounded-3xl p-5 sm:p-6 space-y-6 shadow-2xl backdrop-blur-xl">
+              {/* Dashboard Top Header & View Toggle */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <Kanban size={22} className="text-[#38BDF8]" />
                     <h3 className="text-xl font-black text-white tracking-tight">Painel CRM & Analytics de Vendas B2B</h3>
+                    <span className="px-2 py-0.5 bg-[#38BDF8]/10 text-[#38BDF8] border border-[#38BDF8]/30 rounded-full text-[10px] font-mono font-bold uppercase">
+                      Live Charts 2.0
+                    </span>
                   </div>
                   <p className="text-xs text-white/60">
-                    Visão geral do pipeline de prospecção, métricas de conversão e gestão de fechamentos.
+                    Métricas de conversão em tempo real, fluxo do funil e distribuição da base de prospecção.
                   </p>
+                </div>
+
+                <div className="flex bg-[#0A0B10] p-1 rounded-xl border border-white/15">
+                  <button
+                    onClick={() => setChartViewMode("donut")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      chartViewMode === "donut"
+                        ? "bg-[#38BDF8] text-black shadow-[0_0_15px_rgba(56,189,248,0.4)]"
+                        : "text-white/60 hover:text-white"
+                    }`}
+                  >
+                    <span>🍩 Visão em Rosca</span>
+                  </button>
+                  <button
+                    onClick={() => setChartViewMode("bars")}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      chartViewMode === "bars"
+                        ? "bg-[#38BDF8] text-black shadow-[0_0_15px_rgba(56,189,248,0.4)]"
+                        : "text-white/60 hover:text-white"
+                    }`}
+                  >
+                    <span>📊 Visão em Colunas</span>
+                  </button>
                 </div>
               </div>
 
-              {/* 4 Cards de KPI */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                {/* Card 1: Total no Pipeline */}
-                <div className="bg-[#0A0B10] border border-white/10 p-4 rounded-2xl space-y-1">
+              {/* 4 Cards de KPI com Anéis Radiais Neomórficos */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* KPI Card 1: Total na Base */}
+                <div className="bg-[#0A0B10] border border-white/10 p-4.5 rounded-2xl space-y-2 relative overflow-hidden group hover:border-[#38BDF8]/40 transition-all">
                   <div className="flex items-center justify-between text-white/50 text-[10px] font-bold uppercase tracking-wider">
                     <span>Base no CRM</span>
                     <Kanban size={14} className="text-[#38BDF8]" />
                   </div>
-                  <div className="text-2xl font-black text-white">{savedLeads.length} <span className="text-xs font-normal text-white/50">empresas</span></div>
-                  <div className="text-[11px] text-[#38BDF8] font-medium flex items-center gap-1">
+                  <div className="text-3xl font-black text-white">{savedLeads.length} <span className="text-xs font-normal text-white/50">leads</span></div>
+                  <div className="text-[11px] text-[#38BDF8] font-semibold flex items-center gap-1">
                     <span>Pipeline Ativo</span>
+                    <span className="text-white/40">•</span>
+                    <span className="text-white/60">{savedLeads.filter(l => (l.status || "novo") !== "inativo").length} operacionais</span>
                   </div>
                 </div>
 
-                {/* Card 2: Sem Website (Alvo Ideal) */}
-                <div className="bg-[#0A0B10] border border-amber-500/20 p-4 rounded-2xl space-y-1">
-                  <div className="flex items-center justify-between text-amber-400/70 text-[10px] font-bold uppercase tracking-wider">
-                    <span>Alvos Sem Website</span>
+                {/* KPI Card 2: Sem Website com Anel Radial */}
+                <div className="bg-[#0A0B10] border border-amber-500/20 p-4.5 rounded-2xl space-y-2 relative overflow-hidden group hover:border-amber-500/50 transition-all">
+                  <div className="flex items-center justify-between text-amber-400/80 text-[10px] font-bold uppercase tracking-wider">
+                    <span>Sem Website (Alvo Ideal)</span>
                     <Sparkles size={14} className="text-amber-400" />
                   </div>
-                  <div className="text-2xl font-black text-amber-400">
-                    {savedLeads.filter((l) => !l.has_website).length} <span className="text-xs font-normal text-white/50">({savedLeads.length > 0 ? Math.round((savedLeads.filter((l) => !l.has_website).length / savedLeads.length) * 100) : 0}%)</span>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-3xl font-black text-amber-400">
+                        {savedLeads.filter((l) => !l.has_website).length}
+                      </div>
+                      <div className="text-[11px] text-amber-400/80 font-semibold pt-1">Oportunidade Principal</div>
+                    </div>
+                    {/* SVG Radial Gauge Ring */}
+                    <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
+                      <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
+                        <path className="text-white/10" strokeWidth="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path
+                          className="text-amber-400 transition-all duration-1000 ease-out"
+                          strokeDasharray={`${savedLeads.length > 0 ? Math.round((savedLeads.filter((l) => !l.has_website).length / savedLeads.length) * 100) : 0}, 100`}
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                          stroke="currentColor"
+                          fill="none"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        />
+                      </svg>
+                      <span className="absolute text-[10px] font-extrabold text-amber-400">
+                        {savedLeads.length > 0 ? Math.round((savedLeads.filter((l) => !l.has_website).length / savedLeads.length) * 100) : 0}%
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-[11px] text-amber-400/80 font-medium">Oportunidade Principal</div>
                 </div>
 
-                {/* Card 3: Em Negociação */}
-                <div className="bg-[#0A0B10] border border-indigo-500/20 p-4 rounded-2xl space-y-1">
-                  <div className="flex items-center justify-between text-indigo-400/70 text-[10px] font-bold uppercase tracking-wider">
+                {/* KPI Card 3: Em Negociação */}
+                <div className="bg-[#0A0B10] border border-indigo-500/20 p-4.5 rounded-2xl space-y-2 relative overflow-hidden group hover:border-indigo-500/50 transition-all">
+                  <div className="flex items-center justify-between text-indigo-400/80 text-[10px] font-bold uppercase tracking-wider">
                     <span>Em Negociação</span>
                     <Target size={14} className="text-indigo-400" />
                   </div>
-                  <div className="text-2xl font-black text-indigo-400">
+                  <div className="text-3xl font-black text-indigo-400">
                     {savedLeads.filter((l) => ["em_contato", "followup", "proposta"].includes(l.status || "novo")).length} <span className="text-xs font-normal text-white/50">leads</span>
                   </div>
-                  <div className="text-[11px] text-indigo-300/80 font-medium">Contato, Follow & Proposta</div>
+                  <div className="text-[11px] text-indigo-300/80 font-semibold">Contato, Follow & Proposta</div>
                 </div>
 
-                {/* Card 4: Faturamento & Fechados */}
-                <div className="bg-[#0A0B10] border border-emerald-500/30 p-4 rounded-2xl space-y-1">
-                  <div className="flex items-center justify-between text-emerald-400/70 text-[10px] font-bold uppercase tracking-wider">
+                {/* KPI Card 4: Faturamento & Fechamentos com Anel Radial */}
+                <div className="bg-[#0A0B10] border border-emerald-500/30 p-4.5 rounded-2xl space-y-2 relative overflow-hidden group hover:border-emerald-500/50 transition-all">
+                  <div className="flex items-center justify-between text-emerald-400/80 text-[10px] font-bold uppercase tracking-wider">
                     <span>Receita em Fechamentos</span>
                     <Check size={14} className="text-emerald-400" />
                   </div>
-                  <div className="text-xl font-black text-emerald-400">
-                    {savedLeads.filter((l) => (l.status || "novo") === "fechado").reduce((acc, l) => acc + (l.sale_value || 0), 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                  </div>
-                  <div className="text-[11px] text-emerald-400/80 font-medium">
-                    {savedLeads.filter((l) => (l.status || "novo") === "fechado").length} contratos fechados ({savedLeads.length > 0 ? ((savedLeads.filter((l) => (l.status || "novo") === "fechado").length / savedLeads.length) * 100).toFixed(1) : "0"}% conv.)
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-2xl font-black text-emerald-400">
+                        {savedLeads.filter((l) => (l.status || "novo") === "fechado").reduce((acc, l) => acc + (l.sale_value || 0), 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                      </div>
+                      <div className="text-[11px] text-emerald-400/80 font-semibold pt-1">
+                        {savedLeads.filter((l) => (l.status || "novo") === "fechado").length} contratos fechados
+                      </div>
+                    </div>
+                    {/* SVG Radial Gauge Ring */}
+                    <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
+                      <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
+                        <path className="text-white/10" strokeWidth="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path
+                          className="text-emerald-400 transition-all duration-1000 ease-out"
+                          strokeDasharray={`${savedLeads.length > 0 ? Math.round((savedLeads.filter((l) => (l.status || "novo") === "fechado").length / savedLeads.length) * 100) : 0}, 100`}
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                          stroke="currentColor"
+                          fill="none"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        />
+                      </svg>
+                      <span className="absolute text-[10px] font-extrabold text-emerald-400">
+                        {savedLeads.length > 0 ? ((savedLeads.filter((l) => (l.status || "novo") === "fechado").length / savedLeads.length) * 100).toFixed(0) : 0}%
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Barra do Funil de Vendas Interativa */}
-              <div className="space-y-2 pt-1">
-                <div className="flex items-center justify-between text-xs text-white/60 font-semibold">
-                  <span>Distribuição por Etapa do Funil</span>
-                  <span className="text-[10px] font-mono text-white/40">100% da Base</span>
-                </div>
-                <div className="h-3 w-full bg-[#0A0B10] rounded-full overflow-hidden flex gap-0.5 p-0.5 border border-white/10">
-                  {KANBAN_COLUMNS.map((col) => {
-                    const count = savedLeads.filter((l) => (l.status || "novo") === col.id).length;
-                    const pct = savedLeads.length > 0 ? (count / savedLeads.length) * 100 : 0;
-                    if (pct === 0) return null;
-                    const colorClass =
-                      col.id === "novo"
-                        ? "bg-[#38BDF8]"
-                        : col.id === "em_contato"
-                        ? "bg-indigo-400"
-                        : col.id === "followup"
-                        ? "bg-amber-400"
-                        : col.id === "proposta"
-                        ? "bg-purple-400"
-                        : col.id === "fechado"
-                        ? "bg-emerald-400"
-                        : "bg-rose-400";
-                    return <div key={col.id} style={{ width: `${pct}%` }} className={`h-full ${colorClass} transition-all rounded-sm`} title={`${col.title}: ${count} leads (${pct.toFixed(0)}%)`} />;
-                  })}
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px]">
-                  {KANBAN_COLUMNS.map((col) => {
-                    const count = savedLeads.filter((l) => (l.status || "novo") === col.id).length;
-                    return (
-                      <div key={col.id} className="flex items-center gap-1.5 text-white/70">
-                        <span className={`w-2 h-2 rounded-full ${col.badgeColor.split(" ")[0]}`} />
-                        <span className="font-medium">{col.title}:</span>
-                        <span className="font-bold text-white">{count}</span>
+              {/* ÁREA DOS GRÁFICOS DINÂMICOS (ROSCA NEOMÓRFICA OU COLUNAS GRADIENTES) */}
+              {chartViewMode === "donut" ? (
+                <div className="bg-[#0A0B10] border border-white/10 p-5 rounded-2xl grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                  {/* Donut SVG Chart Container */}
+                  <div className="md:col-span-5 flex flex-col items-center justify-center relative py-2">
+                    <div className="relative w-48 h-48 flex items-center justify-center">
+                      <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
+                        {(() => {
+                          const total = savedLeads.length || 1;
+                          let accumulatedPct = 0;
+                          const radius = 38;
+                          const circumference = 2 * Math.PI * radius; // ~238.76
+
+                          return KANBAN_COLUMNS.map((col) => {
+                            const count = savedLeads.filter((l) => (l.status || "novo") === col.id).length;
+                            const pct = (count / total) * 100;
+                            if (pct === 0) return null;
+
+                            const strokeLength = (pct / 100) * circumference;
+                            const strokeOffset = -(accumulatedPct / 100) * circumference;
+                            accumulatedPct += pct;
+
+                            const hexColor =
+                              col.id === "novo"
+                                ? "#38BDF8"
+                                : col.id === "em_contato"
+                                ? "#818CF8"
+                                : col.id === "followup"
+                                ? "#FBBF24"
+                                : col.id === "proposta"
+                                ? "#C084FC"
+                                : col.id === "fechado"
+                                ? "#34D399"
+                                : "#F87171";
+
+                            const isHovered = hoveredStatusId === col.id;
+
+                            return (
+                              <circle
+                                key={col.id}
+                                cx="50"
+                                cy="50"
+                                r={radius}
+                                fill="none"
+                                stroke={hexColor}
+                                strokeWidth={isHovered ? "14" : "10"}
+                                strokeDasharray={`${strokeLength} ${circumference - strokeLength}`}
+                                strokeDashoffset={strokeOffset}
+                                className="transition-all duration-300 cursor-pointer hover:opacity-90"
+                                onMouseEnter={() => setHoveredStatusId(col.id)}
+                                onMouseLeave={() => setHoveredStatusId(null)}
+                              />
+                            );
+                          });
+                        })()}
+                      </svg>
+
+                      {/* Central Overlay inside Donut */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                        {hoveredStatusId ? (
+                          (() => {
+                            const col = KANBAN_COLUMNS.find((c) => c.id === hoveredStatusId);
+                            const count = savedLeads.filter((l) => (l.status || "novo") === hoveredStatusId).length;
+                            const pct = savedLeads.length > 0 ? ((count / savedLeads.length) * 100).toFixed(0) : "0";
+                            return (
+                              <div className="animate-in fade-in zoom-in-90 duration-150">
+                                <span className="text-2xl font-black text-white block">{count}</span>
+                                <span className="text-[10px] font-bold text-[#38BDF8] uppercase tracking-wider block truncate max-w-[100px]">{col?.title}</span>
+                                <span className="text-[10px] font-mono text-white/50 block">{pct}% do total</span>
+                              </div>
+                            );
+                          })()
+                        ) : (
+                          <div>
+                            <span className="text-3xl font-black text-white block leading-none">{savedLeads.length}</span>
+                            <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest block pt-1">Total Leads</span>
+                          </div>
+                        )}
                       </div>
-                    );
-                  })}
+                    </div>
+                  </div>
+
+                  {/* Legenda Interativa e Valores por Etapa */}
+                  <div className="md:col-span-7 space-y-2.5">
+                    <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider mb-2">Detalhamento por Etapa do Funil</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {KANBAN_COLUMNS.map((col) => {
+                        const count = savedLeads.filter((l) => (l.status || "novo") === col.id).length;
+                        const pct = savedLeads.length > 0 ? ((count / savedLeads.length) * 100).toFixed(1) : "0.0";
+                        const isHovered = hoveredStatusId === col.id;
+
+                        return (
+                          <div
+                            key={col.id}
+                            onMouseEnter={() => setHoveredStatusId(col.id)}
+                            onMouseLeave={() => setHoveredStatusId(null)}
+                            className={`p-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                              isHovered ? "bg-[#161924] border-[#38BDF8] shadow-[0_0_15px_rgba(56,189,248,0.2)] scale-[1.02]" : "bg-[#111218] border-white/5 hover:border-white/20"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <span className={`w-3 h-3 rounded-full ${col.badgeColor.split(" ")[0]}`} />
+                              <div>
+                                <span className="text-xs font-bold text-white block leading-tight">{col.title}</span>
+                                <span className="text-[10px] font-mono text-white/40">{pct}% da base</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-sm font-black text-white">{count}</span>
+                              <span className="text-[10px] text-white/40 block">leads</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                /* GRÁFICO DE COLUNAS GRADIENTES DO FUNIL */
+                <div className="bg-[#0A0B10] border border-white/10 p-5 rounded-2xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-white/60 uppercase tracking-wider">Volume de Leads por Etapa do Funil</h4>
+                    <span className="text-[10px] font-mono text-white/40">Gráfico de Frequência</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 items-end pt-4 pb-2 min-h-[180px]">
+                    {KANBAN_COLUMNS.map((col) => {
+                      const count = savedLeads.filter((l) => (l.status || "novo") === col.id).length;
+                      const maxCount = Math.max(...KANBAN_COLUMNS.map((c) => savedLeads.filter((l) => (l.status || "novo") === c.id).length), 1);
+                      const heightPct = Math.max((count / maxCount) * 100, 10);
+
+                      const barColorClass =
+                        col.id === "novo"
+                          ? "bg-gradient-to-t from-[#38BDF8]/40 to-[#38BDF8]"
+                          : col.id === "em_contato"
+                          ? "bg-gradient-to-t from-indigo-500/40 to-indigo-400"
+                          : col.id === "followup"
+                          ? "bg-gradient-to-t from-amber-500/40 to-amber-400"
+                          : col.id === "proposta"
+                          ? "bg-gradient-to-t from-purple-500/40 to-purple-400"
+                          : col.id === "fechado"
+                          ? "bg-gradient-to-t from-emerald-500/40 to-emerald-400"
+                          : "bg-gradient-to-t from-rose-500/40 to-rose-400";
+
+                      return (
+                        <div key={col.id} className="flex flex-col items-center gap-2 group cursor-pointer" onMouseEnter={() => setHoveredStatusId(col.id)} onMouseLeave={() => setHoveredStatusId(null)}>
+                          <span className="text-xs font-extrabold text-white group-hover:scale-110 transition-transform">{count}</span>
+                          <div className="w-full bg-[#111218] rounded-xl p-1 h-32 flex items-end border border-white/10 group-hover:border-white/30 transition-all">
+                            <div style={{ height: `${heightPct}%` }} className={`w-full rounded-lg ${barColorClass} transition-all duration-500 shadow-md group-hover:brightness-125`} />
+                          </div>
+                          <span className="text-[10px] font-bold text-white/60 truncate max-w-full group-hover:text-white transition-colors">{col.title}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Contêiner do Kanban com Botões Flutuantes nas Laterais Esquerda e Direita */}
