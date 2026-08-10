@@ -321,57 +321,24 @@ async function fetchOpenStreetMapLeads(nicho: string, cidade: string): Promise<L
     const cityLower = cidade.toLowerCase();
     const ddd = cityLower.includes("rio de janeiro") ? "21" : cityLower.includes("são paulo") || cityLower.includes("sao paulo") ? "11" : "21";
 
-    let queriesToRun = [`${nicho} ${cleanCity}`];
-
-    if (cityLower.includes("rio de janeiro")) {
-      queriesToRun = [
-        `${nicho} Rio de Janeiro`,
-        `${nicho} Copacabana Rio de Janeiro`,
-        `${nicho} Barra da Tijuca Rio de Janeiro`,
-        `${nicho} Centro Rio de Janeiro`
-      ];
-    } else if (cityLower.includes("são paulo") || cityLower.includes("sao paulo")) {
-      queriesToRun = [
-        `${nicho} São Paulo`,
-        `${nicho} Paulista São Paulo`,
-        `${nicho} Pinheiros São Paulo`,
-        `${nicho} Itaim Bibi São Paulo`
-      ];
-    }
-
-    let allResults: any[] = [];
+    // O Nominatim do OpenStreetMap frequentemente bloqueia múltiplos requests ou retorna erro 429 Too Many Requests se usarmos sub-queries ou consultas complexas, especialmente em IPs de servidores (Vercel).
+    // Faremos apenas 1 requisição com limit=50 para buscar o máximo possível com segurança.
+    const query = `${nicho} ${cleanCity}`;
+    const searchUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=50`;
     
-    for (const q of queriesToRun) {
-      try {
-        const searchUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&addressdetails=1&limit=50`;
-        const res = await fetch(searchUrl, {
-          headers: { "User-Agent": "RDG-Prospeccao-B2B/1.0 (contact@rdgdigital.com.br)" },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            allResults = [...allResults, ...data];
-          }
-        }
-        // Nominatim exige 1 segundo de intervalo entre requisições
-        await new Promise(r => setTimeout(r, 1000));
-      } catch (e) {
-        console.warn("Erro ao buscar no OSM:", e);
-      }
-    }
-
-    if (allResults.length === 0) return [];
-
-    // Remover duplicados por place_id
-    const uniqueMap = new Map();
-    allResults.forEach(item => {
-      if (!uniqueMap.has(item.place_id)) {
-        uniqueMap.set(item.place_id, item);
-      }
+    const res = await fetch(searchUrl, {
+      headers: { "User-Agent": "RDG-Prospeccao-B2B/2.0 (contact@rdgdigital.com.br)" },
     });
-    const uniqueData = Array.from(uniqueMap.values());
+    
+    if (!res.ok) {
+      console.warn("OSM Nominatim falhou com status:", res.status);
+      return [];
+    }
+    
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) return [];
 
-    return uniqueData.map((item: any, index: number) => {
+    return data.map((item: any, index: number) => {
       const addr = item.address || {};
       const street = addr.road || addr.pedestrian || addr.suburb || "Av. Principal";
       const houseNumber = addr.house_number || `${100 + index * 60}`;
