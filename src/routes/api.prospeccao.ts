@@ -38,13 +38,14 @@ export interface ProspeccaoSearchInput {
   pageToken?: string;
   onlyNoWebsite?: boolean;
   deepSearch?: boolean;
+  dataSource?: "google" | "osm";
 }
 
 export interface ProspeccaoSearchResponse {
   success: boolean;
   leads: LeadItem[];
   nextPageToken?: string;
-  source: "google_api" | "demo_mock" | "google_error";
+  source: "google_api" | "demo_mock" | "google_error" | "osm_api";
   message?: string;
   googleStatus?: string;
 }
@@ -56,6 +57,20 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
     const cidade = data.cidade || "São Paulo - SP";
     const cityLower = cidade.toLowerCase();
     const apiKey = data.apiKey?.trim();
+
+    // Se o usuário selecionou Explicitamente OpenStreetMap
+    if (data.dataSource === "osm") {
+      let leads = await fetchOpenStreetMapLeads(nicho, cidade);
+      if (data.onlyNoWebsite) {
+        leads = leads.filter(l => !l.has_website);
+      }
+      return {
+        success: true,
+        leads: leads,
+        source: "osm_api",
+        message: `Busca concluída via OpenStreetMap! Retornadas ${leads.length} empresas para ${cidade}.`
+      };
+    }
 
     if (!apiKey) {
       return {

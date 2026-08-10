@@ -181,6 +181,7 @@ function ProspeccaoPage() {
   const [userClientName, setUserClientName] = useState<string>("");
 
   const [activeTab, setActiveTab] = useState<"prospectar" | "salvos" | "previas" | "kanban">("prospectar");
+  const [dataSource, setDataSource] = useState<"google" | "osm">("osm");
   const [chartViewMode, setChartViewMode] = useState<"donut" | "bars">("donut");
   const [hoveredStatusId, setHoveredStatusId] = useState<string | null>(null);
   const [savedPreviewsList, setSavedPreviewsList] = useState<any[]>([]);
@@ -485,6 +486,7 @@ function ProspeccaoPage() {
           cidade: targetCidade,
           onlyNoWebsite,
           apiKey: targetApiKey,
+          dataSource: dataSource,
         },
       });
 
@@ -542,6 +544,7 @@ function ProspeccaoPage() {
           onlyNoWebsite,
           apiKey,
           pageToken: nextPageToken,
+          dataSource: dataSource,
         },
       });
 
@@ -1112,7 +1115,22 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
 
             {/* Expandable Advanced Filters Panel */}
             {showFiltersPanel && (
-              <div className="pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 bg-[#0A0B10] p-4.5 rounded-2xl border border-[#38BDF8]/30 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3 bg-[#0A0B10] p-4.5 rounded-2xl border border-[#38BDF8]/30 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+                {/* Fonte de Dados (OSM / Google) */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                    Fonte de Dados
+                  </label>
+                  <select
+                    value={dataSource}
+                    onChange={(e: any) => setDataSource(e.target.value)}
+                    className="w-full bg-[#111218] border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#38BDF8] font-medium"
+                  >
+                    <option value="osm">🟢 OpenStreetMap (100% Grátis)</option>
+                    <option value="google">🔵 Google Places (API Paga/Free)</option>
+                  </select>
+                </div>
+
                 {/* Filtro 1: Sem Website */}
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
