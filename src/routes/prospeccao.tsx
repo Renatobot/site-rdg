@@ -25,6 +25,7 @@ import {
   BookmarkCheck,
   MessageCircle,
   Kanban,
+  Target,
   Grid,
   ExternalLink,
   AlertTriangle,
@@ -959,84 +960,144 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
           </div>
         )}
 
-        {/* Top Controls & Search Card */}
-        <div className="bg-[#0F1117] border border-white/10 rounded-3xl p-5 sm:p-6 space-y-5 shadow-2xl">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSearch();
-            }}
-            className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center"
-          >
-            <div className="sm:col-span-5 relative">
-              <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block mb-1">
-                Nicho da Empresa
-              </label>
-              <div className="relative">
-                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
-                <input
-                  type="text"
-                  value={nicho}
-                  onChange={(e) => setNicho(e.target.value)}
-                  placeholder="Ex: Imobiliária, Barbearia, Odontologia..."
-                  className="w-full bg-[#0A0B10] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-white/40 outline-none transition-colors"
-                />
-              </div>
+        {/* Permanent Top Navigation Header */}
+        <div className="bg-[#0F1117] border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 shadow-2xl">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-[#38BDF8]/10 text-[#38BDF8] rounded-xl border border-[#38BDF8]/30">
+              <Target size={22} />
             </div>
-
-            <div className="sm:col-span-4 relative">
-              <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block mb-1">
-                Cidade / Bairro / Região
-              </label>
-              <div className="relative">
-                <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
-                <input
-                  type="text"
-                  value={cidade}
-                  onChange={(e) => setCidade(e.target.value)}
-                  placeholder="Ex: Rio de Janeiro, São Paulo, Curitiba..."
-                  className="w-full bg-[#0A0B10] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-white/40 outline-none transition-colors"
-                />
-              </div>
+            <div>
+              <h2 className="text-lg font-black text-white tracking-tight">Prospecção B2B & CRM SaaS</h2>
+              <p className="text-xs text-white/50">Localizador de Empresas do Google Maps & Gestão de Vendas com IA</p>
             </div>
-
-            <div className="sm:col-span-3 flex items-end">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full mt-5 sm:mt-0 py-3 bg-[#38BDF8] hover:bg-[#7dd3fc] text-black font-extrabold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(56,189,248,0.4)] active:scale-[0.98] disabled:opacity-50 border border-[#38BDF8]/40"
-              >
-                {isLoading ? <Loader2 size={18} className="animate-spin text-black" /> : <Search size={18} />}
-                <span>Buscar Leads</span>
-              </button>
-            </div>
-          </form>
-
-          {/* Preset Chips */}
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5">
-            <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider mr-1">Atalhos Rápidos:</span>
-            {["Imobiliária", "Barbearia", "Odontologia", "Estética", "Advocacia", "Restaurante", "Pet Shop"].map((preset) => (
-              <button
-                key={preset}
-                type="button"
-                onClick={() => {
-                  setNicho(preset);
-                  handleSearch(preset, cidade || "São Paulo - SP");
-                }}
-                className="px-3 py-1 bg-[#38BDF8]/10 hover:bg-[#38BDF8]/20 text-[#38BDF8] border border-[#38BDF8]/30 rounded-lg text-xs font-semibold transition-all"
-              >
-                {preset}
-              </button>
-            ))}
           </div>
 
-          {/* Bottom Toolbar & Tabs */}
-          <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-white/5">
-            <div className="flex items-center gap-3">
+          {/* Main Tab Switcher */}
+          <div className="flex bg-[#0A0B10] p-1.5 rounded-xl border border-[#38BDF8]/25 overflow-x-auto whitespace-nowrap">
+            <button
+              onClick={() => setActiveTab("prospectar")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                activeTab === "prospectar"
+                  ? "bg-[#38BDF8] text-black shadow-[0_0_15px_rgba(56,189,248,0.4)] font-extrabold"
+                  : "text-white/60 hover:text-white"
+              }`}
+            >
+              <Search size={15} />
+              <span>Prospectar ({leads.length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("salvos")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                activeTab === "salvos"
+                  ? "bg-[#38BDF8] text-black shadow-[0_0_15px_rgba(56,189,248,0.4)] font-extrabold"
+                  : "text-white/60 hover:text-white"
+              }`}
+            >
+              <Bookmark size={15} />
+              <span>Meus Leads Salvos ({savedLeads.length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("kanban")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                activeTab === "kanban"
+                  ? "bg-[#38BDF8] text-black shadow-[0_0_15px_rgba(56,189,248,0.4)] font-extrabold"
+                  : "text-white/60 hover:text-white"
+              }`}
+            >
+              <Kanban size={15} />
+              <span>Painel Kanban CRM ({savedLeads.length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("previas")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                activeTab === "previas"
+                  ? "bg-[#38BDF8] text-black shadow-[0_0_15px_rgba(56,189,248,0.4)] font-extrabold"
+                  : "text-white/60 hover:text-white"
+              }`}
+            >
+              <Sparkles size={15} />
+              <span>Prévias Salvas ({savedPreviewsList.length})</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Search Controls Card - VISIBLE ONLY ON PROSPECTAR TAB */}
+        {activeTab === "prospectar" && (
+          <div className="bg-[#0F1117] border border-white/10 rounded-3xl p-5 sm:p-6 space-y-5 shadow-2xl animate-in fade-in duration-200">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSearch();
+              }}
+              className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center"
+            >
+              <div className="sm:col-span-5 relative">
+                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block mb-1">
+                  Nicho da Empresa
+                </label>
+                <div className="relative">
+                  <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+                  <input
+                    type="text"
+                    value={nicho}
+                    onChange={(e) => setNicho(e.target.value)}
+                    placeholder="Ex: Imobiliária, Barbearia, Odontologia..."
+                    className="w-full bg-[#0A0B10] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-white/40 outline-none transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="sm:col-span-4 relative">
+                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block mb-1">
+                  Cidade / Bairro / Região
+                </label>
+                <div className="relative">
+                  <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+                  <input
+                    type="text"
+                    value={cidade}
+                    onChange={(e) => setCidade(e.target.value)}
+                    placeholder="Ex: Rio de Janeiro, São Paulo, Curitiba..."
+                    className="w-full bg-[#0A0B10] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-white/40 outline-none transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="sm:col-span-3 flex items-end">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full mt-5 sm:mt-0 py-3 bg-[#38BDF8] hover:bg-[#7dd3fc] text-black font-extrabold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(56,189,248,0.4)] active:scale-[0.98] disabled:opacity-50 border border-[#38BDF8]/40"
+                >
+                  {isLoading ? <Loader2 size={18} className="animate-spin text-black" /> : <Search size={18} />}
+                  <span>Buscar Leads</span>
+                </button>
+              </div>
+            </form>
+
+            {/* Preset Chips */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider mr-1">Atalhos Rápidos:</span>
+                {["Imobiliária", "Barbearia", "Odontologia", "Estética", "Advocacia", "Restaurante", "Pet Shop"].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => {
+                      setNicho(preset);
+                      handleSearch(preset, cidade || "São Paulo - SP");
+                    }}
+                    className="px-3 py-1 bg-[#38BDF8]/10 hover:bg-[#38BDF8]/20 text-[#38BDF8] border border-[#38BDF8]/30 rounded-lg text-xs font-semibold transition-all"
+                  >
+                    {preset}
+                  </button>
+                ))}
+              </div>
+
               <button
                 type="button"
                 onClick={() => setShowFiltersPanel(!showFiltersPanel)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                   showFiltersPanel || filterRating !== "todas" || filterReviews !== "todas" || sortOption !== "relevancia" || onlyNoWebsite
                     ? "bg-[#38BDF8]/20 text-[#38BDF8] border-[#38BDF8]/40 shadow-[0_0_15px_rgba(56,189,248,0.2)]"
                     : "bg-[#0A0B10] text-white/70 hover:text-white border-white/15"
@@ -1047,144 +1108,95 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
               </button>
             </div>
 
-            <div className="flex bg-[#0A0B10] p-1 rounded-xl border border-[#38BDF8]/25 overflow-x-auto max-w-full whitespace-nowrap">
-              <button
-                onClick={() => setActiveTab("prospectar")}
-                className={`flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
-                  activeTab === "prospectar"
-                    ? "bg-[#38BDF8] text-black font-extrabold shadow-[0_0_15px_rgba(56,189,248,0.4)]"
-                    : "text-white/60 hover:text-white"
-                }`}
-              >
-                <Search size={14} />
-                <span>Prospectar ({leads.length})</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("salvos")}
-                className={`flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
-                  activeTab === "salvos"
-                    ? "bg-[#38BDF8] text-black font-extrabold shadow-[0_0_15px_rgba(56,189,248,0.4)]"
-                    : "text-white/60 hover:text-white"
-                }`}
-              >
-                <Bookmark size={14} />
-                <span>Meus Leads Salvos ({savedLeads.length})</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("kanban")}
-                className={`flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
-                  activeTab === "kanban"
-                    ? "bg-[#38BDF8] text-black font-extrabold shadow-[0_0_15px_rgba(56,189,248,0.4)]"
-                    : "text-white/60 hover:text-white"
-                }`}
-              >
-                <Kanban size={14} />
-                <span>Painel Kanban CRM</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("previas")}
-                className={`flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
-                  activeTab === "previas"
-                    ? "bg-[#38BDF8] text-black font-extrabold shadow-[0_0_15px_rgba(56,189,248,0.4)]"
-                    : "text-white/60 hover:text-white"
-                }`}
-              >
-                <Sparkles size={14} />
-                <span>Prévias Salvas ({savedPreviewsList.length})</span>
-              </button>
-            </div>
+            {/* Expandable Advanced Filters Panel */}
+            {showFiltersPanel && (
+              <div className="pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 bg-[#0A0B10] p-4.5 rounded-2xl border border-[#38BDF8]/30 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+                {/* Filtro 1: Sem Website */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                    Presença Web
+                  </label>
+                  <label className="flex items-center gap-2 text-xs text-white/80 cursor-pointer pt-1 bg-[#111218] border border-white/10 px-3 py-2 rounded-xl hover:border-white/20 transition-all">
+                    <input
+                      type="checkbox"
+                      checked={onlyNoWebsite}
+                      onChange={(e) => {
+                        setOnlyNoWebsite(e.target.checked);
+                        if (hasSearched) handleSearch(nicho, cidade);
+                      }}
+                      className="rounded border-white/20 text-[#38BDF8] focus:ring-[#38BDF8] bg-[#0A0B10] w-4 h-4"
+                    />
+                    <span className="font-semibold text-white">Apenas Sem Website</span>
+                  </label>
+                </div>
+
+                {/* Filtro 2: Telefone / WhatsApp */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                    Contato Válido
+                  </label>
+                  <label className="flex items-center gap-2 text-xs text-white/80 cursor-pointer pt-1 bg-[#111218] border border-white/10 px-3 py-2 rounded-xl hover:border-white/20 transition-all">
+                    <input
+                      type="checkbox"
+                      checked={onlyWithPhone}
+                      onChange={(e) => setOnlyWithPhone(e.target.checked)}
+                      className="rounded border-white/20 text-[#38BDF8] focus:ring-[#38BDF8] bg-[#0A0B10] w-4 h-4"
+                    />
+                    <span className="font-semibold text-white">Com Telefone/Whats</span>
+                  </label>
+                </div>
+
+                {/* Filtro 3: Nota no Google */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                    Nota Google (GMB)
+                  </label>
+                  <select
+                    value={filterRating}
+                    onChange={(e: any) => setFilterRating(e.target.value)}
+                    className="w-full bg-[#111218] border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#38BDF8] font-medium"
+                  >
+                    <option value="todas">Todas as Notas</option>
+                    <option value="baixa">⚠️ Nota Baixa (&lt; 4.4)</option>
+                    <option value="alta">⭐ Nota Alta (≥ 4.5)</option>
+                  </select>
+                </div>
+
+                {/* Filtro 4: Volume de Avaliações */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                    Volume Avaliações
+                  </label>
+                  <select
+                    value={filterReviews}
+                    onChange={(e: any) => setFilterReviews(e.target.value)}
+                    className="w-full bg-[#111218] border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#38BDF8] font-medium"
+                  >
+                    <option value="todas">Todas as Avaliações</option>
+                    <option value="poucas">📉 Poucas (&lt; 30 avaliações)</option>
+                    <option value="muitas">🔥 Muitas (≥ 30 avaliações)</option>
+                  </select>
+                </div>
+
+                {/* Filtro 5: Ordenação */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                    Ordenar Resultados
+                  </label>
+                  <select
+                    value={sortOption}
+                    onChange={(e: any) => setSortOption(e.target.value)}
+                    className="w-full bg-[#111218] border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#38BDF8] font-medium"
+                  >
+                    <option value="relevancia">Relevância (Google)</option>
+                    <option value="nota_asc">Menor Nota Primeiro</option>
+                    <option value="nota_desc">Maior Nota Primeiro</option>
+                  </select>
+                </div>
+              </div>
+            )}
           </div>
-
-          {/* Expandable Advanced Filters Panel (Posicionado Diretamente Abaixo do Botão de Filtros) */}
-          {showFiltersPanel && (
-            <div className="pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 bg-[#0A0B10] p-4.5 rounded-2xl border border-[#38BDF8]/30 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
-              {/* Filtro 1: Sem Website */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
-                  Presença Web
-                </label>
-                <label className="flex items-center gap-2 text-xs text-white/80 cursor-pointer pt-1 bg-[#111218] border border-white/10 px-3 py-2 rounded-xl hover:border-white/20 transition-all">
-                  <input
-                    type="checkbox"
-                    checked={onlyNoWebsite}
-                    onChange={(e) => {
-                      setOnlyNoWebsite(e.target.checked);
-                      if (hasSearched) handleSearch(nicho, cidade);
-                    }}
-                    className="rounded border-white/20 text-[#38BDF8] focus:ring-[#38BDF8] bg-[#0A0B10] w-4 h-4"
-                  />
-                  <span className="font-semibold text-white">Apenas Sem Website</span>
-                </label>
-              </div>
-
-              {/* Filtro 2: Telefone / WhatsApp */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
-                  Contato Válido
-                </label>
-                <label className="flex items-center gap-2 text-xs text-white/80 cursor-pointer pt-1 bg-[#111218] border border-white/10 px-3 py-2 rounded-xl hover:border-white/20 transition-all">
-                  <input
-                    type="checkbox"
-                    checked={onlyWithPhone}
-                    onChange={(e) => setOnlyWithPhone(e.target.checked)}
-                    className="rounded border-white/20 text-[#38BDF8] focus:ring-[#38BDF8] bg-[#0A0B10] w-4 h-4"
-                  />
-                  <span className="font-semibold text-white">Com Telefone/Whats</span>
-                </label>
-              </div>
-
-              {/* Filtro 3: Nota no Google */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
-                  Nota Google (GMB)
-                </label>
-                <select
-                  value={filterRating}
-                  onChange={(e: any) => setFilterRating(e.target.value)}
-                  className="w-full bg-[#111218] border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#38BDF8] font-medium"
-                >
-                  <option value="todas">Todas as Notas</option>
-                  <option value="baixa">⚠️ Nota Baixa (&lt; 4.4)</option>
-                  <option value="alta">⭐ Nota Alta (≥ 4.5)</option>
-                </select>
-              </div>
-
-              {/* Filtro 4: Volume de Avaliações */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
-                  Volume Avaliações
-                </label>
-                <select
-                  value={filterReviews}
-                  onChange={(e: any) => setFilterReviews(e.target.value)}
-                  className="w-full bg-[#111218] border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#38BDF8] font-medium"
-                >
-                  <option value="todas">Todas as Avaliações</option>
-                  <option value="poucas">📉 Poucas (&lt; 30 avaliações)</option>
-                  <option value="muitas">🔥 Muitas (≥ 30 avaliações)</option>
-                </select>
-              </div>
-
-              {/* Filtro 5: Ordenação */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
-                  Ordenar Resultados
-                </label>
-                <select
-                  value={sortOption}
-                  onChange={(e: any) => setSortOption(e.target.value)}
-                  className="w-full bg-[#111218] border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#38BDF8] font-medium"
-                >
-                  <option value="relevancia">Relevância (Google)</option>
-                  <option value="nota_asc">Menor Nota Primeiro</option>
-                  <option value="nota_desc">Maior Nota Primeiro</option>
-                  <option value="reviews_asc">Menos Avaliações</option>
-                  <option value="reviews_desc">Mais Avaliações</option>
-                </select>
-              </div>
-            </div>
-          )}
-        </div>
+        )}
 
         {/* TAB 1: PROSPECTAR LEADS */}
         {activeTab === "prospectar" && (
@@ -1407,28 +1419,110 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
               }
             `}</style>
 
-            {/* Header com Métricas de Vendas do Pipeline */}
-            <div className="bg-[#0F1117] border border-[#38BDF8]/20 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xl">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Kanban size={20} className="text-[#38BDF8]" />
-                  <h3 className="text-xl font-black text-white tracking-tight">Painel Kanban CRM de Vendas B2B</h3>
+            {/* Dashboard Visual de Vendas e Métricas do CRM */}
+            <div className="bg-[#0F1117] border border-[#38BDF8]/20 rounded-3xl p-5 sm:p-6 space-y-5 shadow-2xl">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Kanban size={22} className="text-[#38BDF8]" />
+                    <h3 className="text-xl font-black text-white tracking-tight">Painel CRM & Analytics de Vendas B2B</h3>
+                  </div>
+                  <p className="text-xs text-white/60">
+                    Visão geral do pipeline de prospecção, métricas de conversão e gestão de fechamentos.
+                  </p>
                 </div>
-                <p className="text-xs text-white/60">
-                  Arraste e solte os cards entre as colunas ou use as setas para navegar no funil de vendas.
-                </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="bg-[#0A0B10] border border-white/10 px-4 py-2 rounded-xl text-center">
-                  <span className="text-[10px] font-mono text-white/40 uppercase block">Total em Pipeline</span>
-                  <span className="text-sm font-bold text-white">{savedLeads.length} empresas</span>
+              {/* 4 Cards de KPI */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                {/* Card 1: Total no Pipeline */}
+                <div className="bg-[#0A0B10] border border-white/10 p-4 rounded-2xl space-y-1">
+                  <div className="flex items-center justify-between text-white/50 text-[10px] font-bold uppercase tracking-wider">
+                    <span>Base no CRM</span>
+                    <Kanban size={14} className="text-[#38BDF8]" />
+                  </div>
+                  <div className="text-2xl font-black text-white">{savedLeads.length} <span className="text-xs font-normal text-white/50">empresas</span></div>
+                  <div className="text-[11px] text-[#38BDF8] font-medium flex items-center gap-1">
+                    <span>Pipeline Ativo</span>
+                  </div>
                 </div>
-                <div className="bg-emerald-500/10 border border-emerald-500/30 px-4 py-2 rounded-xl text-center">
-                  <span className="text-[10px] font-mono text-emerald-400 uppercase block">Clientes Fechados</span>
-                  <span className="text-sm font-extrabold text-emerald-400">
-                    {savedLeads.filter(l => (l.status || "novo") === "fechado").length} empresas ({savedLeads.filter(l => (l.status || "novo") === "fechado").reduce((acc, l) => acc + (l.sale_value || 0), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })})
-                  </span>
+
+                {/* Card 2: Sem Website (Alvo Ideal) */}
+                <div className="bg-[#0A0B10] border border-amber-500/20 p-4 rounded-2xl space-y-1">
+                  <div className="flex items-center justify-between text-amber-400/70 text-[10px] font-bold uppercase tracking-wider">
+                    <span>Alvos Sem Website</span>
+                    <Sparkles size={14} className="text-amber-400" />
+                  </div>
+                  <div className="text-2xl font-black text-amber-400">
+                    {savedLeads.filter((l) => !l.has_website).length} <span className="text-xs font-normal text-white/50">({savedLeads.length > 0 ? Math.round((savedLeads.filter((l) => !l.has_website).length / savedLeads.length) * 100) : 0}%)</span>
+                  </div>
+                  <div className="text-[11px] text-amber-400/80 font-medium">Oportunidade Principal</div>
+                </div>
+
+                {/* Card 3: Em Negociação */}
+                <div className="bg-[#0A0B10] border border-indigo-500/20 p-4 rounded-2xl space-y-1">
+                  <div className="flex items-center justify-between text-indigo-400/70 text-[10px] font-bold uppercase tracking-wider">
+                    <span>Em Negociação</span>
+                    <Target size={14} className="text-indigo-400" />
+                  </div>
+                  <div className="text-2xl font-black text-indigo-400">
+                    {savedLeads.filter((l) => ["em_contato", "followup", "proposta"].includes(l.status || "novo")).length} <span className="text-xs font-normal text-white/50">leads</span>
+                  </div>
+                  <div className="text-[11px] text-indigo-300/80 font-medium">Contato, Follow & Proposta</div>
+                </div>
+
+                {/* Card 4: Faturamento & Fechados */}
+                <div className="bg-[#0A0B10] border border-emerald-500/30 p-4 rounded-2xl space-y-1">
+                  <div className="flex items-center justify-between text-emerald-400/70 text-[10px] font-bold uppercase tracking-wider">
+                    <span>Receita em Fechamentos</span>
+                    <Check size={14} className="text-emerald-400" />
+                  </div>
+                  <div className="text-xl font-black text-emerald-400">
+                    {savedLeads.filter((l) => (l.status || "novo") === "fechado").reduce((acc, l) => acc + (l.sale_value || 0), 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                  </div>
+                  <div className="text-[11px] text-emerald-400/80 font-medium">
+                    {savedLeads.filter((l) => (l.status || "novo") === "fechado").length} contratos fechados ({savedLeads.length > 0 ? ((savedLeads.filter((l) => (l.status || "novo") === "fechado").length / savedLeads.length) * 100).toFixed(1) : "0"}% conv.)
+                  </div>
+                </div>
+              </div>
+
+              {/* Barra do Funil de Vendas Interativa */}
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between text-xs text-white/60 font-semibold">
+                  <span>Distribuição por Etapa do Funil</span>
+                  <span className="text-[10px] font-mono text-white/40">100% da Base</span>
+                </div>
+                <div className="h-3 w-full bg-[#0A0B10] rounded-full overflow-hidden flex gap-0.5 p-0.5 border border-white/10">
+                  {KANBAN_COLUMNS.map((col) => {
+                    const count = savedLeads.filter((l) => (l.status || "novo") === col.id).length;
+                    const pct = savedLeads.length > 0 ? (count / savedLeads.length) * 100 : 0;
+                    if (pct === 0) return null;
+                    const colorClass =
+                      col.id === "novo"
+                        ? "bg-[#38BDF8]"
+                        : col.id === "em_contato"
+                        ? "bg-indigo-400"
+                        : col.id === "followup"
+                        ? "bg-amber-400"
+                        : col.id === "proposta"
+                        ? "bg-purple-400"
+                        : col.id === "fechado"
+                        ? "bg-emerald-400"
+                        : "bg-rose-400";
+                    return <div key={col.id} style={{ width: `${pct}%` }} className={`h-full ${colorClass} transition-all rounded-sm`} title={`${col.title}: ${count} leads (${pct.toFixed(0)}%)`} />;
+                  })}
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px]">
+                  {KANBAN_COLUMNS.map((col) => {
+                    const count = savedLeads.filter((l) => (l.status || "novo") === col.id).length;
+                    return (
+                      <div key={col.id} className="flex items-center gap-1.5 text-white/70">
+                        <span className={`w-2 h-2 rounded-full ${col.badgeColor.split(" ")[0]}`} />
+                        <span className="font-medium">{col.title}:</span>
+                        <span className="font-bold text-white">{count}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
