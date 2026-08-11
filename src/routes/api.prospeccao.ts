@@ -95,114 +95,141 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
       let rawPlaces: any[] = [];
       let nextPageToken: string | undefined = undefined;
 
-      // 1. Busca Principal na Google Places API
-      const query = `${nicho} em ${cidade}`;
-      const searchUrl = data.pageToken 
-        ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${encodeURIComponent(data.pageToken)}&key=${apiKey}&language=pt-BR`
-        : `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}&language=pt-BR`;
+      const cityLower = cidade.toLowerCase();
+      const cleanCityName = cidade.split("-")[0].trim();
+      let subQueries: string[] = [];
 
-      const res = await fetch(searchUrl);
-      const json = await res.json();
-
-      if (json.status !== "OK" && json.status !== "ZERO_RESULTS") {
-        console.error("Google Places API error status:", json.status, json.error_message);
-        return {
-          success: false,
-          leads: await generateMockLeads(nicho, cidade, data.onlyNoWebsite),
-          source: "google_error",
-          googleStatus: json.status || "ERROR",
-          message: json.error_message || `Falha na Google API (Status: ${json.status}). Verifique se a Places API está ativada e se há Billing ativo no Google Cloud Console.`,
-        };
+      if (cityLower.includes("rio de janeiro")) {
+        subQueries = [
+          `${nicho} em Copacabana, Rio de Janeiro`,
+          `${nicho} em Barra da Tijuca, Rio de Janeiro`,
+          `${nicho} em Ipanema, Rio de Janeiro`,
+          `${nicho} em Botafogo, Rio de Janeiro`,
+          `${nicho} em Tijuca, Rio de Janeiro`,
+          `${nicho} em Centro, Rio de Janeiro`,
+          `${nicho} em Campo Grande, Rio de Janeiro`,
+          `${nicho} em Recreio dos Bandeirantes, Rio de Janeiro`,
+          `${nicho} em Méier, Rio de Janeiro`,
+          `${nicho} em Madureira, Rio de Janeiro`,
+          `${nicho} em Leblon, Rio de Janeiro`,
+          `${nicho} em Niterói, RJ`,
+          `${nicho} em Nova Iguaçu, RJ`,
+          `${nicho} em Duque de Caxias, RJ`,
+        ];
+      } else if (cityLower.includes("são paulo") || cityLower.includes("sao paulo")) {
+        subQueries = [
+          `${nicho} em Moema, São Paulo`,
+          `${nicho} em Pinheiros, São Paulo`,
+          `${nicho} em Tatuapé, São Paulo`,
+          `${nicho} em Jardins, São Paulo`,
+          `${nicho} em Santana, São Paulo`,
+          `${nicho} em Itaim Bibi, São Paulo`,
+          `${nicho} em Lapa, São Paulo`,
+          `${nicho} em Santo Amaro, São Paulo`,
+          `${nicho} em Morumbi, São Paulo`,
+          `${nicho} em Guarulhos, SP`,
+          `${nicho} em Osasco, SP`,
+          `${nicho} em Campinas, SP`,
+        ];
+      } else {
+        // Para outras cidades e estados: busca por regiões estratégicas
+        subQueries = [
+          `${nicho} em Centro, ${cleanCityName}`,
+          `${nicho} em Bairro Central, ${cleanCityName}`,
+          `${nicho} em Zona Sul, ${cleanCityName}`,
+          `${nicho} em Zona Norte, ${cleanCityName}`,
+          `${nicho} em Vila Nova, ${cleanCityName}`,
+        ];
       }
 
-      rawPlaces = json.results || [];
-      nextPageToken = json.next_page_token || undefined;
-
-      // 2. Se for a busca inicial (sem pageToken) e deepSearch estiver ativado (padrão true), busca automaticamente Página 2 para multiplicar leads
-      if (!data.pageToken && nextPageToken && data.deepSearch !== false) {
-        try {
-          // Aguarda 2 segundos para o token do Google ser ativado
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          const page2Url = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${encodeURIComponent(nextPageToken)}&key=${apiKey}&language=pt-BR`;
-          const page2Res = await fetch(page2Url);
-          const page2Json = await page2Res.json();
-          if (page2Json.status === "OK" && Array.isArray(page2Json.results)) {
-            rawPlaces = [...rawPlaces, ...page2Json.results];
-            nextPageToken = page2Json.next_page_token || undefined;
-          }
-        } catch (e) {
-          console.warn("Erro ao buscar página 2 do Google:", e);
-        }
+      let customSubIndex = -1;
+      if (data.pageToken && data.pageToken.startsWith("google_sub_")) {
+         customSubIndex = parseInt(data.pageToken.replace("google_sub_", ""), 10);
       }
 
-      // 3. Se for uma busca ao vivo (sem pageToken), realiza varredura profunda em bairros/sub-regiões estratégicos para multiplicar os leads (retornando 100 a 300+ empresas reais)
-      if (!data.pageToken && data.deepSearch !== false) {
-        let subQueries: string[] = [];
-        const cleanCityName = cidade.split("-")[0].trim();
+      if (customSubIndex >= 0) {
+         // Estamos em uma etapa de paginação customizada (buscando sub-regiões extras progressivamente)
+         const batchSize = 3; // 3 regiões por clique = ~60 leads brutos a mais por clique
+         const queriesToRun = subQueries.slice(customSubIndex, customSubIndex + batchSize);
+         
+         const subProms = queriesToRun.map(async (subQ) => {
+           try {
+             const subUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(subQ)}&key=${apiKey}&language=pt-BR`;
+             const subRes = await fetch(subUrl);
+             if (!subRes.ok) return [];
+             const subJson = await subRes.json();
+             return subJson.status === "OK" && Array.isArray(subJson.results) ? subJson.results : [];
+           } catch (e) {
+             return [];
+           }
+         });
 
-        if (cityLower.includes("rio de janeiro")) {
-          subQueries = [
-            `${nicho} em Copacabana, Rio de Janeiro`,
-            `${nicho} em Barra da Tijuca, Rio de Janeiro`,
-            `${nicho} em Ipanema, Rio de Janeiro`,
-            `${nicho} em Botafogo, Rio de Janeiro`,
-            `${nicho} em Tijuca, Rio de Janeiro`,
-            `${nicho} em Centro, Rio de Janeiro`,
-            `${nicho} em Campo Grande, Rio de Janeiro`,
-            `${nicho} em Recreio dos Bandeirantes, Rio de Janeiro`,
-            `${nicho} em Méier, Rio de Janeiro`,
-            `${nicho} em Madureira, Rio de Janeiro`,
-            `${nicho} em Leblon, Rio de Janeiro`,
-            `${nicho} em Niterói, RJ`,
-            `${nicho} em Nova Iguaçu, RJ`,
-            `${nicho} em Duque de Caxias, RJ`,
-          ];
-        } else if (cityLower.includes("são paulo") || cityLower.includes("sao paulo")) {
-          subQueries = [
-            `${nicho} em Moema, São Paulo`,
-            `${nicho} em Pinheiros, São Paulo`,
-            `${nicho} em Tatuapé, São Paulo`,
-            `${nicho} em Jardins, São Paulo`,
-            `${nicho} em Santana, São Paulo`,
-            `${nicho} em Itaim Bibi, São Paulo`,
-            `${nicho} em Lapa, São Paulo`,
-            `${nicho} em Santo Amaro, São Paulo`,
-            `${nicho} em Morumbi, São Paulo`,
-            `${nicho} em Guarulhos, SP`,
-            `${nicho} em Osasco, SP`,
-            `${nicho} em Campinas, SP`,
-          ];
-        } else {
-          // Para outras cidades e estados: busca por regiões estratégicas
-          subQueries = [
-            `${nicho} em Centro, ${cleanCityName}`,
-            `${nicho} em Bairro Central, ${cleanCityName}`,
-            `${nicho} em Zona Sul, ${cleanCityName}`,
-            `${nicho} em Zona Norte, ${cleanCityName}`,
-            `${nicho} em Vila Nova, ${cleanCityName}`,
-          ];
+         const subResultsArray = await Promise.all(subProms);
+         for (const resList of subResultsArray) {
+           for (const item of resList) {
+             if (!rawPlaces.some((p) => p.place_id === item.place_id)) {
+               rawPlaces.push(item);
+             }
+           }
+         }
+         
+         if (customSubIndex + batchSize < subQueries.length) {
+            nextPageToken = `google_sub_${customSubIndex + batchSize}`;
+         } else {
+            nextPageToken = undefined; // Esgotou o mapa completamente
+         }
+      } else {
+        // Busca Inicial ou Próxima Página real do Google
+        const query = `${nicho} em ${cidade}`;
+        const searchUrl = data.pageToken 
+          ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${encodeURIComponent(data.pageToken)}&key=${apiKey}&language=pt-BR`
+          : `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}&language=pt-BR`;
+
+        const res = await fetch(searchUrl);
+        const json = await res.json();
+
+        if (json.status !== "OK" && json.status !== "ZERO_RESULTS") {
+          console.error("Google Places API error status:", json.status, json.error_message);
+          return {
+            success: false,
+            leads: await generateMockLeads(nicho, cidade, data.onlyNoWebsite),
+            source: "google_error",
+            googleStatus: json.status || "ERROR",
+            message: json.error_message || `Falha na Google API (Status: ${json.status}). Verifique se a Places API está ativada e se há Billing ativo no Google Cloud Console.`,
+          };
         }
 
-        // Executar buscas em sub-bairros em lotes paralelos para rapidez extrema
-        const subProms = subQueries.map(async (subQ) => {
-          try {
-            const subUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(subQ)}&key=${apiKey}&language=pt-BR`;
-            const subRes = await fetch(subUrl);
-            if (!subRes.ok) return [];
-            const subJson = await subRes.json();
-            return subJson.status === "OK" && Array.isArray(subJson.results) ? subJson.results : [];
-          } catch (e) {
-            return [];
-          }
-        });
+        rawPlaces = json.results || [];
 
-        const subResultsArray = await Promise.all(subProms);
-        for (const resList of subResultsArray) {
-          for (const item of resList) {
-            if (!rawPlaces.some((p) => p.place_id === item.place_id)) {
-              rawPlaces.push(item);
-            }
-          }
+        // Se for a busca INICIAL, vamos acelerar puxando também as primeiras 2 sub-regiões 
+        // para garantir que a tela não fique vazia na primeira carregada (caso os filtros removam muitos)
+        if (!data.pageToken && subQueries.length > 0 && data.deepSearch !== false) {
+           const initialBatch = subQueries.slice(0, 2);
+           const subProms = initialBatch.map(async (subQ) => {
+             try {
+               const subUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(subQ)}&key=${apiKey}&language=pt-BR`;
+               const subRes = await fetch(subUrl);
+               const subJson = await subRes.json();
+               return subJson.status === "OK" && Array.isArray(subJson.results) ? subJson.results : [];
+             } catch (e) {
+               return [];
+             }
+           });
+           const subResultsArray = await Promise.all(subProms);
+           for (const resList of subResultsArray) {
+             for (const item of resList) {
+               if (!rawPlaces.some((p) => p.place_id === item.place_id)) {
+                 rawPlaces.push(item);
+               }
+             }
+           }
+        }
+
+        if (json.next_page_token) {
+           nextPageToken = json.next_page_token;
+        } else if (subQueries.length > 0) {
+           // Quando acabam as páginas principais do Google, engatamos a paginação por sub-regiões
+           nextPageToken = `google_sub_2`; 
         }
       }
 
