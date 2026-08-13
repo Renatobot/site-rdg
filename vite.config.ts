@@ -16,4 +16,10 @@ export default defineConfig({
   vite: {
     plugins: [],
   },
+  nitro: {
+    routeRules: {
+      '/api/tokenrouter/**': { proxy: 'https://api.tokenrouter.com/v1/**' },
+      '/api/openrouter/**': { proxy: 'https://openrouter.ai/api/v1/**' }
+    }
+  }
 });
