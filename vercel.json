@@ -24,6 +24,15 @@
     {
       "source": "/api/pollinations-img/(.*)",
       "destination": "https://image.pollinations.ai/$1"
+    },
+    {
+      "source": "/api/tokenrouter/(.*)",
+      "destination": "https://api.tokenrouter.com/v1/$1"
+    },
+    {
+      "source": "/api/openrouter/(.*)",
+      "destination": "https://openrouter.ai/api/v1/$1"
     }
   ]
 }
+
