@@ -23,13 +23,15 @@ export default async function handler(req, res) {
 
     const targetUrl = `https://api.tokenrouter.com/v1${subpath}`;
 
-    const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+    const authHeader = req.headers['authorization'] || req.headers['Authorization'] || req.headers.authorization;
+    res.setHeader('X-Debug-Auth-Received', String(Boolean(authHeader)));
     const forwardHeaders = {
       'Content-Type': 'application/json',
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     };
     if (authHeader) {
       forwardHeaders['Authorization'] = authHeader;
+      forwardHeaders['authorization'] = authHeader;
     }
 
     // Do NOT forward Origin or Referer to TokenRouter - prevents 403
