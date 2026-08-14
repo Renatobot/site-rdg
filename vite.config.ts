@@ -16,4 +16,15 @@ export default defineConfig({
   vite: {
     plugins: [],
   },
+  nitro: {
+    routeRules: {
+      // Server-side proxy — strips Origin header automatically, preventing 403 on TokenRouter
+      '/api/tokenrouter/**': {
+        proxy: { to: 'https://api.tokenrouter.com/v1/**' }
+      },
+      '/api/openrouter/**': {
+        proxy: { to: 'https://openrouter.ai/api/v1/**' }
+      }
+    }
+  }
 });

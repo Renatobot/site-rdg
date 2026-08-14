@@ -1,5 +1,7 @@
 // Vercel Serverless Function Proxy for TokenRouter
 // Resolves CORS & strips Origin header to prevent OpenResty 403 Forbidden
+export const config = { api: { bodyParser: true } };
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -10,9 +12,18 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Build the subpath from URL, since vercel rewrites /api/tokenrouter/* to /api/tokenrouter?path=*
     let subpath = req.query.path;
     if (Array.isArray(subpath)) {
       subpath = subpath.join('/');
+    }
+    // Also try to extract from URL path directly
+    if (!subpath) {
+      const urlPath = req.url || '';
+      const match = urlPath.match(/\/api\/tokenrouter\/?(.*?)(\?|$)/);
+      if (match && match[1]) {
+        subpath = match[1];
+      }
     }
     if (!subpath) {
       subpath = 'chat/completions';
@@ -23,21 +34,29 @@ export default async function handler(req, res) {
 
     const targetUrl = `https://api.tokenrouter.com/v1${subpath}`;
 
-    const authHeader = req.headers['authorization'] || req.headers['Authorization'] || req.headers.authorization;
+    // Read auth header — Vercel lowercases all headers
+    const authHeader = req.headers['authorization'];
     res.setHeader('X-Debug-Auth-Received', String(Boolean(authHeader)));
+    res.setHeader('X-Debug-Auth-Preview', authHeader ? authHeader.substring(0, 20) + '...' : 'none');
+    res.setHeader('X-Debug-Subpath', subpath);
+    res.setHeader('X-Debug-Target', targetUrl);
+
     const forwardHeaders = {
       'Content-Type': 'application/json',
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     };
     if (authHeader) {
       forwardHeaders['Authorization'] = authHeader;
-      forwardHeaders['authorization'] = authHeader;
     }
 
-    // Do NOT forward Origin or Referer to TokenRouter - prevents 403
+    // Get body as string to avoid double serialization
     let body = undefined;
     if (req.method === 'POST' || req.method === 'PUT') {
-      body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+      if (typeof req.body === 'string') {
+        body = req.body;
+      } else if (req.body) {
+        body = JSON.stringify(req.body);
+      }
     }
 
     const upstream = await fetch(targetUrl, {
