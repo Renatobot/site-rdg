@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { waLink, LOGO_URL } from "@/lib/site";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
+import { appsProntos, CATEGORIAS, getTagDotColor, type AppProto } from "@/data/appsProntos";
 import {
   Download,
   Play,
@@ -52,6 +53,7 @@ import {
   Cpu,
   Mic,
   Image as ImageIcon,
+  Code,
   Layers,
   Puzzle,
   Infinity as InfinityIcon
@@ -71,6 +73,9 @@ const WA_SUPORTE = waLink(
 
 // Link de Download do Instalador ZIP Instagram (Dropbox Direct 1-Click Download)
 const DOWNLOAD_ZIP_URL = "https://www.dropbox.com/scl/fo/dt1wornxoi3o7r8mbvxqa/AHgL-XE1noUweqCiPes0UXc?rlkey=ixkg579ok6lzecx5x1pwndb6w&st=5ebzm8eh&dl=1";
+
+// Link de Download Direto da Extensão Chrome Instagram (Pasta Standalone - 1 Conta)
+const DOWNLOAD_EXTENSION_ZIP_URL = "https://www.dropbox.com/scl/fo/yr1sv7ggqe1b1en7mhtjx/ANCfO7LWYw_hFaLosB6GrJA?rlkey=pasvz7ehttiusa5g6so28r2d9&st=gjhmrj7z&dl=1";
 
 // Link de Download Direto 1-Click da Extensão Lovable (Dropbox Direct 1-Click Download)
 const DOWNLOAD_LOVABLE_ZIP_URL = "https://www.dropbox.com/scl/fo/e71wms6kcsre6igkjaz4y/ACt1_0xTijL9wIujqccUhXM?rlkey=koog865sgc18l38g8sf3cwl4t&st=l5tvgzk9&dl=1";
@@ -103,11 +108,17 @@ function MembrosPage() {
   const [loginError, setLoginError] = useState<string | null>(null);
   const [licenseInfo, setLicenseInfo] = useState<LicenseData | null>(null);
 
-  // Controle de Navegação de Páginas (home, instagram, lovable, prospeccao, whatsapp, rdg-ai)
-  const [viewMode, setViewMode] = useState<"home" | "instagram" | "lovable" | "prospeccao" | "whatsapp" | "rdg-ai">("home");
+  // Controle de Navegação de Páginas (home, instagram, lovable, apps-prontos, prospeccao, whatsapp, rdg-ai)
+  const [viewMode, setViewMode] = useState<"home" | "instagram" | "lovable" | "apps-prontos" | "prospeccao" | "whatsapp" | "rdg-ai">("home");
 
   // Modal / Alert de Produto em Desenvolvimento
   const [devNotice, setDevNotice] = useState<{ title: string; message: string; color: string } | null>(null);
+
+  // Estado para o modal do App Pronto
+  const [selectedApp, setSelectedApp] = useState<AppProto | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
 
   // Estado das Aulas do Instagram
   const [activeInstagramVideo, setActiveInstagramVideo] = useState<number>(0);
@@ -256,6 +267,25 @@ function MembrosPage() {
     setDevNotice({ title: productName, message, color: colorClass });
   };
 
+  // Helper to check access logic based on the user's license
+  const hasAccess = (moduleName: string) => {
+    if (!licenseInfo) return false;
+    // Master key unlocks all
+    if (licenseInfo.produto === "master") return true;
+    
+    // Check specific modules
+    // If the license product isn't strictly defined, we can compare string directly
+    const product = (licenseInfo.produto || "").toLowerCase();
+    
+    if (moduleName === "instagram") return product.includes("instagram");
+    if (moduleName === "lovable") return product.includes("lovable") || product.includes("rdx");
+    if (moduleName === "prospeccao") return product.includes("prospec") || product.includes("b2b") || product.includes("maps");
+    if (moduleName === "whatsapp") return product.includes("whatsapp");
+    if (moduleName === "rdg-ai") return product.includes("ai");
+    
+    return false;
+  };
+
   // Metrics para a Calculadora
   const calculatedMetrics = useMemo(() => {
     const dailyTotalDirects = roiProfiles * roiDirectsPerProfile;
@@ -357,6 +387,8 @@ function MembrosPage() {
       "{Opa|Oi|Tudo bem}? Parabéns pelo projeto! {Gostaria de testar|Quer experimentar} nossa extensão que extrai seguidores de grandes players do seu nicho?",
     ],
   };
+
+  // Os dados de appsProntos e getTagDotColor foram movidos para @/data/appsProntos.ts
 
   // INITIAL SPINNER
   if (isVerifying && !isAuthenticated) {
@@ -485,6 +517,166 @@ function MembrosPage() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-foreground font-sans selection:bg-primary selection:text-[#0A0A0A] scroll-smooth">
       
+      {/* MODAL DETALHES DO APP PRONTO (RDG STANDARD VISUAL) */}
+      {selectedApp && (
+        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-[fadeIn_0.2s_ease]">
+          <div className="bg-[#0A0A0A] border border-white/10 p-6 sm:p-8 max-w-3xl w-full relative shadow-2xl max-h-[90vh] overflow-y-auto flex flex-col font-sans">
+            <button
+              onClick={() => { setSelectedApp(null); setCopiedPrompt(false); }}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-white bg-white/5 p-2 transition-colors z-10 border border-white/10"
+            >
+              <X size={18} />
+            </button>
+            
+            {/* Header Modal */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 border-b border-white/10 pb-6 shrink-0">
+              <div className="w-16 h-16 bg-[#111218] border border-white/10 flex items-center justify-center text-3xl shrink-0">
+                {selectedApp.emoji}
+              </div>
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h3 className="text-2xl sm:text-3xl font-light text-white tracking-tight">{selectedApp.name}</h3>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">
+                    SUGESTÃO: {selectedApp.price}
+                  </span>
+                </div>
+                <p className="text-xs text-white/60 font-light leading-relaxed max-w-xl">{selectedApp.desc}</p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {selectedApp.tags?.map((tag: string, j: number) => (
+                    <div key={j} className="flex items-center gap-1.5 border border-white/10 bg-white/5 px-2 py-0.5">
+                      <div className={`w-1 h-1 ${getTagDotColor(tag)}`} />
+                      <span className="font-mono text-[9px] text-white/70 uppercase tracking-widest">
+                        {tag}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="py-6 space-y-6 flex-1">
+              
+              {/* PARA QUEM É */}
+              <div className="border border-white/10 bg-[#111218] p-5 space-y-3">
+                 <h4 className="font-mono text-[10px] text-amber-400 uppercase tracking-widest font-bold flex items-center gap-2 border-b border-white/5 pb-2">
+                   <Users size={14} /> PARA QUEM É
+                 </h4>
+                 <div className="space-y-1">
+                   <h5 className="text-sm font-medium text-white">{selectedApp.paraQuem?.title || "Pequenos e médios negócios, autônomos ou agências"}</h5>
+                   <p className="text-xs text-white/70 font-light leading-relaxed">
+                     {selectedApp.paraQuem?.desc || `Profissionais e negócios que sofrem diretamente com a necessidade de: ${selectedApp.desc.toLowerCase()}.`}
+                   </p>
+                 </div>
+              </div>
+
+              {/* PROBLEMA / SOLUÇÃO */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="border border-rose-500/30 bg-rose-500/5 p-5 space-y-3">
+                   <h4 className="font-mono text-[10px] text-rose-400 uppercase tracking-widest font-bold flex items-center gap-2 border-b border-rose-500/20 pb-2">
+                     <AlertCircle size={14} /> O PROBLEMA
+                   </h4>
+                   <p className="text-xs text-white/80 font-light leading-relaxed">
+                     {selectedApp.problema || "Desorganização operacional, perda de tempo com processos manuais e falha na retenção de clientes por falta de um sistema especializado."}
+                   </p>
+                </div>
+                <div className="border border-emerald-500/30 bg-emerald-500/5 p-5 space-y-3">
+                   <h4 className="font-mono text-[10px] text-emerald-400 uppercase tracking-widest font-bold flex items-center gap-2 border-b border-emerald-500/20 pb-2">
+                     <CheckCircle2 size={14} /> A SOLUÇÃO
+                   </h4>
+                   <p className="text-xs text-white/80 font-light leading-relaxed">
+                     {selectedApp.solucao || `Sistema centralizado onde a IA cuida do gargalo: ${selectedApp.desc.toLowerCase()}.`}
+                   </p>
+                </div>
+              </div>
+
+              {/* IMPACTO */}
+              <div className="border border-cyan-500/30 bg-cyan-500/5 p-5 space-y-2">
+                 <h4 className="font-mono text-[10px] text-cyan-400 uppercase tracking-widest font-bold flex items-center gap-2">
+                   <Zap size={14} /> IMPACTO NO NEGÓCIO
+                 </h4>
+                 <p className="text-xs text-white font-medium">
+                   {selectedApp.impacto || "Otimização de tempo e aumento de receita através de automação."}
+                 </p>
+              </div>
+
+              {/* COMO FUNCIONA */}
+              <div className="border border-white/10 bg-[#111218] p-5 space-y-4">
+                 <h4 className="font-mono text-[10px] text-white/60 uppercase tracking-widest font-bold flex items-center gap-2 border-b border-white/5 pb-2">
+                   <Layers size={14} /> COMO FUNCIONA (PASSO A PASSO)
+                 </h4>
+                 <div className="space-y-4 pt-2">
+                   {(selectedApp.comoFunciona || [
+                     { title: "Configuração Inicial", desc: "O usuário cadastra os parâmetros básicos do seu negócio no sistema." },
+                     { title: "Operação Diária Automática", desc: `A IA e o sistema gerenciam a parte chata: ${selectedApp.desc.toLowerCase()}.` },
+                     { title: "Escala e Retenção", desc: "O cliente final recebe uma experiência melhor e o negócio cresce." }
+                   ]).map((step: any, idx: number) => (
+                     <div key={idx} className="flex gap-4">
+                       <div className="w-6 h-6 border border-white/20 bg-[#0A0A0A] text-white flex items-center justify-center font-mono text-[10px] shrink-0 mt-0.5">
+                         {idx + 1}
+                       </div>
+                       <div>
+                         <h5 className="text-xs font-medium text-white">{step.title}</h5>
+                         <p className="text-[11px] text-white/50 font-light mt-1">{step.desc}</p>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+              </div>
+
+              {/* SUGESTÕES DE NOME */}
+              <div className="space-y-3">
+                 <h4 className="font-mono text-[10px] text-white/60 uppercase tracking-widest font-bold">Sugestões de Nome Comercial</h4>
+                 <div className="flex flex-wrap gap-2">
+                   {(selectedApp.sugestoesNome || [`${selectedApp.name.split(" ")[0]}Pro`, `${selectedApp.name.split(" ")[0]}Flow`, `${selectedApp.name.split(" ")[0]}Desk`]).map((name: string, i: number) => (
+                     <span key={i} className="font-mono text-[10px] text-muted-foreground uppercase border border-white/10 bg-[#111218] px-3 py-1.5">
+                       {name}
+                     </span>
+                   ))}
+                 </div>
+              </div>
+            </div>
+            
+            <div className="pt-6 flex flex-col items-center border-t border-white/10 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  const promptText = selectedApp.prompt || `Atue como um Engenheiro de Software Sênior especialista em UX/UI. 
+Você vai criar o frontend de um micro-SaaS chamado "${selectedApp.name}".
+
+Contexto do Produto:
+- Descrição Principal: ${selectedApp.desc}
+- Problema que resolve: ${selectedApp.problema || 'Falta de automação.'}
+- Solução: ${selectedApp.solucao || 'Software focado no problema descrito.'}
+
+Instruções Técnicas Essenciais:
+- Use React com TailwindCSS para estilização.
+- Crie componentes limpos, modulares e altamente reutilizáveis.
+- Tema: Dark mode profissional. Fundo principal: #0A0A0A.
+- Não crie back-end real, apenas estruture a interface com dados falsos bem realistas.
+
+Inicie criando a estrutura base de navegação e a tela principal (Dashboard) do ${selectedApp.name}.`;
+                  
+                  navigator.clipboard.writeText(promptText);
+                  setCopiedPrompt(true);
+                  setTimeout(() => setCopiedPrompt(false), 3000);
+                }}
+                className={`w-full font-mono text-[11px] uppercase tracking-[0.2em] font-bold py-4 flex items-center justify-center gap-3 transition-colors rounded-none ${
+                  copiedPrompt 
+                    ? "bg-emerald-500 text-black border border-emerald-500" 
+                    : "bg-[#111218] text-white border border-white/20 hover:bg-[#1A1C26] hover:border-violet-500 hover:text-violet-400"
+                }`}
+              >
+                <span>{copiedPrompt ? "PROMPT COPIADO COM SUCESSO!" : "PEGAR PROMPT COMPLETO"}</span>
+                {copiedPrompt ? <Check size={16} /> : <Terminal size={16} />}
+              </button>
+              <p className="font-mono text-[9px] text-white/40 uppercase tracking-widest mt-4">
+                COLE NO SEU CHATBOT DE IA E O APP É CRIADO EM MINUTOS
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODAL / NOTICE POPUP DE DESENVOLVIMENTO */}
       {devNotice && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease]">
@@ -624,7 +816,7 @@ function MembrosPage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               
               {/* CARD 1: INSTAGRAM (ROSA / MAGENTA ACCENT) */}
               <div className="border border-[#E1306C]/40 bg-[#0A0A0A] hover:border-[#E1306C] transition-all flex flex-col justify-between group">
@@ -633,26 +825,37 @@ function MembrosPage() {
                     <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#E1306C] flex items-center gap-1.5 font-bold">
                       📸 EXTENSÃO INSTAGRAM
                     </span>
-                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#E1306C]/40 bg-[#E1306C]/10 text-pink-300">
-                      DISPONÍVEL
-                    </span>
+                    {hasAccess("instagram") ? (
+                      <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-[#E1306C]/40 bg-[#E1306C]/10 text-pink-300">
+                        DISPONÍVEL
+                      </span>
+                    ) : (
+                      <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-slate-500/40 bg-slate-500/10 text-slate-300 flex items-center gap-1">
+                        <Lock size={10} /> BLOQUEADO
+                      </span>
+                    )}
                   </div>
 
                   {/* Mockup Retangular Estilo Terminal RDG */}
                   <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
                     <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#E1306C]">
                       <span>RDG instaPRO v2.4</span>
-                      <span className="text-emerald-400">● ATIVO</span>
+                      {hasAccess("instagram") ? (
+                        <span className="text-emerald-400">● ATIVO</span>
+                      ) : (
+                        <span className="text-slate-500">○ INATIVO</span>
+                      )}
                     </div>
                     <p className="text-[10px] text-muted-foreground">
                       &gt; Automação de Directs &amp; Extração
                     </p>
                     <div className="flex justify-between text-[9px] text-[#E1306C] pt-1 font-bold">
-                      <span>STATUS: SEGURO</span>
+                      <span>STATUS: {hasAccess("instagram") ? "SEGURO" : "REQUER COMPRA"}</span>
                     </div>
                   </div>
 
                   <div className="space-y-3">
+                    <img src="/assets/rdg-instapro.png" alt="RDG instaPRO" className="h-12 w-auto object-contain mb-2" />
                     <h2 className="text-lg font-light text-white group-hover:text-[#E1306C] transition-colors">
                       Extensão Instagram (instaPRO)
                     </h2>
@@ -674,14 +877,26 @@ function MembrosPage() {
                 </div>
 
                 <div className="p-6 pt-0">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("instagram")}
-                    className="w-full inline-flex items-center justify-center gap-2 border border-[#E1306C] bg-[#E1306C] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
-                  >
-                    <span>ACESSAR MÓDULO</span>
-                    <ArrowRight size={13} />
-                  </button>
+                  {hasAccess("instagram") ? (
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("instagram")}
+                      className="w-full inline-flex items-center justify-center gap-2 border border-[#E1306C] bg-[#E1306C] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
+                    >
+                      <span>ACESSAR MÓDULO</span>
+                      <ArrowRight size={13} />
+                    </button>
+                  ) : (
+                    <a
+                      href="/extensao"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full inline-flex items-center justify-center gap-2 border border-slate-500 bg-slate-800 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
+                    >
+                      <Lock size={13} />
+                      <span>DESBLOQUEAR AGORA</span>
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -692,26 +907,37 @@ function MembrosPage() {
                     <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#7C4DFF] flex items-center gap-1.5 font-bold">
                       ⚡ EXTENSÃO LOVABLE
                     </span>
-                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">
-                      DISPONÍVEL
-                    </span>
+                    {hasAccess("lovable") ? (
+                      <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">
+                        DISPONÍVEL
+                      </span>
+                    ) : (
+                      <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-slate-500/40 bg-slate-500/10 text-slate-300 flex items-center gap-1">
+                        <Lock size={10} /> BLOQUEADO
+                      </span>
+                    )}
                   </div>
 
                   {/* Mockup Retangular Estilo Terminal RDG */}
                   <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
                     <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#7C4DFF]">
                       <span>RDG Lovable Extension</span>
-                      <span className="text-emerald-400">● ATIVO</span>
+                      {hasAccess("lovable") ? (
+                        <span className="text-emerald-400">● ATIVO</span>
+                      ) : (
+                        <span className="text-slate-500">○ INATIVO</span>
+                      )}
                     </div>
                     <p className="text-[10px] text-muted-foreground">
                       &gt; Prompts &amp; Voz Sem Gastar Créditos
                     </p>
                     <div className="flex justify-between text-[9px] text-purple-300 pt-1 font-bold">
-                      <span>STATUS: DOWNLOAD LIBERADO</span>
+                      <span>STATUS: {hasAccess("lovable") ? "DOWNLOAD LIBERADO" : "REQUER COMPRA"}</span>
                     </div>
                   </div>
 
                   <div className="space-y-3">
+                    <img src="/assets/rdg-lovable.png" alt="RDG Lovable" className="h-12 w-auto object-contain mb-2" />
                     <h2 className="text-lg font-light text-white group-hover:text-[#7C4DFF] transition-colors">
                       Extensão Lovable
                     </h2>
@@ -733,12 +959,72 @@ function MembrosPage() {
                 </div>
 
                 <div className="p-6 pt-0">
+                  {hasAccess("lovable") ? (
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("lovable")}
+                      className="w-full inline-flex items-center justify-center gap-2 border border-[#7C4DFF] bg-[#7C4DFF] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
+                    >
+                      <span>ACESSAR MÓDULO</span>
+                      <ArrowRight size={13} />
+                    </button>
+                  ) : (
+                    <a
+                      href="/lovable"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full inline-flex items-center justify-center gap-2 border border-slate-500 bg-slate-800 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
+                    >
+                      <Lock size={13} />
+                      <span>DESBLOQUEAR AGORA</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* CARD 3: 95 APPS PRONTOS (TEMPLATES) */}
+              <div className="border border-violet-500/40 bg-[#0A0A0A] hover:border-violet-500 transition-all flex flex-col justify-between group">
+                <div className="p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-violet-400 flex items-center gap-1.5 font-bold">
+                      💡 TEMPLATES RDG AI
+                    </span>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">
+                      DISPONÍVEL
+                    </span>
+                  </div>
+
+                  {/* Mockup Retangular Estilo Terminal RDG */}
+                  <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2 text-violet-400">
+                      <span>95 Apps Prontos</span>
+                      <span className="text-emerald-400">● ATIVO</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      &gt; Ideias e Prompts para Vender
+                    </p>
+                    <div className="flex justify-between text-[9px] text-violet-400 pt-1 font-bold">
+                      <span>STATUS: ACESSO LIBERADO</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h2 className="text-lg font-light text-white group-hover:text-violet-400 transition-colors">
+                      95 Apps Prontos Premium
+                    </h2>
+                    <p className="text-xs text-foreground/75 leading-relaxed font-light">
+                      Público mapeado, problema real e prompt completo para criar com o RDG AI em minutos.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-6 pt-0">
                   <button
                     type="button"
-                    onClick={() => setViewMode("lovable")}
-                    className="w-full inline-flex items-center justify-center gap-2 border border-[#7C4DFF] bg-[#7C4DFF] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
+                    onClick={() => setViewMode("apps-prontos")}
+                    className="w-full inline-flex items-center justify-center gap-2 border border-violet-500 bg-violet-600 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
                   >
-                    <span>ACESSAR MÓDULO</span>
+                    <span>ACESSAR APPS</span>
                     <ArrowRight size={13} />
                   </button>
                 </div>
@@ -764,26 +1050,37 @@ function MembrosPage() {
                     <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#38BDF8] flex items-center gap-1.5 font-bold">
                       🗺️ PROSPECÇÃO B2B
                     </span>
-                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 font-bold">
-                      DISPONÍVEL
-                    </span>
+                    {hasAccess("prospeccao") ? (
+                      <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 font-bold">
+                        DISPONÍVEL
+                      </span>
+                    ) : (
+                      <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-slate-500/40 bg-slate-500/10 text-slate-300 font-bold flex items-center gap-1">
+                        <Lock size={10} /> BLOQUEADO
+                      </span>
+                    )}
                   </div>
 
                   {/* Mockup Retangular Estilo Terminal RDG */}
                   <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
                     <div className="flex items-center justify-between border-b border-white/10 pb-2 text-[#38BDF8]">
                       <span>Software Prospecção B2B</span>
-                      <span className="text-emerald-400">● SISTEMA ATIVO</span>
+                      {hasAccess("prospeccao") ? (
+                        <span className="text-emerald-400">● SISTEMA ATIVO</span>
+                      ) : (
+                        <span className="text-slate-500">○ INATIVO</span>
+                      )}
                     </div>
                     <p className="text-[10px] text-muted-foreground">
                       &gt; Google Maps API + Gerador 1-Clique
                     </p>
                     <div className="flex justify-between text-[9px] text-emerald-400 pt-1 font-bold">
-                      <span>STATUS: LICENÇA LIBERADA</span>
+                      <span>STATUS: {hasAccess("prospeccao") ? "LICENÇA LIBERADA" : "REQUER COMPRA"}</span>
                     </div>
                   </div>
 
                   <div className="space-y-3">
+                    <img src="/assets/prospeccao.png" alt="Prospecção B2B" className="h-12 w-auto object-contain mb-2" />
                     <h2 className="text-lg font-light text-white group-hover:text-[#38BDF8] transition-colors">
                       Prospecção B2B (Google Maps)
                     </h2>
@@ -805,19 +1102,31 @@ function MembrosPage() {
                 </div>
 
                 <div className="p-6 pt-0">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (licenseInfo?.key) {
-                        localStorage.setItem("prospeccao_license_key", licenseInfo.key);
-                      }
-                      setViewMode("prospeccao");
-                    }}
-                    className="w-full inline-flex items-center justify-center gap-2 border border-[#38BDF8] bg-[#38BDF8] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-black font-extrabold transition-transform hover:scale-[1.01] hover:brightness-110"
-                  >
-                    <span>ACESSAR SOFTWARE B2B</span>
-                    <ArrowRight size={13} />
-                  </button>
+                  {hasAccess("prospeccao") ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (licenseInfo?.key) {
+                          localStorage.setItem("prospeccao_license_key", licenseInfo.key);
+                        }
+                        setViewMode("prospeccao");
+                      }}
+                      className="w-full inline-flex items-center justify-center gap-2 border border-[#38BDF8] bg-[#38BDF8] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-black font-extrabold transition-transform hover:scale-[1.01] hover:brightness-110"
+                    >
+                      <span>ACESSAR SOFTWARE B2B</span>
+                      <ArrowRight size={13} />
+                    </button>
+                  ) : (
+                    <a
+                      href="/prospeccao"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full inline-flex items-center justify-center gap-2 border border-slate-500 bg-slate-800 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-extrabold transition-transform hover:scale-[1.01] hover:brightness-110"
+                    >
+                      <Lock size={13} />
+                      <span>DESBLOQUEAR AGORA</span>
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -828,9 +1137,15 @@ function MembrosPage() {
                     <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-emerald-400 flex items-center gap-1.5 font-bold">
                       💬 WHATSAPP MULTI AGENTE
                     </span>
-                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">
-                      EM BREVE
-                    </span>
+                    {hasAccess("whatsapp") ? (
+                      <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">
+                        EM BREVE
+                      </span>
+                    ) : (
+                      <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-slate-500/40 bg-slate-500/10 text-slate-300 flex items-center gap-1">
+                        <Lock size={10} /> BLOQUEADO
+                      </span>
+                    )}
                   </div>
 
                   {/* Mockup Retangular Estilo Terminal RDG */}
@@ -843,7 +1158,7 @@ function MembrosPage() {
                       &gt; 1 Número x Múltiplos Atendentes &amp; IA
                     </p>
                     <div className="flex justify-between text-[9px] text-emerald-400 pt-1 font-bold">
-                      <span>STATUS: EM DESENVOLVIMENTO</span>
+                      <span>STATUS: {hasAccess("whatsapp") ? "EM DESENVOLVIMENTO" : "REQUER COMPRA"}</span>
                     </div>
                   </div>
 
@@ -869,47 +1184,67 @@ function MembrosPage() {
                 </div>
 
                 <div className="p-6 pt-0">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("whatsapp")}
-                    className="w-full inline-flex items-center justify-center gap-2 border border-emerald-500/50 bg-emerald-500/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-emerald-300 font-bold hover:bg-emerald-500/20 transition-all"
-                  >
-                    <span>ACESSAR MÓDULO</span>
-                    <ArrowRight size={13} />
-                  </button>
+                  {hasAccess("whatsapp") ? (
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("whatsapp")}
+                      className="w-full inline-flex items-center justify-center gap-2 border border-emerald-500/50 bg-emerald-500/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-emerald-300 font-bold hover:bg-emerald-500/20 transition-all"
+                    >
+                      <span>ACESSAR MÓDULO</span>
+                      <ArrowRight size={13} />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="w-full inline-flex items-center justify-center gap-2 border border-slate-500 bg-slate-800 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold opacity-50 cursor-not-allowed transition-all"
+                    >
+                      <Lock size={13} />
+                      <span>DESBLOQUEAR AGORA (EM BREVE)</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* CARD 2: RDG AI (BÔNUS EXCLUSIVO DE PROJETOS) */}
+              {/* CARD 2: RDG AI */}
               <div className="border border-cyan-500/40 bg-[#0A0A0A] hover:border-cyan-400 transition-all flex flex-col justify-between group">
                 <div className="p-6 space-y-5">
                   <div className="flex items-center justify-between border-b border-white/10 pb-4">
                     <div className="flex items-center gap-2">
-                      <img src="/rdg-ai.jpg" alt="RDG AI Logo" className="w-5 h-5 object-contain rounded" />
                       <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-cyan-400 font-bold">
                         RDG AI
                       </span>
                     </div>
-                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-cyan-500/40 bg-cyan-500/10 text-cyan-300">
-                      BÔNUS EXCLUSIVO
-                    </span>
+                    {hasAccess("rdg-ai") ? (
+                      <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">
+                        DISPONÍVEL
+                      </span>
+                    ) : (
+                      <span className="font-mono text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border border-slate-500/40 bg-slate-500/10 text-slate-300 flex items-center gap-1">
+                        <Lock size={10} /> BLOQUEADO
+                      </span>
+                    )}
                   </div>
 
                   {/* Mockup Retangular Estilo Terminal RDG */}
                   <div className="border border-white/10 bg-[#111218] p-3.5 space-y-2 font-mono text-[10px]">
                     <div className="flex items-center justify-between border-b border-white/10 pb-2 text-cyan-400">
                       <span>RDG AI Assistant</span>
-                      <span className="text-amber-400">EM BREVE</span>
+                      {hasAccess("rdg-ai") ? (
+                        <span className="text-emerald-400">● ATIVO</span>
+                      ) : (
+                        <span className="text-slate-500">○ INATIVO</span>
+                      )}
                     </div>
                     <p className="text-[10px] text-muted-foreground">
                       &gt; Textos, Copy, Imagens, Áudios &amp; Vídeos
                     </p>
                     <div className="flex justify-between text-[9px] text-cyan-400 pt-1 font-bold">
-                      <span>STATUS: BÔNUS DE PROJETOS</span>
+                      <span>STATUS: {hasAccess("rdg-ai") ? "ACESSO LIBERADO" : "REQUER COMPRA"}</span>
                     </div>
                   </div>
 
                   <div className="space-y-3">
+                    <img src="/assets/rdg-ai.jpg" alt="RDG AI Logo" className="h-12 w-auto object-contain rounded mb-2" />
                     <h2 className="text-lg font-light text-white group-hover:text-cyan-400 transition-colors">
                       RDG AI — Assistente de Projetos
                     </h2>
@@ -931,14 +1266,26 @@ function MembrosPage() {
                 </div>
 
                 <div className="p-6 pt-0">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("rdg-ai")}
-                    className="w-full inline-flex items-center justify-center gap-2 border border-cyan-500/50 bg-cyan-500/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300 font-bold hover:bg-cyan-500/20 transition-all"
-                  >
-                    <span>ACESSAR MÓDULO</span>
-                    <ArrowRight size={13} />
-                  </button>
+                  {hasAccess("rdg-ai") ? (
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("rdg-ai")}
+                      className="w-full inline-flex items-center justify-center gap-2 border border-cyan-500/50 bg-cyan-500/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300 font-bold hover:bg-cyan-500/20 transition-all"
+                    >
+                      <span>ACESSAR MÓDULO</span>
+                      <ArrowRight size={13} />
+                    </button>
+                  ) : (
+                    <a
+                      href="/rdg-ai"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full inline-flex items-center justify-center gap-2 border border-slate-500 bg-slate-800 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white font-bold transition-transform hover:scale-[1.01] hover:brightness-110"
+                    >
+                      <Lock size={13} />
+                      <span>DESBLOQUEAR AGORA</span>
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -953,7 +1300,7 @@ function MembrosPage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {/* Bônus 1 */}
               <div className="border border-white/10 bg-[#0A0A0A] p-6 space-y-4 flex flex-col justify-between">
                 <div className="space-y-3">
@@ -972,7 +1319,7 @@ function MembrosPage() {
                   href="/cursos"
                   className="w-full inline-flex items-center justify-center gap-2 border border-white/20 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white hover:border-primary hover:text-primary transition-all text-center"
                 >
-                  <span>ACESSAR CURSOS RDG</span>
+                  <span>ACESSAR CURSOS</span>
                 </a>
               </div>
 
@@ -985,9 +1332,9 @@ function MembrosPage() {
                   <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-amber-400 border-b border-amber-500/20 pb-1 inline-block">
                     +700 PROMPTS DE IA
                   </span>
-                  <h3 className="text-lg font-light text-white">Prompts de IA para Fotografia</h3>
+                  <h3 className="text-lg font-light text-white">Prompts para Fotografia</h3>
                   <p className="text-xs font-light text-muted-foreground leading-relaxed">
-                    Comandos prontos para gerar ensaios fotográficos e criativos no Gemini.
+                    Comandos prontos para gerar ensaios fotográficos e criativos na IA.
                   </p>
                 </div>
                 <a
@@ -1002,6 +1349,29 @@ function MembrosPage() {
               </div>
 
               {/* Bônus 3 */}
+              <div className="border border-white/10 bg-[#0A0A0A] p-6 space-y-4 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="w-9 h-9 border border-purple-500/30 bg-purple-500/10 flex items-center justify-center text-purple-400 font-bold">
+                    <Code size={18} />
+                  </div>
+                  <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-purple-400 border-b border-purple-500/20 pb-1 inline-block">
+                    95 APLICATIVOS
+                  </span>
+                  <h3 className="text-lg font-light text-white">Construção de Apps</h3>
+                  <p className="text-xs font-light text-muted-foreground leading-relaxed">
+                    Acesso a 95 aplicativos prontos para você utilizar e implementar.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("apps-prontos")}
+                  className="w-full inline-flex items-center justify-center gap-2 border border-purple-500/30 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-purple-400 hover:bg-purple-500/10 transition-all text-center"
+                >
+                  <span>ACESSAR APPS</span>
+                </button>
+              </div>
+
+              {/* Bônus 4 */}
               <div className="border border-white/10 bg-[#0A0A0A] p-6 space-y-4 flex flex-col justify-between">
                 <div className="space-y-3">
                   <div className="w-9 h-9 border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold">
@@ -1021,7 +1391,7 @@ function MembrosPage() {
                   rel="noopener noreferrer"
                   className="w-full inline-flex items-center justify-center gap-2 border border-emerald-500 bg-emerald-500 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-black font-bold hover:brightness-110 transition-all text-center"
                 >
-                  <span>CHAMAR NO WHATSAPP</span>
+                  <span>CHAMAR WHATSAPP</span>
                   <MessageCircle size={13} />
                 </a>
               </div>
@@ -1065,7 +1435,7 @@ function MembrosPage() {
                 </a>
 
                 <a
-                  href={DOWNLOAD_ZIP_URL}
+                  href={DOWNLOAD_EXTENSION_ZIP_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 border border-white/20 bg-[#111218] px-5 py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-white font-bold hover:border-pink-500 hover:text-pink-300 transition-all text-center"
@@ -1513,6 +1883,137 @@ function MembrosPage() {
               </div>
             </div>
           </section>
+        </main>
+      )}
+
+      {/* ==================================================================================== */}
+      {/* VISTA 3.5: PÁGINA DEDICADA 95 APPS PRONTOS */}
+      {/* ==================================================================================== */}
+      {viewMode === "apps-prontos" && (
+        <main className="max-w-7xl mx-auto px-4 py-12 pb-32 sm:pb-12 space-y-10 animate-[fadeIn_0.3s_ease]">
+          
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-muted-foreground font-mono text-[11px] uppercase tracking-[0.2em]">
+              <Sparkles size={14} className="text-[#7C4DFF]" />
+              <span>{appsProntos.length} APPS PRONTOS PARA VENDER</span>
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl font-light text-white tracking-tight">
+              Apps Prontos Premium
+            </h1>
+            
+            <p className="text-sm text-muted-foreground max-w-2xl font-light leading-relaxed">
+              Público mapeado, problema real e prompt completo para copiar e colar na IA. Cada ideia gera um SaaS funcional em minutos.
+            </p>
+          </div>
+
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+            <input
+              type="text"
+              placeholder="Buscar por nome, nicho ou ideia..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#111218] border border-white/10 text-white rounded-none py-3 pl-11 pr-4 font-light placeholder:text-white/30 focus:outline-none focus:border-[#7C4DFF]/50 transition-colors"
+            />
+          </div>
+
+          {/* CATEGORIES WRAPPER: Fixed at bottom on mobile, static on desktop */}
+          <div className="fixed bottom-0 left-0 w-full z-40 bg-[#0A0A0A]/95 backdrop-blur-md border-t border-white/10 p-3 pb-6 sm:static sm:bg-transparent sm:backdrop-blur-none sm:border-none sm:p-0 sm:pb-4 sm:mb-4">
+            
+            {/* Visual cue indicator for scroll on mobile */}
+            <div className="flex items-center justify-between sm:hidden mb-2 px-1">
+               <span className="font-mono text-[9px] text-white/50 uppercase tracking-widest flex items-center gap-1">
+                 Deslize para categorias <ChevronRight size={10} />
+               </span>
+            </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto snap-x scrollbar-hide px-1 sm:px-0">
+              <button
+                onClick={() => setSelectedCategory("Todos")}
+                className={`shrink-0 snap-start px-4 py-2 font-mono text-[10px] uppercase tracking-widest border transition-all ${
+                  selectedCategory === "Todos"
+                    ? "bg-[#7C4DFF]/10 border-[#7C4DFF]/40 text-white"
+                    : "bg-transparent border-white/10 text-muted-foreground hover:border-white/30 hover:text-white"
+                }`}
+              >
+                Todos
+              </button>
+              {CATEGORIAS.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`shrink-0 snap-start px-4 py-2 font-mono text-[10px] uppercase tracking-widest border transition-all ${
+                    selectedCategory === cat
+                      ? "bg-[#7C4DFF]/10 border-[#7C4DFF]/40 text-white"
+                      : "bg-transparent border-white/10 text-muted-foreground hover:border-white/30 hover:text-white"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {appsProntos
+              .filter(app => {
+                const matchesCategory = selectedCategory === "Todos" || app.categoria === selectedCategory;
+                const searchLower = searchQuery.toLowerCase();
+                const matchesSearch = 
+                  app.name.toLowerCase().includes(searchLower) || 
+                  app.desc.toLowerCase().includes(searchLower) ||
+                  app.tags.some(t => t.toLowerCase().includes(searchLower));
+                return matchesCategory && matchesSearch;
+              })
+              .map((app, i) => (
+              <div 
+                key={i}
+                onClick={() => setSelectedApp(app)}
+                className="bg-[#0A0A0A] border border-white/10 p-6 flex flex-col justify-between hover:border-[#7C4DFF]/50 hover:bg-[#111218] transition-all group cursor-pointer shadow-xl relative overflow-hidden"
+              >
+                {/* Glow effect on hover */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#7C4DFF]/5 blur-[50px] opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                <div className="space-y-5 relative z-10">
+                  <div className="flex items-start justify-between">
+                    <div className="w-12 h-12 bg-[#111218] border border-white/10 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
+                      {app.emoji}
+                    </div>
+                    <span className="bg-[#111218] border border-white/10 text-white/80 text-[10px] font-mono px-3 py-1.5 flex items-center gap-1.5">
+                       {app.price}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-bold text-white group-hover:text-[#7C4DFF] transition-colors">{app.name}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed font-light line-clamp-3">
+                      {app.desc}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {app.tags.map((tag, j) => (
+                      <div 
+                        key={j}
+                        className="flex items-center gap-1.5 bg-[#111218] border border-white/5 px-2 py-1"
+                      >
+                        <div className={`w-1.5 h-1.5 rounded-full ${getTagDotColor(tag)}`} />
+                        <span className="text-[9px] font-mono text-white/60 uppercase tracking-widest">
+                          {tag}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-4 border-t border-white/5 flex items-center justify-between text-muted-foreground group-hover:text-[#7C4DFF] transition-colors relative z-10">
+                  <span className="text-[10px] uppercase font-mono tracking-widest font-bold">Acessar Ideia e Prompt</span>
+                  <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            ))}
+          </div>
         </main>
       )}
 
