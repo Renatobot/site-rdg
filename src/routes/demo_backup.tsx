@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
-import { getLeadCustomMedia } from "@/lib/mediaStorage";
 import {
   Phone,
   MapPin,
@@ -70,12 +69,6 @@ export interface DemoSearchParams {
   hours_json?: string;
   summary?: string;
   mode?: string;
-  hero_video?: string;
-  lead_key?: string;
-  has_custom?: string;
-  hero_layout?: string;
-  hero_pos?: string;
-  hero_fade?: string;
 }
 
 const convertFileToBase64 = (file: File): Promise<string> => {
@@ -87,7 +80,7 @@ const convertFileToBase64 = (file: File): Promise<string> => {
   });
 };
 
-export const Route = createFileRoute("/demo")({
+export const Route = createFileRoute("/demo_backup")({
   validateSearch: (search: Record<string, unknown>): DemoSearchParams => {
     const rawNome = typeof search.nome === "string" && search.nome ? search.nome : typeof search.name === "string" && search.name ? search.name : typeof search.cliente === "string" && search.cliente ? search.cliente : "";
     const rawCategoria = typeof search.categoria === "string" && search.categoria ? search.categoria : typeof search.category === "string" && search.category ? search.category : "";
@@ -109,12 +102,6 @@ export const Route = createFileRoute("/demo")({
       hours_json: typeof search.hours_json === "string" ? search.hours_json : "",
       summary: typeof search.summary === "string" ? search.summary : "",
       mode: typeof search.mode === "string" ? search.mode : undefined,
-      hero_video: typeof search.hero_video === "string" ? search.hero_video : undefined,
-      lead_key: typeof search.lead_key === "string" ? search.lead_key : undefined,
-      has_custom: typeof search.has_custom === "string" ? search.has_custom : undefined,
-      hero_layout: typeof search.hero_layout === "string" ? search.hero_layout : undefined,
-      hero_pos: typeof search.hero_pos === "string" ? search.hero_pos : undefined,
-      hero_fade: typeof search.hero_fade === "string" ? search.hero_fade : undefined,
     };
   },
   head: () => ({
@@ -127,52 +114,38 @@ export const Route = createFileRoute("/demo")({
 import { NICHE_CONFIGS, NicheConfig } from "../config/niches";
 
 function AnimatedSection({ children, animation, className, id, style }: any) {
-  const [animClass, setAnimClass] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    if (!animation || animation === "none") {
-      setAnimClass("");
-      return;
-    }
-
-    const getCls = () => {
-      if (animation === "fade") return "anim-rdg-fade";
-      if (animation === "slide") return "anim-rdg-slide";
-      if (animation === "zoom") return "anim-rdg-zoom";
-      return "";
-    };
-
-    // Replay animation immediately when user changes style in editor
-    setAnimClass("");
-    const timer = setTimeout(() => {
-      setAnimClass(getCls());
-    }, 15);
-
+    if (!animation || animation === "none") return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setAnimClass(getCls());
+          setIsVisible(true);
+          observer.disconnect();
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.1 }
     );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      clearTimeout(timer);
-      observer.disconnect();
-    };
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
   }, [animation]);
+
+  if (!animation || animation === "none") {
+    return <section id={id} className={className} style={style}>{children}</section>;
+  }
+
+  let animClass = "transition-all duration-1000 ease-out";
+  if (animation === "fade") animClass += isVisible ? " opacity-100" : " opacity-0";
+  if (animation === "slide") animClass += isVisible ? " opacity-100 translate-y-0" : " opacity-0 translate-y-16";
+  if (animation === "zoom") animClass += isVisible ? " opacity-100 scale-100" : " opacity-0 scale-95";
 
   return (
     <section
       ref={sectionRef}
       id={id}
-      className={`${className || ""} ${animClass}`}
+      className={`${className} ${animClass}`}
       style={style}
     >
       {children}
@@ -234,15 +207,6 @@ function FullSiteDemoPage() {
   }, [isGlobalEditMode]);
 
   // Custom Editable Override States
-  const [heroMediaLayout, setHeroMediaLayout] = useState<"cinematic" | "card">(
-    (search as any).hero_layout === "card" ? "card" : "cinematic"
-  );
-  const [heroMediaPosition, setHeroMediaPosition] = useState<"right" | "left">(
-    (search as any).hero_pos === "left" ? "left" : "right"
-  );
-  const [heroGradientIntensity, setHeroGradientIntensity] = useState<"soft" | "medium" | "wide">(
-    (search as any).hero_fade === "wide" ? "wide" : (search as any).hero_fade === "medium" ? "medium" : "soft"
-  );
   const [editNome, setEditNome] = useState<string>("");
   const [editHeroTitleHtml, setEditHeroTitleHtml] = useState<string>("");
   const [editSummaryHtml, setEditSummaryHtml] = useState<string>("");
@@ -255,7 +219,7 @@ function FullSiteDemoPage() {
   const [editReviews, setEditReviews] = useState<string>("");
   const [editSummary, setEditSummary] = useState<string>("");
   const [editTagline, setEditTagline] = useState<string>("");
-  const [editHeroImage, setEditHeroImage] = useState<string>(search.hero_video || "");
+  const [editHeroImage, setEditHeroImage] = useState<string>("");
   const [editGalleryImages, setEditGalleryImages] = useState<string[]>([]);
   const [editServices, setEditServices] = useState<{ title: string; desc: string; price: string }[] | null>(null);
   const [editWaMsg, setEditWaMsg] = useState<string>("");
@@ -292,43 +256,23 @@ function FullSiteDemoPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const loadAllData = async () => {
-        try {
-          const stored = localStorage.getItem("active_demo_lead") || sessionStorage.getItem("active_demo_lead");
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            if (parsed) {
-              setStoredLead(parsed);
-              if (parsed.customHeroPhoto) {
-                setEditHeroImage(parsed.customHeroPhoto);
-              }
-              if (parsed.customGalleryPhotos && Array.isArray(parsed.customGalleryPhotos) && parsed.customGalleryPhotos.length > 0) {
-                setEditGalleryImages(parsed.customGalleryPhotos);
-              }
+      try {
+        const stored = localStorage.getItem("active_demo_lead") || sessionStorage.getItem("active_demo_lead");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed) {
+            setStoredLead(parsed);
+            if (parsed.customHeroPhoto) {
+              setEditHeroImage(parsed.customHeroPhoto);
+            }
+            if (parsed.customGalleryPhotos && Array.isArray(parsed.customGalleryPhotos) && parsed.customGalleryPhotos.length > 0) {
+              setEditGalleryImages(parsed.customGalleryPhotos);
             }
           }
-        } catch (e) {
-          console.error("Erro ao carregar lead do storage:", e);
         }
-
-        // Carrega fotos ou vídeo customizados diretamente do IndexedDB (suporta arquivos grandes/vídeos sem limite de 5MB)
-        try {
-          const leadKey = (search as any).lead_key;
-          const customMedia = await getLeadCustomMedia(leadKey);
-          if (customMedia) {
-            if (customMedia.customHeroPhoto) {
-              setEditHeroImage(customMedia.customHeroPhoto);
-            }
-            if (customMedia.customGalleryPhotos && Array.isArray(customMedia.customGalleryPhotos) && customMedia.customGalleryPhotos.length > 0) {
-              setEditGalleryImages(customMedia.customGalleryPhotos);
-            }
-          }
-        } catch (err) {
-          console.error("Erro ao carregar do IndexedDB:", err);
-        }
-      };
-
-      loadAllData();
+      } catch (e) {
+        console.error("Erro ao carregar lead do storage:", e);
+      }
     }
   }, []);
 
@@ -364,19 +308,26 @@ function FullSiteDemoPage() {
         setAiStepMessage("Finalizando personalização e botão de atendimento...");
       }, 3600);
 
-      // Gerador Inteligente de Resumo Comercial Instantâneo & Confiável
+      // Consulta a IA Gratuita da Pollinations.ai em background sem travar
       try {
-        const copyTemplates = [
-          `${defaultNome} é referência em ${defaultRawCategoria || "Serviços"} em ${defaultCidade}, oferecendo soluções de alto padrão com excelência e compromisso total com seus clientes.`,
-          `Com forte presença em ${defaultCidade}, ${defaultNome} se destaca no segmento de ${defaultRawCategoria || "Serviços"} pelo atendimento humanizado e infraestrutura completa.`,
-          `Especializada em ${defaultRawCategoria || "Serviços"}, a empresa ${defaultNome} traz máxima qualidade, transparência e agilidade para clientes em ${defaultCidade}.`
-        ];
-        const randomCopy = copyTemplates[Math.floor(Math.random() * copyTemplates.length)];
-        if (isMounted) {
-          setEditSummary(randomCopy);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500); // 3.5s max
+
+        const promptText = `Escreva um resumo comercial curto de 2 frases em português para a empresa "${defaultNome}" do segmento de "${defaultRawCategoria}" na cidade de "${defaultCidade}".`;
+        
+        const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(promptText)}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const text = await res.text();
+          if (text && text.length > 20 && isMounted) {
+            setEditSummary(text.trim());
+          }
         }
       } catch (e) {
-        console.log("Fallback de resumo ativado");
+        console.log("IA Pollinations fallback ativado (usando dados de nicho pré-configurados)");
       }
 
       timer4 = setTimeout(() => {
@@ -399,19 +350,19 @@ function FullSiteDemoPage() {
   const handleRegenerateWithAi = async () => {
     setIsGeneratingAi(true);
     setAiProgressPercent(20);
-    setAiStepMessage("✨ Conectando com banco de imagens HD de alta conversão...");
+    setAiStepMessage("✨ Conectando com IA Gratuita (Pollinations)...");
 
     setTimeout(() => {
       setAiProgressPercent(50);
-      setAiStepMessage("✍️ Gerando novas frases de impacto e apresentação comercial...");
+      setAiStepMessage("✍️ Gerando novas frases e apresentações com IA...");
     }, 1000);
 
     setTimeout(() => {
       setAiProgressPercent(80);
-      setAiStepMessage("🎨 Selecionando fotografias profissionais para o nicho...");
+      setAiStepMessage("🎨 Gerando novas fotos exclusivas em HD com IA...");
     }, 2200);
 
-    try {
+        try {
       // 🔑 PIXABAY API - Banco de Imagens Oficial
       const pixabayKey = "56751364-1ce5ed59a7a46bca79fc7e359";
       
@@ -442,37 +393,39 @@ function FullSiteDemoPage() {
             hits[3].largeImageURL,
             hits[4].largeImageURL
           ]);
-        } else if (curatedPhotos) {
-          setEditHeroImage(curatedPhotos.hero);
-          setEditGalleryImages(curatedPhotos.gallery);
+        } else {
+          // Fallback nativo
+          console.log("Poucas imagens no Pixabay para", searchQuery);
         }
       }
     } catch (e) {
-      console.log("Fallback de fotos ativado");
-      if (curatedPhotos) {
-        setEditHeroImage(curatedPhotos.hero);
-        setEditGalleryImages(curatedPhotos.gallery);
-      }
+      console.log("Erro no Pixabay:", e);
     }
 
     try {
-      const taglineOptions = [
-        `Excelência, Confiança e Resultados em ${displayCategory}`,
-        `A Escolha Certa em ${displayCategory} na Região`,
-        `Estrutura Moderna & Atendimento de Alto Padrão`,
-        `Sua Melhor Experiência e Satisfação em ${displayCategory}`,
-        `Referência e Credibilidade Comprovada em ${displayCategory}`
-      ];
-      const randomTagline = taglineOptions[Math.floor(Math.random() * taglineOptions.length)];
-      setEditTagline(randomTagline);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+      const promptText = `Crie uma frase de destaque (tagline) curta e marcante de 1 linha para o site da empresa "${nome}" do segmento "${rawCategoria}".`;
+      const res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(promptText)}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const text = await res.text();
+        if (text && text.length > 5) {
+          setEditTagline(text.replace(/["']/g, "").trim());
+        }
+      }
     } catch (e) {
-      console.log("Tagline fallback ativado");
+      console.log("IA fallback ativado");
     }
 
     setTimeout(() => {
       setAiProgressPercent(100);
       setIsGeneratingAi(false);
-    }, 3200);
+    }, 3500);
   };
   const googleMapsUrl = storedLead?.google_maps_url || `https://www.google.com/maps/search/${encodeURIComponent(nome + " " + cidade)}`;
   const activeApiKey = (search as any).api_key || (typeof window !== "undefined" ? localStorage.getItem("google_places_api_key") : "") || "";
@@ -884,8 +837,8 @@ function FullSiteDemoPage() {
 
   const sanitizePhotoUrl = (url: string) => {
     if (!url) return "";
-    if (url.startsWith("data:") || url.startsWith("blob:")) return url;
     if (
+      url.includes("pollinations.ai") ||
       url.includes("1590301157890") ||
       url.includes("1541781774459") ||
       url.includes("1519671482749") ||
@@ -911,7 +864,7 @@ function FullSiteDemoPage() {
 
   const defaultGalleryImages = (storedLead?.customGalleryPhotos && storedLead.customGalleryPhotos.length > 0)
     ? storedLead.customGalleryPhotos.map(sanitizePhotoUrl).filter(Boolean)
-    : (config.galleryFallback && config.galleryFallback.length > 0
+    : (config.galleryFallback && config.galleryFallback.some(url => !url.includes("pollinations.ai"))
       ? config.galleryFallback.map(sanitizePhotoUrl).filter(Boolean)
       : curatedPhotos.gallery);
   const galleryImages = (editGalleryImages.length > 0 ? editGalleryImages.map(sanitizePhotoUrl).filter(Boolean) : (defaultGalleryImages.length > 0 ? defaultGalleryImages : curatedPhotos.gallery));
@@ -1059,9 +1012,6 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
       url.searchParams.set("theme", themeMode);
       url.searchParams.set("font", typography);
       url.searchParams.set("btn", buttonStyle);
-      if (heroMediaLayout) url.searchParams.set("hero_layout", heroMediaLayout);
-      if (heroMediaPosition) url.searchParams.set("hero_pos", heroMediaPosition);
-      if (heroGradientIntensity && heroGradientIntensity !== "soft") url.searchParams.set("hero_fade", heroGradientIntensity);
       url.searchParams.set("mode", "view"); // Esconde o painel do editor para o cliente final
       
       navigator.clipboard.writeText(url.toString());
@@ -1234,11 +1184,11 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
   const isGlass = themeMode === "glass";
   
   // Theme overrides
-  const effectiveBg = isLight ? "#F8FAFC" : (isGlass ? "#0A0D14" : config.bgColor);
+  const effectiveBg = isLight ? "#F8FAFC" : (isGlass ? "rgba(15, 20, 30, 0.8)" : config.bgColor);
   const effectiveText = isLight ? "#0F172A" : config.textColor;
-  const effectiveCardBg = isLight ? "#FFFFFF" : (isGlass ? "rgba(255, 255, 255, 0.04)" : config.cardBg);
+  const effectiveCardBg = isLight ? "#FFFFFF" : config.cardBg;
   const effectiveMutedText = isLight ? "#64748B" : config.mutedTextColor;
-  const effectiveBorder = isLight ? "rgba(0,0,0,0.1)" : (isGlass ? "rgba(255, 255, 255, 0.12)" : config.borderColor);
+  const effectiveBorder = isLight ? "rgba(0,0,0,0.1)" : config.borderColor;
 
   const getButtonStyle = () => {
     const isOutline = buttonStyle === "outline";
@@ -1256,7 +1206,7 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
     <>
       <RichTextToolbar />
     <div
-      className={`min-h-screen flex flex-col transition-colors duration-300 relative ${typography === 'serif' ? 'font-serif' : typography === 'mono' ? 'font-mono' : 'font-sans'}`}
+      className={`min-h-screen flex flex-col transition-colors duration-300 relative ${typography === 'serif' ? 'font-serif' : typography === 'mono' ? 'font-mono' : 'font-sans'} ${isGlass ? 'backdrop-blur-xl' : ''}`}
       style={{
         backgroundColor: effectiveBg,
         color: effectiveText,
@@ -1308,6 +1258,67 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
               <span>→</span>
             </button>
           </div>
+        </div>
+      )}
+
+      {/* FLOATING ACTION BUTTONS (FAB) - CONTROLES DE EDIÇÃO */}
+      {search.mode !== "view" && (
+        <div className="fixed bottom-4 right-4 sm:right-6 sm:top-1/2 sm:-translate-y-1/2 sm:bottom-auto z-[90] flex sm:flex-col flex-row gap-2.5">
+          {/* Botão de Toggle do Modo Edição */}
+          <button
+            onClick={() => {
+              if (isDemoMode) {
+                setShowDemoShareLock(true);
+                return;
+              }
+              setIsGlobalEditMode(!isGlobalEditMode);
+            }}
+            className={`w-11 h-11 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative border ${
+              isGlobalEditMode 
+                ? "bg-purple-600 text-white border-purple-400 hover:bg-purple-500 ring-2 ring-purple-500/30"
+                : "bg-[#111218]/90 backdrop-blur-md hover:bg-[#1A1F2E] text-white border-white/10"
+            }`}
+          >
+            <Type size={18} className={isGlobalEditMode ? "animate-pulse" : ""} />
+            
+            {/* Tooltip Hover */}
+            <div className="hidden sm:block absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#111218] border border-white/10 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
+              {isDemoMode ? "🔒 Edição Bloqueada no Modo Demo" : isGlobalEditMode ? "Sair do Modo Edição" : "Editar Textos na Tela"}
+            </div>
+          </button>
+
+          {/* Botão de Alternar Modo Claro / Modo Escuro */}
+          <button
+            onClick={() => setThemeMode(themeMode === "dark" ? "light" : "dark")}
+            className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative bg-[#111218]/90 backdrop-blur-md hover:bg-[#1A1F2E] text-white border border-white/15 hover:scale-105"
+            title={themeMode === "dark" ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
+          >
+            {themeMode === "dark" ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-emerald-400" />}
+            
+            {/* Tooltip Hover */}
+            <div className="hidden sm:block absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#111218] border border-white/10 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
+              {themeMode === "dark" ? "Mudar para Modo Claro ☀️" : "Mudar para Modo Escuro 🌙"}
+            </div>
+          </button>
+
+          {/* Botão de Edição Completa (Painel Lateral) */}
+          <button
+            onClick={() => {
+              if (isDemoMode) {
+                setShowDemoShareLock(true);
+                return;
+              }
+              setIsEditorOpen(true);
+            }}
+            className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative bg-white text-black hover:bg-gray-100 border border-white/20 hover:scale-105"
+          >
+            <Sliders size={20} />
+            
+            {/* Tooltip Hover */}
+            <div className="hidden sm:block absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
+              {isDemoMode ? "🔒 Painel Bloqueado no Modo Demo" : "Personalizar Design & Imagens"}
+            </div>
+          </button>
         </div>
       )}
 
@@ -1382,82 +1393,12 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
         </div>
       </header>
 
-      {/* HERO SECTION - ADAPTS DYNAMICALLY TO CINEMATIC BACKGROUND FADE OR 3D FLOATING CARD WITH LEFT/RIGHT POSITION */}
+      {/* HERO SECTION */}
       {visibleSections.hero && (
-      <AnimatedSection id="hero" animation={animationStyle} className={`relative overflow-hidden ${heroMediaLayout === "cinematic" ? "min-h-[580px] lg:min-h-[660px] flex items-center py-12 sm:py-20 lg:py-24 px-4 sm:px-8" : "py-10 sm:py-24 px-4 sm:px-8"}`}>
-        {/* CINEMATIC BACKGROUND VIDEO / PHOTO WITH DISSOLVING GRADIENT MASK */}
-        {heroMediaLayout === "cinematic" && (
-          <div
-            className={`absolute inset-y-0 h-full w-full lg:w-[68%] pointer-events-none overflow-hidden z-0 transition-all duration-700 ${
-              heroMediaPosition === "left" ? "left-0" : "right-0"
-            }`}
-          >
-            {/* Background Media */}
-            {heroImage && (heroImage.endsWith('.mp4') || heroImage.endsWith('.webm') || heroImage.startsWith('data:video')) ? (
-              <video
-                src={heroImage}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="w-full h-full object-cover opacity-100 scale-105"
-              />
-            ) : (
-              <img
-                src={heroImage || config.heroFallback || curatedPhotos.hero || "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80"}
-                alt={nome}
-                loading="eager"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  if (!target.dataset.failed) {
-                    target.dataset.failed = "true";
-                    target.src = curatedPhotos.hero || "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80";
-                  }
-                }}
-                className="w-full h-full object-cover opacity-100 scale-105"
-              />
-            )}
-
-            {/* Horizontal Degradê Smooth Mask (Ajustado para dar máximo destaque e nitidez ao vídeo) */}
-            <div
-              className="hidden lg:block absolute inset-0 z-10 pointer-events-none"
-              style={{
-                background: heroGradientIntensity === "soft"
-                  ? (heroMediaPosition === "left"
-                      ? `linear-gradient(to left, ${config.bgColor} 0%, ${config.bgColor} 4%, ${config.bgColor}CC 12%, ${config.bgColor}40 22%, transparent 36%)`
-                      : `linear-gradient(to right, ${config.bgColor} 0%, ${config.bgColor} 4%, ${config.bgColor}CC 12%, ${config.bgColor}40 22%, transparent 36%)`)
-                  : heroGradientIntensity === "medium"
-                  ? (heroMediaPosition === "left"
-                      ? `linear-gradient(to left, ${config.bgColor} 0%, ${config.bgColor} 6%, ${config.bgColor}E6 16%, ${config.bgColor}80 28%, ${config.bgColor}1A 42%, transparent 52%)`
-                      : `linear-gradient(to right, ${config.bgColor} 0%, ${config.bgColor} 6%, ${config.bgColor}E6 16%, ${config.bgColor}80 28%, ${config.bgColor}1A 42%, transparent 52%)`)
-                  : (heroMediaPosition === "left"
-                      ? `linear-gradient(to left, ${config.bgColor} 0%, ${config.bgColor} 10%, ${config.bgColor}E6 24%, ${config.bgColor}80 44%, transparent 68%)`
-                      : `linear-gradient(to right, ${config.bgColor} 0%, ${config.bgColor} 10%, ${config.bgColor}E6 24%, ${config.bgColor}80 44%, transparent 68%)`)
-              }}
-            />
-
-            {/* Top & Bottom Subtle Vignette Blend (Apenas nas bordas superior e inferior) */}
-            <div
-              className="absolute inset-0 z-10 pointer-events-none"
-              style={{
-                background: `linear-gradient(to bottom, ${config.bgColor} 0%, transparent 6%, transparent 94%, ${config.bgColor} 100%)`
-              }}
-            />
-
-            {/* Mobile Gradient Overlay (Keeps text ultra sharp and legible while letting video show) */}
-            <div
-              className="lg:hidden absolute inset-0 z-10 pointer-events-none"
-              style={{
-                background: `linear-gradient(to bottom, ${config.bgColor}B3 0%, ${config.bgColor}E6 45%, ${config.bgColor} 90%)`
-              }}
-            />
-          </div>
-        )}
-
-        <div className={`relative z-10 max-w-7xl mx-auto w-full ${heroMediaLayout === "card" ? "grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center" : ""}`}>
+      <AnimatedSection id="hero" animation={animationStyle} className="relative overflow-hidden py-10 sm:py-24 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
           
-          {/* COLUNA DE CONTEÚDO PRINCIPAL (TEXTO, BOTÕES, MÉTRICAS) */}
-          <div className={`${heroMediaLayout === "card" ? `lg:col-span-7 ${heroMediaPosition === "left" ? "lg:order-2" : "lg:order-1"}` : `max-w-2xl ${heroMediaPosition === "left" ? "lg:ml-auto" : "lg:mr-auto"}`} space-y-5 sm:space-y-6`}>
+          <div className="lg:col-span-7 space-y-5 sm:space-y-6">
             <div className="flex items-center gap-3">
               <span className="h-px w-8 sm:w-10" style={{ background: config.accentColor }} />
               <span
@@ -1597,73 +1538,55 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             </div>
           </div>
 
-          {/* CARD DE IMAGEM/VÍDEO 3D (QUANDO heroMediaLayout === "card") */}
-          {heroMediaLayout === "card" && (
-            <div className={`lg:col-span-5 relative flex items-center justify-center w-full ${heroMediaPosition === "left" ? "lg:order-1" : "lg:order-2"}`}>
-              <div
-                className="relative w-full min-h-[380px] sm:min-h-[460px] overflow-hidden shadow-2xl rounded-3xl border p-0 bg-[#0B0D14] flex items-center justify-center transition-all duration-300"
-                style={{
-                  borderColor: config.borderColor,
-                  backgroundColor: config.surfaceColor,
+          {/* LADO DIREITO: CARD DE IMAGEM ADAPTATIVO DINÂMICO (ADAPTA-SE AO FORMATO DA FOTO SEM CORTES E SEM ESPAÇOS) */}
+          <div className="lg:col-span-5 relative flex items-center justify-center">
+            <div
+              className="relative w-full overflow-hidden shadow-2xl rounded-3xl border p-0 bg-[#0B0D14] flex items-center justify-center transition-all duration-300"
+              style={{
+                borderColor: config.borderColor,
+                backgroundColor: config.surfaceColor,
+              }}
+            >
+              {/* Imagem Principal Adaptativa (100% Inteira Sem Cortar Logos ou Textos, Adaptando a Altura do Card) */}
+              <img
+                src={heroImage}
+                alt={nome}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = config.heroFallback;
                 }}
-              >
-                {/* Imagem ou Vídeo Principal Adaptativo */}
-                {heroImage && (heroImage.endsWith('.mp4') || heroImage.endsWith('.webm') || heroImage.startsWith('data:video')) ? (
-                  <video
-                    src={heroImage}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full min-h-[380px] sm:min-h-[460px] max-h-[580px] block object-cover rounded-3xl transition duration-500 hover:scale-[1.01] filter drop-shadow-2xl"
-                  />
-                ) : (
-                  <img
-                    src={heroImage || config.heroFallback || curatedPhotos.hero || "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80"}
-                    alt={nome}
-                    loading="eager"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      if (!target.dataset.failed) {
-                        target.dataset.failed = "true";
-                        target.src = curatedPhotos.hero || "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80";
-                      }
-                    }}
-                    className="w-full h-full min-h-[380px] sm:min-h-[460px] max-h-[580px] block object-cover rounded-3xl transition duration-500 hover:scale-[1.01] filter drop-shadow-2xl"
-                  />
-                )}
+                className="w-full h-auto max-h-[580px] block object-contain sm:object-cover rounded-3xl transition duration-500 hover:scale-[1.01] filter drop-shadow-2xl"
+              />
 
-                {realOpeningHours.length > 0 && (
-                  <div
-                    className="absolute bottom-4 left-4 right-4 z-20 p-3.5 shadow-2xl backdrop-blur-md rounded-xl border border-l-4"
-                    style={{
-                      backgroundColor: "rgba(11, 15, 24, 0.92)",
-                      borderColor: config.borderColor,
-                      borderLeftColor: config.accentColor,
-                      color: "#FFFFFF",
-                    }}
-                  >
-                    <div className="text-[10px] font-bold uppercase tracking-[0.25em] mb-0.5 flex items-center gap-1.5" style={{ color: config.accentColor }}>
-                      <Clock size={12} />
-                      <span>Horário de Atendimento</span>
-                    </div>
-                    <div className="text-xs font-semibold truncate">
-                      {realOpeningHours[0]}
-                    </div>
+              {realOpeningHours.length > 0 && (
+                <div
+                  className="absolute bottom-4 left-4 right-4 z-20 p-3.5 shadow-2xl backdrop-blur-md rounded-xl border border-l-4"
+                  style={{
+                    backgroundColor: "rgba(11, 15, 24, 0.92)",
+                    borderColor: config.borderColor,
+                    borderLeftColor: config.accentColor,
+                    color: "#FFFFFF",
+                  }}
+                >
+                  <div className="text-[10px] font-bold uppercase tracking-[0.25em] mb-0.5 flex items-center gap-1.5" style={{ color: config.accentColor }}>
+                    <Clock size={12} />
+                    <span>Horário de Atendimento</span>
                   </div>
-                )}
+                  <div className="text-xs font-semibold truncate">
+                    {realOpeningHours[0]}
+                  </div>
+                </div>
+              )}
 
-                <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow-lg bg-white text-black border border-black/10">
-                  <span className="font-extrabold text-amber-500">⭐ {rating}</span>
-                  <div className="flex gap-0.5 text-amber-500">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} size={10} fill="currentColor" />
-                    ))}
-                  </div>
+              <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow-lg bg-white text-black border border-black/10">
+                <span className="font-extrabold text-amber-500">⭐ {rating}</span>
+                <div className="flex gap-0.5 text-amber-500">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} size={10} fill="currentColor" />
+                  ))}
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </AnimatedSection>
       )}
@@ -2218,73 +2141,6 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
       </footer>
     </div>
 
-    {/* FLOATING ACTION BUTTONS (FAB) - CONTROLES DE EDIÇÃO (Fixed at Top Level, 100% Unaffected by Theme Filters) */}
-    {search.mode !== "view" && (
-      <div className="fixed bottom-4 right-4 sm:right-6 sm:top-1/2 sm:-translate-y-1/2 sm:bottom-auto z-[90] flex sm:flex-col flex-row gap-2.5 pointer-events-auto">
-        {/* Botão de Toggle do Modo Edição */}
-        <button
-          onClick={() => {
-            if (isDemoMode) {
-              setShowDemoShareLock(true);
-              return;
-            }
-            setIsGlobalEditMode(!isGlobalEditMode);
-          }}
-          className={`w-11 h-11 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative border ${
-            isGlobalEditMode 
-              ? "bg-purple-600 text-white border-purple-400 hover:bg-purple-500 ring-2 ring-purple-500/30"
-              : "bg-[#111218]/90 backdrop-blur-md hover:bg-[#1A1F2E] text-white border-white/10"
-          }`}
-        >
-          <Type size={18} className={isGlobalEditMode ? "animate-pulse" : ""} />
-          
-          {/* Tooltip Hover */}
-          <div className="hidden sm:block absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#111218] border border-white/10 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
-            {isDemoMode ? "🔒 Edição Bloqueada no Modo Demo" : isGlobalEditMode ? "Sair do Modo Edição" : "Editar Textos na Tela"}
-          </div>
-        </button>
-
-        {/* Botão de Alternar Modo Claro / Modo Escuro / Vidro */}
-        <button
-          onClick={() => setThemeMode(themeMode === "dark" ? "light" : themeMode === "light" ? "glass" : "dark")}
-          className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative bg-[#111218]/90 backdrop-blur-md hover:bg-[#1A1F2E] text-white border border-white/15 hover:scale-105"
-          title={themeMode === "dark" ? "Mudar para Modo Claro" : themeMode === "light" ? "Mudar para Modo Vidro" : "Mudar para Modo Escuro"}
-        >
-          {themeMode === "dark" ? (
-            <Sun size={20} className="text-amber-400" />
-          ) : themeMode === "light" ? (
-            <Sparkles size={20} className="text-cyan-400" />
-          ) : (
-            <Moon size={20} className="text-purple-400" />
-          )}
-          
-          {/* Tooltip Hover */}
-          <div className="hidden sm:block absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#111218] border border-white/10 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
-            {themeMode === "dark" ? "Mudar para Modo Claro ☀️" : themeMode === "light" ? "Mudar para Modo Vidro 💎" : "Mudar para Modo Escuro 🌙"}
-          </div>
-        </button>
-
-        {/* Botão de Edição Completa (Painel Lateral) */}
-        <button
-          onClick={() => {
-            if (isDemoMode) {
-              setShowDemoShareLock(true);
-              return;
-            }
-            setIsEditorOpen(true);
-          }}
-          className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all group relative bg-white text-black hover:bg-gray-100 border border-white/20 hover:scale-105"
-        >
-          <Sliders size={20} />
-          
-          {/* Tooltip Hover */}
-          <div className="hidden sm:block absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-white text-black text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
-            {isDemoMode ? "🔒 Painel Bloqueado no Modo Demo" : "Personalizar Design & Imagens"}
-          </div>
-        </button>
-      </div>
-    )}
-
       {/* PAINEL LATERAL DE PERSONALIZAÇÃO AO VIVO DO SITE (LIVE CUSTOMIZER DRAWER) */}
       {isEditorOpen && (
         <div className="fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm transition-all animate-in fade-in duration-200">
@@ -2436,96 +2292,6 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
             <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs">
               {activeEditorTab === "layout" && (
                 <div className="space-y-4">
-                  {/* Layout do Vídeo / Foto Principal */}
-                  <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3">
-                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
-                      🎬 Estilo de Exibição do Vídeo / Capa
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => setHeroMediaLayout("cinematic")}
-                        className={`p-3 rounded-xl border text-left transition-all space-y-1 ${
-                          heroMediaLayout === "cinematic"
-                            ? "bg-amber-500/20 border-amber-400 text-white ring-2 ring-amber-400/30"
-                            : "bg-[#1A1F2E] border-white/10 text-white/70 hover:bg-white/5"
-                        }`}
-                      >
-                        <div className="text-sm">🎬</div>
-                        <div className="font-extrabold text-[11px] text-white">Fundo Degradê</div>
-                        <div className="text-[9px] text-white/50 leading-tight">Cinematográfico, dissolvendo suave no tema</div>
-                      </button>
-
-                      <button
-                        onClick={() => setHeroMediaLayout("card")}
-                        className={`p-3 rounded-xl border text-left transition-all space-y-1 ${
-                          heroMediaLayout === "card"
-                            ? "bg-amber-500/20 border-amber-400 text-white ring-2 ring-amber-400/30"
-                            : "bg-[#1A1F2E] border-white/10 text-white/70 hover:bg-white/5"
-                        }`}
-                      >
-                        <div className="text-sm">🖼️</div>
-                        <div className="font-extrabold text-[11px] text-white">Card Flutuante 3D</div>
-                        <div className="text-[9px] text-white/50 leading-tight">Card moderno com bordas, horário e nota</div>
-                      </button>
-                    </div>
-
-                    <div className="pt-2 border-t border-white/10 space-y-2">
-                      <label className="block text-[10px] font-bold uppercase text-white/60">
-                        ↔️ Posição da Mídia no Hero
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={() => setHeroMediaPosition("right")}
-                          className={`p-2.5 rounded-xl border text-center transition-all ${
-                            heroMediaPosition === "right"
-                              ? "bg-amber-500 text-black font-extrabold border-amber-400"
-                              : "bg-[#1A1F2E] border-white/10 text-white/70 hover:bg-white/5"
-                          }`}
-                        >
-                          <span className="text-[10px] font-bold">👉 Vídeo na Direita</span>
-                        </button>
-                        <button
-                          onClick={() => setHeroMediaPosition("left")}
-                          className={`p-2.5 rounded-xl border text-center transition-all ${
-                            heroMediaPosition === "left"
-                              ? "bg-amber-500 text-black font-extrabold border-amber-400"
-                              : "bg-[#1A1F2E] border-white/10 text-white/70 hover:bg-white/5"
-                          }`}
-                        >
-                          <span className="text-[10px] font-bold">👈 Vídeo na Esquerda</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {heroMediaLayout === "cinematic" && (
-                      <div className="pt-2 border-t border-white/10 space-y-1.5">
-                        <label className="block text-[10px] font-bold uppercase text-white/60">
-                          ✨ Alcance do Degradê (Espaço do Fade)
-                        </label>
-                        <div className="grid grid-cols-3 gap-1.5">
-                          {[
-                            { id: "soft", label: "Suave (Mais Vídeo)" },
-                            { id: "medium", label: "Equilibrado" },
-                            { id: "wide", label: "Amplo" },
-                          ].map((fade) => (
-                            <button
-                              key={fade.id}
-                              onClick={() => setHeroGradientIntensity(fade.id as any)}
-                              className={`py-1.5 px-2 rounded-lg text-[9px] font-extrabold uppercase border transition-all text-center ${
-                                heroGradientIntensity === fade.id
-                                  ? "bg-amber-500 text-black border-amber-400 font-black shadow-md"
-                                  : "bg-[#1A1F2E] border-white/10 text-white/70 hover:bg-white/5"
-                              }`}
-                            >
-                              {fade.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Visibilidade das Seções */}
                   <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-4">
                     <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
                       👁️ Visibilidade das Seções
@@ -2784,68 +2550,15 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                     </div>
                   </div>
 
-                  {/* Foto/Vídeo Hero */}
+                  {/* Foto Hero */}
                   <div className="bg-[#151926] p-4 rounded-2xl border border-white/10 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
-                        🎬 Vídeo ou Foto Principal (Hero)
-                      </label>
-                      <span className="text-[9px] bg-amber-500/20 text-amber-300 font-mono px-2 py-0.5 rounded-full font-bold">
-                        MP4, WebM ou Foto
-                      </span>
-                    </div>
-
-                    {/* Preview da Mídia Hero */}
+                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
+                      🖼️ Foto Principal de Capa (Hero Image)
+                    </label>
+                    
                     {heroImage && (
-                      <div className="relative h-36 rounded-xl overflow-hidden border border-white/10 bg-black/40 flex items-center justify-center">
-                        {heroImage.endsWith('.mp4') || heroImage.endsWith('.webm') || heroImage.startsWith('data:video') ? (
-                          <video src={heroImage} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-                        ) : (
-                          <img src={heroImage} alt="Hero Preview" className="w-full h-full object-contain" />
-                        )}
-                      </div>
-                    )}
-
-                    {/* Toggles Rápidos de Layout Hero */}
-                    <div className="grid grid-cols-2 gap-2 pt-1">
-                      <button
-                        onClick={() => setHeroMediaLayout(heroMediaLayout === "cinematic" ? "card" : "cinematic")}
-                        className="py-2 px-2.5 bg-[#1A1F2E] hover:bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold text-white/80 flex items-center justify-center gap-1.5"
-                      >
-                        <span>{heroMediaLayout === "cinematic" ? "🎬 Fundo Degradê" : "🖼️ Card 3D"}</span>
-                      </button>
-                      <button
-                        onClick={() => setHeroMediaPosition(heroMediaPosition === "right" ? "left" : "right")}
-                        className="py-2 px-2.5 bg-[#1A1F2E] hover:bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold text-white/80 flex items-center justify-center gap-1.5"
-                      >
-                        <span>{heroMediaPosition === "right" ? "👉 Lado Direito" : "👈 Lado Esquerdo"}</span>
-                      </button>
-                    </div>
-
-                    {heroMediaLayout === "cinematic" && (
-                      <div className="pt-2 border-t border-white/10 space-y-1.5">
-                        <label className="block text-[10px] font-bold uppercase text-white/60">
-                          ✨ Alcance do Degradê
-                        </label>
-                        <div className="grid grid-cols-3 gap-1.5">
-                          {[
-                            { id: "soft", label: "Suave (Mais Vídeo)" },
-                            { id: "medium", label: "Equilibrado" },
-                            { id: "wide", label: "Amplo" },
-                          ].map((fade) => (
-                            <button
-                              key={fade.id}
-                              onClick={() => setHeroGradientIntensity(fade.id as any)}
-                              className={`py-1 px-1.5 rounded-lg text-[9px] font-bold uppercase border transition-all text-center ${
-                                heroGradientIntensity === fade.id
-                                  ? "bg-amber-500 text-black border-amber-400 font-extrabold"
-                                  : "bg-[#1A1F2E] border-white/10 text-white/70 hover:bg-white/5"
-                              }`}
-                            >
-                              {fade.label}
-                            </button>
-                          ))}
-                        </div>
+                      <div className="relative h-36 rounded-xl overflow-hidden border border-white/10 bg-black/40">
+                        <img src={heroImage} alt="Hero Preview" className="w-full h-full object-contain" />
                       </div>
                     )}
 
@@ -2855,13 +2568,13 @@ Use paleta de cores escura e moderna com cor de destaque ${currentPalette.accent
                         value={editHeroImage}
                         onChange={(e) => setEditHeroImage(e.target.value)}
                         className="w-full bg-[#1A1F2E] border border-white/15 rounded-xl p-2.5 text-white text-xs font-mono focus:border-amber-400 outline-none"
-                        placeholder="Cole a URL do vídeo (.mp4) ou foto (https://...)"
+                        placeholder="Cole a URL da foto (https://...)"
                       />
 
                       <label className="flex items-center justify-center gap-2 p-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 rounded-xl text-xs font-bold cursor-pointer transition-colors border border-dashed border-amber-500/30">
                         <Upload size={14} />
-                        <span>📁 Enviar Vídeo (.mp4) ou Foto do Computador</span>
-                        <input type="file" accept="image/*,video/mp4,video/webm" onChange={handleHeroFileUpload} className="hidden" />
+                        <span>📁 Enviar Foto do Computador (Upload Local)</span>
+                        <input type="file" accept="image/*" onChange={handleHeroFileUpload} className="hidden" />
                       </label>
                     </div>
                   </div>

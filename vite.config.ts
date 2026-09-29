@@ -26,5 +26,5 @@ export default defineConfig({
         proxy: { to: 'https://openrouter.ai/api/v1/**' }
       }
     }
-  }
+  } as any
 });

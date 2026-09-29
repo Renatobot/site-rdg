@@ -13,16 +13,20 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as CursosRouteImport } from './routes/cursos'
 import { Route as DemoRouteImport } from './routes/demo'
+import { Route as Demo_backupRouteImport } from './routes/demo_backup'
 import { Route as ExtensaoRouteImport } from './routes/extensao'
 import { Route as GmnRouteImport } from './routes/gmn'
 import { Route as InstagramRouteImport } from './routes/instagram'
+import { Route as LovableRouteImport } from './routes/lovable'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MembrosRouteImport } from './routes/membros'
 import { Route as PromptsRouteImport } from './routes/prompts'
 import { Route as PromptsInstagramRouteImport } from './routes/prompts-instagram'
 import { Route as ProspeccaoRouteImport } from './routes/prospeccao'
 import { Route as ProspeccaoB2bRouteImport } from './routes/prospeccao-b2b'
+import { Route as Prospeccao_backupRouteImport } from './routes/prospeccao_backup'
 import { Route as RdgAiRouteImport } from './routes/rdg-ai'
+import { Route as RetornoRouteImport } from './routes/retorno'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as SistemasRouteImport } from './routes/sistemas'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -34,6 +38,7 @@ import { Route as ApiProxyRouteImport } from './routes/api.proxy'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as ApiTokenrouterSplatRouteImport } from './routes/api.tokenrouter.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -55,6 +60,11 @@ const DemoRoute = DemoRouteImport.update({
   path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Demo_backupRoute = Demo_backupRouteImport.update({
+  id: '/demo_backup',
+  path: '/demo_backup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExtensaoRoute = ExtensaoRouteImport.update({
   id: '/extensao',
   path: '/extensao',
@@ -68,6 +78,11 @@ const GmnRoute = GmnRouteImport.update({
 const InstagramRoute = InstagramRouteImport.update({
   id: '/instagram',
   path: '/instagram',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableRoute = LovableRouteImport.update({
+  id: '/lovable',
+  path: '/lovable',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -100,9 +115,19 @@ const ProspeccaoB2bRoute = ProspeccaoB2bRouteImport.update({
   path: '/prospeccao-b2b',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Prospeccao_backupRoute = Prospeccao_backupRouteImport.update({
+  id: '/prospeccao_backup',
+  path: '/prospeccao_backup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RdgAiRoute = RdgAiRouteImport.update({
   id: '/rdg-ai',
   path: '/rdg-ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RetornoRoute = RetornoRouteImport.update({
+  id: '/retorno',
+  path: '/retorno',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicosRoute = ServicosRouteImport.update({
@@ -163,22 +188,31 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiTokenrouterSplatRoute = ApiTokenrouterSplatRouteImport.update({
+  id: '/api/tokenrouter/$',
+  path: '/api/tokenrouter/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
   '/cursos': typeof CursosRoute
   '/demo': typeof DemoRoute
+  '/demo_backup': typeof Demo_backupRoute
   '/extensao': typeof ExtensaoRoute
   '/gmn': typeof GmnRoute
   '/instagram': typeof InstagramRoute
+  '/lovable': typeof LovableRoute
   '/mcp': typeof McpRoute
   '/membros': typeof MembrosRoute
   '/prompts': typeof PromptsRoute
   '/prompts-instagram': typeof PromptsInstagramRoute
   '/prospeccao': typeof ProspeccaoRoute
   '/prospeccao-b2b': typeof ProspeccaoB2bRoute
+  '/prospeccao_backup': typeof Prospeccao_backupRoute
   '/rdg-ai': typeof RdgAiRoute
+  '/retorno': typeof RetornoRoute
   '/servicos': typeof ServicosRoute
   '/sistemas': typeof SistemasRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -190,22 +224,27 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/tokenrouter/$': typeof ApiTokenrouterSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contato': typeof ContatoRoute
   '/cursos': typeof CursosRoute
   '/demo': typeof DemoRoute
+  '/demo_backup': typeof Demo_backupRoute
   '/extensao': typeof ExtensaoRoute
   '/gmn': typeof GmnRoute
   '/instagram': typeof InstagramRoute
+  '/lovable': typeof LovableRoute
   '/mcp': typeof McpRoute
   '/membros': typeof MembrosRoute
   '/prompts': typeof PromptsRoute
   '/prompts-instagram': typeof PromptsInstagramRoute
   '/prospeccao': typeof ProspeccaoRoute
   '/prospeccao-b2b': typeof ProspeccaoB2bRoute
+  '/prospeccao_backup': typeof Prospeccao_backupRoute
   '/rdg-ai': typeof RdgAiRoute
+  '/retorno': typeof RetornoRoute
   '/servicos': typeof ServicosRoute
   '/sistemas': typeof SistemasRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -217,6 +256,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/blog': typeof BlogIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/tokenrouter/$': typeof ApiTokenrouterSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -224,16 +264,20 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/cursos': typeof CursosRoute
   '/demo': typeof DemoRoute
+  '/demo_backup': typeof Demo_backupRoute
   '/extensao': typeof ExtensaoRoute
   '/gmn': typeof GmnRoute
   '/instagram': typeof InstagramRoute
+  '/lovable': typeof LovableRoute
   '/mcp': typeof McpRoute
   '/membros': typeof MembrosRoute
   '/prompts': typeof PromptsRoute
   '/prompts-instagram': typeof PromptsInstagramRoute
   '/prospeccao': typeof ProspeccaoRoute
   '/prospeccao-b2b': typeof ProspeccaoB2bRoute
+  '/prospeccao_backup': typeof Prospeccao_backupRoute
   '/rdg-ai': typeof RdgAiRoute
+  '/retorno': typeof RetornoRoute
   '/servicos': typeof ServicosRoute
   '/sistemas': typeof SistemasRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -245,6 +289,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/api/tokenrouter/$': typeof ApiTokenrouterSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -253,16 +298,20 @@ export interface FileRouteTypes {
     | '/contato'
     | '/cursos'
     | '/demo'
+    | '/demo_backup'
     | '/extensao'
     | '/gmn'
     | '/instagram'
+    | '/lovable'
     | '/mcp'
     | '/membros'
     | '/prompts'
     | '/prompts-instagram'
     | '/prospeccao'
     | '/prospeccao-b2b'
+    | '/prospeccao_backup'
     | '/rdg-ai'
+    | '/retorno'
     | '/servicos'
     | '/sistemas'
     | '/sitemap.xml'
@@ -274,22 +323,27 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/blog/'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/tokenrouter/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/contato'
     | '/cursos'
     | '/demo'
+    | '/demo_backup'
     | '/extensao'
     | '/gmn'
     | '/instagram'
+    | '/lovable'
     | '/mcp'
     | '/membros'
     | '/prompts'
     | '/prompts-instagram'
     | '/prospeccao'
     | '/prospeccao-b2b'
+    | '/prospeccao_backup'
     | '/rdg-ai'
+    | '/retorno'
     | '/servicos'
     | '/sistemas'
     | '/sitemap.xml'
@@ -301,22 +355,27 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/blog'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/tokenrouter/$'
   id:
     | '__root__'
     | '/'
     | '/contato'
     | '/cursos'
     | '/demo'
+    | '/demo_backup'
     | '/extensao'
     | '/gmn'
     | '/instagram'
+    | '/lovable'
     | '/mcp'
     | '/membros'
     | '/prompts'
     | '/prompts-instagram'
     | '/prospeccao'
     | '/prospeccao-b2b'
+    | '/prospeccao_backup'
     | '/rdg-ai'
+    | '/retorno'
     | '/servicos'
     | '/sistemas'
     | '/sitemap.xml'
@@ -328,6 +387,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/blog/'
     | '/.mcp/invoke-tool/$tool'
+    | '/api/tokenrouter/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -335,16 +395,20 @@ export interface RootRouteChildren {
   ContatoRoute: typeof ContatoRoute
   CursosRoute: typeof CursosRoute
   DemoRoute: typeof DemoRoute
+  Demo_backupRoute: typeof Demo_backupRoute
   ExtensaoRoute: typeof ExtensaoRoute
   GmnRoute: typeof GmnRoute
   InstagramRoute: typeof InstagramRoute
+  LovableRoute: typeof LovableRoute
   McpRoute: typeof McpRoute
   MembrosRoute: typeof MembrosRoute
   PromptsRoute: typeof PromptsRoute
   PromptsInstagramRoute: typeof PromptsInstagramRoute
   ProspeccaoRoute: typeof ProspeccaoRoute
   ProspeccaoB2bRoute: typeof ProspeccaoB2bRoute
+  Prospeccao_backupRoute: typeof Prospeccao_backupRoute
   RdgAiRoute: typeof RdgAiRoute
+  RetornoRoute: typeof RetornoRoute
   ServicosRoute: typeof ServicosRoute
   SistemasRoute: typeof SistemasRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -356,6 +420,7 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  ApiTokenrouterSplatRoute: typeof ApiTokenrouterSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -388,6 +453,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo_backup': {
+      id: '/demo_backup'
+      path: '/demo_backup'
+      fullPath: '/demo_backup'
+      preLoaderRoute: typeof Demo_backupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/extensao': {
       id: '/extensao'
       path: '/extensao'
@@ -407,6 +479,13 @@ declare module '@tanstack/react-router' {
       path: '/instagram'
       fullPath: '/instagram'
       preLoaderRoute: typeof InstagramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable': {
+      id: '/lovable'
+      path: '/lovable'
+      fullPath: '/lovable'
+      preLoaderRoute: typeof LovableRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -451,11 +530,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProspeccaoB2bRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prospeccao_backup': {
+      id: '/prospeccao_backup'
+      path: '/prospeccao_backup'
+      fullPath: '/prospeccao_backup'
+      preLoaderRoute: typeof Prospeccao_backupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rdg-ai': {
       id: '/rdg-ai'
       path: '/rdg-ai'
       fullPath: '/rdg-ai'
       preLoaderRoute: typeof RdgAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/retorno': {
+      id: '/retorno'
+      path: '/retorno'
+      fullPath: '/retorno'
+      preLoaderRoute: typeof RetornoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/servicos': {
@@ -535,6 +628,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/tokenrouter/$': {
+      id: '/api/tokenrouter/$'
+      path: '/api/tokenrouter/$'
+      fullPath: '/api/tokenrouter/$'
+      preLoaderRoute: typeof ApiTokenrouterSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -543,16 +643,20 @@ const rootRouteChildren: RootRouteChildren = {
   ContatoRoute: ContatoRoute,
   CursosRoute: CursosRoute,
   DemoRoute: DemoRoute,
+  Demo_backupRoute: Demo_backupRoute,
   ExtensaoRoute: ExtensaoRoute,
   GmnRoute: GmnRoute,
   InstagramRoute: InstagramRoute,
+  LovableRoute: LovableRoute,
   McpRoute: McpRoute,
   MembrosRoute: MembrosRoute,
   PromptsRoute: PromptsRoute,
   PromptsInstagramRoute: PromptsInstagramRoute,
   ProspeccaoRoute: ProspeccaoRoute,
   ProspeccaoB2bRoute: ProspeccaoB2bRoute,
+  Prospeccao_backupRoute: Prospeccao_backupRoute,
   RdgAiRoute: RdgAiRoute,
+  RetornoRoute: RetornoRoute,
   ServicosRoute: ServicosRoute,
   SistemasRoute: SistemasRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
@@ -565,6 +669,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  ApiTokenrouterSplatRoute: ApiTokenrouterSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

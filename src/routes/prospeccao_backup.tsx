@@ -3,7 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
 import { waLink } from "@/lib/site";
 import { LeadItem, LeadStatus, getProspeccaoLeadsServerFn } from "./api.prospeccao";
-import { saveLeadCustomMedia } from "@/lib/mediaStorage";
 import {
   Search,
   MapPin,
@@ -16,7 +15,7 @@ import {
   ArrowLeft,
   Loader2,
   Settings,
-  X, Play,
+  X,
   Copy,
   Check,
   Globe,
@@ -45,9 +44,7 @@ import {
   Eye,
   Share2,
   Trash2,
-  ArrowRight,
-  ChevronDown,
-  ChevronUp
+  ArrowRight
 } from "lucide-react";
 
 const TITLE = "Ferramenta de Prospecção B2B Google Maps — RDG Digital";
@@ -61,7 +58,7 @@ const WA_SUPORTE = waLink(
   "Olá, equipe RDG Digital! Quero adquirir a minha licença do Software de Prospecção B2B Google Maps."
 );
 
-export const Route = createFileRoute("/prospeccao")({
+export const Route = createFileRoute("/prospeccao_backup")({
   head: () => ({
     meta: websiteMeta(TITLE, DESCRIPTION, CANONICAL_URL),
     links: [{ rel: "canonical", href: CANONICAL_URL }],
@@ -664,16 +661,11 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
   const handleUploadHeroImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const isVideo = file.type.startsWith("video/") || file.name.endsWith(".mp4") || file.name.endsWith(".webm");
       const reader = new FileReader();
       reader.onload = async () => {
         const raw = reader.result as string;
-        if (isVideo) {
-          setCustomHeroPhoto(raw);
-        } else {
-          const compressed = await compressImageDataUrl(raw, 1200, 1200, 0.82);
-          setCustomHeroPhoto(compressed);
-        }
+        const compressed = await compressImageDataUrl(raw, 1200, 1200, 0.82);
+        setCustomHeroPhoto(compressed);
       };
       reader.readAsDataURL(file);
     }
@@ -694,39 +686,18 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
     }
   };
 
-
-  const generateDemoWithCustomization = async (lead: LeadItem, useUploadedPhotos = false) => {
-    const heroMedia = useUploadedPhotos && customHeroPhoto ? customHeroPhoto : undefined;
-    const galleryMedia = useUploadedPhotos && customGalleryPhotos.length > 0 ? customGalleryPhotos : undefined;
-    const leadKey = `lead_${lead.phone || lead.name || "default"}`.replace(/\W+/g, "_");
-
-    if (heroMedia || (galleryMedia && galleryMedia.length > 0)) {
-      try {
-        await saveLeadCustomMedia(leadKey, {
-          customHeroPhoto: heroMedia,
-          customGalleryPhotos: galleryMedia,
-        });
-      } catch (err) {
-        console.error("Erro ao salvar no IndexedDB:", err);
-      }
-    }
-
+  const generateDemoWithCustomization = (lead: LeadItem, useUploadedPhotos = false) => {
     const updatedLead = {
       ...lead,
-      customHeroPhoto: heroMedia,
-      customGalleryPhotos: galleryMedia,
+      customHeroPhoto: useUploadedPhotos && customHeroPhoto ? customHeroPhoto : undefined,
+      customGalleryPhotos: useUploadedPhotos && customGalleryPhotos.length > 0 ? customGalleryPhotos : undefined,
     };
 
     try {
       localStorage.setItem("active_demo_lead", JSON.stringify(updatedLead));
       sessionStorage.setItem("active_demo_lead", JSON.stringify(updatedLead));
     } catch (e) {
-      console.warn("Storage cheio para fotos/vídeos grandes, salvando lead base (IndexedDB preservado):", e);
-      try {
-        const lightweightLead = { ...lead };
-        localStorage.setItem("active_demo_lead", JSON.stringify(lightweightLead));
-        sessionStorage.setItem("active_demo_lead", JSON.stringify(lightweightLead));
-      } catch (e2) {}
+      console.error("Erro ao salvar active_demo_lead no storage:", e);
     }
 
     const effectiveCategory = lead.category || nicho || "Estética";
@@ -744,8 +715,6 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
       endereco: lead.address,
       cidade: cidade || "São Paulo - SP",
       mode: "generate",
-      lead_key: leadKey,
-      has_custom: useUploadedPhotos && (Boolean(heroMedia) || Boolean(galleryMedia)) ? "true" : "false",
     });
 
     if (isDemoMode) {
@@ -921,10 +890,15 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/25 rounded-xl text-xs font-bold text-emerald-400 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Motor de Busca RDG Ativo</span>
-          </div>
+          {!isDemoMode && (
+            <button
+              onClick={() => setIsConfigOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-white/80 hover:text-white transition-all"
+            >
+              <Settings size={14} className={apiKey ? "text-emerald-400" : "text-amber-400"} />
+              <span className="hidden sm:inline">{apiKey ? "API Configurada" : "Configurar API Google"}</span>
+            </button>
+          )}
 
           {savedLeads.length > 0 && (
             <button
@@ -965,6 +939,31 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        {/* Banner de Erro do Google Cloud */}
+        {!isDemoMode && sourceInfo?.source === "google_error" && (
+          <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-rose-500/5">
+            <div className="flex items-start sm:items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 border border-rose-500/30">
+                <AlertTriangle size={18} />
+              </div>
+              <div className="space-y-0.5">
+                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>Erro do Google Cloud ({sourceInfo.googleStatus})</span>
+                </h4>
+                <p className="text-xs text-rose-200/80 leading-relaxed">
+                  Detalhes: <strong>"{sourceInfo.message}"</strong>. Se a resposta for <code>REQUEST_DENIED</code>: acesse o Google Cloud Console e <strong>vincule uma Conta de Faturamento (Billing Account)</strong> ao projeto.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsConfigOpen(true)}
+              className="px-4 py-2 bg-rose-500 text-white font-extrabold text-xs rounded-xl hover:bg-rose-400 transition-all shrink-0 flex items-center gap-1.5 shadow"
+            >
+              <Key size={14} />
+              <span>Verificar Chave</span>
+            </button>
+          </div>
+        )}
 
         {/* Permanent Top Navigation Header */}
         <div className="bg-[#0F1117] border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 shadow-2xl">
@@ -1116,7 +1115,21 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
 
             {/* Expandable Advanced Filters Panel */}
             {showFiltersPanel && (
-              <div className="pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 bg-[#0A0B10] p-4.5 rounded-2xl border border-[#38BDF8]/30 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3 bg-[#0A0B10] p-4.5 rounded-2xl border border-[#38BDF8]/30 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+                {/* Fonte de Dados (OSM / Google) */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-white/50 uppercase tracking-wider block">
+                    Fonte de Dados
+                  </label>
+                  <select
+                    value={dataSource}
+                    onChange={(e: any) => setDataSource(e.target.value)}
+                    className="w-full bg-[#111218] border border-white/15 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#38BDF8] font-medium"
+                  >
+                    <option value="osm">🟢 OpenStreetMap (100% Grátis)</option>
+                    <option value="google">🔵 Google Places (API Paga/Free)</option>
+                  </select>
+                </div>
 
                 {/* Filtro 1: Sem Website */}
                 <div className="space-y-1">
@@ -1990,26 +2003,23 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
 
             {/* Áreas de Upload */}
             <div className="space-y-4">
-              {/* Foto ou Vídeo de Capa (Hero) */}
+              {/* Foto de Capa (Hero) */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/80 flex items-center gap-1.5 justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <ImageIcon size={14} className="text-primary" />
-                    <span>Foto de Capa ou Vídeo MP4 do Topo (Hero)</span>
-                  </span>
-                  <span className="text-[10px] text-white/40 font-mono">(Foto ou Vídeo Real do Cliente)</span>
+                <label className="text-xs font-bold text-white/80 flex items-center gap-1.5">
+                  <ImageIcon size={14} className="text-primary" />
+                  <span>Foto da Capa do Site (Topo / Hero)</span>
                 </label>
                 <div className="flex items-center gap-3">
                   <label className="flex-1 bg-[#0A0A0A] border border-dashed border-white/20 hover:border-primary/50 p-3.5 rounded-xl cursor-pointer text-center text-xs text-white/70 hover:text-white transition-all flex items-center justify-center gap-2">
                     <Download size={14} />
-                    <span>{customHeroPhoto ? (customHeroPhoto.startsWith("data:video") || customHeroPhoto.endsWith(".mp4") ? "🎥 Vídeo do Cliente Selecionado (Clique para alterar)" : "✅ Foto de Capa Selecionada (Clique para alterar)") : "Clique para enviar a Foto ou Vídeo MP4 do Cliente"}</span>
-                    <input type="file" accept="image/*,video/mp4,video/webm" onChange={handleUploadHeroImage} className="hidden" />
+                    <span>{customHeroPhoto ? "✅ Foto de Capa Selecionada (Clique para alterar)" : "Clique ou arraste a Foto Principal do Topo"}</span>
+                    <input type="file" accept="image/*" onChange={handleUploadHeroImage} className="hidden" />
                   </label>
                   {customHeroPhoto && (
                     <button
                       onClick={() => setCustomHeroPhoto("")}
                       className="px-2.5 py-2.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-xl text-xs hover:bg-rose-500/30"
-                      title="Remover arquivo"
+                      title="Remover foto"
                     >
                       <X size={14} />
                     </button>
@@ -2050,19 +2060,19 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
             </div>
 
             {/* Botoes de Ação */}
-            <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-3 border-t border-white/10">
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
               <button
                 onClick={() => generateDemoWithCustomization(previewModalLead, false)}
-                className="w-full sm:w-auto px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5"
+                className="w-full sm:w-auto px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition-all"
               >
-                <span>🎨 Gerar com Fotos HD por Nicho</span>
+                🎨 Gerar com Fotos HD por Nicho
               </button>
               <button
                 onClick={() => generateDemoWithCustomization(previewModalLead, true)}
                 className="w-full sm:w-auto px-5 py-2.5 bg-primary text-black font-extrabold text-xs rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-1.5"
               >
                 <Zap size={14} />
-                <span>⚡ Gerar Prévia com Minhas Fotos</span>
+                <span>Gerar Prévia com Minhas Fotos</span>
               </button>
             </div>
           </div>
@@ -2206,7 +2216,7 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
   );
 }
 
-// COMPONENTE DO CARD DA EMPRESA COM DESIGN MODERNO, LOCALIZAÇÃO DIRETA NO MAPS E ACORDEÃO EXPANSÍVEL
+// COMPONENTE DO CARD DA EMPRESA COM TODOS OS BOTÕES E INFORMAÇÕES COMPLETAS
 function LeadCard({
   lead,
   isSaved,
@@ -2220,193 +2230,114 @@ function LeadCard({
   onOpenDemoPage: () => void;
   onOpenScriptModal: () => void;
 }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [copied, setCopied] = useState(false);
-
   const cleanName = lead.name.split('-')[0].split('|')[0].trim();
   const instaSearchUrl = lead.instagram_url || `https://www.google.com/search?q=site:instagram.com+${encodeURIComponent(cleanName)}`;
-  const mapsUrl = lead.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lead.name + " " + lead.address)}`;
-
-  const handleCopyData = () => {
-    const textToCopy = `📌 ${lead.name}\n📂 Ramo: ${lead.category || "Negócio Local"}\n📞 Telefone/Whats: ${lead.phone}\n📍 Endereço: ${lead.address}\n🗺️ Google Maps: ${mapsUrl}`;
-    navigator.clipboard.writeText(textToCopy);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  // Extrai Bairro e Cidade resumidos para manter a visualização limpa
-  const addressParts = lead.address.split("-");
-  const neighborhoodCity = addressParts.length > 1 ? addressParts.slice(1).join("-").trim() : lead.address;
 
   return (
-    <div className="bg-[#0F1117] border border-white/10 hover:border-[#38BDF8]/40 rounded-2xl p-4 sm:p-5 space-y-3.5 transition-all flex flex-col justify-between shadow-xl relative group">
+    <div className="bg-[#0F1117] border border-white/10 rounded-2xl p-5 space-y-4 hover:border-white/25 transition-all flex flex-col justify-between shadow-lg">
       <div className="space-y-3">
-        {/* Top Header: Categoria e Avaliação */}
-        <div className="flex items-start justify-between gap-2.5">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="px-2.5 py-0.5 bg-[#38BDF8]/10 text-[#38BDF8] text-[10px] font-bold rounded-md border border-[#38BDF8]/20 uppercase tracking-wider font-mono">
+        {/* Titulo e Avaliação */}
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <span className="px-2.5 py-1 bg-white/5 text-white/60 text-[10px] font-medium rounded-md border border-white/10 uppercase tracking-wider mb-1.5 inline-block font-mono">
               {formatCategoryLabel(lead.category)}
             </span>
+            <h3 className="font-bold text-base text-white hover:text-blue-400 transition-colors">
+              <a href={lead.google_maps_url} target="_blank" rel="noopener noreferrer">
+                {lead.name}
+              </a>
+            </h3>
           </div>
 
-          <div className="flex items-center gap-1 text-xs font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-lg border border-amber-400/20 shrink-0 shadow-sm">
+          <div className="flex items-center gap-1 text-xs font-semibold text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-lg border border-amber-400/20 shrink-0">
             <Star size={13} fill="currentColor" />
             <span>{lead.rating || "4.8"}</span>
-            <span className="text-[10px] text-white/40 font-normal">({lead.user_ratings_total || 12})</span>
+            <span className="text-[10px] text-white/40">({lead.user_ratings_total || 12})</span>
           </div>
         </div>
 
-        {/* Nome do Estabelecimento com link direto para o Google Maps */}
-        <div>
-          <h3 className="font-bold text-base text-white hover:text-[#38BDF8] transition-colors leading-snug">
-            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 group-hover:underline">
-              <span>{lead.name}</span>
-              <ExternalLink size={13} className="text-white/40 group-hover:text-[#38BDF8] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </a>
-          </h3>
-        </div>
-
-        {/* Resumo Limpo: Bairro/Cidade + Telefone */}
+        {/* Endereço e Telefone */}
         <div className="space-y-1.5 text-xs text-white/70">
-          <p className="flex items-center gap-2 text-white/80">
-            <MapPin size={14} className="text-[#38BDF8] shrink-0" />
-            <span className="truncate">{neighborhoodCity || lead.address}</span>
+          <p className="flex items-start gap-2">
+            <MapPin size={14} className="text-white/40 shrink-0 mt-0.5" />
+            <span className="line-clamp-2">{lead.address}</span>
           </p>
-          <p className="font-mono text-white/90 flex items-center justify-between gap-2">
-            <span className="flex items-center gap-2">
-              <Phone size={14} className="text-emerald-400 shrink-0" />
-              <span>{lead.phone}</span>
-            </span>
-            <button
-              type="button"
-              onClick={handleCopyData}
-              className="text-[10px] text-white/50 hover:text-white flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/10 transition-colors"
-              title="Copiar dados da empresa"
-            >
-              {copied ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
-              <span>{copied ? "Copiado!" : "Copiar"}</span>
-            </button>
+          <p className="font-mono text-white/90 flex items-center gap-2">
+            <Phone size={14} className="text-emerald-400 shrink-0" />
+            <span>{lead.phone}</span>
           </p>
         </div>
 
-        {/* Badges de Oportunidade & Link do Maps */}
-        <div className="flex flex-wrap items-center gap-2 pt-0.5">
-          {!lead.has_website ? (
-            <span className="px-2.5 py-1 bg-amber-500/10 text-amber-300 text-[10px] font-bold rounded-lg border border-amber-500/25 flex items-center gap-1.5 shadow-[0_0_10px_rgba(245,158,11,0.15)]">
-              <Flame size={12} className="text-amber-400 shrink-0" />
-              <span>Sem Website Registrado</span>
-            </span>
-          ) : (
-            <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-300 text-[10px] font-semibold rounded-lg border border-emerald-500/25 flex items-center gap-1.5">
-              <Globe size={12} className="shrink-0" />
-              <span>Possui Website</span>
-            </span>
-          )}
+          {/* Tag de Oportunidade */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            {!lead.has_website ? (
+              <span className="px-2.5 py-1 bg-amber-500/10 text-amber-300 text-[10px] font-semibold rounded-md border border-amber-500/20 flex items-center gap-1.5">
+                <Flame size={12} className="text-amber-400" />
+                <span>Sem Website Registrado</span>
+              </span>
+            ) : (
+              <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-300 text-[10px] font-semibold rounded-md border border-emerald-500/20 flex items-center gap-1.5">
+                <Globe size={12} />
+                <span>Possui Website</span>
+              </span>
+            )}
+          </div>
+      </div>
 
-          {/* Botão Direto Google Maps */}
+      {/* Botões de Ação Completa */}
+      <div className="pt-3.5 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          {/* Salvar Lead */}
+          <button
+            onClick={onToggleSave}
+            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-white/70 hover:text-white border border-white/10 transition-all"
+            title={isSaved ? "Remover dos Salvos" : "Salvar Lead"}
+          >
+            {isSaved ? <BookmarkCheck size={16} className="text-amber-400" /> : <Bookmark size={16} />}
+          </button>
+
+          {/* Instagram Link */}
           <a
-            href={mapsUrl}
+            href={instaSearchUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-[10px] font-medium rounded-lg border border-white/10 flex items-center gap-1.5 transition-all"
-            title="Abrir localização no Google Maps"
+            className="p-2.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 rounded-xl transition-all"
+            title="Buscar no Instagram"
           >
-            <MapPin size={12} className="text-rose-400 shrink-0" />
-            <span>Google Maps</span>
-            <ExternalLink size={10} className="text-white/40" />
+            <Instagram size={16} />
+          </a>
+
+          {/* Google Maps Link */}
+          <a
+            href={lead.google_maps_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 rounded-xl transition-all"
+            title="Abrir no Google Maps"
+          >
+            <MapPin size={16} />
           </a>
         </div>
 
-        {/* Acordeão de Detalhes Adicionais (Zero Poluição) */}
-        {isExpanded && (
-          <div className="pt-3 mt-2 border-t border-white/10 space-y-2.5 text-xs text-white/80 animate-in fade-in slide-in-from-top-1 duration-150 bg-[#0A0B10]/60 p-3 rounded-xl border border-white/10">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 block mb-0.5">Endereço Completo:</span>
-              <p className="text-white/90 leading-relaxed">{lead.address}</p>
-            </div>
+        <div className="flex items-center gap-2">
+          {/* Gerar Prévia */}
+          <button
+            onClick={onOpenDemoPage}
+            className="px-4 py-2 bg-[#38BDF8] hover:bg-[#7dd3fc] text-black font-extrabold text-xs rounded-xl transition-all shadow-[0_0_15px_rgba(56,189,248,0.4)] flex items-center gap-1.5 active:scale-95 border border-[#38BDF8]/50"
+          >
+            <Eye size={14} />
+            <span>Gerar Prévia</span>
+          </button>
 
-            {lead.editorial_summary && (
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 block mb-0.5">Sobre o Local:</span>
-                <p className="text-white/70 text-[11px] leading-relaxed italic">{lead.editorial_summary}</p>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between pt-1 text-[11px] text-white/60 border-t border-white/5">
-              <span>🎯 Alvo Ideal de Venda: <strong className="text-white">R$ 500 a R$ 1.500</strong></span>
-              <a
-                href={mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#38BDF8] hover:underline flex items-center gap-1 font-semibold"
-              >
-                <span>Ver Rota no Maps</span>
-                <ArrowRight size={11} />
-              </a>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Botões de Ação Completa + Toggle de Detalhes */}
-      <div className="pt-3 border-t border-white/5 space-y-2">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5">
-            {/* Salvar Lead */}
-            <button
-              onClick={onToggleSave}
-              className={`p-2 rounded-xl border transition-all ${
-                isSaved
-                  ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
-                  : "bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border-white/10"
-              }`}
-              title={isSaved ? "Remover dos Salvos" : "Salvar no CRM"}
-            >
-              {isSaved ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
-            </button>
-
-            {/* Instagram Link */}
-            <a
-              href={instaSearchUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 rounded-xl transition-all"
-              title="Buscar no Instagram"
-            >
-              <Instagram size={15} />
-            </a>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Gerar Prévia */}
-            <button
-              onClick={onOpenDemoPage}
-              className="px-3.5 py-2 bg-[#38BDF8] hover:bg-[#7dd3fc] text-black font-extrabold text-xs rounded-xl transition-all shadow-[0_0_15px_rgba(56,189,248,0.35)] flex items-center gap-1.5 active:scale-95 border border-[#38BDF8]/50"
-            >
-              <Eye size={14} />
-              <span>Gerar Prévia</span>
-            </button>
-
-            {/* Botão de WhatsApp */}
-            <button
-              onClick={onOpenScriptModal}
-              className="px-3.5 py-2 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] border border-[#25D366]/35 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
-            >
-              <MessageCircle size={14} />
-              <span>WhatsApp</span>
-            </button>
-          </div>
+          {/* Botão de WhatsApp */}
+          <button
+            onClick={onOpenScriptModal}
+            className="px-4 py-2 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366] border border-[#25D366]/35 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+          >
+            <MessageCircle size={14} />
+            <span>WhatsApp</span>
+          </button>
         </div>
-
-        {/* Toggle para Abrir / Fechar Acordeão */}
-        <button
-          type="button"
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full py-1 text-[11px] font-semibold text-white/40 hover:text-white/80 flex items-center justify-center gap-1 transition-colors"
-        >
-          <span>{isExpanded ? "Ocultar Detalhes" : "Ver Mais Detalhes"}</span>
-          {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-        </button>
       </div>
     </div>
   );
