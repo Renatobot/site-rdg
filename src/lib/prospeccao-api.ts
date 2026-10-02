@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getBrazilianLocationContext, type BrazilianLocationContext } from "../lib/brazilian-locations";
+import { getBrazilianLocationContext, type BrazilianLocationContext } from "./brazilian-locations";
 
 export type LeadStatus = "novo" | "em_contato" | "followup" | "proposta" | "fechado" | "inativo";
 

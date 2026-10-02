@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { websiteMeta, BASE_URL } from "@/lib/seo";
 import { waLink } from "@/lib/site";
-import { LeadItem, LeadStatus, getProspeccaoLeadsServerFn } from "./api.prospeccao";
+import { LeadItem, LeadStatus, getProspeccaoLeadsServerFn } from "@/lib/prospeccao-api";
 import {
   Search,
   MapPin,
