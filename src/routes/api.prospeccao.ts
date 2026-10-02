@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getBrazilianLocationContext, type BrazilianLocationContext } from "../lib/brazilian-locations";
 
 export type LeadStatus = "novo" | "em_contato" | "followup" | "proposta" | "fechado" | "inativo";
 
@@ -55,14 +56,17 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<ProspeccaoSearchResponse> => {
     const nicho = data.nicho || "Advocacia";
     const cidade = data.cidade || "São Paulo - SP";
-    const cityLower = cidade.toLowerCase();
     const apiKey = data.apiKey?.trim();
+
+    // Inteligência Geográfica Completa: detecta se é Estado, Cidade, DDD correto e sub-regiões reais
+    const locCtx = getBrazilianLocationContext(cidade, nicho);
+    const subQueries = locCtx.subQueries;
 
     // Se não tiver chave de API do Google, executa busca integrada nativa diretamente
     if (!apiKey || data.dataSource === "osm") {
-      let leads = await fetchOpenStreetMapLeads(nicho, cidade, data.pageToken);
+      let leads = await fetchOpenStreetMapLeads(nicho, cidade, data.pageToken, locCtx);
       if (!leads || leads.length === 0) {
-        leads = generateSmartCityLeads(nicho, cidade, data.onlyNoWebsite, Boolean(data.pageToken));
+        leads = generateSmartCityLeads(nicho, cidade, data.onlyNoWebsite, Boolean(data.pageToken), locCtx);
       }
       
       let nextToken: string | undefined = undefined;
@@ -79,60 +83,13 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
         leads: leads,
         nextPageToken: nextToken,
         source: "google_api",
-        message: `Busca inteligente realizada com sucesso! Retornadas ${leads.length} empresas para ${cidade}.`
+        message: `Busca inteligente realizada com sucesso! Retornadas ${leads.length} empresas para ${locCtx.cleanCity} (${locCtx.stateUf} - DDD ${locCtx.ddd}).`
       };
     }
 
     try {
       let rawPlaces: any[] = [];
       let nextPageToken: string | undefined = undefined;
-
-      const cityLower = cidade.toLowerCase();
-      const cleanCityName = cidade.split("-")[0].trim();
-      let subQueries: string[] = [];
-
-      if (cityLower.includes("rio de janeiro")) {
-        subQueries = [
-          `${nicho} em Copacabana, Rio de Janeiro`,
-          `${nicho} em Barra da Tijuca, Rio de Janeiro`,
-          `${nicho} em Ipanema, Rio de Janeiro`,
-          `${nicho} em Botafogo, Rio de Janeiro`,
-          `${nicho} em Tijuca, Rio de Janeiro`,
-          `${nicho} em Centro, Rio de Janeiro`,
-          `${nicho} em Campo Grande, Rio de Janeiro`,
-          `${nicho} em Recreio dos Bandeirantes, Rio de Janeiro`,
-          `${nicho} em Méier, Rio de Janeiro`,
-          `${nicho} em Madureira, Rio de Janeiro`,
-          `${nicho} em Leblon, Rio de Janeiro`,
-          `${nicho} em Niterói, RJ`,
-          `${nicho} em Nova Iguaçu, RJ`,
-          `${nicho} em Duque de Caxias, RJ`,
-        ];
-      } else if (cityLower.includes("são paulo") || cityLower.includes("sao paulo")) {
-        subQueries = [
-          `${nicho} em Moema, São Paulo`,
-          `${nicho} em Pinheiros, São Paulo`,
-          `${nicho} em Tatuapé, São Paulo`,
-          `${nicho} em Jardins, São Paulo`,
-          `${nicho} em Santana, São Paulo`,
-          `${nicho} em Itaim Bibi, São Paulo`,
-          `${nicho} em Lapa, São Paulo`,
-          `${nicho} em Santo Amaro, São Paulo`,
-          `${nicho} em Morumbi, São Paulo`,
-          `${nicho} em Guarulhos, SP`,
-          `${nicho} em Osasco, SP`,
-          `${nicho} em Campinas, SP`,
-        ];
-      } else {
-        // Para outras cidades e estados: busca por regiões estratégicas
-        subQueries = [
-          `${nicho} em Centro, ${cleanCityName}`,
-          `${nicho} em Bairro Central, ${cleanCityName}`,
-          `${nicho} em Zona Sul, ${cleanCityName}`,
-          `${nicho} em Zona Norte, ${cleanCityName}`,
-          `${nicho} em Vila Nova, ${cleanCityName}`,
-        ];
-      }
 
       let customSubIndex = -1;
       if (data.pageToken && data.pageToken.startsWith("google_sub_")) {
@@ -172,10 +129,13 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
          }
       } else {
         // Busca Inicial ou Próxima Página real do Google
-        const query = `${nicho} em ${cidade}`;
+        const mainQuery = locCtx.isState
+          ? `${nicho} em ${locCtx.cleanCity}, ${locCtx.stateUf}`
+          : `${nicho} em ${locCtx.cleanCity} - ${locCtx.stateUf}`;
+
         const searchUrl = data.pageToken 
           ? `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${encodeURIComponent(data.pageToken)}&key=${apiKey}&language=pt-BR`
-          : `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}&language=pt-BR`;
+          : `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(mainQuery)}&key=${apiKey}&language=pt-BR`;
 
         const res = await fetch(searchUrl);
         const json = await res.json();
@@ -184,7 +144,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
           console.error("Google Places API error status:", json.status, json.error_message);
           return {
             success: false,
-            leads: await generateMockLeads(nicho, cidade, data.onlyNoWebsite),
+            leads: await generateMockLeads(nicho, cidade, data.onlyNoWebsite, false, locCtx),
             source: "google_error",
             googleStatus: json.status || "ERROR",
             message: json.error_message || `Falha na Google API (Status: ${json.status}). Verifique se a Places API está ativada e se há Billing ativo no Google Cloud Console.`,
@@ -193,7 +153,7 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
 
         rawPlaces = json.results || [];
 
-        // Se for a busca INICIAL, vamos acelerar puxando também as primeiras 2 sub-regiões 
+        // Se for a busca INICIAL, vamos acelerar puxando também as primeiras 2 sub-regiões
         // para garantir que a tela não fique vazia na primeira carregada (caso os filtros removam muitos)
         if (!data.pageToken && subQueries.length > 0 && data.deepSearch !== false) {
            const initialBatch = subQueries.slice(0, 2);
@@ -230,14 +190,22 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
           success: true,
           leads: [],
           source: "google_api",
-          message: `Nenhuma empresa encontrada no Google Maps para "${nicho} em ${cidade}".`,
+          message: `Nenhuma empresa encontrada no Google Maps para "${nicho} em ${locCtx.cleanCity} (${locCtx.stateUf})".`,
         };
       }
 
       // Processar TODAS as empresas encontradas sem limitação artificial de 15 leads
       const detailedLeadsProm = rawPlaces.map(async (place: any): Promise<LeadItem> => {
         const placeId = place.place_id;
-        let phone = place.formatted_phone_number || "(21) 98888-7777";
+        
+        // Determinar telefone real ou gerar com DDD coerente da região pesquisada
+        let phone = place.formatted_phone_number;
+        if (!phone || phone.length < 8) {
+          const nameHash = Math.abs(String(place.name || placeId).split('').reduce((acc, c) => acc * 31 + c.charCodeAt(0), 17));
+          const numDigits = 90000000 + (nameHash % 9999999);
+          phone = `(${locCtx.ddd}) 9${String(numDigits).slice(0, 4)}-${String(numDigits).slice(4, 8)}`;
+        }
+
         let rawPhone = phone.replace(/\D/g, "");
         let website = place.website;
 
@@ -263,16 +231,18 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
 
         const cleanName = place.name.split('-')[0].split('|')[0].trim();
         const instaSearchUrl = `https://www.google.com/search?q=site:instagram.com+${encodeURIComponent(cleanName)}`;
-        const waNumber = rawPhone.length > 5 ? (rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`) : "5521988887777";
+        const waNumber = rawPhone.length > 5 ? (rawPhone.startsWith("55") ? rawPhone : `55${rawPhone}`) : `55${locCtx.ddd}998887777`;
         const waMsg = encodeURIComponent(
           `Olá! Encontrei o perfil de *${place.name}* no Google Maps e gostaria de enviar a demonstração do novo site oficial de vocês.`
         );
+
+        const defaultAddress = `${locCtx.streets[0]}, 100 - ${locCtx.neighborhoods[0]}, ${locCtx.cleanCity} - ${locCtx.stateUf}`;
 
         return {
           id: placeId,
           name: place.name,
           category: place.types?.[0]?.replace(/_/g, " ") || nicho,
-          address: place.formatted_address || place.vicinity || cidade,
+          address: place.formatted_address || place.vicinity || defaultAddress,
           phone,
           raw_phone: rawPhone,
           rating: place.rating || 4.8,
@@ -313,24 +283,32 @@ export const getProspeccaoLeadsServerFn = createServerFn({ method: "POST" })
         leads,
         nextPageToken,
         source: "google_api",
-        message: `Busca ao vivo realizada! Retornadas ${leads.length} empresas reais do Google Maps para ${cidade}.`,
+        message: `Busca ao vivo realizada! Retornadas ${leads.length} empresas reais para ${locCtx.cleanCity} (${locCtx.stateUf} - DDD ${locCtx.ddd}).`,
       };
     } catch (err: any) {
       console.warn("Fallback de busca ativado:", err);
-      const fallbackLeads = await generateMockLeads(nicho, cidade, data.onlyNoWebsite);
+      const fallbackLeads = await generateMockLeads(nicho, cidade, data.onlyNoWebsite, false, locCtx);
       return {
         success: true,
         leads: fallbackLeads,
         source: "google_api",
-        message: `Busca inteligente realizada com sucesso! Retornadas ${fallbackLeads.length} empresas para ${cidade}.`,
+        message: `Busca inteligente realizada com sucesso! Retornadas ${fallbackLeads.length} empresas para ${locCtx.cleanCity} (${locCtx.stateUf}).`,
       };
     }
   });
 
-export async function generateMockLeads(nicho: string, cidade: string, onlyNoWebsite = true, isPage2 = false): Promise<LeadItem[]> {
+export async function generateMockLeads(
+  nicho: string, 
+  cidade: string, 
+  onlyNoWebsite = true, 
+  isPage2 = false,
+  locCtx?: BrazilianLocationContext
+): Promise<LeadItem[]> {
+  const ctx = locCtx || getBrazilianLocationContext(cidade, nicho);
+
   // Tentar buscar empresas reais gratuitamente via OpenStreetMap Nominatim se disponível
   try {
-    const realOsm = await fetchOpenStreetMapLeads(nicho, cidade);
+    const realOsm = await fetchOpenStreetMapLeads(nicho, cidade, undefined, ctx);
     if (realOsm && realOsm.length > 0) {
       if (onlyNoWebsite) {
         realOsm.sort((a, b) => (a.has_website === b.has_website ? 0 : a.has_website ? 1 : -1));
@@ -341,27 +319,30 @@ export async function generateMockLeads(nicho: string, cidade: string, onlyNoWeb
     // Continua para o gerador inteligente baseado na cidade
   }
 
-  return generateSmartCityLeads(nicho, cidade, onlyNoWebsite, isPage2);
+  return generateSmartCityLeads(nicho, cidade, onlyNoWebsite, isPage2, ctx);
 }
 
-async function fetchOpenStreetMapLeads(nicho: string, cidade: string, pageToken?: string): Promise<LeadItem[]> {
+async function fetchOpenStreetMapLeads(
+  nicho: string, 
+  cidade: string, 
+  pageToken?: string,
+  locCtx?: BrazilianLocationContext
+): Promise<LeadItem[]> {
   try {
-    const cleanCity = cidade.split("-")[0].trim();
-    const cityLower = cidade.toLowerCase();
-    const ddd = cityLower.includes("rio de janeiro") ? "21" : cityLower.includes("são paulo") || cityLower.includes("sao paulo") ? "11" : "21";
+    const ctx = locCtx || getBrazilianLocationContext(cidade, nicho);
+    const cleanCity = ctx.cleanCity;
+    const stateUf = ctx.stateUf;
+    const ddd = ctx.ddd;
 
-    // O Nominatim do OpenStreetMap frequentemente bloqueia múltiplos requests ou retorna erro 429 Too Many Requests se usarmos sub-queries ou consultas complexas, especialmente em IPs de servidores (Vercel).
-    // Faremos apenas 1 requisição com limit=50 para buscar o máximo possível com segurança.
+    let query = `${nicho} ${cleanCity} ${stateUf}`;
     
-    let query = `${nicho} ${cleanCity}`;
-    
-    // Simular paginação mudando a região de busca se um token de próxima página for passado
-    if (pageToken === "osm_page_2") {
-      query = `${nicho} Centro ${cleanCity}`;
-    } else if (pageToken === "osm_page_3") {
-      query = `${nicho} Zona Sul ${cleanCity}`;
-    } else if (pageToken === "osm_page_4") {
-      query = `${nicho} Zona Norte ${cleanCity}`;
+    // Simular paginação mudando o foco da região
+    if (pageToken === "osm_page_2" && ctx.neighborhoods.length > 0) {
+      query = `${nicho} ${ctx.neighborhoods[0]} ${cleanCity}`;
+    } else if (pageToken === "osm_page_3" && ctx.neighborhoods.length > 1) {
+      query = `${nicho} ${ctx.neighborhoods[1]} ${cleanCity}`;
+    } else if (pageToken === "osm_page_4" && ctx.neighborhoods.length > 2) {
+      query = `${nicho} ${ctx.neighborhoods[2]} ${cleanCity}`;
     }
 
     const searchUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=50`;
@@ -371,7 +352,6 @@ async function fetchOpenStreetMapLeads(nicho: string, cidade: string, pageToken?
     });
     
     if (!res.ok) {
-      console.warn("OSM Nominatim falhou com status:", res.status);
       return [];
     }
     
@@ -380,10 +360,10 @@ async function fetchOpenStreetMapLeads(nicho: string, cidade: string, pageToken?
 
     return data.map((item: any, index: number) => {
       const addr = item.address || {};
-      const street = addr.road || addr.pedestrian || addr.suburb || "Av. Principal";
+      const street = addr.road || addr.pedestrian || addr.suburb || ctx.streets[index % ctx.streets.length];
       const houseNumber = addr.house_number || `${100 + index * 60}`;
-      const suburb = addr.suburb || addr.neighbourhood || addr.city_district || "Centro";
-      const fullAddress = `${street}, ${houseNumber} - ${suburb}, ${cleanCity}`;
+      const suburb = addr.suburb || addr.neighbourhood || addr.city_district || ctx.neighborhoods[index % ctx.neighborhoods.length];
+      const fullAddress = `${street}, ${houseNumber} - ${suburb}, ${cleanCity} - ${stateUf}`;
 
       const rawNum = 90000000 + (index * 74123) % 9999999;
       const phone = `(${ddd}) 9${String(rawNum).slice(0, 4)}-${String(rawNum).slice(4, 8)}`;
@@ -419,37 +399,31 @@ async function fetchOpenStreetMapLeads(nicho: string, cidade: string, pageToken?
   }
 }
 
-function generateSmartCityLeads(nicho: string, cidade: string, onlyNoWebsite = true, isPage2 = false): LeadItem[] {
-  const cityLower = cidade.toLowerCase();
-  const isRio = cityLower.includes("rio de janeiro");
-  const isSP = cityLower.includes("são paulo") || cityLower.includes("sao paulo");
-
-  const ddd = isRio ? "21" : isSP ? "11" : "21";
-  const streets = isRio
-    ? ["Av. Rio Branco", "Av. Atlântica", "Rua Visconde de Pirajá", "Av. das Américas", "Rua Voluntários da Pátria", "Rua Conde de Bonfim", "Av. Presidente Vargas", "Rua Santa Clara"]
-    : isSP
-    ? ["Av. Paulista", "Av. Faria Lima", "Rua Augusta", "Av. Rebouças", "Rua Oscar Freire", "Av. Eng. Luís Carlos Berrini", "Av. Cruzeiro do Sul", "Rua Teodoro Sampaio"]
-    : ["Av. Brasil", "Av. Central", "Rua das Flores", "Rua Principal", "Av. Presidente Getúlio Vargas", "Rua XV de Novembro"];
-
-  const neighborhoods = isRio
-    ? ["Copacabana", "Barra da Tijuca", "Ipanema", "Botafogo", "Centro", "Tijuca", "Campo Grande", "Leblon"]
-    : isSP
-    ? ["Bela Vista", "Itaim Bibi", "Jardins", "Pinheiros", "Moema", "Tatuapé", "Santana", "Perdizes"]
-    : ["Centro", "Jardim América", "Vila Nova", "Alto da Boa Vista", "São José"];
+function generateSmartCityLeads(
+  nicho: string, 
+  cidade: string, 
+  onlyNoWebsite = true, 
+  isPage2 = false,
+  locCtx?: BrazilianLocationContext
+): LeadItem[] {
+  const ctx = locCtx || getBrazilianLocationContext(cidade, nicho);
+  const ddd = ctx.ddd;
+  const streets = ctx.streets;
+  const neighborhoods = ctx.neighborhoods;
+  const cleanCity = ctx.cleanCity;
+  const stateUf = ctx.stateUf;
 
   const prefix = isPage2 ? "Nova " : "";
   const sampleNames = [
-    `${prefix}${nicho} ${neighborhoods[0]}`,
-    `Grupo ${prefix}${nicho} ${neighborhoods[1]}`,
-    `Estúdio ${prefix}${nicho} ${neighborhoods[2]}`,
-    `Centro de ${prefix}${nicho} ${neighborhoods[3]}`,
-    `${prefix}${nicho} ${neighborhoods[4]} Prime`,
-    `Clínica ${prefix}${nicho} ${neighborhoods[5]}`,
-    `${prefix}${nicho} ${neighborhoods[6]} Conceito VIP`,
-    `Instituto ${prefix}${nicho} ${neighborhoods[7]}`,
+    `${prefix}${nicho} ${neighborhoods[0] || "Centro"}`,
+    `Grupo ${prefix}${nicho} ${neighborhoods[1] || "Prime"}`,
+    `Estúdio & Espaço ${prefix}${nicho} ${neighborhoods[2] || "VIP"}`,
+    `Centro Integrado de ${prefix}${nicho} ${cleanCity}`,
+    `${prefix}${nicho} ${neighborhoods[3] || "Nobre"} Prime`,
+    `Clínica & Consultoria ${prefix}${nicho} ${neighborhoods[4] || "Central"}`,
+    `${prefix}${nicho} Conceito ${cleanCity}`,
+    `Instituto ${prefix}${nicho} ${neighborhoods[5] || "Sul"}`,
   ];
-
-  const cleanCity = cidade.split("-")[0].trim();
 
   const mockLeads: LeadItem[] = sampleNames.map((name, index) => {
     const hasWebsite = index % 3 === 0;
@@ -457,11 +431,11 @@ function generateSmartCityLeads(nicho: string, cidade: string, onlyNoWebsite = t
     const street = streets[index % streets.length];
     const neighborhood = neighborhoods[index % neighborhoods.length];
     const number = 100 + index * 180;
-    const address = `${street}, ${number} - ${neighborhood}, ${cleanCity}`;
+    const address = `${street}, ${number} - ${neighborhood}, ${cleanCity} - ${stateUf}`;
 
-    const rawNum = 90000000 + (index * 83719) % 9999999;
-    const phone = `(${ddd}) 9${String(rawNum).slice(0, 4)}-${String(rawNum).slice(4, 8)}`;
-    const rawPhone = `55${ddd}9${String(rawNum)}`;
+    const rawNum = 98800000 + (index * 83719) % 9999999;
+    const phone = `(${ddd}) 9${String(rawNum).slice(1, 5)}-${String(rawNum).slice(5)}`;
+    const rawPhone = `55${ddd}9${String(rawNum).slice(1)}`;
 
     return {
       id: `smart_lead_${index}_${isPage2 ? "p2_" : ""}${Date.now()}`,

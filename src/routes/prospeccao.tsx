@@ -4,6 +4,7 @@ import { websiteMeta, BASE_URL } from "@/lib/seo";
 import { waLink } from "@/lib/site";
 import { LeadItem, LeadStatus, getProspeccaoLeadsServerFn } from "./api.prospeccao";
 import { saveLeadCustomMedia } from "@/lib/mediaStorage";
+import { getBrazilianLocationContext } from "@/lib/brazilian-locations";
 import {
   Search,
   MapPin,
@@ -100,32 +101,20 @@ function formatCategoryLabel(rawCat?: string, currentNicho?: string): string {
 
 function generateDemoMockLeads(nichoInput: string, cidadeInput: string): LeadItem[] {
   const cleanNicho = nichoInput || "Estética & Beleza";
-  const cleanCidade = cidadeInput || "São Paulo - SP";
-  const cityLower = cleanCidade.toLowerCase();
-  const isRio = cityLower.includes("rio de janeiro") || cityLower.includes("rio");
-  const isSP = cityLower.includes("são paulo") || cityLower.includes("sao paulo");
-
-  const phoneDDD = isRio ? "21" : isSP ? "11" : "21";
-  const streets = isRio
-    ? ["Av. Atlântica", "Rua Visconde de Pirajá", "Av. das Américas", "Rua Voluntários da Pátria", "Rua Conde de Bonfim", "Av. Rio Branco", "Av. Presidente Vargas", "Rua Santa Clara"]
-    : isSP
-    ? ["Av. Paulista", "Av. Faria Lima", "Rua Augusta", "Av. Rebouças", "Rua Oscar Freire", "Av. Eng. Luís Carlos Berrini", "Av. Cruzeiro do Sul", "Rua Teodoro Sampaio"]
-    : ["Av. Central", "Rua das Flores", "Av. Brasil", "Rua Principal", "Av. Getúlio Vargas"];
-
-  const neighborhoods = isRio
-    ? ["Copacabana", "Ipanema", "Barra da Tijuca", "Botafogo", "Tijuca", "Centro", "Campo Grande", "Leblon"]
-    : isSP
-    ? ["Moema", "Pinheiros", "Jardins", "Tatuapé", "Itaim Bibi", "Santana", "Bela Vista", "Perdizes"]
-    : ["Centro", "Jardim América", "Vila Nova", "Alto da Boa Vista"];
+  const locCtx = getBrazilianLocationContext(cidadeInput || "São Paulo - SP", cleanNicho);
+  const cleanCidade = locCtx.cleanCity ? `${locCtx.cleanCity} - ${locCtx.stateUf}` : "São Paulo - SP";
+  const phoneDDD = locCtx.ddd || "11";
+  const streets = locCtx.streets.length > 0 ? locCtx.streets : ["Av. Central", "Rua das Flores", "Av. Brasil", "Rua Principal"];
+  const neighborhoods = locCtx.neighborhoods.length > 0 ? locCtx.neighborhoods : ["Centro", "Jardim América", "Vila Nova"];
 
   const sampleNames = [
     `Clínica ${cleanNicho} ${neighborhoods[0]}`,
-    `Estúdio & Espaço ${cleanNicho} ${neighborhoods[1]}`,
-    `Consultório Central ${cleanNicho} ${neighborhoods[2]}`,
-    `Centro Integrado ${cleanNicho} ${neighborhoods[3]}`,
-    `Ateliê ${cleanNicho} ${neighborhoods[4]} Prime`,
-    `Espaço VIP ${cleanNicho} ${neighborhoods[5]}`,
-    `Instituto ${cleanNicho} ${neighborhoods[6]}`,
+    `Estúdio & Espaço ${cleanNicho} ${neighborhoods[1 % neighborhoods.length]}`,
+    `Consultório Central ${cleanNicho} ${neighborhoods[2 % neighborhoods.length]}`,
+    `Centro Integrado ${cleanNicho} ${neighborhoods[3 % neighborhoods.length]}`,
+    `Ateliê ${cleanNicho} ${neighborhoods[4 % neighborhoods.length]} Prime`,
+    `Espaço VIP ${cleanNicho} ${neighborhoods[5 % neighborhoods.length]}`,
+    `Instituto ${cleanNicho} ${neighborhoods[6 % neighborhoods.length]}`,
     `Grupo Comercial ${cleanNicho} ${neighborhoods[7 % neighborhoods.length]}`,
   ];
 
@@ -133,7 +122,7 @@ function generateDemoMockLeads(nichoInput: string, cidadeInput: string): LeadIte
     const num = 100 + idx * 160;
     const street = streets[idx % streets.length];
     const nbd = neighborhoods[idx % neighborhoods.length];
-    const address = `${street}, ${num} - ${nbd}, ${cleanCidade.split("-")[0].trim()}`;
+    const address = `${street}, ${num} - ${nbd}, ${locCtx.cleanCity} - ${locCtx.stateUf}`;
     const rawNum = 98800000 + idx * 1234;
 
     return {
@@ -149,7 +138,7 @@ function generateDemoMockLeads(nichoInput: string, cidadeInput: string): LeadIte
       google_maps_url: `https://maps.google.com/?q=${encodeURIComponent(name + " " + address)}`,
       whatsapp_link: `https://wa.me/55${phoneDDD}${rawNum}?text=${encodeURIComponent(`Olá! Encontrei ${name} no Google Maps e gostaria de enviar a demonstração do novo site.`)}`,
       google_photos_count: 8 + idx * 3,
-      editorial_summary: `Estabelecimento de destaque no segmento de ${cleanNicho} em ${nbd}, ${cleanCidade} com excelentes avaliações de clientes.`,
+      editorial_summary: `Estabelecimento de destaque no segmento de ${cleanNicho} em ${nbd}, ${locCtx.cleanCity} - ${locCtx.stateUf} com excelentes avaliações de clientes.`,
       status: idx === 0 ? "novo" : idx === 1 ? "em_contato" : "novo",
     };
   });
@@ -527,7 +516,7 @@ function ProspeccaoPage() {
     if (isDemoMode) {
       setIsFetchingMore(true);
       try {
-        const moreMock = generateDemoMockLeads(nicho || "Odontologia", cidade || "Rio de Janeiro - RJ");
+        const moreMock = generateDemoMockLeads(nicho || "Odontologia", cidade || "São Paulo - SP");
         const newLeads = moreMock.filter((newLead: LeadItem) => !leads.some((existing) => existing.id === newLead.id));
         setLeads((prev) => [...prev, ...newLeads]);
       } catch (e) {
@@ -1063,7 +1052,7 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
                     type="text"
                     value={cidade}
                     onChange={(e) => setCidade(e.target.value)}
-                    placeholder="Ex: Rio de Janeiro, São Paulo, Curitiba..."
+                    placeholder="Ex: Santos, Belo Horizonte, Curitiba, Salvador..."
                     className="w-full bg-[#0A0B10] border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-white/40 outline-none transition-colors"
                   />
                 </div>
@@ -1082,9 +1071,9 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
             </form>
 
             {/* Preset Chips */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/5">
+            <div className="flex flex-col gap-2 pt-2 border-t border-white/5">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider mr-1">Atalhos Rápidos:</span>
+                <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider mr-1">Nichos:</span>
                 {["Imobiliária", "Barbearia", "Odontologia", "Estética", "Advocacia", "Restaurante", "Pet Shop"].map((preset) => (
                   <button
                     key={preset}
@@ -1100,18 +1089,45 @@ function compressImageDataUrl(dataUrl: string, maxWidth = 1200, maxHeight = 1200
                 ))}
               </div>
 
-              <button
-                type="button"
-                onClick={() => setShowFiltersPanel(!showFiltersPanel)}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                  showFiltersPanel || filterRating !== "todas" || filterReviews !== "todas" || sortOption !== "relevancia" || onlyNoWebsite
-                    ? "bg-[#38BDF8]/20 text-[#38BDF8] border-[#38BDF8]/40 shadow-[0_0_15px_rgba(56,189,248,0.2)]"
-                    : "bg-[#0A0B10] text-white/70 hover:text-white border-white/15"
-                }`}
-              >
-                <SlidersHorizontal size={14} />
-                <span>Filtros Avançados {showFiltersPanel ? "▲" : "▼"} {filterRating !== "todas" || filterReviews !== "todas" || sortOption !== "relevancia" ? "• Ativos" : ""}</span>
-              </button>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider mr-1">Regiões & Estados:</span>
+                  {[
+                    { label: "Santos - SP", val: "Santos - SP" },
+                    { label: "Minas Gerais (BH)", val: "Minas Gerais" },
+                    { label: "São Paulo - SP", val: "São Paulo - SP" },
+                    { label: "Rio de Janeiro - RJ", val: "Rio de Janeiro - RJ" },
+                    { label: "Curitiba - PR", val: "Curitiba - PR" },
+                    { label: "Salvador - BA", val: "Salvador - BA" },
+                    { label: "Goiânia - GO", val: "Goiânia - GO" },
+                  ].map((loc) => (
+                    <button
+                      key={loc.val}
+                      type="button"
+                      onClick={() => {
+                        setCidade(loc.val);
+                        handleSearch(nicho || "Estética & Beleza", loc.val);
+                      }}
+                      className="px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-all"
+                    >
+                      {loc.label}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowFiltersPanel(!showFiltersPanel)}
+                  className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                    showFiltersPanel || filterRating !== "todas" || filterReviews !== "todas" || sortOption !== "relevancia" || onlyNoWebsite
+                      ? "bg-[#38BDF8]/20 text-[#38BDF8] border-[#38BDF8]/40 shadow-[0_0_15px_rgba(56,189,248,0.2)]"
+                      : "bg-[#0A0B10] text-white/70 hover:text-white border-white/15"
+                  }`}
+                >
+                  <SlidersHorizontal size={14} />
+                  <span>Filtros Avançados {showFiltersPanel ? "▲" : "▼"} {filterRating !== "todas" || filterReviews !== "todas" || sortOption !== "relevancia" ? "• Ativos" : ""}</span>
+                </button>
+              </div>
             </div>
 
             {/* Expandable Advanced Filters Panel */}
